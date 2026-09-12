@@ -9,3 +9,8 @@
 - Added `docs/changelog.md`, `docs/git-commands.md`, `docs/harnesses.md`, `docs/programming-concepts.md`, `docs/assets.md`.
 - Added guarded CI workflow (`.github/workflows/ci.yml`) that no-ops until `ListlyApp/` exists, then runs `npm run test:all` on PR/push to develop/main.
 - Extended `.gitignore` with `opencode.jsonc` and `.playwright-mcp/`.
+
+[2026-09-11] ~ | .github/workflows/ci.yml, docs/harnesses.md
+- Fixed the CI guard: the "Check app exists" step now runs from the repo root (`working-directory: .`) instead of the missing `ListlyApp/` default folder, so scaffold-only runs no longer fail the job before the guard executes.
+- Gated `setup-node` behind the same app-exists check to keep pre-app runs fully green (no npm cache lookup without a lock file).
+- Updated the CI workflow note in `docs/harnesses.md` to document the real guard mechanism ("Check app exists" step with an `exists` output) instead of the stale `hashFiles` description.

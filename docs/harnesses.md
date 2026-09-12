@@ -70,10 +70,11 @@ acceptance criteria in a real browser.
 ### CI workflow note
 
 `.github/workflows/ci.yml` is guarded so it no-ops green until `ListlyApp/package-lock.json`
-exists (`if: hashFiles(...) != ''` at the step level). Once the app is scaffolded, CI runs
-`npm ci` + `npm run test:all` automatically on every PR/push to `develop`/`main`. Enable the
+exists (a "Check app exists" step, run from the repo root, gates setup-node + `npm ci` +
+`npm run test:all` via its `exists` output). Once the app is scaffolded, CI runs `npm ci` +
+`npm run test:all` automatically on every PR/push to `develop`/`main`. Enable the
 "require status checks" rule in the GitHub branch ruleset only after the workflow has run at
-least once successfully.
+least once successfully with the real app (first `ListlyApp/` PR).
 
 ## Adding a test
 

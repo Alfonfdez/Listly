@@ -20,6 +20,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Check app exists
         id: app-check
+        working-directory: .
         run: |
           if [ -f "ListlyApp/package-lock.json" ]; then
             echo "exists=true" >> "$GITHUB_OUTPUT"
@@ -27,6 +28,7 @@ jobs:
             echo "exists=false" >> "$GITHUB_OUTPUT"
           fi
       - uses: actions/setup-node@v4
+        if: steps.app-check.outputs.exists == 'true'
         with:
           node-version: 24
           cache: npm
