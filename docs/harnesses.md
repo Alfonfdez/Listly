@@ -35,9 +35,7 @@ All commands run from the `ListlyApp/` directory (created when feature 001 is im
 
 ### Current suite baseline
 
-Pending — the app (`ListlyApp/`) is scaffolded with feature 001. The baseline line is added
-here once the first test files land, and updated after any session that adds or removes
-tests. A drop in the baseline is a regression signal.
+1 file, 3 tests (`tests/utils/formatters.test.ts` — `scaleFontSize` small/medium/large). Updated here whenever a session adds or removes tests. A drop in the baseline is a regression signal.
 
 ## Verification loop (what "done" means)
 

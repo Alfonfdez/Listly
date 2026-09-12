@@ -14,3 +14,10 @@
 - Fixed the CI guard: the "Check app exists" step now runs from the repo root (`working-directory: .`) instead of the missing `ListlyApp/` default folder, so scaffold-only runs no longer fail the job before the guard executes.
 - Gated `setup-node` behind the same app-exists check to keep pre-app runs fully green (no npm cache lookup without a lock file).
 - Updated the CI workflow note in `docs/harnesses.md` to document the real guard mechanism ("Check app exists" step with an `exists` output) instead of the stale `hashFiles` description.
+
+[2026-09-12] + | ListlyApp app scaffold
+- Created `ListlyApp/` (Expo SDK 57 blank-typescript, RN 0.86.3, React 19.2.3, TS ~6.0.3, vitest 5) pinning the same dependency set as FinlyApp.
+- Added `src/` skeleton mirroring Finly: `constants/` (themes, types, languages), `utils/` (platform, language, formatters `scaleFontSize`), `hooks/useFontSize.ts`, `i18n/` (en/es + `t()`/`setLanguage`), `context/ConfigContext.tsx` (in-memory config stub with `activeColors`/`updateConfig`), `navigation/AppNavigator.tsx` (native-stack placeholder Home with themed NavigationContainer).
+- Added app entry (`App.tsx` = ConfigProvider + StatusBar + splash handling, `index.ts`), `app.json` (Listly, com.listly.app, splash plugin), `tsconfig.json` (strict + verbatimModuleSyntax), `eslint.config.js` (expo flat), `vitest.config.mts` (happy-dom).
+- Added scripts `test`/`test:watch`/`typecheck`/`lint`/`test:all` and first test (`tests/utils/formatters.test.ts`, 3 cases). `npm run test:all` green.
+- CI auto-flips to run the real `test:all` now that `ListlyApp/package-lock.json` exists.
