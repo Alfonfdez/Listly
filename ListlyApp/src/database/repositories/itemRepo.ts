@@ -8,6 +8,12 @@ import { parseRowOrNull, parseRows } from '../validate';
 import { dbTimestamp } from '../../utils/formatters';
 
 export const itemRepo = {
+  async listAll(): Promise<Item[]> {
+    const db = await getDrizzle();
+    const rows = await db.select().from(items).all();
+    return parseRows(itemSchema, 'items', rows);
+  },
+
   async listByList(listId: number): Promise<Item[]> {
     const db = await getDrizzle();
     const rows = await db

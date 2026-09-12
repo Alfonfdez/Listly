@@ -3,7 +3,7 @@
 Local-first list manager (React Native / Expo) for iOS, Android, and web.
 
 ## 001-home-screen
-Status: pending.
+Status: done.
 
 Lists overview screen (Home):
 - Grid/list of lists with name, color, icon, and progress (N/total completed).
