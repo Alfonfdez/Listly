@@ -34,3 +34,14 @@
 
 [2026-09-12] ~ | docs/harnesses.md
 - Updated suite baseline to 4 files / 41 tests and marked the pure-logic, DB contract, typecheck, lint, schema/validation, and bootstrap harness rows as "In use".
+
+[2026-09-12] + | ListlyApp home screen (feature 001)
+- Added app state `src/context/AppContext.tsx` (`lists`, `itemsByListId`, `loading`, `refresh`) loading `listRepo.withCounts()` + `itemRepo.listAll()`; `itemRepo` gained `listAll()`; `App.tsx` wraps the app in `<AppProvider>`.
+- Added navigation rewrite `src/navigation/AppNavigator.tsx`: Drawer (Home, Lists→Home, Settings) + HomeStack, themed `CustomDrawerContent`, and a `HomeNavCapture` helper exposing the Home nav ref for the FAB/tiles.
+- Added Home screen `src/screens/HomeScreen.tsx`: responsive 2+ column grid of tiles, toggleable client-side search (`src/utils/search.ts` `searchTerms`/`matchesAllTerms`/`filterListsByQuery`, AND across terms, matches list name + item names), loading state, empty state, FAB, refresh-on-focus via `useFocusEffect`.
+- Added components: `ScreenShell` (SafeArea + themed bg), `DrawerMenuButton`, `SearchBar`, `Fab`, `EmptyState`, `ListCard` (icon, name, progress "N/total", 13% color-tinted card, radius 12), `ComingSoon`; shared constants in `componentStyles.ts` and `src/utils/color.ts` `withAlpha` (8-digit hex).
+- Added placeholder screens `ListDetailScreen` / `CreateListScreen` / `SettingsScreen` ("coming soon"), `index.ts` imports `react-native-gesture-handler`; installed `@react-navigation/drawer`, `react-native-gesture-handler`, `react-native-reanimated`, `react-native-worklets`, `@testing-library/react-native`, `vitest-native`.
+- Added i18n keys to en/es (`coming_soon`, `nav_home`/`nav_lists`/`nav_settings`, `home_add`, `home_open_menu`, `home_search_toggle`, `home_search_placeholder`, `home_no_results`, `home_empty`, `home_empty_hint`, `home_progress`) — all new texts via `t()`.
+- Fixed `withAlpha` returning an opaque CSS alpha (was writing a 0–255 byte into the 0–1 rgba slot, making the "subtle" tile tint fully solid); now returns `#RRGGBBAA`, verified visually.
+- Added tests (search pure logic, color util, ListCard component, HomeScreen with config/app stubs, RN test harness via vitest-native + `@expo/vector-icons` mock). Suite baseline: 8 files, 67 tests, `npm run test:all` green.
+- Verified in-browser at 375px with the verification-loop skill (seeded grid, tile tint/radius/progress, search filter by item name, no-results + restore, FAB→Create List, emptied-DB empty state with FAB visible, drawer navigation). All 8 acceptance criteria pass; 1-spec `[x]`, roadmap 001 → done.

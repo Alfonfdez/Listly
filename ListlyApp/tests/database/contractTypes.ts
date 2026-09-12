@@ -16,6 +16,7 @@ export interface ContractListRepo {
 }
 
 export interface ContractItemRepo {
+  listAll(): Promise<Item[]>;
   listByList(listId: number): Promise<Item[]>;
   get(id: number): Promise<Item | null>;
   create(data: NewItem): Promise<Item>;

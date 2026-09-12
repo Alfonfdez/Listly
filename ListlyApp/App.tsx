@@ -4,6 +4,7 @@ import { StatusBar } from 'expo-status-bar';
 import { Appearance, StyleSheet, View } from 'react-native';
 import AppNavigator from './src/navigation/AppNavigator';
 import { ConfigProvider, useConfig } from './src/context/ConfigContext';
+import { AppProvider } from './src/context/AppContext';
 import { THEMES } from './src/constants/types';
 import { isWeb } from './src/utils/platform';
 import { initDatabase } from './src/database/database';
@@ -53,7 +54,9 @@ export default function App() {
 
   return (
     <ConfigProvider>
-      <AppShell />
+      <AppProvider>
+        <AppShell />
+      </AppProvider>
     </ConfigProvider>
   );
 }

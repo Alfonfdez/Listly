@@ -59,6 +59,12 @@ export function runContractSuite(
         expect(items.map(i => i.position)).toEqual([0, 1, 2, 3, 4]);
       });
 
+      it('listAll returns every item across lists', async () => {
+        const items = await backend.item.listAll();
+        expect(items).toHaveLength(19);
+        expect(items.map(i => i.list_id)).toEqual(expect.arrayContaining([1, 2, 3, 4, 5, 6]));
+      });
+
       it('config.get() returns the defaults with no stored rows', async () => {
         expect(await backend.config.get()).toEqual(DEFAULT_CONFIG);
       });

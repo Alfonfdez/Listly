@@ -52,11 +52,11 @@
 
 ## Acceptance criteria
 
-- [ ] The Home screen shows a title and the lists grid on first launch (seeded data).
-- [ ] Each list tile shows icon, name, color, and "N/total" progress, with the count of completed items.
-- [ ] Toggling a search shows the search bar; typing filters list tiles by list name and by matching item names.
-- [ ] "No results found" shows when no list matches; clearing the search restores all lists.
-- [ ] The floating "+" button navigates to Create List.
-- [ ] With no lists, the empty state shows its message and the "+" button remains visible.
-- [ ] The drawer shows Home, Lists, and Settings; the hamburger opens it.
-- [ ] All texts are multilingual and respect theme + text size.
+- [x] The Home screen shows a title and the lists grid on first launch (seeded data).
+- [x] Each list tile shows icon, name, color, and "N/total" progress, with the count of completed items.
+- [x] Toggling a search shows the search bar; typing filters list tiles by list name and by matching item names.
+- [x] "No results found" shows when no list matches; clearing the search restores all lists.
+- [x] The floating "+" button navigates to Create List.
+- [x] With no lists, the empty state shows its message and the "+" button remains visible.
+- [x] The drawer shows Home, Lists, and Settings; the hamburger opens it.
+- [x] All texts are multilingual and respect theme + text size.

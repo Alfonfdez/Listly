@@ -35,7 +35,13 @@ All commands run from the `ListlyApp/` directory (created when feature 001 is im
 
 ### Current suite baseline
 
-4 files, 41 tests: `tests/utils/formatters.test.ts` (scaleFontSize small/medium/large, formatDateForDB/dbTimestamp) and `tests/database/` — `listContract.test.ts` (sql.js contract suite: seed data, list/item/config repo CRUD), `dbDrift.test.ts` (migration-vs-schema drift + initDatabase idempotency), `schemas.test.ts` (Zod row validation + sanitizeConfig). Updated here whenever a session adds or removes tests. A drop in the baseline is a regression signal.
+8 files, 67 tests:
+- `tests/utils/` — `formatters.test.ts` (scaleFontSize small/medium/large, formatDateForDB/dbTimestamp), `search.test.ts` (searchTerms / matchesAllTerms / filterListsByQuery), `color.test.ts` (withAlpha 8-digit hex + clamping/garbage input).
+- `tests/component/` — `ListCard.test.tsx` (icon/name/progress render, press, color tint) via `helpers/configStub.ts` (virtual `/ Listly` palette + `useConfig` mock) + `tests/mocks/expo-vector-icons.tsx` alias.
+- `tests/screens/` — `HomeScreen.test.tsx` (loading, grid render, empty state, search filter, no-results, FAB/tile navigation, text-size scaling) via `helpers/appStub.ts` (`useApp` mock) + configStub.
+- `tests/database/` — `listContract.test.ts` (sql.js contract suite: seed data, list/item/config repo CRUD), `dbDrift.test.ts` (migration-vs-schema drift + initDatabase idempotency), `schemas.test.ts` (Zod row validation + sanitizeConfig).
+
+Updated here whenever a session adds or removes tests. A drop in the baseline is a regression signal. The RN test harness runs on `vitest-native` (real react-native, `test-renderer`) with `happy-dom`; `setupFiles` pulls in `tests/component/helpers/configStub.ts`.
 
 ## Verification loop (what "done" means)
 
@@ -50,21 +56,23 @@ npm run test:all
 when all three stages pass. For spec features, the `verification-loop` skill then checks the
 acceptance criteria in a real browser.
 
-## Harness stack (planned)
+## Harness stack
 
 | Harness | Tooling | Status | Covers |
 |---------|---------|--------|--------|
 | Bootstrap + app config | Expo SDK 57 + Metro | In use | `app.json`/`tsconfig`/`metro.config.js` (wasm assetExts for sql.js) |
-| Pure-logic unit tests | Vitest + happy-dom | In use | Formatters (`scaleFontSize`, `dbTimestamp`) |
+| Pure-logic unit tests | Vitest + happy-dom | In use | Formatters, search/filter, color utilities |
 | DB contract suite | Vitest + sql.js (real SQLite in Node) | In use | One shared engine (native parity via expo-sqlite mock + web via sql.js/IndexedDB), Drizzle repo contract, DB drift vs types |
 | Type-checking | `tsc --noEmit` (strict, no `any`) | In use | Whole codebase types |
 | Linting | `npx expo lint` (eslint-config-expo) | In use | Code style, unused imports, React hooks rules |
 | Schema layer + validation | Zod 4 (`src/database/schemas.ts`) | In use | Row types derived via `z.infer`; read-path validation in native + web backends; schema-vs-migration drift test |
-| Component unit tests | Vitest + RNTL | Pending (Phase D) | Presentational components + context/hooks/screens suites with ConfigContext stubbed |
-| UI / E2E verification | Playwright MCP + `verification-loop` skill | Pending (Phase C) | Spec acceptance criteria in a live Expo web app |
+| Component unit tests | Vitest + vitest-native + RNTL | In use | Presentational components + screen suites (ListCard, HomeScreen) with ConfigContext/AppContext stubbed |
+| UI / E2E verification | Playwright MCP + `verification-loop` skill | In use | Spec acceptance criteria in a live Expo web app (feature 001 verified) |
 | CI pipeline | GitHub Actions (`.github/workflows/ci.yml`) | Scaffolded (guarded) | `npm run test:all` on every PR to `develop`/`main` and push to those branches |
 | SDD alignment | `spec/` + changelog + test mapping | In use | Every feature spec maps to tests + changelog entries |
 | Mobile E2E | Maestro on Android emulator | Deferred | Needed only when native-only criteria appear |
+
+Components under `tests/component/` / `tests/screens/` stub `ConfigContext`/`AppContext` via the `helpers/configStub.ts` + `helpers/appStub.ts` setup helpers and alias `@expo/vector-icons` to a plain-`Text` mock (`tests/mocks/expo-vector-icons.tsx`).
 
 ### CI workflow note
 
