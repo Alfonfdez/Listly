@@ -15,11 +15,11 @@ Lists overview screen (Home):
 - Spec: spec/features/001-home-screen/.
 
 ## 002-db-design
-Status: pending.
+Status: done.
 
 Local database design:
 - `lists`: id, name, color, icon, created_at.
-- `items`: id, list_id, name, checked, note, order, created_at (FK → lists ON DELETE CASCADE).
+- `items`: id, list_id, name, checked, note, position, created_at (FK → lists ON DELETE CASCADE).
 - `config`: key-value configuration table (theme, language, text size).
 - Drizzle schema, Zod schemas with `z.infer` types, migrations with `PRAGMA user_version`.
 - One SQLite engine on all platforms (expo-sqlite native, sql.js + IndexedDB web).
