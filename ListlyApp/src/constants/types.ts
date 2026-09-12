@@ -1,0 +1,37 @@
+import type { Ionicons } from '@expo/vector-icons';
+import type { ComponentProps } from 'react';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+
+export type IconName = ComponentProps<typeof Ionicons>['name'];
+
+export const THEMES = {
+  dark: 'dark',
+  light: 'light',
+  system: 'system',
+} as const;
+
+export type Theme = keyof typeof THEMES;
+
+export const TEXT_SIZES = {
+  small: 'small',
+  medium: 'medium',
+  large: 'large',
+} as const;
+
+export type TextSize = keyof typeof TEXT_SIZES;
+
+export const DEBOUNCE_MS = 300;
+
+export const MAX_LIST_NAME_LENGTH = 100;
+export const MAX_ITEM_NAME_LENGTH = 200;
+export const MAX_ITEM_NOTE_LENGTH = 2000;
+
+export type RootStackParamList = {
+  Home: undefined;
+  ListDetail: { listId: number };
+  CreateList: undefined;
+  Settings: undefined;
+};
+
+export type NavigationProp<RouteName extends keyof RootStackParamList> =
+  NativeStackNavigationProp<RootStackParamList, RouteName>;
