@@ -67,10 +67,10 @@
 
 ## Acceptance criteria
 
-- [ ] Schema creates `lists`, `items`, and `config` with the columns and FKs above.
-- [ ] Deleting a list cascade-deletes its items.
-- [ ] Migrations run once via `PRAGMA user_version` and are idempotent on re-init.
-- [ ] The same schema and repositories pass on the sql.js engine (web parity).
-- [ ] Zod schemas validate rows at read time; `types.ts` exports `z.infer` types.
-- [ ] Drizzle queries pass the contract suite (CRUD, toggle, counts, existsByName).
-- [ ] Config defaults load when a config row is missing or invalid.
+- [x] Schema creates `lists`, `items`, and `config` with the columns and FKs above.
+- [x] Deleting a list cascade-deletes its items.
+- [x] Migrations run once via `PRAGMA user_version` and are idempotent on re-init.
+- [x] The same schema and repositories pass on the sql.js engine (web parity).
+- [x] Zod schemas validate rows at read time; `types.ts` exports `z.infer` types.
+- [x] Drizzle queries pass the contract suite (CRUD, toggle, counts, existsByName).
+- [x] Config defaults load when a config row is missing or invalid.

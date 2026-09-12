@@ -1,0 +1,32 @@
+import { z } from 'zod';
+
+import { LANGUAGES } from '../constants/languages';
+import { TEXT_SIZES, THEMES } from '../constants/types';
+
+const themeSchema = z.enum([THEMES.dark, THEMES.light, THEMES.system]);
+const textSizeSchema = z.enum([TEXT_SIZES.small, TEXT_SIZES.medium, TEXT_SIZES.large]);
+const languageSchema = z.enum([LANGUAGES.en, LANGUAGES.es]);
+
+export const listSchema = z.object({
+  id: z.number().int(),
+  name: z.string(),
+  color: z.string(),
+  icon: z.string(),
+  created_at: z.string(),
+});
+
+export const itemSchema = z.object({
+  id: z.number().int(),
+  list_id: z.number().int(),
+  name: z.string(),
+  checked: z.union([z.literal(0), z.literal(1)]),
+  note: z.string().nullable(),
+  position: z.number().int(),
+  created_at: z.string(),
+});
+
+export const configSchema = z.object({
+  theme: themeSchema,
+  language: languageSchema,
+  textSize: textSizeSchema,
+});

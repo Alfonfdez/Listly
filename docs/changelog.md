@@ -21,3 +21,16 @@
 - Added app entry (`App.tsx` = ConfigProvider + StatusBar + splash handling, `index.ts`), `app.json` (Listly, com.listly.app, splash plugin), `tsconfig.json` (strict + verbatimModuleSyntax), `eslint.config.js` (expo flat), `vitest.config.mts` (happy-dom).
 - Added scripts `test`/`test:watch`/`typecheck`/`lint`/`test:all` and first test (`tests/utils/formatters.test.ts`, 3 cases). `npm run test:all` green.
 - CI auto-flips to run the real `test:all` now that `ListlyApp/package-lock.json` exists.
+
+[2026-09-12] + | ListlyApp database layer (feature 002)
+- Added core database layer under `src/database/`: `schemas.ts` (Zod 4 SSOT row shapes for lists/items/config, `checked` restricted to 0/1), `types.ts` (re-exports `z.infer` types + `DatabaseHandle`/`DatabaseRunResult`/`DatabaseBindValue`), `validate.ts` (`parseRows`/`parseRowOrNull` read-path validation), `configDefaults.ts` (`DEFAULT_CONFIG`, `DB_KEY_MAP`, `sanitizeConfig`, `toConfigRows`).
+- Added platform engines `engine.ts` (expo-sqlite `openDatabaseSync`) / `engine.web.ts` (sql.js WASM persisted to IndexedDB), `sqliteWeb.ts` (`SqlJsDatabase` class with persist-on-commit), `storage/indexedDb.ts`, `wasm.d.ts`.
+- Added `database.ts` (`getDatabase`/`initDatabase`) running transactional `PRAGMA user_version` migrations; migrations `001_initial.ts` (lists/items/config tables + 4 indexes + FK cascades) and `002_seed.ts` (`INSERT OR IGNORE` seed via `seedData.ts`: 6 lists, 19 items, fixed ids/colors/icons).
+- Added Drizzle layer `drizzle/schema.ts` + `drizzle/proxy.ts` (sqlite-proxy over the shared `DatabaseHandle`) + `drizzle/engine.ts` (`getDrizzle`/`withTransaction`).
+- Added repositories `repositories/listRepo.ts` (`list`/`get`/`create`/`update`/`delete`/`withCounts`/`existsByName`), `itemRepo.ts` (CRUD + `listByList`/`toggle`/`existsByName`), `configRepo.ts` (`get`/`save` with upsert), and `index.ts` (`listRepository`/`itemRepository`/`configRepository`).
+- Added `dbTimestamp()`/`formatDateForDB()` to `src/utils/formatters.ts`, `metro.config.js` (wasm assetExts), and wired `initDatabase()` into `App.tsx` before render.
+- Added database tests (6 files): `tests/database/sqliteMock.ts`, `contractTypes.ts`, `contractSuite.ts`, `listContract.test.ts`, `dbDrift.test.ts`, `schemas.test.ts`, plus formatters test additions. Suite baseline: 4 files, 41 tests, `npm run test:all` green.
+- Verified web boot: Expo web starts, `initDatabase` seeds and persists to IndexedDB (`Listly.db`), reload boots from the persisted blob with 0 console errors.
+
+[2026-09-12] ~ | docs/harnesses.md
+- Updated suite baseline to 4 files / 41 tests and marked the pure-logic, DB contract, typecheck, lint, schema/validation, and bootstrap harness rows as "In use".

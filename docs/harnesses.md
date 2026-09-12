@@ -35,7 +35,7 @@ All commands run from the `ListlyApp/` directory (created when feature 001 is im
 
 ### Current suite baseline
 
-1 file, 3 tests (`tests/utils/formatters.test.ts` — `scaleFontSize` small/medium/large). Updated here whenever a session adds or removes tests. A drop in the baseline is a regression signal.
+4 files, 41 tests: `tests/utils/formatters.test.ts` (scaleFontSize small/medium/large, formatDateForDB/dbTimestamp) and `tests/database/` — `listContract.test.ts` (sql.js contract suite: seed data, list/item/config repo CRUD), `dbDrift.test.ts` (migration-vs-schema drift + initDatabase idempotency), `schemas.test.ts` (Zod row validation + sanitizeConfig). Updated here whenever a session adds or removes tests. A drop in the baseline is a regression signal.
 
 ## Verification loop (what "done" means)
 
@@ -54,11 +54,12 @@ acceptance criteria in a real browser.
 
 | Harness | Tooling | Status | Covers |
 |---------|---------|--------|--------|
-| Pure-logic unit tests | Vitest + happy-dom | Pending (Phase A, with feature 002+) | Formatters, item filtering, search, color utils, DB query-builders |
-| DB contract suite | Vitest + sql.js (real SQLite in Node) | Pending (Phase B) | One shared engine (native parity via expo-sqlite mock + web via sql.js/IndexedDB), Drizzle repo contract, DB drift vs types |
-| Type-checking | `tsc --noEmit` (strict, no `any`) | Pending | Whole codebase types |
-| Linting | `npx expo lint` (eslint-config-expo) | Pending | Code style, unused imports, React hooks rules |
-| Schema layer + validation | Zod 4 (`src/database/schemas.ts`) | Pending (Phase F pattern) | Row types derived via `z.infer`; read-path validation in native + web backends; schema-vs-migration drift test |
+| Bootstrap + app config | Expo SDK 57 + Metro | In use | `app.json`/`tsconfig`/`metro.config.js` (wasm assetExts for sql.js) |
+| Pure-logic unit tests | Vitest + happy-dom | In use | Formatters (`scaleFontSize`, `dbTimestamp`) |
+| DB contract suite | Vitest + sql.js (real SQLite in Node) | In use | One shared engine (native parity via expo-sqlite mock + web via sql.js/IndexedDB), Drizzle repo contract, DB drift vs types |
+| Type-checking | `tsc --noEmit` (strict, no `any`) | In use | Whole codebase types |
+| Linting | `npx expo lint` (eslint-config-expo) | In use | Code style, unused imports, React hooks rules |
+| Schema layer + validation | Zod 4 (`src/database/schemas.ts`) | In use | Row types derived via `z.infer`; read-path validation in native + web backends; schema-vs-migration drift test |
 | Component unit tests | Vitest + RNTL | Pending (Phase D) | Presentational components + context/hooks/screens suites with ConfigContext stubbed |
 | UI / E2E verification | Playwright MCP + `verification-loop` skill | Pending (Phase C) | Spec acceptance criteria in a live Expo web app |
 | CI pipeline | GitHub Actions (`.github/workflows/ci.yml`) | Scaffolded (guarded) | `npm run test:all` on every PR to `develop`/`main` and push to those branches |
