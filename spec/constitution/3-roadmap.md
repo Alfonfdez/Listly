@@ -26,14 +26,14 @@ Local database design:
 - Spec: spec/features/002-db-design/.
 
 ## 003-list-detail-screen
-Status: not started.
+Status: done.
 
 List detail screen with items:
 - Item list with checkbox toggle, name, note indicator.
 - Add item via input (or modal).
 - Edit/delete item.
 - Per-list progress indicator.
-- Spec: to be created when started.
+- Spec: spec/features/003-list-detail-screen/.
 
 ## 004-create-list-screen
 Status: not started.
