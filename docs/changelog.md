@@ -45,3 +45,12 @@
 - Fixed `withAlpha` returning an opaque CSS alpha (was writing a 0–255 byte into the 0–1 rgba slot, making the "subtle" tile tint fully solid); now returns `#RRGGBBAA`, verified visually.
 - Added tests (search pure logic, color util, ListCard component, HomeScreen with config/app stubs, RN test harness via vitest-native + `@expo/vector-icons` mock). Suite baseline: 8 files, 67 tests, `npm run test:all` green.
 - Verified in-browser at 375px with the verification-loop skill (seeded grid, tile tint/radius/progress, search filter by item name, no-results + restore, FAB→Create List, emptied-DB empty state with FAB visible, drawer navigation). All 8 acceptance criteria pass; 1-spec `[x]`, roadmap 001 → done.
+
+[2026-09-12] + | ListlyApp list detail screen (feature 003)
+- Fixed `withAlpha` header color usage (name now uses `list.color` instead of base text, matching the spec).
+- Added `src/utils/validation.ts` (`validateItemName` → `item_name_required`/`item_name_duplicate`/`item_name_max`, `uniqueNormalizedNames`) with pure-logic tests.
+- Added i18n keys to en/es (`item_add_placeholder`, `item_add`, `item_empty`, `item_empty_hint`, `item_edit_title`, `item_name_label`, `item_note_label`, `item_save`, `item_delete`, `item_confirm_delete`, `item_name_required`, `item_name_duplicate`, `item_name_max`) — all new texts via `t()`.
+- Added components `ItemRow` (checkbox toggle with accessibility state, strikethrough + secondary name when done, note indicator, edit button) and `ItemFormModal` (name + note with live validation, Save disabled unless valid, Delete with in-modal confirm).
+- Rewrote `src/screens/ListDetailScreen.tsx`: in-screen header (color-tinted icon badge, name in list color, "N/total" + progress bar), FlatList of items ordered by position, inline bottom add input (appends at `position = max + 1`, empty/duplicate rejected), edit/delete via modal, EmptyState, refresh-on-focus.
+- Added tests (validation util, ItemRow component, ListDetailScreen screen flows with userEvent). Suite baseline: 11 files, 89 tests, `npm run test:all` green.
+- Verified in-browser at 375px with the verification-loop skill (header name color/progress bar fill 40%, note indicator, row toggle → 3/5 + fill 60%, add Tea appended at end with input cleared, duplicate + empty rejection messages, edit rename + note, delete-with-confirm removed the row, emptied-list empty state with add input visible). All 7 acceptance criteria pass; 1-spec `[x]`, roadmap 003 → done.

@@ -35,10 +35,10 @@ All commands run from the `ListlyApp/` directory (created when feature 001 is im
 
 ### Current suite baseline
 
-8 files, 67 tests:
-- `tests/utils/` — `formatters.test.ts` (scaleFontSize small/medium/large, formatDateForDB/dbTimestamp), `search.test.ts` (searchTerms / matchesAllTerms / filterListsByQuery), `color.test.ts` (withAlpha 8-digit hex + clamping/garbage input).
-- `tests/component/` — `ListCard.test.tsx` (icon/name/progress render, press, color tint) via `helpers/configStub.ts` (virtual `/ Listly` palette + `useConfig` mock) + `tests/mocks/expo-vector-icons.tsx` alias.
-- `tests/screens/` — `HomeScreen.test.tsx` (loading, grid render, empty state, search filter, no-results, FAB/tile navigation, text-size scaling) via `helpers/appStub.ts` (`useApp` mock) + configStub.
+11 files, 89 tests:
+- `tests/utils/` — `formatters.test.ts` (scaleFontSize small/medium/large, formatDateForDB/dbTimestamp), `search.test.ts` (searchTerms / matchesAllTerms / filterListsByQuery), `color.test.ts` (withAlpha 8-digit hex + clamping/garbage input), `validation.test.ts` (validateItemName required/trim/max/duplicate, uniqueNormalizedNames).
+- `tests/component/` — `ListCard.test.tsx` (icon/name/progress render, press, color tint), `ItemRow.test.tsx` (checked/unchecked icon, strikethrough + note indicator, toggle/edit press) via `helpers/configStub.ts` (virtual `/ Listly` palette + `useConfig` mock) + `tests/mocks/expo-vector-icons.tsx` alias.
+- `tests/screens/` — `HomeScreen.test.tsx` (loading, grid render, empty state, search filter, no-results, FAB/tile navigation, text-size scaling), `ListDetailScreen.test.tsx` (header/progress render, toggle, add at end with position, duplicate/empty rejection, edit modal, delete-after-confirm, empty state) via `helpers/appStub.ts` (`useApp` mock) + configStub.
 - `tests/database/` — `listContract.test.ts` (sql.js contract suite: seed data, list/item/config repo CRUD), `dbDrift.test.ts` (migration-vs-schema drift + initDatabase idempotency), `schemas.test.ts` (Zod row validation + sanitizeConfig).
 
 Updated here whenever a session adds or removes tests. A drop in the baseline is a regression signal. The RN test harness runs on `vitest-native` (real react-native, `test-renderer`) with `happy-dom`; `setupFiles` pulls in `tests/component/helpers/configStub.ts`.
