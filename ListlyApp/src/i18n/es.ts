@@ -29,5 +29,13 @@ export const es: Language = {
   item_name_required: 'El nombre es obligatorio',
   item_name_duplicate: 'Ya existe un elemento con este nombre',
   item_name_max: 'El nombre del elemento es demasiado largo',
+  create_list_title: 'Crear lista',
+  list_name_label: 'Nombre',
+  list_color_label: 'Color',
+  list_icon_label: 'Icono',
+  list_create: 'Crear',
+  list_name_required: 'El nombre es obligatorio',
+  list_name_duplicate: 'Ya existe una lista con este nombre',
+  list_name_max: 'El nombre de la lista es demasiado largo',
   settings_title: 'Ajustes',
 };

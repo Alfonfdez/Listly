@@ -27,6 +27,14 @@ export const en = {
   item_name_required: 'Name is required',
   item_name_duplicate: 'An item with this name already exists',
   item_name_max: 'Item name is too long',
+  create_list_title: 'Create list',
+  list_name_label: 'Name',
+  list_color_label: 'Color',
+  list_icon_label: 'Icon',
+  list_create: 'Create',
+  list_name_required: 'Name is required',
+  list_name_duplicate: 'A list with this name already exists',
+  list_name_max: 'List name is too long',
   settings_title: 'Settings',
 };
 

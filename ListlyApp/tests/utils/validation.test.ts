@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { MAX_ITEM_NAME_LENGTH, MAX_ITEM_NOTE_LENGTH } from '../../src/constants/types';
-import { uniqueNormalizedNames, validateItemName } from '../../src/utils/validation';
+import { MAX_ITEM_NAME_LENGTH, MAX_ITEM_NOTE_LENGTH, MAX_LIST_NAME_LENGTH } from '../../src/constants/types';
+import { uniqueNormalizedNames, validateItemName, validateListName } from '../../src/utils/validation';
 
 describe('validateItemName', () => {
   const existing = new Set(['milk', 'coffee beans']);
@@ -44,6 +44,37 @@ describe('uniqueNormalizedNames', () => {
 
   it('ignores empty entries', () => {
     expect(uniqueNormalizedNames(['', '  ', 'Milk'])).toEqual(new Set(['milk']));
+  });
+});
+
+describe('validateListName', () => {
+  it('accepts a valid unique name', () => {
+    expect(validateListName('  Travel Plan  ', false)).toBeNull();
+  });
+
+  it('rejects an empty or whitespace-only name', () => {
+    expect(validateListName('', false)).toBe('list_name_required');
+    expect(validateListName('  \t  ', false)).toBe('list_name_required');
+  });
+
+  it('rejects a name over the max length', () => {
+    const tooLong = 'a'.repeat(MAX_LIST_NAME_LENGTH + 1);
+    expect(validateListName(tooLong, false)).toBe('list_name_max');
+    expect(validateListName('a'.repeat(MAX_LIST_NAME_LENGTH), false)).toBeNull();
+  });
+
+  it('rejects a duplicate name when exists is true', () => {
+    expect(validateListName('Groceries', true)).toBe('list_name_duplicate');
+    expect(validateListName('GROCERIES', true)).toBe('list_name_duplicate');
+  });
+
+  it('accepts a unique name even when exists is false', () => {
+    expect(validateListName('Groceries', false)).toBeNull();
+  });
+
+  it('uses a custom max length when provided', () => {
+    expect(validateListName('abcdef', false, 5)).toBe('list_name_max');
+    expect(validateListName('Milk', true, 5)).toBe('list_name_duplicate');
   });
 });
 

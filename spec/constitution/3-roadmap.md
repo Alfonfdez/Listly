@@ -36,14 +36,14 @@ List detail screen with items:
 - Spec: spec/features/003-list-detail-screen/.
 
 ## 004-create-list-screen
-Status: not started.
+Status: done.
 
 Screen for creating a new list:
 - Name with validation (not empty, not duplicate).
 - Color selection from a grid.
 - Icon selection from a grid.
 - "Create" button with validation.
-- Spec: to be created when started.
+- Spec: spec/features/004-create-list-screen/.
 
 ## 005-settings-screen
 Status: not started.
