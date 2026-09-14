@@ -6,6 +6,7 @@ export const en = {
   nav_home: 'Home',
   nav_lists: 'Lists',
   nav_settings: 'Settings',
+  list_detail_title: 'List detail',
   home_add: 'Add list',
   home_open_menu: 'Open menu',
   home_search_toggle: 'Search lists',
@@ -27,6 +28,7 @@ export const en = {
   item_name_required: 'Name is required',
   item_name_duplicate: 'An item with this name already exists',
   item_name_max: 'Item name is too long',
+  item_add_note_toggle: 'Toggle note',
   create_list_title: 'Create list',
   list_name_label: 'Name',
   list_color_label: 'Color',
@@ -35,6 +37,10 @@ export const en = {
   list_name_required: 'Name is required',
   list_name_duplicate: 'A list with this name already exists',
   list_name_max: 'List name is too long',
+  color_picker_title: 'Pick a color',
+  color_picker_cancel: 'Cancel',
+  color_picker_ok: 'OK',
+  color_grid_more: 'More colors',
   settings_title: 'Settings',
 };
 

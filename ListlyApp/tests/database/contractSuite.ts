@@ -36,11 +36,12 @@ export function runContractSuite(
     });
 
     describe('seed data', () => {
-      it('seeds 6 lists sorted case-insensitively by name', async () => {
+      it('seeds 6 lists ordered by position', async () => {
         const lists = await backend.list.list();
         expect(lists).toHaveLength(6);
         const names = lists.map(l => l.name);
-        expect(names).toEqual(['Fitness', 'Groceries', 'Home Chores', 'Reading List', 'Travel Plan', 'Work Tasks']);
+        expect(names).toEqual(['Groceries', 'Work Tasks', 'Reading List', 'Travel Plan', 'Home Chores', 'Fitness']);
+        expect(lists.map(l => l.position)).toEqual([0, 1, 2, 3, 4, 5]);
       });
 
       it('withCounts reports totals and completed items per list', async () => {
@@ -86,6 +87,27 @@ export function runContractSuite(
 
       it('get returns null for a missing list', async () => {
         expect(await backend.list.get(999999)).toBeNull();
+      });
+
+      it('create appends an new list at the end of the order', async () => {
+        const created = await backend.list.create(list('Appended'));
+        expect(created.position).toBe(6);
+        const ordered = await backend.list.list();
+        expect(ordered[ordered.length - 1].name).toBe('Appended');
+        expect(ordered.map(l => l.position)).toEqual([0, 1, 2, 3, 4, 5, 6]);
+      });
+
+      it('reorder persists a new order across list() and withCounts()', async () => {
+        const ordered = await backend.list.list();
+        const ids = ordered.map(l => l.id);
+        await backend.list.reorder([...ids].reverse());
+
+        const after = await backend.list.list();
+        expect(after.map(l => l.id)).toEqual(ids.reverse());
+        expect(after.map(l => l.position)).toEqual([0, 1, 2, 3, 4, 5]);
+
+        const counts = await backend.list.withCounts();
+        expect(counts.map(c => c.id)).toEqual(after.map(l => l.id));
       });
 
       it('existsByName is case-insensitive and respects excludeId', async () => {

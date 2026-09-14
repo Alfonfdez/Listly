@@ -1,11 +1,12 @@
 import { memo } from 'react';
-import { Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { Text, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useConfig } from '../context/ConfigContext';
 import { useFontSize } from '../hooks/useFontSize';
 import { t } from '../i18n';
 import { CARD_BORDER_RADIUS } from './componentStyles';
 import { withAlpha } from '../utils/color';
+import SortablePressable from './SortablePressable';
 import type { ListWithCounts } from '../database/types';
 import type { IconName } from '../constants/types';
 
@@ -20,7 +21,7 @@ function ListCardInner({ list, onPress }: Props) {
   const labels = t();
 
   return (
-    <TouchableOpacity
+    <SortablePressable
       style={[styles.card, { backgroundColor: withAlpha(list.color, 13) }]}
       onPress={onPress}
       accessibilityLabel={`${list.name}, ${labels.home_progress(list.completed, list.total)}`}
@@ -32,7 +33,7 @@ function ListCardInner({ list, onPress }: Props) {
       <Text style={[styles.progress, { color: c.textSecondary, fontSize: fs(12) }]}>
         {labels.home_progress(list.completed, list.total)}
       </Text>
-    </TouchableOpacity>
+    </SortablePressable>
   );
 }
 

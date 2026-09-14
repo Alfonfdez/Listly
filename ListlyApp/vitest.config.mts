@@ -10,6 +10,7 @@ export default defineConfig({
   resolve: {
     alias: {
       '@expo/vector-icons': path.resolve(dirname, 'tests/mocks/expo-vector-icons.tsx'),
+      'react-native-sortables': path.resolve(dirname, 'tests/mocks/react-native-sortables.tsx'),
     },
   },
   test: {

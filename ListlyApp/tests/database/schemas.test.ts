@@ -4,7 +4,7 @@ import { DEFAULT_CONFIG, sanitizeConfig } from '../../src/database/configDefault
 import { LANGUAGES } from '../../src/constants/languages';
 import { TEXT_SIZES, THEMES } from '../../src/constants/types';
 
-const VALID_LIST = { id: 1, name: 'Work Tasks', color: '#22D3EE', icon: 'briefcase-outline', created_at: '2026-09-05 08:00:00' };
+const VALID_LIST = { id: 1, name: 'Work Tasks', color: '#22D3EE', icon: 'briefcase-outline', created_at: '2026-09-05 08:00:00', position: 0 };
 
 describe('schemas', () => {
   describe('listSchema', () => {

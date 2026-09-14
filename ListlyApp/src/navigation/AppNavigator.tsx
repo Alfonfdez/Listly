@@ -17,6 +17,7 @@ import { useFontSize } from '../hooks/useFontSize';
 import { t } from '../i18n';
 import type { RootStackParamList, IconName } from '../constants/types';
 import HomeScreen from '../screens/HomeScreen';
+import ListsScreen from '../screens/ListsScreen';
 import ListDetailScreen from '../screens/ListDetailScreen';
 import CreateListScreen from '../screens/CreateListScreen';
 import SettingsScreen from '../screens/SettingsScreen';
@@ -31,13 +32,19 @@ type ScreenDef = {
   name: keyof RootStackParamList;
   component: ComponentType;
   title: string;
+  icon: IconName;
   headerLeft?: boolean;
 };
 
-const HeaderTitle = memo(function HeaderTitle({ title }: { title: string }) {
+const HeaderTitle = memo(function HeaderTitle({ icon, title }: { icon?: IconName; title: string }) {
   const fs = useFontSize();
   const { activeColors: c } = useConfig();
-  return <Text style={[styles.headerTitleText, { color: c.text, fontSize: fs(17) }]}>{title}</Text>;
+  return (
+    <View style={styles.headerTitleRow}>
+      {icon ? <Ionicons name={icon} size={20} color={c.text} /> : null}
+      <Text style={[styles.headerTitleText, { color: c.text, fontSize: fs(17) }]}>{title}</Text>
+    </View>
+  );
 });
 
 const StackHeaderLeft = memo(function StackHeaderLeft() {
@@ -53,15 +60,13 @@ type DrawerItemDef = {
   screen: DrawerScreenName;
 };
 
-const ROOT_DRAWER_SCREENS: DrawerScreenName[] = ['Home', 'Lists'];
-
 function openDrawerScreen(navigation: DrawerContentComponentProps['navigation'], screen: DrawerScreenName) {
-  if (ROOT_DRAWER_SCREENS.includes(screen)) {
+  if (screen === 'Home' || screen === 'Lists') {
     if (_stackNav) {
       _stackNav.dispatch(
         CommonActions.reset({
           index: 0,
-          routes: [{ name: 'Home' }],
+          routes: [{ name: screen }],
         })
       );
     }
@@ -111,6 +116,12 @@ function HomeNavCapture() {
   return <HomeScreen />;
 }
 
+function ListsNavCapture() {
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  useEffect(() => { _stackNav = navigation; }, [navigation]);
+  return <ListsScreen />;
+}
+
 const HomeStack = memo(function HomeStack() {
   const { activeColors: c } = useConfig();
   const labels = t();
@@ -122,21 +133,22 @@ const HomeStack = memo(function HomeStack() {
   }), [c.surface, c.text]);
 
   const screens = useMemo<ScreenDef[]>(() => [
-    { name: 'Home', component: HomeNavCapture, title: labels.app_name, headerLeft: true },
-    { name: 'ListDetail', component: ListDetailScreen, title: labels.app_name },
-    { name: 'CreateList', component: CreateListScreen, title: labels.app_name },
-    { name: 'Settings', component: SettingsScreen, title: labels.settings_title },
+    { name: 'Home', component: HomeNavCapture, title: labels.app_name, icon: 'home-outline', headerLeft: true },
+    { name: 'Lists', component: ListsNavCapture, title: labels.nav_lists, icon: 'list-outline', headerLeft: true },
+    { name: 'ListDetail', component: ListDetailScreen, title: labels.list_detail_title, icon: 'checkbox-outline' },
+    { name: 'CreateList', component: CreateListScreen, title: labels.create_list_title, icon: 'add-circle-outline' },
+    { name: 'Settings', component: SettingsScreen, title: labels.settings_title, icon: 'settings-outline' },
   ], [labels]);
 
   return (
     <Stack.Navigator screenOptions={screenOptions}>
-      {screens.map(({ name, component, title, headerLeft }) => (
+      {screens.map(({ name, component, title, icon, headerLeft }) => (
         <Stack.Screen
           key={name}
           name={name}
           component={component}
           options={{
-            headerTitle: () => <HeaderTitle title={title} />,
+            headerTitle: () => <HeaderTitle icon={icon} title={title} />,
             ...(headerLeft ? { headerLeft: () => <StackHeaderLeft /> } : {}),
           }}
         />
@@ -185,6 +197,11 @@ const styles = StyleSheet.create({
   },
   drawerTitle: {
     fontWeight: '700',
+  },
+  headerTitleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
   },
   headerTitleText: {
     fontWeight: '600',

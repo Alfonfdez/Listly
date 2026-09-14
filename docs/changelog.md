@@ -62,3 +62,38 @@
 - Rewrote `src/screens/CreateListScreen.tsx`: in-screen heading + name field (`maxLength` 100, live validation), inline icon + color grids with preselected defaults and highlight on selection, debounced (`DEBOUNCE_MS`) `existsByName` duplicate check with race-guard, Create button disabled until the name is valid, and on submit `listRepo.create` → `refresh()` → `goBack()` with a final duplicate re-check.
 - Added tests (list-name validation, CreateListScreen flows with debounce). Suite baseline: 12 files, 101 tests, `npm run test:all` green.
 - Verified in-browser at 375px with the verification-loop skill (FAB → form with defaults, Create disabled until a valid name, selection highlighting moves, empty error clears, case-insensitive duplicate 'groceries' rejected after the debounce, create returns to Home and shows a 'Weekend Planning, 0/0' tile with the selected cart icon and yellow tint). All 6 acceptance criteria pass; 1-spec `[x]`, roadmap 004 → done.
+
+[2026-09-13] + | ListlyApp create-list color picker (feature 006)
+- Installed `reanimated-color-picker@^5.1.3` + `react-native-svg@15.15.4` (Finly-parity; reanimated/worklets/gesture-handler already present).
+- Added `MODAL_BORDER_RADIUS` (16) + `OVERLAY_BG` to `componentStyles`; added `QUICK_COLORS` (6 hexes) to `src/constants/listColors.ts`.
+- Ported Finly picker machinery: `ModalShell` (transparent fade modal card ≤360/max-70%, optional shadow), `ModalFooter` (round Cancel/Confirm footer), `ColorGrid` (quick colors + custom circle + "+" trigger), `ColorPickerModal` (`Panel1`/`HueSlider`/`OpacitySlider`/`Preview`, temp color committed only on OK), hooks `useColorSelection` (tracks `customColor`) + `useResetOnOpen` (re-seed on open).
+- Rewired `CreateListScreen` color section from the 12-color grid to `ColorGrid` + modal; default stays `QUICK_COLORS[0]`; create uses the selected (possibly custom) hex.
+- Added i18n keys en/es (`color_picker_title`, `color_picker_cancel`, `color_picker_ok`, `color_grid_more`).
+- Added tests: `ColorGrid` (selection state, custom circle, trigger), `ColorPickerModal` (OK applies, Cancel discards, seed-on-open) with a `reanimated-color-picker` vi.mock, and CreateListScreen quick/custom-color + modal flows. Suite baseline: 14 files, 111 tests, `npm run test:all` green.
+- Verified in-browser at 375px with the verification-loop skill (6 quick colors + "+"; selected circle 3px border checkmark; "+" opens the picker pre-seeded `#22d3ee`; hue-slider drag → `#ee6022`, OK applies and renders a custom circle; Cancel discards a drag; create 'Weekend Planning' shows tile icon `rgb(238,96,34)` + tint `rgba(238,96,34,0.13)` on Home; modal uses surface/text/primary tokens). All 6 acceptance criteria pass; 1-spec `[x]`, roadmap 006 → done.
+
+[2026-09-13] + | ListlyApp home & navigation polish (feature 007)
+- Centered the FAB: absolute `alignSelf: 'center'` + `bottom: 56` (was bottom-right).
+- Added per-screen header icon + title: `HeaderTitle` now takes `icon`; screens get `home-outline`/Home, `list-outline`/Lists, `checkbox-outline`/`list_detail_title` (ListDetail), `add-circle-outline`/Create list, `settings-outline`/Settings.
+- Added `Lists` to `RootStackParamList` + a new `ListsScreen` route; `ListsNavCapture` mirrors `HomeNavCapture`; drawer reset now targets Home or Lists by name; Home and Lists keep the drawer `headerLeft`, others keep the back arrow.
+- Extracted `ListsView` (shared search + FlatList body) with a `variant: 'grid' | 'list'`: Home stays the 2/3/4-column grid via `ListCard`, the new Lists screen renders full-width `ListRow`s (icon badge + name + progress); new i18n key `list_detail_title` (en/es).
+- Added `tests/screens/ListsScreen.test.tsx` (rows/progress, search, FAB + row navigation, empty state, text-size scaling). Suite baseline: 15 files, 118 tests, `npm run test:all` green.
+- Verified in-browser at 375px with the verification-loop skill (FAB centerX 187.5 = viewport center at bottom 56 on Home and Lists; headers icon+title on all 5 screens; Lists shows 6 full-width 351px stacked rows; row → Travel Plan ListDetail header 'List detail'; ListRows search filters to the single matching row; Settings header title fs 17 / weight 600 / text `rgb(30,41,59)`). All 6 acceptance criteria pass; 1-spec `[x]`, roadmap 007 → done.
+
+[2026-09-13] + | ListlyApp add-item note area (feature 008)
+- `ListDetailScreen` add bar now has a chevron `Toggle note` button between the name input and "Add": tapping it expands/collapses a multiline note `TextInput` (max `MAX_ITEM_NOTE_LENGTH`) below, with the chevron rotating 180° when open.
+- `submitAdd` passes `note: newNote.trim() || null`; after a successful add both fields clear and the note area collapses. Name validation (empty/duplicate) is unchanged.
+- Added i18n key `item_add_note_toggle` (en/es); the note field reuses `item_note_label`.
+- Added ListDetailScreen tests (toggle expand/collapse, add with note, clear + collapse after add). Suite baseline: 15 files, 121 tests, `npm run test:all` green.
+- Verified in-browser at 375px with the verification-loop skill (Toggle note reveals the field with chevron rotated `matrix(-1,0,0,-1)`; 'Almond milk' + 'refrigerated, 1L' added → note icon on the row and 'refrigerated, 1L' in the edit modal; 'Tomatoes' with no note → empty note field; after submit name cleared, note area collapsed, chevron back to none; note input uses surface `rgb(241,245,249)`/border `rgb(226,232,240)`/text `rgb(30,41,59)`/fs 15 matching the name input). All 6 acceptance criteria pass; 1-spec `[x]`, roadmap 008 → done.
+
+[2026-09-14] ~ | ListlyApp DB + home reorder tests (feature 009)
+- Fixed the two screen suites (`tests/screens/HomeScreen.test.tsx`, `tests/screens/ListsScreen.test.tsx`) breaking after the sortables integration: added `vi.mock('expo-sqlite', () => ({ openDatabaseSync: vi.fn() }))` — `ListsView` imports the database directly, which dragged the real `expo-sqlite → expo-modules-core` TypeScript under node_modules that the vitest-native engine refuses to strip.
+- Added `tests/mocks/react-native-sortables.tsx` (light `Sortable.Grid` renderer + hollow pass-through components) and wired it into `vitest.config.mts` via `resolve.alias` — the real package drags the reanimated/worklets native-module crash (`loadUnpackers`), so the alias keeps unit tests on the mock while the Playwright loop covers the real grid.
+- Suite baseline: 15 files, 123 tests, `npm run test:all` green.
+
+[2026-09-14] ~ | ListlyApp grid-item press routing (fix web drag-to-reorder navigating)
+- `ListCard`/`ListRow` (sortable grid items) used react-native `TouchableOpacity`; on web the react-native-web press is outside the RNGH gesture system, so releasing a mouse drag still fired `onPress` → navigation into the list.
+- Added `src/components/SortablePressable.tsx` wrapping `Sortable.Touchable`: `onPress` → `onTap` (RNGH tap composited with the drag gesture, so a real drag cancels the tap), pressed-opacity feedback via `onTouchesDown`/`onTouchesUp`, and `accessible`/`accessibilityRole="button"`/`accessibilityLabel` passthrough. Swapped `ListCard` and `ListRow` from `TouchableOpacity` to it.
+- Updated `tests/mocks/react-native-sortables.tsx` so the mock `Touchable` renders a `Pressable` forwarding `onTap` from `onPress` (fireEvent.press tests keep working).
+- Suite baseline: 15 files, 123 tests, `npm run test:all` green. Verified on web at 375px (verification-loop): tile and row taps navigate to ListDetail; long-press drags reorder on Home grid and Lists rows without navigating; new order persists across reload; 0 console errors.

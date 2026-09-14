@@ -13,6 +13,7 @@ export const listSchema = z.object({
   color: z.string(),
   icon: z.string(),
   created_at: z.string(),
+  position: z.number().int(),
 });
 
 export const itemSchema = z.object({

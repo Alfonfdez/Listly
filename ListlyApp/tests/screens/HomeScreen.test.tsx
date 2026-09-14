@@ -7,14 +7,16 @@ import { resetStub, setConfig } from '../component/helpers/configStub';
 import type { Item, ListWithCounts } from '../../src/database/types';
 import { TEXT_SIZES } from '../../src/constants/types';
 
+vi.mock('expo-sqlite', () => ({ openDatabaseSync: vi.fn() }));
+
 vi.mock('../../src/context/AppContext', () => ({
   useApp: () => buildAppMock(),
   AppProvider: ({ children }: { children: ReactNode }) => children as ReactNode,
 }));
 
 const LISTS: ListWithCounts[] = [
-  { id: 1, name: 'Groceries', color: '#22D3EE', icon: 'cart-outline', created_at: 'x', total: 5, completed: 2 },
-  { id: 2, name: 'Work Tasks', color: '#34D399', icon: 'briefcase-outline', created_at: 'x', total: 2, completed: 0 },
+  { id: 1, name: 'Groceries', color: '#22D3EE', icon: 'cart-outline', created_at: 'x', position: 0, total: 5, completed: 2 },
+  { id: 2, name: 'Work Tasks', color: '#34D399', icon: 'briefcase-outline', created_at: 'x', position: 1, total: 2, completed: 0 },
 ];
 
 function items(names: string[]): Item[] {
