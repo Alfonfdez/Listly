@@ -10,8 +10,8 @@ export async function seedData(db: DatabaseHandle): Promise<void> {
 export async function seedDataInner(db: DatabaseHandle): Promise<void> {
   for (const list of SEED_LISTS) {
     await db.runAsync(
-      `INSERT OR IGNORE INTO lists (id, name, color, icon) VALUES (?, ?, ?, ?)`,
-      list.id, list.name, list.color, list.icon
+      `INSERT OR IGNORE INTO lists (id, name, color, icon, position) VALUES (?, ?, ?, ?, ?)`,
+      list.id, list.name, list.color, list.icon, list.position
     );
   }
 

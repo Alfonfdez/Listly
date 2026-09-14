@@ -10,7 +10,7 @@ vi.mock('expo-sqlite', async () => {
 await import('expo-sqlite');
 
 const EXPECTED_COLUMNS: Record<string, string[]> = {
-  lists: ['id', 'name', 'color', 'icon', 'created_at'],
+  lists: ['id', 'name', 'color', 'icon', 'created_at', 'position'],
   items: ['id', 'list_id', 'name', 'checked', 'note', 'position', 'created_at'],
   config: ['key', 'value'],
 };
@@ -35,7 +35,9 @@ describe('db drift', () => {
     const db = await getHandle();
     await db.execAsync('PRAGMA foreign_keys = ON;');
     const { createSchema } = await import('../../src/database/migrations/001_initial');
+    const { addListPositions } = await import('../../src/database/migrations/003_list_position');
     await createSchema(db);
+    await addListPositions(db);
     for (const [table, expected] of Object.entries(EXPECTED_COLUMNS)) {
       expect(await columnNames(db, table)).toEqual(expected);
     }
@@ -44,7 +46,9 @@ describe('db drift', () => {
   it('zod schema keys match the migration columns', async () => {
     const db = await getHandle();
     const { createSchema } = await import('../../src/database/migrations/001_initial');
+    const { addListPositions } = await import('../../src/database/migrations/003_list_position');
     await createSchema(db);
+    await addListPositions(db);
     const { listSchema, itemSchema } = await import('../../src/database/schemas');
 
     expect(Object.keys(listSchema.shape)).toEqual(await columnNames(db, 'lists'));
@@ -63,16 +67,18 @@ describe('db drift', () => {
 
   it('initDatabase applies seed data exactly once and stays idempotent', async () => {
     vi.resetModules();
+    resetMockDatabase();
     const { initDatabase } = await import('../../src/database/database');
     await initDatabase();
 
     const handle = openDatabaseSync('Listly.db') as DatabaseHandle;
     const version = await handle.getFirstAsync<{ user_version: number }>('PRAGMA user_version;');
-    expect(version?.user_version).toBe(2);
+    expect(version?.user_version).toBe(3);
     const lists = await handle.getAllAsync('SELECT * FROM lists;');
     const items = await handle.getAllAsync('SELECT * FROM items;');
     expect(lists).toHaveLength(6);
     expect(items).toHaveLength(19);
+    expect((lists as Array<{ position: number }>).map(l => l.position)).toEqual([0, 1, 2, 3, 4, 5]);
 
     await initDatabase();
     const listsAgain = await handle.getAllAsync('SELECT * FROM lists;');

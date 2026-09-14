@@ -45,6 +45,7 @@ const LIST: ListWithCounts = {
   color: '#22D3EE',
   icon: 'cart-outline',
   created_at: 'x',
+  position: 0,
   total: 2,
   completed: 1,
 };
@@ -128,6 +129,55 @@ describe('ListDetailScreen', () => {
 
     expect(await view.findByText('Name is required')).toBeTruthy();
     expect(itemRepositoryMock.create).not.toHaveBeenCalled();
+  });
+
+  it('expands and collapses the note area with the toggle', async () => {
+    const user = userEvent.setup();
+    const view = await render(<ListDetailScreen />);
+    await view.findByText('Milk');
+    expect(view.queryByLabelText('Note')).toBeNull();
+
+    await user.press(view.getByLabelText('Toggle note'));
+    expect(await view.findByLabelText('Note')).toBeTruthy();
+
+    await user.press(view.getByLabelText('Toggle note'));
+    expect(view.queryByLabelText('Note')).toBeNull();
+  });
+
+  it('adds a new item with a note', async () => {
+    const user = userEvent.setup();
+    const view = await render(<ListDetailScreen />);
+    await view.findByText('Milk');
+
+    await user.press(view.getByLabelText('Toggle note'));
+    await user.type(view.getByLabelText('Add an item...'), 'Tea');
+    await user.type(await view.findByLabelText('Note'), 'green tea');
+    await user.press(view.getByLabelText('Add'));
+
+    await waitFor(() =>
+      expect(itemRepositoryMock.create).toHaveBeenCalledWith({
+        list_id: 1,
+        name: 'Tea',
+        note: 'green tea',
+        checked: 0,
+        position: 2,
+      })
+    );
+  });
+
+  it('clears and collapses the note area after adding', async () => {
+    const user = userEvent.setup();
+    const view = await render(<ListDetailScreen />);
+    await view.findByText('Milk');
+
+    await user.press(view.getByLabelText('Toggle note'));
+    await user.type(view.getByLabelText('Add an item...'), 'Tea');
+    await user.type(await view.findByLabelText('Note'), 'green tea');
+    await user.press(view.getByLabelText('Add'));
+
+    await waitFor(() => expect(itemRepositoryMock.create).toHaveBeenCalled());
+    expect(view.queryByLabelText('Note')).toBeNull();
+    expect(view.getByLabelText('Add an item...').props.value).toBe('');
   });
 
   it('updates an item in the edit modal', async () => {

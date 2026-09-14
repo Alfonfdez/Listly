@@ -5,8 +5,31 @@ import CreateListScreen from '../../src/screens/CreateListScreen';
 import { buildAppMock, resetAppStub } from '../component/helpers/appStub';
 import { resetStub } from '../component/helpers/configStub';
 import { LIST_ICONS } from '../../src/constants/listIcons';
-import { LIST_COLORS } from '../../src/constants/listColors';
+import { QUICK_COLORS } from '../../src/constants/listColors';
 import { MAX_LIST_NAME_LENGTH } from '../../src/constants/types';
+
+interface PickerProps {
+  value?: string;
+  onChangeJS?: (colors: { hex: string }) => void;
+  children?: ReactNode;
+}
+
+const pickerStub = vi.hoisted(() => {
+  let onChangeJS: ((colors: { hex: string }) => void) | undefined;
+  function ColorPickerStub(props: PickerProps): ReactNode {
+    onChangeJS = props.onChangeJS;
+    return props.children ?? null;
+  }
+  return { ColorPickerStub, getOnChangeJS: () => onChangeJS };
+});
+
+vi.mock('reanimated-color-picker', () => ({
+  default: pickerStub.ColorPickerStub,
+  Panel1: () => null,
+  HueSlider: () => null,
+  OpacitySlider: () => null,
+  Preview: () => null,
+}));
 
 const { listRepositoryMock } = vi.hoisted(() => ({
   listRepositoryMock: {
@@ -43,9 +66,10 @@ describe('CreateListScreen', () => {
     listRepositoryMock.create.mockResolvedValue({
       id: 7,
       name: 'Weekend',
-      color: LIST_COLORS[0],
+      color: QUICK_COLORS[0],
       icon: LIST_ICONS[0],
       created_at: 'x',
+      position: 6,
     });
   });
 
@@ -54,7 +78,7 @@ describe('CreateListScreen', () => {
     expect(view.getByText('Create list')).toBeTruthy();
     expect(view.getByLabelText('Name')).toBeTruthy();
     expect(view.getByLabelText(LIST_ICONS[0]).props.accessibilityState.selected).toBe(true);
-    expect(view.getByLabelText(LIST_COLORS[0]).props.accessibilityState.selected).toBe(true);
+    expect(view.getByLabelText(QUICK_COLORS[0]).props.accessibilityState.selected).toBe(true);
   });
 
   it('disables Create until the name is valid', async () => {
@@ -109,5 +133,43 @@ describe('CreateListScreen', () => {
       })
     );
     expect(nav.goBack).toHaveBeenCalled();
+  });
+
+  it('opens the color picker modal from "+"', async () => {
+    const user = userEvent.setup();
+    const view = await render(<CreateListScreen />);
+    await user.press(view.getByLabelText('More colors'));
+    expect(view.getByText('Pick a color')).toBeTruthy();
+    expect(view.getByLabelText('OK')).toBeTruthy();
+    expect(view.getByLabelText('Cancel')).toBeTruthy();
+  });
+
+  it('applies a custom color from the picker and creates the list with it', async () => {
+    const user = userEvent.setup();
+    const view = await render(<CreateListScreen />);
+    await user.press(view.getByLabelText('More colors'));
+    pickerStub.getOnChangeJS()?.({ hex: '#123456' });
+    await user.press(view.getByLabelText('OK'));
+    expect(view.getByLabelText('#123456').props.accessibilityState.selected).toBe(true);
+    await user.type(view.getByLabelText('Name'), 'Weekend');
+    await new Promise(resolve => setTimeout(resolve, DEBOUNCE_WAIT));
+    await user.press(view.getByLabelText('Create'));
+    await waitFor(() =>
+      expect(listRepositoryMock.create).toHaveBeenCalledWith({
+        name: 'Weekend',
+        color: '#123456',
+        icon: LIST_ICONS[0],
+      })
+    );
+  });
+
+  it('cancels the picker discarding any pending color change', async () => {
+    const user = userEvent.setup();
+    const view = await render(<CreateListScreen />);
+    await user.press(view.getByLabelText('More colors'));
+    pickerStub.getOnChangeJS()?.({ hex: '#123456' });
+    await user.press(view.getByLabelText('Cancel'));
+    expect(view.queryByLabelText('#123456')).toBeNull();
+    expect(view.getByLabelText(QUICK_COLORS[0]).props.accessibilityState.selected).toBe(true);
   });
 });

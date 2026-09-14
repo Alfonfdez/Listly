@@ -7,7 +7,8 @@ export async function createSchema(db: DatabaseHandle): Promise<void> {
       name TEXT NOT NULL,
       color TEXT NOT NULL,
       icon TEXT NOT NULL,
-      created_at TEXT NOT NULL DEFAULT (datetime('now', 'localtime'))
+      created_at TEXT NOT NULL DEFAULT (datetime('now', 'localtime')),
+      position INTEGER NOT NULL DEFAULT 0
     );
 
     CREATE TABLE IF NOT EXISTS items (

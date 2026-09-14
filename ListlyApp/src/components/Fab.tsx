@@ -26,8 +26,8 @@ export default function Fab({ onPress, accessibilityLabel }: Props) {
 const styles = StyleSheet.create({
   fab: {
     position: 'absolute',
-    bottom: 24,
-    right: 24,
+    bottom: 56,
+    alignSelf: 'center',
     width: FAB_SIZE,
     height: FAB_SIZE,
     borderRadius: FAB_SIZE / 2,

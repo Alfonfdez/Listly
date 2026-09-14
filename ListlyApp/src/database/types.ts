@@ -12,6 +12,7 @@ export interface ListWithCounts {
   color: string;
   icon: string;
   created_at: string;
+  position: number;
   total: number;
   completed: number;
 }

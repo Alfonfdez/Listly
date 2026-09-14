@@ -2,12 +2,12 @@ import { darkColors, lightColors } from '../constants/themes';
 import type { Item, List } from './types';
 
 export const SEED_LISTS: Omit<List, 'created_at'>[] = [
-  { id: 1, name: 'Groceries', color: darkColors.primary, icon: 'cart-outline' },
-  { id: 2, name: 'Work Tasks', color: darkColors.accent, icon: 'briefcase-outline' },
-  { id: 3, name: 'Reading List', color: darkColors.green, icon: 'book-outline' },
-  { id: 4, name: 'Travel Plan', color: darkColors.red, icon: 'airplane-outline' },
-  { id: 5, name: 'Home Chores', color: lightColors.primary, icon: 'home-outline' },
-  { id: 6, name: 'Fitness', color: lightColors.accent, icon: 'barbell-outline' },
+  { id: 1, name: 'Groceries', color: darkColors.primary, icon: 'cart-outline', position: 0 },
+  { id: 2, name: 'Work Tasks', color: darkColors.accent, icon: 'briefcase-outline', position: 1 },
+  { id: 3, name: 'Reading List', color: darkColors.green, icon: 'book-outline', position: 2 },
+  { id: 4, name: 'Travel Plan', color: darkColors.red, icon: 'airplane-outline', position: 3 },
+  { id: 5, name: 'Home Chores', color: lightColors.primary, icon: 'home-outline', position: 4 },
+  { id: 6, name: 'Fitness', color: lightColors.accent, icon: 'barbell-outline', position: 5 },
 ];
 
 export const SEED_ITEMS: Omit<Item, 'created_at'>[] = [

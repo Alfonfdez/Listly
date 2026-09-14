@@ -7,14 +7,17 @@ import { useConfig } from '../context/ConfigContext';
 import { useFontSize } from '../hooks/useFontSize';
 import { t } from '../i18n';
 import { LIST_ICONS } from '../constants/listIcons';
-import { LIST_COLORS } from '../constants/listColors';
+import { QUICK_COLORS } from '../constants/listColors';
 import { DEBOUNCE_MS, MAX_LIST_NAME_LENGTH } from '../constants/types';
 import type { IconName, NavigationProp } from '../constants/types';
 import type { ListNameError } from '../utils/validation';
 import { validateListName } from '../utils/validation';
 import { listRepository as listRepo } from '../database';
 import { withAlpha } from '../utils/color';
+import { useColorSelection } from '../hooks/useColorSelection';
 import ScreenShell from '../components/ScreenShell';
+import ColorGrid from '../components/ColorGrid';
+import ColorPickerModal from '../components/ColorPickerModal';
 import { BUTTON_BORDER_RADIUS } from '../components/componentStyles';
 
 export default function CreateListScreen() {
@@ -26,7 +29,8 @@ export default function CreateListScreen() {
 
   const [name, setName] = useState('');
   const [icon, setIcon] = useState<IconName>(LIST_ICONS[0]);
-  const [color, setColor] = useState<string>(LIST_COLORS[0]);
+  const [pickerVisible, setPickerVisible] = useState(false);
+  const { selectedColor, customColor, handleColorSelect } = useColorSelection(QUICK_COLORS[0]);
   const [error, setError] = useState<ListNameError | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const requestSeq = useRef(0);
@@ -59,7 +63,7 @@ export default function CreateListScreen() {
         setError('list_name_duplicate');
         return;
       }
-      await listRepo.create({ name: trimmed, color, icon });
+      await listRepo.create({ name: trimmed, color: selectedColor ?? QUICK_COLORS[0], icon });
       await refresh();
       navigation.goBack();
     } finally {
@@ -129,29 +133,18 @@ export default function CreateListScreen() {
         <Text style={[styles.label, { color: c.textSecondary, fontSize: fs(13) }]}>
           {labels.list_color_label}
         </Text>
-        <View style={styles.grid}>
-          {LIST_COLORS.map(option => {
-            const selected = option === color;
-            return (
-              <Pressable
-                key={option}
-                onPress={() => setColor(option)}
-                accessibilityRole="button"
-                accessibilityLabel={option}
-                accessibilityState={{ selected }}
-                style={[
-                  styles.colorRing,
-                  {
-                    borderColor: selected ? c.primary : 'transparent',
-                    backgroundColor: c.background,
-                  },
-                ]}
-              >
-                <View style={[styles.colorSwatch, { backgroundColor: option }]} />
-              </Pressable>
-            );
-          })}
-        </View>
+        <ColorGrid
+          selectedColor={selectedColor}
+          customColor={customColor}
+          onSelect={handleColorSelect}
+          onOpenPicker={() => setPickerVisible(true)}
+        />
+        <ColorPickerModal
+          visible={pickerVisible}
+          selectedColor={selectedColor}
+          onSelect={handleColorSelect}
+          onClose={() => setPickerVisible(false)}
+        />
 
         <Pressable
           style={({ pressed }) => [
@@ -204,19 +197,6 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  colorRing: {
-    width: 40,
-    height: 40,
-    borderRadius: 999,
-    borderWidth: 2,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  colorSwatch: {
-    width: 30,
-    height: 30,
-    borderRadius: 999,
   },
   createButton: {
     marginTop: 28,

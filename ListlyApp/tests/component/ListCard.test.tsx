@@ -10,6 +10,7 @@ const LIST: ListWithCounts = {
   color: '#22D3EE',
   icon: 'cart-outline',
   created_at: '2026-09-05 08:00:00',
+  position: 0,
   total: 5,
   completed: 2,
 };

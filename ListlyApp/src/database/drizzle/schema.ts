@@ -7,6 +7,7 @@ export const lists = sqliteTable('lists', {
   color: text('color').notNull(),
   icon: text('icon').notNull(),
   created_at: text('created_at').notNull().default(sql`(datetime('now', 'localtime'))`),
+  position: integer('position').notNull().default(0),
 });
 
 export const items = sqliteTable('items', {

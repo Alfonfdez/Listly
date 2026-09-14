@@ -28,6 +28,7 @@ export const MAX_ITEM_NOTE_LENGTH = 2000;
 
 export type RootStackParamList = {
   Home: undefined;
+  Lists: undefined;
   ListDetail: { listId: number };
   CreateList: undefined;
   Settings: undefined;

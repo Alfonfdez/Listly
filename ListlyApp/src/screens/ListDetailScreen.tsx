@@ -1,9 +1,9 @@
 import { useCallback, useMemo, useState } from 'react';
-import { FlatList, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { FlatList, Pressable, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect, useRoute, type RouteProp } from '@react-navigation/native';
 import type { RootStackParamList } from '../constants/types';
-import { MAX_ITEM_NAME_LENGTH, type IconName } from '../constants/types';
+import { MAX_ITEM_NAME_LENGTH, MAX_ITEM_NOTE_LENGTH, type IconName } from '../constants/types';
 import type { Item } from '../database/types';
 import { itemRepository as itemRepo } from '../database';
 import { useApp } from '../context/AppContext';
@@ -31,6 +31,8 @@ export default function ListDetailScreen() {
   const items = useMemo(() => itemsByListId.get(listId) ?? [], [itemsByListId, listId]);
 
   const [newName, setNewName] = useState('');
+  const [newNote, setNewNote] = useState('');
+  const [noteExpanded, setNoteExpanded] = useState(false);
   const [addError, setAddError] = useState<ItemNameError | null>(null);
   const [editing, setEditing] = useState<Item | null>(null);
 
@@ -74,11 +76,13 @@ export default function ListDetailScreen() {
       await itemRepo.create({
         list_id: listId,
         name: newName.trim(),
-        note: null,
+        note: newNote.trim() || null,
         checked: 0,
         position: maxPosition,
       });
       setNewName('');
+      setNewNote('');
+      setNoteExpanded(false);
       setAddError(null);
     } catch (error) {
       console.error('Failed to add item:', error);
@@ -165,6 +169,19 @@ export default function ListDetailScreen() {
             ]}
             accessibilityLabel={labels.item_add_placeholder}
           />
+          <TouchableOpacity
+            onPress={() => setNoteExpanded(prev => !prev)}
+            style={[styles.noteToggle, { backgroundColor: c.surface, borderColor: c.border }]}
+            accessibilityRole="button"
+            accessibilityLabel={labels.item_add_note_toggle}
+          >
+            <Ionicons
+              name="chevron-down"
+              size={18}
+              color={c.textSecondary}
+              style={noteExpanded ? styles.chevronOpen : undefined}
+            />
+          </TouchableOpacity>
           <Pressable
             style={({ pressed }) => [styles.addButton, { backgroundColor: c.primary }, pressed && styles.pressed]}
             onPress={() => void submitAdd()}
@@ -175,6 +192,23 @@ export default function ListDetailScreen() {
             <Text style={[styles.addButtonText, { fontSize: fs(15) }]}>{labels.item_add}</Text>
           </Pressable>
         </View>
+        {noteExpanded ? (
+          <TextInput
+            value={newNote}
+            onChangeText={setNewNote}
+            maxLength={MAX_ITEM_NOTE_LENGTH}
+            placeholder={labels.item_note_label}
+            placeholderTextColor={c.textSecondary}
+            multiline
+            textAlignVertical="top"
+            style={[
+              styles.input,
+              styles.noteInput,
+              { backgroundColor: c.surface, borderColor: c.border, color: c.text, fontSize: fs(15) },
+            ]}
+            accessibilityLabel={labels.item_note_label}
+          />
+        ) : null}
       </View>
 
       <ItemFormModal
@@ -249,6 +283,19 @@ const styles = StyleSheet.create({
     borderRadius: BUTTON_BORDER_RADIUS,
     paddingHorizontal: 12,
     paddingVertical: 10,
+  },
+  noteToggle: {
+    borderWidth: 1,
+    borderRadius: BUTTON_BORDER_RADIUS,
+    paddingHorizontal: 10,
+    paddingVertical: 10,
+  },
+  chevronOpen: {
+    transform: [{ rotate: '180deg' }],
+  },
+  noteInput: {
+    minHeight: 64,
+    paddingTop: 10,
   },
   addButton: {
     flexDirection: 'row',

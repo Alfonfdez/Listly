@@ -51,7 +51,36 @@ Status: not started.
 Settings screen:
 - Appearance: Theme (dark/light/system), text size.
 - Regional: Language (en/es).
+- Layout: grid vs full-width list view for lists (config stored; pre-staged by feature 007 List row view).
 - Spec: to be created when started.
+
+## 006-create-list-color-picker
+Status: done.
+
+Color picker for the Create List screen:
+- Quick colors row + custom-color circle.
+- "+" opens a full color picker modal (`reanimated-color-picker` panel/hue/opacity + preview) with OK/Cancel.
+- Picked custom colors persist as a shortcut circle in the row.
+- Spec: spec/features/006-create-list-color-picker/.
+
+## 007-home-and-nav-polish
+Status: done.
+
+Home & navigation polish:
+- FAB centered at the bottom (Home and Lists).
+- Per-screen header with icon + title.
+- Distinct "Lists" drawer screen with full-width rows (icon, name, progress).
+- Shared grid/list `ListsView` (pre-stages the Settings layout toggle).
+- Spec: spec/features/007-home-and-nav-polish/.
+
+## 008-add-item-note
+Status: done.
+
+Expandable note area in the add-item bar:
+- Chevron toggle reveals a note field below the name input.
+- Note is optional and included when creating an item.
+- Fields clear and the area collapses after submission.
+- Spec: spec/features/008-add-item-note/.
 
 ## Future scope (not scheduled)
 - Tags, due dates, subtasks, recurring items.

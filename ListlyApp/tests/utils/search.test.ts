@@ -3,9 +3,9 @@ import { filterListsByQuery, matchesAllTerms, searchTerms } from '../../src/util
 import type { Item, ListWithCounts } from '../../src/database/types';
 
 const LISTS: ListWithCounts[] = [
-  { id: 1, name: 'Groceries', color: '#22D3EE', icon: 'cart-outline', created_at: 'x', total: 3, completed: 1 },
-  { id: 2, name: 'Work Tasks', color: '#34D399', icon: 'briefcase-outline', created_at: 'x', total: 2, completed: 0 },
-  { id: 3, name: 'Reading List', color: '#A78BFA', icon: 'book-outline', created_at: 'x', total: 1, completed: 1 },
+  { id: 1, name: 'Groceries', color: '#22D3EE', icon: 'cart-outline', created_at: 'x', position: 0, total: 3, completed: 1 },
+  { id: 2, name: 'Work Tasks', color: '#34D399', icon: 'briefcase-outline', created_at: 'x', position: 1, total: 2, completed: 0 },
+  { id: 3, name: 'Reading List', color: '#A78BFA', icon: 'book-outline', created_at: 'x', position: 2, total: 1, completed: 1 },
 ];
 
 function item(name: string): Item {
