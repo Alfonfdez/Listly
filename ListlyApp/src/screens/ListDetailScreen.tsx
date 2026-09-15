@@ -17,6 +17,7 @@ import { useSelectMode } from '../hooks/useSelectMode';
 import { t } from '../i18n';
 import { validateItemName, uniqueNormalizedNames, type ItemNameError } from '../utils/validation';
 import { filterItemsByQuery } from '../utils/search';
+import { parseItemPhotos, serializeItemPhotos } from '../utils/itemPhotos';
 import { withAlpha } from '../utils/color';
 import { BUTTON_BORDER_RADIUS } from '../components/componentStyles';
 import ScreenShell from '../components/ScreenShell';
@@ -24,9 +25,11 @@ import EmptyState from '../components/EmptyState';
 import SearchBar from '../components/SearchBar';
 import ItemRow from '../components/ItemRow';
 import ItemFormModal from '../components/ItemFormModal';
+import PhotoSection from '../components/PhotoSection';
 import SelectionActionBar from '../components/SelectionActionBar';
 import ConfirmModal from '../components/ConfirmModal';
 import SelectSearchHeader from '../components/SelectSearchHeader';
+import { useItemPhotos } from '../hooks/useItemPhotos';
 
 export default function ListDetailScreen() {
   const route = useRoute<RouteProp<RootStackParamList, 'ListDetail'>>();
@@ -48,6 +51,13 @@ export default function ListDetailScreen() {
   const [editing, setEditing] = useState<Item | null>(null);
   const [searchActive, setSearchActive] = useState(false);
   const [query, setQuery] = useState('');
+  const {
+    photos: newPhotos,
+    setPhotos: setNewPhotos,
+    handleTakePhoto,
+    handlePickFromGallery,
+    handleRemovePhoto,
+  } = useItemPhotos();
 
   const {
     selectMode,
@@ -135,11 +145,13 @@ export default function ListDetailScreen() {
         list_id: listId,
         name: newName.trim(),
         note: newNote.trim() || null,
+        pictures: serializeItemPhotos(newPhotos),
         checked: 0,
         position: maxPosition,
       });
       setNewName('');
       setNewNote('');
+      setNewPhotos([]);
       setNoteExpanded(false);
       setAddError(null);
     } catch (error) {
@@ -148,10 +160,10 @@ export default function ListDetailScreen() {
     void refresh();
   };
 
-  const saveEdit = async (name: string, note: string | null) => {
+  const saveEdit = async (name: string, note: string | null, photos: string[]) => {
     if (!editing) return;
     try {
-      await itemRepo.update(editing.id, { name, note });
+      await itemRepo.update(editing.id, { name, note, pictures: serializeItemPhotos(photos) });
       setEditing(null);
     } catch (error) {
       console.error('Failed to update item:', error);
@@ -294,6 +306,14 @@ export default function ListDetailScreen() {
               accessibilityLabel={labels.item_note_label}
             />
           ) : null}
+          {noteExpanded ? (
+            <PhotoSection
+              photos={newPhotos}
+              onTakePhoto={() => void handleTakePhoto()}
+              onPickFromGallery={() => void handlePickFromGallery()}
+              onRemovePhoto={uri => void handleRemovePhoto(uri)}
+            />
+          ) : null}
         </View>
       ) : (
         <SelectionActionBar
@@ -313,10 +333,11 @@ export default function ListDetailScreen() {
         title={labels.item_edit_title}
         initialName={editing?.name ?? ''}
         initialNote={editing?.note ?? ''}
+        initialPhotos={parseItemPhotos(editing?.pictures ?? null)}
         existingNames={editingExclusiveNames}
         allowDelete
         onCancel={() => setEditing(null)}
-        onSave={(name, note) => void saveEdit(name, note)}
+        onSave={(name, note, photos) => void saveEdit(name, note, photos)}
         onDelete={() => void deleteItem()}
       />
 

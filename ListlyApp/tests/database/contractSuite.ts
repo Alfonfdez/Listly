@@ -19,6 +19,7 @@ function item(listId: number, name: string, overrides: Partial<NewItem> = {}): N
     name,
     checked: 0,
     note: null,
+    pictures: null,
     position: 0,
     ...overrides,
   };
@@ -180,6 +181,23 @@ export function runContractSuite(
         const created = await backend.item.create(item(1, 'Update Me'));
         await backend.item.update(created.id, { name: 'Updated', note: 'note text' });
         expect(await backend.item.get(created.id)).toMatchObject({ name: 'Updated', note: 'note text' });
+      });
+
+      it('creates and reads back an item with pictures', async () => {
+        const created = await backend.item.create(
+          item(1, 'Photo Item', { pictures: JSON.stringify(['data:image/a', 'data:image/b']) })
+        );
+        const row = await backend.item.get(created.id);
+        expect(row?.pictures).toBe(JSON.stringify(['data:image/a', 'data:image/b']));
+        expect(JSON.parse(row?.pictures ?? 'null')).toEqual(['data:image/a', 'data:image/b']);
+      });
+
+      it('updates pictures and can clear them back to null', async () => {
+        const created = await backend.item.create(item(1, 'Photo Edit'));
+        await backend.item.update(created.id, { pictures: JSON.stringify(['data:image/one']) });
+        expect((await backend.item.get(created.id))?.pictures).toBe(JSON.stringify(['data:image/one']));
+        await backend.item.update(created.id, { pictures: null });
+        expect((await backend.item.get(created.id))?.pictures).toBeNull();
       });
 
       it('toggle flips the checked state', async () => {

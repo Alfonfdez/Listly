@@ -3,9 +3,10 @@ import { openEngine } from './engine';
 import { createSchema } from './migrations/001_initial';
 import { seedDataInner } from './migrations/002_seed';
 import { addListPositions } from './migrations/003_list_position';
+import { addItemPictures } from './migrations/004_item_pictures';
 
 const DATABASE_NAME = 'Listly.db';
-export const SCHEMA_VERSION = 3;
+export const SCHEMA_VERSION = 4;
 
 let dbPromise: Promise<DatabaseHandle> | null = null;
 
@@ -34,6 +35,10 @@ async function migrate(database: DatabaseHandle): Promise<void> {
     if (currentVersion < 3) {
       await addListPositions(database);
       await database.execAsync('PRAGMA user_version = 3');
+    }
+    if (currentVersion < 4) {
+      await addItemPictures(database);
+      await database.execAsync('PRAGMA user_version = 4');
     }
   });
 }

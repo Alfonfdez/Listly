@@ -6,16 +6,19 @@ import { t } from '../i18n';
 import { BUTTON_BORDER_RADIUS } from './componentStyles';
 import { validateItemName, type ItemNameError } from '../utils/validation';
 import { MAX_ITEM_NAME_LENGTH, MAX_ITEM_NOTE_LENGTH } from '../constants/types';
+import { useItemPhotos } from '../hooks/useItemPhotos';
+import PhotoSection from './PhotoSection';
 
 interface Props {
   visible: boolean;
   title: string;
   initialName: string;
   initialNote: string;
+  initialPhotos: string[];
   existingNames: ReadonlySet<string>;
   allowDelete: boolean;
   onCancel: () => void;
-  onSave: (name: string, note: string | null) => void;
+  onSave: (name: string, note: string | null, photos: string[]) => void;
   onDelete: () => void;
 }
 
@@ -24,6 +27,7 @@ export default function ItemFormModal({
   title,
   initialName,
   initialNote,
+  initialPhotos,
   existingNames,
   allowDelete,
   onCancel,
@@ -38,15 +42,17 @@ export default function ItemFormModal({
   const [note, setNote] = useState(initialNote);
   const [error, setError] = useState<ItemNameError | null>(null);
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const { photos, setPhotos, handleTakePhoto, handlePickFromGallery, handleRemovePhoto } = useItemPhotos(initialPhotos);
 
   useEffect(() => {
     if (visible) {
       setName(initialName);
       setNote(initialNote);
+      setPhotos(initialPhotos);
       setError(null);
       setConfirmDelete(false);
     }
-  }, [visible, initialName, initialNote]);
+  }, [visible, initialName, initialNote, initialPhotos, setPhotos]);
 
   const onNameChange = (value: string) => {
     setName(value);
@@ -59,7 +65,7 @@ export default function ItemFormModal({
       setError(err);
       return;
     }
-    onSave(name.trim(), note.trim() ? note.trim() : null);
+    onSave(name.trim(), note.trim() ? note.trim() : null, photos);
   };
 
   const canSave = error === null && name.trim().length > 0;
@@ -107,6 +113,15 @@ export default function ItemFormModal({
             ]}
             accessibilityLabel={labels.item_note_label}
           />
+
+          <View style={styles.photoSection}>
+            <PhotoSection
+              photos={photos}
+              onTakePhoto={() => void handleTakePhoto()}
+              onPickFromGallery={() => void handlePickFromGallery()}
+              onRemovePhoto={uri => void handleRemovePhoto(uri)}
+            />
+          </View>
 
           {confirmDelete ? (
             <View style={styles.confirmBlock}>
@@ -206,6 +221,9 @@ const styles = StyleSheet.create({
   },
   errorText: {
     marginTop: -2,
+  },
+  photoSection: {
+    marginTop: 4,
   },
   buttonRow: {
     flexDirection: 'row',

@@ -1,11 +1,14 @@
-import { memo } from 'react';
-import { Pressable, Text, StyleSheet, View } from 'react-native';
+import { memo, useState } from 'react';
+import { Image, Pressable, Text, StyleSheet, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useConfig } from '../context/ConfigContext';
 import { useFontSize } from '../hooks/useFontSize';
 import { t } from '../i18n';
 import { BUTTON_BORDER_RADIUS } from './componentStyles';
 import type { Item } from '../database/types';
+import { MAX_ITEM_PICTURES } from '../constants/types';
+import { parseItemPhotos } from '../utils/itemPhotos';
+import PhotoViewer from './PhotoViewer';
 
 interface Props {
   item: Item;
@@ -21,6 +24,8 @@ function ItemRowInner({ item, selectMode, selected, onToggle, onLongPress, onEdi
   const fs = useFontSize();
   const labels = t();
   const isDone = item.checked === 1;
+  const photos = parseItemPhotos(item.pictures);
+  const [viewerIndex, setViewerIndex] = useState<number | null>(null);
 
   const checkbox = selectMode ? (
     <View style={[styles.check, selected ? { backgroundColor: c.primary } : { borderColor: c.border }]}>
@@ -50,33 +55,58 @@ function ItemRowInner({ item, selectMode, selected, onToggle, onLongPress, onEdi
       accessibilityLabel={item.name}
     >
       {checkbox}
-      <Text
-        style={[
-          styles.name,
-          {
-            color: isDone ? c.textSecondary : c.text,
-            fontSize: fs(16),
-            textDecorationLine: isDone && !selectMode ? 'line-through' : 'none',
-          },
-        ]}
-        numberOfLines={1}
-      >
-        {item.name}
-      </Text>
-      {item.note ? (
-        <Ionicons name="document-text-outline" size={16} color={c.textSecondary} style={styles.noteIcon} />
-      ) : null}
-      {!selectMode ? (
-        <Pressable
-          style={({ pressed }) => [styles.editButton, pressed && styles.pressed]}
-          onPress={onEdit}
-          accessibilityRole="button"
-          accessibilityLabel={labels.item_edit_title}
-          hitSlop={8}
-        >
-          <Ionicons name="pencil-outline" size={18} color={c.textSecondary} />
-        </Pressable>
-      ) : null}
+      <View style={styles.content}>
+        <View style={styles.topRow}>
+          <Text
+            style={[
+              styles.name,
+              {
+                color: isDone ? c.textSecondary : c.text,
+                fontSize: fs(16),
+                textDecorationLine: isDone && !selectMode ? 'line-through' : 'none',
+              },
+            ]}
+            numberOfLines={1}
+          >
+            {item.name}
+          </Text>
+          {item.note ? (
+            <Ionicons name="document-text-outline" size={16} color={c.textSecondary} style={styles.noteIcon} />
+          ) : null}
+          {!selectMode ? (
+            <Pressable
+              style={({ pressed }) => [styles.editButton, pressed && styles.pressed]}
+              onPress={onEdit}
+              accessibilityRole="button"
+              accessibilityLabel={labels.item_edit_title}
+              hitSlop={8}
+            >
+              <Ionicons name="pencil-outline" size={18} color={c.textSecondary} />
+            </Pressable>
+          ) : null}
+        </View>
+        {photos.length > 0 && !selectMode ? (
+          <View style={styles.thumbRow}>
+            {photos.slice(0, MAX_ITEM_PICTURES).map((uri, index) => (
+              <Pressable
+                key={`${uri}-${index}`}
+                style={({ pressed }) => [styles.thumb, pressed && styles.pressed]}
+                onPress={() => setViewerIndex(index)}
+                accessibilityRole="imagebutton"
+                accessibilityLabel={labels.item_photos_title}
+              >
+                <Image source={{ uri }} style={styles.thumbImage} />
+              </Pressable>
+            ))}
+          </View>
+        ) : null}
+      </View>
+      <PhotoViewer
+        photos={photos}
+        visible={viewerIndex !== null}
+        selectedIndex={viewerIndex ?? 0}
+        onClose={() => setViewerIndex(null)}
+      />
     </Pressable>
   );
 }
@@ -109,6 +139,14 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     marginRight: 4,
   },
+  content: {
+    flex: 1,
+  },
+  topRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
   name: {
     flex: 1,
     fontWeight: '500',
@@ -116,5 +154,20 @@ const styles = StyleSheet.create({
   noteIcon: {},
   editButton: {
     padding: 4,
+  },
+  thumbRow: {
+    flexDirection: 'row',
+    gap: 6,
+    marginTop: 8,
+  },
+  thumb: {
+    width: 36,
+    height: 36,
+    borderRadius: 6,
+    overflow: 'hidden',
+  },
+  thumbImage: {
+    width: '100%',
+    height: '100%',
   },
 });

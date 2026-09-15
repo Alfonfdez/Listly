@@ -24,7 +24,7 @@ describe('schemas', () => {
   });
 
   describe('itemSchema', () => {
-    const VALID_ITEM = { id: 10, list_id: 1, name: 'Milk', checked: 0, note: null, position: 0, created_at: '2026-09-05 08:00:00' };
+    const VALID_ITEM = { id: 10, list_id: 1, name: 'Milk', checked: 0, note: null, position: 0, created_at: '2026-09-05 08:00:00', pictures: null };
 
     it('accepts a fully valid row', () => {
       expect(itemSchema.parse(VALID_ITEM)).toEqual(VALID_ITEM);

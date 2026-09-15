@@ -18,6 +18,7 @@ export const items = sqliteTable('items', {
   note: text('note'),
   position: integer('position').notNull().default(0),
   created_at: text('created_at').notNull().default(sql`(datetime('now', 'localtime'))`),
+  pictures: text('pictures'),
 });
 
 export const config = sqliteTable('config', {

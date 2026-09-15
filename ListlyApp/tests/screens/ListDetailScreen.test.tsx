@@ -11,7 +11,7 @@ import {
 import { resetStub } from '../component/helpers/configStub';
 import type { Item, ListWithCounts } from '../../src/database/types';
 
-const { itemRepositoryMock, selectMocks, nav } = vi.hoisted(() => ({
+const { itemRepositoryMock, selectMocks, nav, photoMocks } = vi.hoisted(() => ({
   itemRepositoryMock: {
     create: vi.fn(),
     update: vi.fn(),
@@ -22,6 +22,13 @@ const { itemRepositoryMock, selectMocks, nav } = vi.hoisted(() => ({
   selectMocks: {
     toggleSelectMode: vi.fn(),
   },
+  photoMocks: {
+    photos: [] as string[],
+    setPhotos: vi.fn(),
+    handleTakePhoto: vi.fn(),
+    handlePickFromGallery: vi.fn(),
+    handleRemovePhoto: vi.fn(),
+  },
   nav: {
     setOptions: vi.fn(),
   },
@@ -29,6 +36,16 @@ const { itemRepositoryMock, selectMocks, nav } = vi.hoisted(() => ({
 
 vi.mock('../../src/database', () => ({
   itemRepository: itemRepositoryMock,
+}));
+
+vi.mock('../../src/hooks/useItemPhotos', () => ({
+  useItemPhotos: () => ({
+    photos: photoMocks.photos,
+    setPhotos: photoMocks.setPhotos,
+    handleTakePhoto: photoMocks.handleTakePhoto,
+    handlePickFromGallery: photoMocks.handlePickFromGallery,
+    handleRemovePhoto: photoMocks.handleRemovePhoto,
+  }),
 }));
 
 vi.mock('../../src/context/AppContext', () => ({
@@ -74,8 +91,8 @@ const LIST: ListWithCounts = {
 };
 
 const ITEMS: Item[] = [
-  { id: 1, list_id: 1, name: 'Milk', checked: 1, note: null, position: 0, created_at: 'x' },
-  { id: 2, list_id: 1, name: 'Eggs', checked: 0, note: 'free-range', position: 1, created_at: 'x' },
+  { id: 1, list_id: 1, name: 'Milk', checked: 1, note: null, position: 0, created_at: 'x', pictures: null },
+  { id: 2, list_id: 1, name: 'Eggs', checked: 0, note: 'free-range', position: 1, created_at: 'x', pictures: null },
 ];
 
 describe('ListDetailScreen', () => {
@@ -94,6 +111,8 @@ describe('ListDetailScreen', () => {
     itemRepositoryMock.toggle.mockResolvedValue(undefined);
     selectMocks.toggleSelectMode.mockReset();
     nav.setOptions.mockReset();
+    photoMocks.photos = [];
+    photoMocks.setPhotos.mockClear();
     setLists([LIST]);
     setItemsByListId(new Map([[1, ITEMS]]));
   });
@@ -131,6 +150,7 @@ describe('ListDetailScreen', () => {
         list_id: 1,
         name: 'Tea',
         note: null,
+        pictures: null,
         checked: 0,
         position: 2,
       })
@@ -158,17 +178,49 @@ describe('ListDetailScreen', () => {
     expect(itemRepositoryMock.create).not.toHaveBeenCalled();
   });
 
-  it('expands and collapses the note area with the toggle', async () => {
+  it('expands and collapses the details area with the toggle', async () => {
     const user = userEvent.setup();
     const view = await render(<ListDetailScreen />);
     await view.findByText('Milk');
     expect(view.queryByLabelText('Note')).toBeNull();
 
-    await user.press(view.getByLabelText('Toggle note'));
+    await user.press(view.getByLabelText('Toggle details'));
     expect(await view.findByLabelText('Note')).toBeTruthy();
 
-    await user.press(view.getByLabelText('Toggle note'));
+    await user.press(view.getByLabelText('Toggle details'));
     expect(view.queryByLabelText('Note')).toBeNull();
+  });
+
+  it('shows the photo section inside the expanded details area', async () => {
+    const view = await render(<ListDetailScreen />);
+    await view.findByText('Milk');
+    expect(view.queryByLabelText('Add photo')).toBeNull();
+
+    fireEvent.press(view.getByLabelText('Toggle details'));
+    expect(await view.findByLabelText('Add photo')).toBeTruthy();
+  });
+
+  it('adds a new item with photos, serializing them for storage', async () => {
+    photoMocks.photos = ['data:image/png;base64,AA'];
+    const user = userEvent.setup();
+    const view = await render(<ListDetailScreen />);
+    await view.findByText('Milk');
+
+    await user.press(view.getByLabelText('Toggle details'));
+    await user.type(view.getByLabelText('Add an item...'), 'Tea');
+    await user.press(view.getByLabelText('Add'));
+
+    await waitFor(() =>
+      expect(itemRepositoryMock.create).toHaveBeenCalledWith({
+        list_id: 1,
+        name: 'Tea',
+        note: null,
+        pictures: '["data:image/png;base64,AA"]',
+        checked: 0,
+        position: 2,
+      })
+    );
+    expect(photoMocks.setPhotos).toHaveBeenCalledWith([]);
   });
 
   it('adds a new item with a note', async () => {
@@ -176,7 +228,7 @@ describe('ListDetailScreen', () => {
     const view = await render(<ListDetailScreen />);
     await view.findByText('Milk');
 
-    await user.press(view.getByLabelText('Toggle note'));
+    await user.press(view.getByLabelText('Toggle details'));
     await user.type(view.getByLabelText('Add an item...'), 'Tea');
     await user.type(await view.findByLabelText('Note'), 'green tea');
     await user.press(view.getByLabelText('Add'));
@@ -186,18 +238,19 @@ describe('ListDetailScreen', () => {
         list_id: 1,
         name: 'Tea',
         note: 'green tea',
+        pictures: null,
         checked: 0,
         position: 2,
       })
     );
   });
 
-  it('clears and collapses the note area after adding', async () => {
+  it('clears and collapses the details area after adding', async () => {
     const user = userEvent.setup();
     const view = await render(<ListDetailScreen />);
     await view.findByText('Milk');
 
-    await user.press(view.getByLabelText('Toggle note'));
+    await user.press(view.getByLabelText('Toggle details'));
     await user.type(view.getByLabelText('Add an item...'), 'Tea');
     await user.type(await view.findByLabelText('Note'), 'green tea');
     await user.press(view.getByLabelText('Add'));
@@ -222,7 +275,21 @@ describe('ListDetailScreen', () => {
     await user.press(view.getByLabelText('Save'));
 
     await waitFor(() =>
-      expect(itemRepositoryMock.update).toHaveBeenCalledWith(2, { name: 'Eggs (brown)', note: 'from the market' })
+      expect(itemRepositoryMock.update).toHaveBeenCalledWith(2, { name: 'Eggs (brown)', note: 'from the market', pictures: null })
+    );
+  });
+
+  it('updates an item with photos in the edit modal', async () => {
+    photoMocks.photos = ['data:image/png;base64,BB'];
+    const user = userEvent.setup();
+    const view = await render(<ListDetailScreen />);
+    await view.findByText('Milk');
+    await user.press(view.getAllByLabelText('Edit item')[1]);
+    await view.findByLabelText('Name');
+
+    await user.press(view.getByLabelText('Save'));
+    await waitFor(() =>
+      expect(itemRepositoryMock.update).toHaveBeenCalledWith(2, { name: 'Eggs', note: 'free-range', pictures: '["data:image/png;base64,BB"]' })
     );
   });
 

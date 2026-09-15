@@ -11,7 +11,7 @@ await import('expo-sqlite');
 
 const EXPECTED_COLUMNS: Record<string, string[]> = {
   lists: ['id', 'name', 'color', 'icon', 'created_at', 'position'],
-  items: ['id', 'list_id', 'name', 'checked', 'note', 'position', 'created_at'],
+  items: ['id', 'list_id', 'name', 'checked', 'note', 'position', 'created_at', 'pictures'],
   config: ['key', 'value'],
 };
 
@@ -36,8 +36,10 @@ describe('db drift', () => {
     await db.execAsync('PRAGMA foreign_keys = ON;');
     const { createSchema } = await import('../../src/database/migrations/001_initial');
     const { addListPositions } = await import('../../src/database/migrations/003_list_position');
+    const { addItemPictures } = await import('../../src/database/migrations/004_item_pictures');
     await createSchema(db);
     await addListPositions(db);
+    await addItemPictures(db);
     for (const [table, expected] of Object.entries(EXPECTED_COLUMNS)) {
       expect(await columnNames(db, table)).toEqual(expected);
     }
@@ -47,8 +49,10 @@ describe('db drift', () => {
     const db = await getHandle();
     const { createSchema } = await import('../../src/database/migrations/001_initial');
     const { addListPositions } = await import('../../src/database/migrations/003_list_position');
+    const { addItemPictures } = await import('../../src/database/migrations/004_item_pictures');
     await createSchema(db);
     await addListPositions(db);
+    await addItemPictures(db);
     const { listSchema, itemSchema } = await import('../../src/database/schemas');
 
     expect(Object.keys(listSchema.shape)).toEqual(await columnNames(db, 'lists'));
@@ -73,7 +77,7 @@ describe('db drift', () => {
 
     const handle = openDatabaseSync('Listly.db') as DatabaseHandle;
     const version = await handle.getFirstAsync<{ user_version: number }>('PRAGMA user_version;');
-    expect(version?.user_version).toBe(3);
+    expect(version?.user_version).toBe(4);
     const lists = await handle.getAllAsync('SELECT * FROM lists;');
     const items = await handle.getAllAsync('SELECT * FROM items;');
     expect(lists).toHaveLength(6);
