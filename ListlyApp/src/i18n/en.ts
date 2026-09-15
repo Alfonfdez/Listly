@@ -22,6 +22,7 @@ export const en = {
   item_edit_title: 'Edit item',
   item_name_label: 'Name',
   item_note_label: 'Note',
+  item_note_preview: 'View note',
   item_save: 'Save',
   item_delete: 'Delete',
   item_confirm_delete: 'Delete this item?',

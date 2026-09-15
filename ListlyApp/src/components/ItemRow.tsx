@@ -8,6 +8,7 @@ import { BUTTON_BORDER_RADIUS } from './componentStyles';
 import type { Item } from '../database/types';
 import { MAX_ITEM_PICTURES } from '../constants/types';
 import { parseItemPhotos } from '../utils/itemPhotos';
+import NoteViewer from './NoteViewer';
 import PhotoViewer from './PhotoViewer';
 
 interface Props {
@@ -26,6 +27,7 @@ function ItemRowInner({ item, selectMode, selected, onToggle, onLongPress, onEdi
   const isDone = item.checked === 1;
   const photos = parseItemPhotos(item.pictures);
   const [viewerIndex, setViewerIndex] = useState<number | null>(null);
+  const [noteViewerVisible, setNoteViewerVisible] = useState(false);
 
   const checkbox = selectMode ? (
     <View style={[styles.check, selected ? { backgroundColor: c.primary } : { borderColor: c.border }]}>
@@ -85,6 +87,22 @@ function ItemRowInner({ item, selectMode, selected, onToggle, onLongPress, onEdi
             </Pressable>
           ) : null}
         </View>
+        {item.note && !selectMode ? (
+          <Pressable
+            onPress={() => setNoteViewerVisible(true)}
+            accessibilityRole="button"
+            accessibilityLabel={labels.item_note_preview}
+            hitSlop={4}
+          >
+            <Text
+              style={[styles.notePreview, { color: c.textSecondary, fontSize: fs(13) }]}
+              numberOfLines={2}
+              ellipsizeMode="tail"
+            >
+              {item.note}
+            </Text>
+          </Pressable>
+        ) : null}
         {photos.length > 0 && !selectMode ? (
           <View style={styles.thumbRow}>
             {photos.slice(0, MAX_ITEM_PICTURES).map((uri, index) => (
@@ -106,6 +124,11 @@ function ItemRowInner({ item, selectMode, selected, onToggle, onLongPress, onEdi
         visible={viewerIndex !== null}
         selectedIndex={viewerIndex ?? 0}
         onClose={() => setViewerIndex(null)}
+      />
+      <NoteViewer
+        note={item.note ?? ''}
+        visible={noteViewerVisible}
+        onClose={() => setNoteViewerVisible(false)}
       />
     </Pressable>
   );
@@ -152,6 +175,10 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   noteIcon: {},
+  notePreview: {
+    marginTop: 4,
+    lineHeight: 18,
+  },
   editButton: {
     padding: 4,
   },

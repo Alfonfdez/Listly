@@ -26,6 +26,7 @@ import SearchBar from '../components/SearchBar';
 import ItemRow from '../components/ItemRow';
 import ItemFormModal from '../components/ItemFormModal';
 import PhotoSection from '../components/PhotoSection';
+import CharCounter from '../components/CharCounter';
 import SelectionActionBar from '../components/SelectionActionBar';
 import ConfirmModal from '../components/ConfirmModal';
 import SelectSearchHeader from '../components/SelectSearchHeader';
@@ -249,23 +250,26 @@ export default function ListDetailScreen() {
             <Text style={[styles.errorText, { color: c.red, fontSize: fs(12) }]}>{labels[addError]}</Text>
           ) : null}
           <View style={styles.inputRow}>
-            <TextInput
-              value={newName}
-              onChangeText={value => {
-                setNewName(value);
-                setAddError(null);
-              }}
-              maxLength={MAX_ITEM_NAME_LENGTH}
-              placeholder={labels.item_add_placeholder}
-              placeholderTextColor={c.textSecondary}
-              returnKeyType="done"
-              onSubmitEditing={() => void submitAdd()}
-              style={[
-                styles.input,
-                { backgroundColor: c.surface, borderColor: c.border, color: c.text, fontSize: fs(15) },
-              ]}
-              accessibilityLabel={labels.item_add_placeholder}
-            />
+            <View style={styles.nameColumn}>
+              <TextInput
+                value={newName}
+                onChangeText={value => {
+                  setNewName(value);
+                  setAddError(null);
+                }}
+                maxLength={MAX_ITEM_NAME_LENGTH}
+                placeholder={labels.item_add_placeholder}
+                placeholderTextColor={c.textSecondary}
+                returnKeyType="done"
+                onSubmitEditing={() => void submitAdd()}
+                style={[
+                  styles.input,
+                  { backgroundColor: c.surface, borderColor: c.border, color: c.text, fontSize: fs(15) },
+                ]}
+                accessibilityLabel={labels.item_add_placeholder}
+              />
+              <CharCounter current={newName.length} max={MAX_ITEM_NAME_LENGTH} />
+            </View>
             <TouchableOpacity
               onPress={() => setNoteExpanded(prev => !prev)}
               style={[styles.noteToggle, { backgroundColor: c.surface, borderColor: c.border }]}
@@ -290,21 +294,24 @@ export default function ListDetailScreen() {
             </Pressable>
           </View>
           {noteExpanded ? (
-            <TextInput
-              value={newNote}
-              onChangeText={setNewNote}
-              maxLength={MAX_ITEM_NOTE_LENGTH}
-              placeholder={labels.item_note_label}
-              placeholderTextColor={c.textSecondary}
-              multiline
-              textAlignVertical="top"
-              style={[
-                styles.input,
-                styles.noteInput,
-                { backgroundColor: c.surface, borderColor: c.border, color: c.text, fontSize: fs(15) },
-              ]}
-              accessibilityLabel={labels.item_note_label}
-            />
+            <>
+              <TextInput
+                value={newNote}
+                onChangeText={setNewNote}
+                maxLength={MAX_ITEM_NOTE_LENGTH}
+                placeholder={labels.item_note_label}
+                placeholderTextColor={c.textSecondary}
+                multiline
+                textAlignVertical="top"
+                style={[
+                  styles.input,
+                  styles.noteInput,
+                  { backgroundColor: c.surface, borderColor: c.border, color: c.text, fontSize: fs(15) },
+                ]}
+                accessibilityLabel={labels.item_note_label}
+              />
+              <CharCounter current={newNote.length} max={MAX_ITEM_NOTE_LENGTH} />
+            </>
           ) : null}
           {noteExpanded ? (
             <PhotoSection
@@ -355,6 +362,8 @@ export default function ListDetailScreen() {
   );
 }
 
+const ADD_ROW_HEIGHT = 40;
+
 const styles = StyleSheet.create({
   center: {
     alignItems: 'center',
@@ -403,21 +412,26 @@ const styles = StyleSheet.create({
   },
   inputRow: {
     flexDirection: 'row',
-    alignItems: 'center',
+    alignItems: 'flex-start',
     gap: 8,
   },
-  input: {
+  nameColumn: {
     flex: 1,
+  },
+  input: {
+    height: ADD_ROW_HEIGHT,
     borderWidth: 1,
     borderRadius: BUTTON_BORDER_RADIUS,
     paddingHorizontal: 12,
-    paddingVertical: 10,
+    textAlignVertical: 'center',
   },
   noteToggle: {
+    height: ADD_ROW_HEIGHT,
+    justifyContent: 'center',
+    alignItems: 'center',
     borderWidth: 1,
     borderRadius: BUTTON_BORDER_RADIUS,
     paddingHorizontal: 10,
-    paddingVertical: 10,
   },
   chevronOpen: {
     transform: [{ rotate: '180deg' }],
@@ -427,12 +441,13 @@ const styles = StyleSheet.create({
     paddingTop: 10,
   },
   addButton: {
+    height: ADD_ROW_HEIGHT,
     flexDirection: 'row',
+    justifyContent: 'center',
     alignItems: 'center',
     gap: 4,
     borderRadius: BUTTON_BORDER_RADIUS,
     paddingHorizontal: 14,
-    paddingVertical: 10,
   },
   addButtonText: {
     color: '#FFFFFF',

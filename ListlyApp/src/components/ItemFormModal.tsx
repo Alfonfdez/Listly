@@ -8,6 +8,7 @@ import { validateItemName, type ItemNameError } from '../utils/validation';
 import { MAX_ITEM_NAME_LENGTH, MAX_ITEM_NOTE_LENGTH } from '../constants/types';
 import { useItemPhotos } from '../hooks/useItemPhotos';
 import PhotoSection from './PhotoSection';
+import CharCounter from './CharCounter';
 
 interface Props {
   visible: boolean;
@@ -91,6 +92,7 @@ export default function ItemFormModal({
             ]}
             accessibilityLabel={labels.item_name_label}
           />
+          <CharCounter current={name.length} max={MAX_ITEM_NAME_LENGTH} />
           {error ? (
             <Text style={[styles.errorText, { color: c.red, fontSize: fs(12) }]}>{labels[error]}</Text>
           ) : null}
@@ -113,6 +115,7 @@ export default function ItemFormModal({
             ]}
             accessibilityLabel={labels.item_note_label}
           />
+          <CharCounter current={note.length} max={MAX_ITEM_NOTE_LENGTH} />
 
           <View style={styles.photoSection}>
             <PhotoSection
