@@ -1,4 +1,4 @@
-import { and, eq, ne, sql, type SQL } from 'drizzle-orm';
+import { and, eq, inArray, ne, sql, type SQL } from 'drizzle-orm';
 import { getDrizzle, withTransaction } from '../drizzle/engine';
 import { items, lists } from '../drizzle/schema';
 import { runResultOf } from '../drizzle/proxy';
@@ -6,6 +6,18 @@ import type { List, ListWithCounts } from '../types';
 import { listSchema } from '../schemas';
 import { parseRowOrNull, parseRows } from '../validate';
 import { dbTimestamp } from '../../utils/formatters';
+import { deleteItemPhotos, parseItemPhotos } from '../../utils/itemPhotos';
+
+async function deletePhotosOfItems(listIds: number[]): Promise<void> {
+  const db = await getDrizzle();
+  const rows = await db
+    .select({ pictures: items.pictures })
+    .from(items)
+    .where(inArray(items.list_id, listIds))
+    .all();
+  const uris = rows.flatMap(row => parseItemPhotos(row.pictures));
+  await deleteItemPhotos(uris);
+}
 
 export const listRepo = {
   async list(): Promise<List[]> {
@@ -60,6 +72,7 @@ export const listRepo = {
   async delete(id: number): Promise<void> {
     const db = await getDrizzle();
     await db.delete(lists).where(eq(lists.id, id)).run();
+    await deletePhotosOfItems([id]);
   },
 
   async deleteMany(ids: number[]): Promise<void> {
@@ -69,6 +82,7 @@ export const listRepo = {
         await db.delete(lists).where(eq(lists.id, id)).run();
       }
     });
+    await deletePhotosOfItems(ids);
   },
 
   async withCounts(): Promise<ListWithCounts[]> {

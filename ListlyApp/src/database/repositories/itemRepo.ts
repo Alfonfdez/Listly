@@ -1,4 +1,4 @@
-import { and, eq, ne, sql, type SQL } from 'drizzle-orm';
+import { and, eq, inArray, ne, sql, type SQL } from 'drizzle-orm';
 import { getDrizzle, withTransaction } from '../drizzle/engine';
 import { items } from '../drizzle/schema';
 import { runResultOf } from '../drizzle/proxy';
@@ -6,6 +6,15 @@ import type { Item } from '../types';
 import { itemSchema } from '../schemas';
 import { parseRowOrNull, parseRows } from '../validate';
 import { dbTimestamp } from '../../utils/formatters';
+import { deleteItemPhotos, parseItemPhotos } from '../../utils/itemPhotos';
+
+async function deletePhotosOf(rows: { pictures: string | null }[]): Promise<void> {
+  const uris: string[] = [];
+  for (const row of rows) {
+    uris.push(...parseItemPhotos(row.pictures));
+  }
+  await deleteItemPhotos(uris);
+}
 
 export const itemRepo = {
   async listAll(): Promise<Item[]> {
@@ -40,6 +49,7 @@ export const itemRepo = {
         name: data.name,
         checked: data.checked ?? 0,
         note: data.note ?? null,
+        pictures: data.pictures ?? null,
         position: data.position ?? 0,
       })
       .run();
@@ -52,6 +62,7 @@ export const itemRepo = {
     if (data.name !== undefined) set.name = data.name;
     if (data.checked !== undefined) set.checked = data.checked;
     if (data.note !== undefined) set.note = data.note;
+    if (data.pictures !== undefined) set.pictures = data.pictures;
     if (data.position !== undefined) set.position = data.position;
     if (Object.keys(set).length === 0) return;
     await db.update(items).set(set).where(eq(items.id, id)).run();
@@ -59,15 +70,17 @@ export const itemRepo = {
 
   async delete(id: number): Promise<void> {
     const db = await getDrizzle();
+    const row = await db.select({ pictures: items.pictures }).from(items).where(eq(items.id, id)).get();
     await db.delete(items).where(eq(items.id, id)).run();
+    await deletePhotosOf(row ? [row] : []);
   },
 
   async deleteMany(ids: number[]): Promise<void> {
     if (ids.length === 0) return;
     await withTransaction(async db => {
-      for (const id of ids) {
-        await db.delete(items).where(eq(items.id, id)).run();
-      }
+      const rows = await db.select({ pictures: items.pictures }).from(items).where(inArray(items.id, ids)).all();
+      await db.delete(items).where(inArray(items.id, ids)).run();
+      await deletePhotosOf(rows);
     });
   },
 

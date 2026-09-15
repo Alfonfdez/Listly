@@ -93,6 +93,16 @@ Bulk select/delete + header search:
 - Search toggle moved from inline ListsView to `headerRight` in the navigator for Home and Lists.
 - Spec: spec/features/010-bulk-select-delete/.
 
+## 011-item-pictures
+Status: done.
+
+Up to 3 pictures per item:
+- `items.pictures` TEXT column (JSON array of URIs), migration 004 / `SCHEMA_VERSION` 4.
+- "Add photos" section in the expanded details area of the add bar (under the note input) and under the Note field in the edit modal.
+- Thumbnail strip on item rows; full-screen viewer on tap.
+- Native stores file URIs in the document directory; web stores base64 data URLs inline; photo files cleaned up on item/list delete.
+- Spec: spec/features/011-item-pictures/.
+
 ## Future scope (not scheduled)
 - Tags, due dates, subtasks, recurring items.
 - List templates and sharing.

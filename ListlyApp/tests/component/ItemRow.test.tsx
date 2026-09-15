@@ -11,6 +11,7 @@ function makeItem(overrides: Partial<Item> = {}): Item {
     name: 'Milk',
     checked: 0,
     note: null,
+    pictures: null,
     position: 0,
     created_at: 'x',
     ...overrides,
@@ -29,6 +30,17 @@ describe('ItemRow', () => {
     expect(view.getByText('Milk')).toBeTruthy();
     expect(view.getByText('ellipse-outline')).toBeTruthy();
     expect(view.queryByText('checkmark-circle')).toBeNull();
+  });
+
+  it('hides thumbnails when the item has no pictures', async () => {
+    const view = await render(<ItemRow item={makeItem()} {...defaults} onToggle={() => {}} onEdit={() => {}} />);
+    expect(view.queryByLabelText('Photos')).toBeNull();
+  });
+
+  it('renders a thumbnail per picture', async () => {
+    const item = makeItem({ pictures: JSON.stringify(['data:image/a', 'data:image/b']) });
+    const view = await render(<ItemRow item={item} {...defaults} onToggle={() => {}} onEdit={() => {}} />);
+    expect(view.getAllByLabelText('Photos')).toHaveLength(2);
   });
 
   it('uses a filled checkmark and strike-through for checked items', async () => {

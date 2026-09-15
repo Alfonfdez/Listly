@@ -36,7 +36,7 @@ const LISTS: ListWithCounts[] = [
 ];
 
 function items(names: string[]): Item[] {
-  return names.map((name, i) => ({ id: i + 1, list_id: 1, name, checked: 0, note: null, position: i, created_at: 'x' }));
+  return names.map((name, i) => ({ id: i + 1, list_id: 1, name, checked: 0, note: null, position: i, created_at: 'x', pictures: null }));
 }
 
 interface Overrides {

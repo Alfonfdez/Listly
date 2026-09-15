@@ -25,6 +25,7 @@ export const DEBOUNCE_MS = 300;
 export const MAX_LIST_NAME_LENGTH = 100;
 export const MAX_ITEM_NAME_LENGTH = 200;
 export const MAX_ITEM_NOTE_LENGTH = 2000;
+export const MAX_ITEM_PICTURES = 3;
 
 export type RootStackParamList = {
   Home: undefined;
