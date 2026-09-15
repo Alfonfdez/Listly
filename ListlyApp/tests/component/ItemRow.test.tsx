@@ -1,5 +1,6 @@
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 import { render, fireEvent } from '@testing-library/react-native';
+import { userEvent } from '@testing-library/react-native';
 import ItemRow from '../../src/components/ItemRow';
 import { resetStub } from './helpers/configStub';
 import type { Item } from '../../src/database/types';
@@ -56,11 +57,32 @@ describe('ItemRow', () => {
   it('shows a note indicator only when a note is set', async () => {
     const noNote = await render(<ItemRow item={makeItem()} {...defaults} onToggle={() => {}} onEdit={() => {}} />);
     expect(noNote.queryByText('document-text-outline')).toBeNull();
+    expect(noNote.queryByText('medium roast')).toBeNull();
 
     const withNote = await render(
       <ItemRow item={makeItem({ note: 'medium roast' })} {...defaults} onToggle={() => {}} onEdit={() => {}} />
     );
     expect(withNote.getByText('document-text-outline')).toBeTruthy();
+    expect(withNote.getByText('medium roast')).toBeTruthy();
+  });
+
+  it('hides the note preview in select mode', async () => {
+    const view = await render(
+      <ItemRow item={makeItem({ note: 'medium roast' })} {...defaults} selectMode onToggle={() => {}} onEdit={() => {}} />
+    );
+    expect(view.queryByText('medium roast')).toBeNull();
+  });
+
+  it('opens the full note viewer from the note preview', async () => {
+    const user = userEvent.setup();
+    const view = await render(
+      <ItemRow item={makeItem({ note: 'medium roast' })} {...defaults} onToggle={() => {}} onEdit={() => {}} />
+    );
+
+    await user.press(view.getByLabelText('View note'));
+    expect(await view.findByLabelText('Close')).toBeTruthy();
+
+    await user.press(view.getByLabelText('Close'));
   });
 
   it('toggles on row press and opens the editor on the edit button', async () => {

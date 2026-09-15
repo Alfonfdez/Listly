@@ -24,6 +24,7 @@ export const es: Language = {
   item_edit_title: 'Editar elemento',
   item_name_label: 'Nombre',
   item_note_label: 'Nota',
+  item_note_preview: 'Ver nota',
   item_save: 'Guardar',
   item_delete: 'Eliminar',
   item_confirm_delete: '¿Eliminar este elemento?',

@@ -10,6 +10,7 @@ import {
 } from '../component/helpers/appStub';
 import { resetStub } from '../component/helpers/configStub';
 import type { Item, ListWithCounts } from '../../src/database/types';
+import { darkColors } from '../../src/constants/themes';
 
 const { itemRepositoryMock, selectMocks, nav, photoMocks } = vi.hoisted(() => ({
   itemRepositoryMock: {
@@ -191,6 +192,56 @@ describe('ListDetailScreen', () => {
     expect(view.queryByLabelText('Note')).toBeNull();
   });
 
+  it('shows a char counter under the add name input and updates as it is typed', async () => {
+    const user = userEvent.setup();
+    const view = await render(<ListDetailScreen />);
+    await view.findByText('Milk');
+    expect(view.getByText('0/200')).toBeTruthy();
+
+    await user.type(view.getByLabelText('Add an item...'), 'Tea');
+    expect(view.getByText('3/200')).toBeTruthy();
+  });
+
+  it('turns the name counter red when the max length is reached', async () => {
+    const user = userEvent.setup();
+    const view = await render(<ListDetailScreen />);
+    await view.findByText('Milk');
+
+    await user.type(view.getByLabelText('Add an item...'), 'a'.repeat(200));
+    const counter = view.getByText('200/200');
+    const styles = flattenStyle(counter.props.style);
+    expect(styles.color).toBe(darkColors.red);
+  });
+
+  it('shows a char counter under the note input inside the details area', async () => {
+    const view = await render(<ListDetailScreen />);
+    await view.findByText('Milk');
+    expect(view.queryByText('0/2000')).toBeNull();
+
+    fireEvent.press(view.getByLabelText('Toggle details'));
+    expect(await view.findByText('0/2000')).toBeTruthy();
+  });
+
+  it('shows char counters in the edit modal', async () => {
+    const user = userEvent.setup();
+    const view = await render(<ListDetailScreen />);
+    await view.findByText('Milk');
+    await user.press(view.getAllByLabelText('Edit item')[1]);
+
+    expect(await view.findByText('4/200')).toBeTruthy();
+    expect(view.getByText('10/2000')).toBeTruthy();
+  });
+
+  it('shows the note preview and opens the full note viewer', async () => {
+    const user = userEvent.setup();
+    const view = await render(<ListDetailScreen />);
+    await view.findByText('Milk');
+    expect(view.getByText('free-range')).toBeTruthy();
+
+    await user.press(view.getByLabelText('View note'));
+    expect(await view.findByLabelText('Close')).toBeTruthy();
+  });
+
   it('shows the photo section inside the expanded details area', async () => {
     const view = await render(<ListDetailScreen />);
     await view.findByText('Milk');
@@ -358,4 +409,14 @@ async function renderHeader() {
 
 function fireEventPress(view: Awaited<ReturnType<typeof render>>, label: string) {
   fireEvent.press(view.getByLabelText(label));
+}
+
+function flattenStyle(style: unknown): Record<string, unknown> {
+  if (Array.isArray(style)) {
+    return style.reduce((acc: Record<string, unknown>, s) => ({ ...acc, ...flattenStyle(s) }), {});
+  }
+  if (style && typeof style === 'object') {
+    return { ...(style as Record<string, unknown>) };
+  }
+  return {};
 }
