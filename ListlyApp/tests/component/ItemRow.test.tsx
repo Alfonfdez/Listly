@@ -17,13 +17,15 @@ function makeItem(overrides: Partial<Item> = {}): Item {
   };
 }
 
+const defaults = { selectMode: false, selected: false, onLongPress: () => {} };
+
 describe('ItemRow', () => {
   beforeEach(() => {
     resetStub();
   });
 
   it('renders the item name and an unchecked checkbox', async () => {
-    const view = await render(<ItemRow item={makeItem()} onToggle={() => {}} onEdit={() => {}} />);
+    const view = await render(<ItemRow item={makeItem()} {...defaults} onToggle={() => {}} onEdit={() => {}} />);
     expect(view.getByText('Milk')).toBeTruthy();
     expect(view.getByText('ellipse-outline')).toBeTruthy();
     expect(view.queryByText('checkmark-circle')).toBeNull();
@@ -31,7 +33,7 @@ describe('ItemRow', () => {
 
   it('uses a filled checkmark and strike-through for checked items', async () => {
     const item = makeItem({ checked: 1 });
-    const view = await render(<ItemRow item={item} onToggle={() => {}} onEdit={() => {}} />);
+    const view = await render(<ItemRow item={item} {...defaults} onToggle={() => {}} onEdit={() => {}} />);
     expect(view.getByText('checkmark-circle')).toBeTruthy();
 
     const name = view.getByText('Milk');
@@ -40,11 +42,11 @@ describe('ItemRow', () => {
   });
 
   it('shows a note indicator only when a note is set', async () => {
-    const noNote = await render(<ItemRow item={makeItem()} onToggle={() => {}} onEdit={() => {}} />);
+    const noNote = await render(<ItemRow item={makeItem()} {...defaults} onToggle={() => {}} onEdit={() => {}} />);
     expect(noNote.queryByText('document-text-outline')).toBeNull();
 
     const withNote = await render(
-      <ItemRow item={makeItem({ note: 'medium roast' })} onToggle={() => {}} onEdit={() => {}} />
+      <ItemRow item={makeItem({ note: 'medium roast' })} {...defaults} onToggle={() => {}} onEdit={() => {}} />
     );
     expect(withNote.getByText('document-text-outline')).toBeTruthy();
   });
@@ -52,7 +54,7 @@ describe('ItemRow', () => {
   it('toggles on row press and opens the editor on the edit button', async () => {
     const onToggle = vi.fn();
     const onEdit = vi.fn();
-    const view = await render(<ItemRow item={makeItem()} onToggle={onToggle} onEdit={onEdit} />);
+    const view = await render(<ItemRow item={makeItem()} {...defaults} onToggle={onToggle} onEdit={onEdit} />);
 
     fireEvent.press(view.getByText('Milk'));
     expect(onToggle).toHaveBeenCalledTimes(1);

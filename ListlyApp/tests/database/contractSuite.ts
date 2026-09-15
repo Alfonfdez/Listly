@@ -142,6 +142,26 @@ export function runContractSuite(
         expect(await backend.item.get(item1.id)).toBeNull();
         expect(await backend.item.listByList(created.id)).toEqual([]);
       });
+
+      it('deleteMany removes several lists and their items in one go', async () => {
+        const a = await backend.list.create(list('Del A'));
+        const b = await backend.list.create(list('Del B'));
+        const aItem = await backend.item.create(item(a.id, 'A1'));
+        await backend.item.create(item(b.id, 'B1'));
+
+        await backend.list.deleteMany([a.id, b.id]);
+        expect(await backend.list.get(a.id)).toBeNull();
+        expect(await backend.list.get(b.id)).toBeNull();
+        expect(await backend.item.get(aItem.id)).toBeNull();
+        expect(await backend.item.listByList(b.id)).toEqual([]);
+        expect((await backend.list.list()).some(l => l.id === a.id || l.id === b.id)).toBe(false);
+      });
+
+      it('deleteMany with an empty id list is a no-op', async () => {
+        const before = await backend.list.list();
+        await backend.list.deleteMany([]);
+        expect(await backend.list.list()).toHaveLength(before.length);
+      });
     });
 
     describe('items', () => {
@@ -185,6 +205,21 @@ export function runContractSuite(
         await backend.item.delete(created.id);
         expect(await backend.item.get(created.id)).toBeNull();
         expect(await backend.item.listByList(1)).toHaveLength(5);
+      });
+
+      it('deleteMany removes several items at once', async () => {
+        const a = await backend.item.create(item(1, 'Bulk A'));
+        const b = await backend.item.create(item(1, 'Bulk B'));
+        await backend.item.deleteMany([a.id, b.id]);
+        expect(await backend.item.get(a.id)).toBeNull();
+        expect(await backend.item.get(b.id)).toBeNull();
+        expect(await backend.item.listByList(1)).toHaveLength(5);
+      });
+
+      it('deleteMany with an empty id list is a no-op', async () => {
+        const before = await backend.item.listAll();
+        await backend.item.deleteMany([]);
+        expect(await backend.item.listAll()).toHaveLength(before.length);
       });
 
       it('orderBy position keeps manual ordering after position updates', async () => {

@@ -21,7 +21,9 @@ describe('ListCard', () => {
   });
 
   it('renders the list name, icon and progress', async () => {
-    const view = await render(<ListCard list={LIST} onPress={() => {}} />);
+    const view = await render(
+      <ListCard list={LIST} selectMode={false} selected={false} onPress={() => {}} />
+    );
 
     expect(view.getByText('Groceries')).toBeTruthy();
     expect(view.getByText('cart-outline')).toBeTruthy();
@@ -30,14 +32,18 @@ describe('ListCard', () => {
 
   it('calls onPress when pressed', async () => {
     const onPress = vi.fn();
-    const view = await render(<ListCard list={LIST} onPress={onPress} />);
+    const view = await render(
+      <ListCard list={LIST} selectMode={false} selected={false} onPress={onPress} />
+    );
 
     fireEvent.press(view.getByText('Groceries'));
     expect(onPress).toHaveBeenCalled();
   });
 
   it('uses the list color for the icon and tints the card background', async () => {
-    const view = await render(<ListCard list={LIST} onPress={() => {}} />);
+    const view = await render(
+      <ListCard list={LIST} selectMode={false} selected={false} onPress={() => {}} />
+    );
 
     const icon = view.getByText('cart-outline');
     expect(icon.props.color).toBe('#22D3EE');

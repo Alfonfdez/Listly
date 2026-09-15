@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { filterListsByQuery, matchesAllTerms, searchTerms } from '../../src/utils/search';
+import { filterItemsByQuery, filterListsByQuery, matchesAllTerms, searchTerms } from '../../src/utils/search';
 import type { Item, ListWithCounts } from '../../src/database/types';
 
 const LISTS: ListWithCounts[] = [
@@ -75,5 +75,38 @@ describe('filterListsByQuery', () => {
     expect(filterListsByQuery(LISTS, ITEMS, 'milk honey').map(l => l.id)).toEqual([3]);
     expect(filterListsByQuery(LISTS, ITEMS, 'milk coffee').map(l => l.id)).toEqual([1]);
     expect(filterListsByQuery(LISTS, ITEMS, 'milk briefcase')).toEqual([]);
+  });
+});
+
+describe('filterItemsByQuery', () => {
+  it('returns all items for an empty query', () => {
+    const items: Item[] = [item('Milk'), item('Coffee beans')];
+    expect(filterItemsByQuery(items, '')).toHaveLength(2);
+    expect(filterItemsByQuery(items, '   ')).toHaveLength(2);
+  });
+
+  it('filters by item name, case-insensitive substring', () => {
+    const items: Item[] = [item('Milk'), item('Coffee beans')];
+    expect(filterItemsByQuery(items, 'milk').map(i => i.name)).toEqual(['Milk']);
+    expect(filterItemsByQuery(items, 'COFFEE').map(i => i.name)).toEqual(['Coffee beans']);
+    expect(filterItemsByQuery(items, 'nope')).toEqual([]);
+  });
+
+  it('matches the note text too', () => {
+    const items: Item[] = [
+      { ...item('Eggs'), note: 'free-range' },
+      { ...item('Milk') },
+    ];
+    expect(filterItemsByQuery(items, 'free').map(i => i.name)).toEqual(['Eggs']);
+    expect(filterItemsByQuery(items, 'range').map(i => i.name)).toEqual(['Eggs']);
+  });
+
+  it('supports multi-term AND across name and note', () => {
+    const items: Item[] = [
+      { ...item('Eggs'), note: 'free-range brown' },
+      item('Milk'),
+    ];
+    expect(filterItemsByQuery(items, 'eggs free').map(i => i.name)).toEqual(['Eggs']);
+    expect(filterItemsByQuery(items, 'eggs creamy')).toEqual([]);
   });
 });
