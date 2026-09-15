@@ -82,6 +82,17 @@ Expandable note area in the add-item bar:
 - Fields clear and the area collapses after submission.
 - Spec: spec/features/008-add-item-note/.
 
+## 010-bulk-select-delete
+Status: complete.
+
+Bulk select/delete + header search:
+- Multi-select lists (long-press to enter select mode) with bottom action bar (count + delete + cancel).
+- Multi-select items (long-press to enter select mode) with the same pattern.
+- Bulk delete with confirmation dialog, transactional, refresh after.
+- Single list/item delete via long-press in select mode.
+- Search toggle moved from inline ListsView to `headerRight` in the navigator for Home and Lists.
+- Spec: spec/features/010-bulk-select-delete/.
+
 ## Future scope (not scheduled)
 - Tags, due dates, subtasks, recurring items.
 - List templates and sharing.

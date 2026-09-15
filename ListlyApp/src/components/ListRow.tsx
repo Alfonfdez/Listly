@@ -12,22 +12,43 @@ import type { IconName } from '../constants/types';
 
 interface Props {
   list: ListWithCounts;
+  selectMode: boolean;
+  selected: boolean;
   onPress: () => void;
 }
 
-function ListRowInner({ list, onPress }: Props) {
+function ListRowInner({ list, selectMode, selected, onPress }: Props) {
   const { activeColors: c } = useConfig();
   const fs = useFontSize();
   const labels = t();
 
   return (
     <SortablePressable
-      style={[styles.row, { backgroundColor: withAlpha(list.color, 13) }]}
+      style={[
+        styles.row,
+        { backgroundColor: withAlpha(list.color, 13) },
+        selectMode && selected && { borderColor: c.primary },
+        selectMode && !selected && { borderColor: c.border },
+      ]}
       onPress={onPress}
-      accessibilityLabel={`${list.name}, ${labels.home_progress(list.completed, list.total)}`}
+      accessibilityRole={selectMode ? 'checkbox' : undefined}
+      accessibilityState={selectMode ? { checked: selected } : undefined}
+      accessibilityLabel={selected ? `${list.name}, ${labels.select_selected(1)}` : list.name}
     >
-      <View style={[styles.badge, { backgroundColor: withAlpha(list.color, 18) }]}>
-        <Ionicons name={list.icon as IconName} size={22} color={list.color} />
+      <View style={styles.badgeWrap}>
+        <View style={[styles.badge, { backgroundColor: withAlpha(list.color, 18) }]}>
+          <Ionicons name={list.icon as IconName} size={22} color={list.color} />
+        </View>
+        {selectMode ? (
+          <View
+            style={[
+              styles.check,
+              selected ? { backgroundColor: c.primary, borderColor: c.primary } : { backgroundColor: c.surface, borderColor: c.border },
+            ]}
+          >
+            {selected ? <Ionicons name="checkmark" size={12} color={c.background} /> : null}
+          </View>
+        ) : null}
       </View>
       <Text style={[styles.name, { color: c.text, fontSize: fs(15) }]} numberOfLines={1}>
         {list.name}
@@ -47,11 +68,29 @@ const styles = StyleSheet.create({
     borderRadius: CARD_BORDER_RADIUS,
     paddingVertical: 12,
     paddingHorizontal: 14,
+    borderWidth: 1,
+    borderColor: 'transparent',
+  },
+  badgeWrap: {
+    width: 40,
+    height: 40,
+    position: 'relative',
   },
   badge: {
     width: 40,
     height: 40,
     borderRadius: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  check: {
+    position: 'absolute',
+    top: -3,
+    right: -3,
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    borderWidth: 1.5,
     alignItems: 'center',
     justifyContent: 'center',
   },

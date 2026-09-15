@@ -23,3 +23,8 @@ export function filterListsByQuery(
     return matchesAllTerms(query, ...itemNames);
   });
 }
+
+export function filterItemsByQuery(items: Item[], query: string): Item[] {
+  if (searchTerms(query).length === 0) return items;
+  return items.filter(item => matchesAllTerms(query, item.name, item.note ?? ''));
+}

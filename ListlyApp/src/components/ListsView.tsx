@@ -1,6 +1,5 @@
 import { useCallback, useMemo, useState } from 'react';
-import { ActivityIndicator, ScrollView, StyleSheet, TouchableOpacity, View, useWindowDimensions } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { ActivityIndicator, ScrollView, StyleSheet, View, useWindowDimensions } from 'react-native';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import Sortable, { type SortableGridDragEndParams, type SortableGridRenderItem } from 'react-native-sortables';
 import { useApp } from '../context/AppContext';
@@ -16,6 +15,8 @@ import EmptyState from './EmptyState';
 import ListCard from './ListCard';
 import ListRow from './ListRow';
 import Fab from './Fab';
+import SelectionActionBar from './SelectionActionBar';
+import ConfirmModal from './ConfirmModal';
 
 const GAP = 12;
 
@@ -29,16 +30,42 @@ function columnCount(width: number): number {
 
 interface Props {
   variant: ListsViewVariant;
+  searchActive: boolean;
+  query: string;
+  onQueryChange: (text: string) => void;
+  onSearchClose: () => void;
+  selectMode: boolean;
+  selectedIds: ReadonlySet<number>;
+  onToggleItem: (id: number) => void;
+  onOpenDeleteConfirm: () => void;
+  onExitSelectMode: () => void;
+  deleteConfirmVisible: boolean;
+  onCancelDeleteConfirm: () => void;
+  onConfirmDelete: () => void;
+  selectedCount: number;
 }
 
-export default function ListsView({ variant }: Props) {
+export default function ListsView({
+  variant,
+  searchActive,
+  query,
+  onQueryChange,
+  onSearchClose,
+  selectMode,
+  selectedIds,
+  onToggleItem,
+  onOpenDeleteConfirm,
+  onExitSelectMode,
+  deleteConfirmVisible,
+  onCancelDeleteConfirm,
+  onConfirmDelete,
+  selectedCount,
+}: Props) {
   const navigation = useNavigation<NavigationProp<'Home'>>();
   const { lists, itemsByListId, loading, refresh } = useApp();
   const { activeColors: c } = useConfig();
   const labels = t();
 
-  const [searchActive, setSearchActive] = useState(false);
-  const [query, setQuery] = useState('');
   const [dragOrder, setDragOrder] = useState<number[] | null>(null);
 
   const { width } = useWindowDimensions();
@@ -78,16 +105,36 @@ export default function ListsView({ variant }: Props) {
     [filteredLists, refresh]
   );
 
-  const renderItem = useCallback<SortableGridRenderItem<ListWithCounts>>(
-    ({ item }) => {
-      const onPress = () => navigation.navigate('ListDetail', { listId: item.id });
-      return isGrid ? (
-        <ListCard list={item} onPress={onPress} />
-      ) : (
-        <ListRow list={item} onPress={onPress} />
-      );
+  const handleTilePress = useCallback(
+    (item: ListWithCounts) => {
+      if (selectMode) {
+        onToggleItem(item.id);
+      } else {
+        navigation.navigate('ListDetail', { listId: item.id });
+      }
     },
-    [isGrid, navigation]
+    [selectMode, onToggleItem, navigation]
+  );
+
+  const renderItem = useCallback<SortableGridRenderItem<ListWithCounts>>(
+    ({ item }) => (
+      isGrid ? (
+        <ListCard
+          list={item}
+          selectMode={selectMode}
+          selected={selectedIds.has(item.id)}
+          onPress={() => handleTilePress(item)}
+        />
+      ) : (
+        <ListRow
+          list={item}
+          selectMode={selectMode}
+          selected={selectedIds.has(item.id)}
+          onPress={() => handleTilePress(item)}
+        />
+      )
+    ),
+    [isGrid, selectMode, selectedIds, handleTilePress]
   );
 
   if (loading) {
@@ -108,25 +155,11 @@ export default function ListsView({ variant }: Props) {
           <SearchBar
             placeholder={labels.home_search_placeholder}
             value={query}
-            onChangeText={setQuery}
-            onClose={() => {
-              setQuery('');
-              setSearchActive(false);
-            }}
+            onChangeText={onQueryChange}
+            onClose={onSearchClose}
             autoFocus
           />
-        ) : (
-          <View style={styles.searchRow}>
-            <TouchableOpacity
-              style={styles.searchButton}
-              onPress={() => setSearchActive(true)}
-              accessibilityLabel={labels.home_search_toggle}
-              accessibilityRole="button"
-            >
-              <Ionicons name="search-outline" size={22} color={c.textSecondary} />
-            </TouchableOpacity>
-          </View>
-        )}
+        ) : null}
 
         {displayLists.length === 0 ? (
           noResults ? (
@@ -142,7 +175,7 @@ export default function ListsView({ variant }: Props) {
               renderItem={renderItem}
               keyExtractor={item => String(item.id)}
               columns={isGrid ? columns : 1}
-              sortEnabled={query === ''}
+              sortEnabled={!selectMode && query === ''}
               columnGap={isGrid ? GAP : 0}
               rowGap={isGrid ? GAP : 10}
               onDragEnd={handleDragEnd}
@@ -150,8 +183,32 @@ export default function ListsView({ variant }: Props) {
           </ScrollView>
         )}
 
-        <Fab onPress={() => navigation.navigate('CreateList')} accessibilityLabel={labels.home_add} />
+        {!selectMode ? (
+          <Fab onPress={() => navigation.navigate('CreateList')} accessibilityLabel={labels.home_add} />
+        ) : (
+          <SelectionActionBar
+            selectedCount={selectedCount}
+            countLabel={labels.select_selected(selectedCount)}
+            deleteLabel={labels.select_delete}
+            cancelLabel={labels.common_cancel}
+            onDelete={onOpenDeleteConfirm}
+            onCancel={onExitSelectMode}
+            deleteAccessibilityLabel={labels.select_delete}
+            cancelAccessibilityLabel={labels.select_exit_mode}
+          />
+        )}
       </View>
+
+      <ConfirmModal
+        visible={deleteConfirmVisible}
+        title={labels.select_delete_lists_confirm(selectedCount)}
+        message={labels.select_delete_lists_message}
+        cancelLabel={labels.common_cancel}
+        confirmLabel={labels.select_delete}
+        onCancel={onCancelDeleteConfirm}
+        onConfirm={onConfirmDelete}
+        destructive
+      />
     </ScreenShell>
   );
 }
@@ -161,13 +218,6 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: 12,
     paddingTop: 12,
-  },
-  searchRow: {
-    alignItems: 'flex-end',
-    marginBottom: 8,
-  },
-  searchButton: {
-    padding: 6,
   },
   center: {
     alignItems: 'center',

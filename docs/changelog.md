@@ -97,3 +97,34 @@
 - Added `src/components/SortablePressable.tsx` wrapping `Sortable.Touchable`: `onPress` → `onTap` (RNGH tap composited with the drag gesture, so a real drag cancels the tap), pressed-opacity feedback via `onTouchesDown`/`onTouchesUp`, and `accessible`/`accessibilityRole="button"`/`accessibilityLabel` passthrough. Swapped `ListCard` and `ListRow` from `TouchableOpacity` to it.
 - Updated `tests/mocks/react-native-sortables.tsx` so the mock `Touchable` renders a `Pressable` forwarding `onTap` from `onPress` (fireEvent.press tests keep working).
 - Suite baseline: 15 files, 123 tests, `npm run test:all` green. Verified on web at 375px (verification-loop): tile and row taps navigate to ListDetail; long-press drags reorder on Home grid and Lists rows without navigating; new order persists across reload; 0 console errors.
+
+[2026-09-14] + | Feature 010 — bulk select/delete + header search
+- Added `listRepo.deleteMany(ids)` and `itemRepo.deleteMany(ids)` (single transaction, no-op on empty) with contract tests; interfaces extended in `tests/database/contractTypes.ts`.
+- Added `src/hooks/useSelectMode.ts` (select-mode state: enter/toggle/exit, delete-confirm visibility, `confirmDelete` delegating to `deleteMany`), `src/components/ConfirmModal.tsx` (composed of `ModalShell` + `ModalFooter`) and `src/components/SelectionActionBar.tsx` (count + cancel + delete).
+- `ListsView` rewritten: search toggle moved out to `headerRight`, external search/select state, sort disabled in select mode or with an active query, FAB hidden + `SelectionActionBar` shown in select mode, `ConfirmModal` for bulk delete.
+- `ListCard`/`ListRow` gained select-mode props (highlight + checkmark badge, long-press) via `SortablePressable.onLongPress`; `ItemRow` gained the same and hides the edit button in select mode.
+- `HomeScreen`/`ListsScreen` own search state and `useSelectMode`; set a `headerRight` search toggle via `navigation.setOptions` (tinted primary when active, cleared in select mode). `ListDetailScreen` + `ItemFormModal` handle item select mode with the same action bar + confirm modal.
+- i18n: new keys in `en.ts`/`es.ts` (`common_search`, `common_no_results`, `select_selected`, `select_delete`, `select_enter_mode`, `select_exit_mode`, `select_delete_lists_confirm/message`, `select_delete_items_confirm/message`).
+- Tests: new `tests/component/ListsView.test.tsx` (search filter, no-results, select toggle, action bar, confirm dialog, nav, long-press); screen tests assert `headerRight` wiring; contract suite covers `deleteMany` no-op/empty and multi-row. Suite baseline: 16 files, 136 tests, `npm run test:all` green.
+- Verified on web at 375px (verification-loop): header search toggle open/close + tinted icon; long-press enters select mode with action bar and FAB hidden; toggle + bulk delete lists (2 → confirm dialog → gone, exits select mode); item select mode hides add bar, bulk delete items updates progress; Spanish keys present; 0 console errors.
+
+[2026-09-14] ~ | Feature 010 — header select toggle (Finly parity)
+- Added `src/components/SelectToggleButton.tsx` (`checkbox-outline` / `close-outline`, `select_enter_mode`/`select_exit_mode` a11y labels) and `src/components/SelectSearchHeader.tsx` (row with select toggle + search toggle) mirroring Finly's `SelectSearchHeader`.
+- `HomeScreen`/`ListsScreen` `headerRight` now renders `SelectSearchHeader`: select toggle shown when `lists.length > 0`, goes `close-outline` (exits select mode) via the existing `useSelectMode.toggleSelectMode`; removed the effect that blanked `headerRight` in select mode.
+- `ListDetailScreen` sets a `headerRight` `SelectToggleButton` gated on `items.length > 0` (item select mode enter/exit from the header).
+- Long-press entry for lists and items is retained as an alternative to the header icon.
+- Tests: new `tests/component/SelectToggleButton.test.tsx`; screen tests assert the header renders both toggles (select hidden when empty) and that pressing the select toggle calls `toggleSelectMode`. Suite baseline: 17 files, 145 tests, `npm run test:all` green.
+- Verified on web at 375px (verification-loop): select icon visible next to search on Home/Lists and in ListDetail header when data exists; tap enters select mode (action bar + FAB/add-bar hidden), header flips to close icon and exits; long-press still enters select mode; 0 console errors.
+
+[2026-09-14] ~ | Feature 010 — select-mode refinements + item search
+- `ListRow` no longer hides the list icon in select mode: the icon badge stays and selection is shown via a corner check badge (grid `ListCard` already kept its icon).
+- Long-press no longer enters list select mode: it is reserved for drag-reorder (sortable activation) on Home grid and Lists rows, per Finly behavior. Select mode on lists is entered only via the header select toggle; item rows in `ListDetail` (not sortable) keep long-press entry. Removed `onLongPressItem` from `ListsView` and `onLongPress` from `ListCard`/`ListRow` props.
+- `ListDetailScreen` header now shows the search toggle beside the select toggle via `SelectSearchHeader`; tapping it opens an inline `SearchBar` that filters items by name or note (`filterItemsByQuery`, case-insensitive AND) with a `home_no_results` empty state. Added `item_search_placeholder` key (en/es) and removed `home_search_toggle` (header search button now uses `common_search`).
+- Tests: removed the lists long-press→select test; added `filterItemsByQuery` unit tests and a ListDetail header search+select test; screen tests assert the neutral `Search` label. Suite baseline: 17 files, 149 tests, `npm run test:all` green.
+- Verified on web at 375px (verification-loop): list icons stay visible on Lists rows during select mode; long-pressing/start-drag on Lists rows and Home tiles reorders without entering select mode; ListDetail header shows Search + Enter-select-mode, search filters items (e.g. "hotel" → only "Reserve hotel") and shows the no-results state; item select mode still works from the header; 0 console errors.
+
+[2026-09-15] ~ | Destructive actions use a red background
+- `SelectionActionBar` delete button switched from an outlined red button to a solid `c.red` background (white icon/text) when enabled; the disabled (0 selected) state stays gray.
+- `ModalFooter` gained a `destructive` prop (red confirm background); `ConfirmModal` now forwards its (previously unused) `destructive` prop, and the bulk-delete confirm dialogs in `ListsView`/`ListDetailScreen` pass `destructive`. Non-destructive modals (color picker OK) keep the primary color.
+- ItemFormModal single-item delete confirm was already solid red — unchanged.
+- Verified on web at 375px (verification-loop): select-mode Delete button and the delete-confirmation dialog's Delete button both show `rgb(220, 38, 38)` red background with white text; 0 console errors.

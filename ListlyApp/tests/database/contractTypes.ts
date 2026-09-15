@@ -11,6 +11,7 @@ export interface ContractListRepo {
   create(data: Omit<List, 'id' | 'created_at' | 'position'>): Promise<List>;
   update(id: number, data: UpdateList): Promise<void>;
   delete(id: number): Promise<void>;
+  deleteMany(ids: number[]): Promise<void>;
   reorder(orderedIds: number[]): Promise<void>;
   withCounts(): Promise<ListWithCounts[]>;
   existsByName(name: string, excludeId?: number): Promise<boolean>;
@@ -23,6 +24,7 @@ export interface ContractItemRepo {
   create(data: NewItem): Promise<Item>;
   update(id: number, data: UpdateItem): Promise<void>;
   delete(id: number): Promise<void>;
+  deleteMany(ids: number[]): Promise<void>;
   toggle(id: number): Promise<void>;
   existsByName(listId: number, name: string, excludeId?: number): Promise<boolean>;
 }

@@ -1,5 +1,5 @@
 import { and, eq, ne, sql, type SQL } from 'drizzle-orm';
-import { getDrizzle } from '../drizzle/engine';
+import { getDrizzle, withTransaction } from '../drizzle/engine';
 import { items } from '../drizzle/schema';
 import { runResultOf } from '../drizzle/proxy';
 import type { Item } from '../types';
@@ -60,6 +60,15 @@ export const itemRepo = {
   async delete(id: number): Promise<void> {
     const db = await getDrizzle();
     await db.delete(items).where(eq(items.id, id)).run();
+  },
+
+  async deleteMany(ids: number[]): Promise<void> {
+    if (ids.length === 0) return;
+    await withTransaction(async db => {
+      for (const id of ids) {
+        await db.delete(items).where(eq(items.id, id)).run();
+      }
+    });
   },
 
   async toggle(id: number): Promise<void> {

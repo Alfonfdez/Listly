@@ -62,6 +62,15 @@ export const listRepo = {
     await db.delete(lists).where(eq(lists.id, id)).run();
   },
 
+  async deleteMany(ids: number[]): Promise<void> {
+    if (ids.length === 0) return;
+    await withTransaction(async db => {
+      for (const id of ids) {
+        await db.delete(lists).where(eq(lists.id, id)).run();
+      }
+    });
+  },
+
   async withCounts(): Promise<ListWithCounts[]> {
     const db = await getDrizzle();
     return await db

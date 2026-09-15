@@ -10,6 +10,7 @@ interface Props {
   onConfirm: () => void;
   confirmDisabled?: boolean;
   borderTop?: boolean;
+  destructive?: boolean;
 }
 
 export default function ModalFooter({
@@ -19,11 +20,12 @@ export default function ModalFooter({
   onConfirm,
   confirmDisabled = false,
   borderTop = false,
+  destructive = false,
 }: Props) {
   const { activeColors: c } = useConfig();
   const fs = useFontSize();
 
-  const confirmBg = confirmDisabled ? c.surface : c.primary;
+  const confirmBg = confirmDisabled ? c.surface : destructive ? c.red : c.primary;
   const confirmFg = confirmDisabled ? c.textSecondary : c.background;
 
   return (

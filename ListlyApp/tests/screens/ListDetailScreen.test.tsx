@@ -1,6 +1,6 @@
 import { describe, expect, it, beforeEach, vi } from 'vitest';
-import { render, userEvent, waitFor } from '@testing-library/react-native';
-import type { ReactNode } from 'react';
+import { render, fireEvent, userEvent, waitFor } from '@testing-library/react-native';
+import type { ReactElement, ReactNode } from 'react';
 import ListDetailScreen from '../../src/screens/ListDetailScreen';
 import {
   buildAppMock,
@@ -11,12 +11,19 @@ import {
 import { resetStub } from '../component/helpers/configStub';
 import type { Item, ListWithCounts } from '../../src/database/types';
 
-const { itemRepositoryMock } = vi.hoisted(() => ({
+const { itemRepositoryMock, selectMocks, nav } = vi.hoisted(() => ({
   itemRepositoryMock: {
     create: vi.fn(),
     update: vi.fn(),
     delete: vi.fn(),
+    deleteMany: vi.fn(),
     toggle: vi.fn(),
+  },
+  selectMocks: {
+    toggleSelectMode: vi.fn(),
+  },
+  nav: {
+    setOptions: vi.fn(),
   },
 }));
 
@@ -29,10 +36,26 @@ vi.mock('../../src/context/AppContext', () => ({
   AppProvider: ({ children }: { children: ReactNode }) => children as ReactNode,
 }));
 
+vi.mock('../../src/hooks/useSelectMode', () => ({
+  useSelectMode: () => ({
+    selectMode: false,
+    selectedIds: new Set(),
+    enterSelectMode: vi.fn(),
+    toggleItem: vi.fn(),
+    toggleSelectMode: selectMocks.toggleSelectMode,
+    exitSelectMode: vi.fn(),
+    deleteConfirmVisible: false,
+    openDeleteConfirm: vi.fn(),
+    closeDeleteConfirm: vi.fn(),
+    confirmDelete: vi.fn(),
+  }),
+}));
+
 vi.mock('@react-navigation/native', async () => {
   const React = await import('react');
   return {
     useRoute: () => ({ params: { listId: 1 } }),
+    useNavigation: () => nav,
     useFocusEffect: (cb: () => void | (() => void)) => {
       React.useEffect(cb, [cb]);
     },
@@ -62,11 +85,15 @@ describe('ListDetailScreen', () => {
     itemRepositoryMock.create.mockReset();
     itemRepositoryMock.update.mockReset();
     itemRepositoryMock.delete.mockReset();
+    itemRepositoryMock.deleteMany.mockReset();
     itemRepositoryMock.toggle.mockReset();
     itemRepositoryMock.create.mockResolvedValue({});
     itemRepositoryMock.update.mockResolvedValue(undefined);
     itemRepositoryMock.delete.mockResolvedValue(undefined);
+    itemRepositoryMock.deleteMany.mockResolvedValue(undefined);
     itemRepositoryMock.toggle.mockResolvedValue(undefined);
+    selectMocks.toggleSelectMode.mockReset();
+    nav.setOptions.mockReset();
     setLists([LIST]);
     setItemsByListId(new Map([[1, ITEMS]]));
   });
@@ -221,4 +248,47 @@ describe('ListDetailScreen', () => {
     expect(view.getByText('Type below to add your first item')).toBeTruthy();
     expect(view.getByText('0/0')).toBeTruthy();
   });
+
+  it('registers a select toggle in the header and exits select mode on press', async () => {
+    const header = await renderHeader();
+    expect(header.getByLabelText('Enter select mode')).toBeTruthy();
+    fireEventPress(header, 'Enter select mode');
+    expect(selectMocks.toggleSelectMode).toHaveBeenCalled();
+  });
+
+  it('registers search and select toggles side by side in the header', async () => {
+    const header = await renderHeader();
+    expect(header.getByLabelText('Search')).toBeTruthy();
+    expect(header.getByLabelText('Enter select mode')).toBeTruthy();
+  });
+
+  it('does not register a select toggle when the list has no items', async () => {
+    setItemsByListId(new Map([[1, []]]));
+    await render(<ListDetailScreen />);
+    const calls = nav.setOptions.mock.calls;
+    const headerCmds = calls.filter((c) => c[0] && 'headerRight' in c[0]);
+    expect(headerCmds.length).toBeGreaterThan(0);
+    const last = headerCmds[headerCmds.length - 1][0] as { headerRight?: () => ReactElement };
+    expect(last.headerRight).toBeUndefined();
+  });
 });
+
+function lastHeaderRight() {
+  const calls = nav.setOptions.mock.calls;
+  for (let i = calls.length - 1; i >= 0; i--) {
+    const opts = calls[i]?.[0];
+    if (opts && 'headerRight' in opts) return opts;
+  }
+  return undefined;
+}
+
+async function renderHeader() {
+  await render(<ListDetailScreen />);
+  const opts = lastHeaderRight() as { headerRight?: () => ReactElement } | undefined;
+  if (!opts?.headerRight) throw new Error('headerRight not registered');
+  return render(opts.headerRight());
+}
+
+function fireEventPress(view: Awaited<ReturnType<typeof render>>, label: string) {
+  fireEvent.press(view.getByLabelText(label));
+}
