@@ -4,9 +4,10 @@ import { Ionicons } from '@expo/vector-icons';
 import { useConfig } from '../context/ConfigContext';
 import { useFontSize } from '../hooks/useFontSize';
 import { t } from '../i18n';
-import { CARD_BORDER_RADIUS } from './componentStyles';
+import { CARD_BORDER_RADIUS, ALPHA_TINT, ALPHA_BADGE } from './componentStyles';
 import { withAlpha } from '../utils/color';
 import SortablePressable from './SortablePressable';
+import SelectionCheck from './SelectionCheck';
 import type { ListWithCounts } from '../database/types';
 import type { IconName } from '../constants/types';
 
@@ -26,7 +27,7 @@ function ListRowInner({ list, selectMode, selected, onPress }: Props) {
     <SortablePressable
       style={[
         styles.row,
-        { backgroundColor: withAlpha(list.color, 13) },
+        { backgroundColor: withAlpha(list.color, ALPHA_TINT) },
         selectMode && selected && { borderColor: c.primary },
         selectMode && !selected && { borderColor: c.border },
       ]}
@@ -36,18 +37,11 @@ function ListRowInner({ list, selectMode, selected, onPress }: Props) {
       accessibilityLabel={selected ? `${list.name}, ${labels.select_selected(1)}` : list.name}
     >
       <View style={styles.badgeWrap}>
-        <View style={[styles.badge, { backgroundColor: withAlpha(list.color, 18) }]}>
+        <View style={[styles.badge, { backgroundColor: withAlpha(list.color, ALPHA_BADGE) }]}>
           <Ionicons name={list.icon as IconName} size={22} color={list.color} />
         </View>
         {selectMode ? (
-          <View
-            style={[
-              styles.check,
-              selected ? { backgroundColor: c.primary, borderColor: c.primary } : { backgroundColor: c.surface, borderColor: c.border },
-            ]}
-          >
-            {selected ? <Ionicons name="checkmark" size={12} color={c.background} /> : null}
-          </View>
+          <SelectionCheck selected={selected} style={styles.check} unselectedBackground={c.surface} />
         ) : null}
       </View>
       <Text style={[styles.name, { color: c.text, fontSize: fs(15) }]} numberOfLines={1}>
@@ -59,6 +53,8 @@ function ListRowInner({ list, selectMode, selected, onPress }: Props) {
     </SortablePressable>
   );
 }
+
+const BADGE_SIZE = 40;
 
 const styles = StyleSheet.create({
   row: {
@@ -72,14 +68,14 @@ const styles = StyleSheet.create({
     borderColor: 'transparent',
   },
   badgeWrap: {
-    width: 40,
-    height: 40,
+    width: BADGE_SIZE,
+    height: BADGE_SIZE,
     position: 'relative',
   },
   badge: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: BADGE_SIZE,
+    height: BADGE_SIZE,
+    borderRadius: BADGE_SIZE / 2,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -87,12 +83,6 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: -3,
     right: -3,
-    width: 20,
-    height: 20,
-    borderRadius: 10,
-    borderWidth: 1.5,
-    alignItems: 'center',
-    justifyContent: 'center',
   },
   name: {
     flex: 1,

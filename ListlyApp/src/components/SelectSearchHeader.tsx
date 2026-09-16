@@ -2,6 +2,7 @@ import { View, TouchableOpacity, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useConfig } from '../context/ConfigContext';
 import SelectToggleButton from './SelectToggleButton';
+import { ICON_BUTTON_PADDING } from './componentStyles';
 import { t } from '../i18n';
 
 interface Props {
@@ -23,7 +24,7 @@ export default function SelectSearchHeader({ selectMode, showSelect, searchActiv
       )}
       <TouchableOpacity
         onPress={onToggleSearch}
-        style={{ padding: 6 }}
+        style={{ padding: ICON_BUTTON_PADDING }}
         accessibilityRole="button"
         accessibilityLabel={labels.common_search}
       >

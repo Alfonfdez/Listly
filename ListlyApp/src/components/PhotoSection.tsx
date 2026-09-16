@@ -8,7 +8,7 @@ import { MAX_ITEM_PICTURES } from '../constants/types';
 import { isNative } from '../utils/platform';
 import ConfirmModal from './ConfirmModal';
 import ModalShell from './ModalShell';
-import { BUTTON_BORDER_RADIUS, CARD_BORDER_RADIUS } from './componentStyles';
+import { BUTTON_BORDER_RADIUS, CARD_BORDER_RADIUS, PRESSED_OPACITY } from './componentStyles';
 
 interface Props {
   photos: string[];
@@ -53,7 +53,7 @@ export default function PhotoSection({ photos, onTakePhoto, onPickFromGallery, o
               accessibilityRole="button"
               accessibilityLabel={labels.item_photos_remove}
             >
-              <Ionicons name="close" size={14} color="#FFFFFF" />
+              <Ionicons name="close" size={14} color={c.background} />
             </Pressable>
           </View>
         ))}
@@ -130,6 +130,8 @@ export default function PhotoSection({ photos, onTakePhoto, onPickFromGallery, o
   );
 }
 
+const REMOVE_BADGE_SIZE = 22;
+
 const styles = StyleSheet.create({
   container: {
     marginBottom: 16,
@@ -166,9 +168,9 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: -6,
     right: -6,
-    width: 22,
-    height: 22,
-    borderRadius: 11,
+    width: REMOVE_BADGE_SIZE,
+    height: REMOVE_BADGE_SIZE,
+    borderRadius: REMOVE_BADGE_SIZE / 2,
     alignItems: 'center',
     justifyContent: 'center',
     zIndex: 1,
@@ -200,6 +202,6 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   pressed: {
-    opacity: 0.7,
+    opacity: PRESSED_OPACITY,
   },
 });

@@ -2,8 +2,8 @@ import { describe, expect, it, beforeEach, vi } from 'vitest';
 import { render, userEvent, waitFor } from '@testing-library/react-native';
 import type { ReactNode } from 'react';
 import EditListScreen from '../../src/screens/EditListScreen';
-import { buildAppMock, resetAppStub, setLists } from '../component/helpers/appStub';
-import { resetStub } from '../component/helpers/configStub';
+import { buildAppMock, resetAppStub, setLists } from '../helpers/appStub';
+import { resetStub } from '../helpers/configStub';
 import type { ListWithCounts } from '../../src/database/types';
 import { MAX_LIST_NAME_LENGTH } from '../../src/constants/types';
 

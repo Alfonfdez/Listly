@@ -12,7 +12,7 @@ All commands run from the `ListlyApp/` directory (created when feature 001 is im
 |---------|---------|
 | Everything (typecheck + lint + tests) | `npm run test:all` |
 | Unit tests (pure-logic + component) | `npm run test` (`npx vitest run`) |
-| Component tests | `npx vitest run tests/component/` |
+| Component tests | `npx vitest run tests/components/` |
 | DB contract suite (Drizzle + Zod over sql.js) | `npx vitest run tests/database/` |
 | Typecheck | `npm run typecheck` |
 | Lint | `npm run lint` |
@@ -35,13 +35,14 @@ All commands run from the `ListlyApp/` directory (created when feature 001 is im
 
 ### Current suite baseline
 
-15 files, 121 tests:
-- `tests/utils/` — `formatters.test.ts` (scaleFontSize small/medium/large, formatDateForDB/dbTimestamp), `search.test.ts` (searchTerms / matchesAllTerms / filterListsByQuery), `color.test.ts` (withAlpha 8-digit hex + clamping/garbage input), `validation.test.ts` (validateItemName + validateListName required/trim/max/duplicate, uniqueNormalizedNames).
-- `tests/component/` — `ListCard.test.tsx` (icon/name/progress render, press, color tint), `ItemRow.test.tsx` (checked/unchecked icon, strikethrough + note indicator, toggle/edit press), `ColorGrid.test.tsx` (quick-color circles, selected state, custom circle, "+" trigger), `ColorPickerModal.test.tsx` (temp color OK/Cancel, seed-on-open with a `reanimated-color-picker` stub) via `helpers/configStub.ts` (virtual `/ Listly` palette + `useConfig` mock) + `tests/mocks/expo-vector-icons.tsx` alias.
-- `tests/screens/` — `HomeScreen.test.tsx` (loading, grid render, empty state, search filter, no-results, FAB/tile navigation, text-size scaling), `ListsScreen.test.tsx` (rows render with progress, search, FAB + row navigation, empty state, text-size scaling), `ListDetailScreen.test.tsx` (header/progress render, toggle, add at end with position, duplicate/empty rejection, note-area expand/collapse + add-with-note clear/collapse, edit modal, delete-after-confirm, empty state), `CreateListScreen.test.tsx` (form render with default quick color, create disabled until valid, empty/clamped-name, debounced duplicate, quick-color + custom-color-picker create flows, "+" modal open/cancel) via `helpers/appStub.ts` (`useApp` mock) + configStub.
+24 files, 206 tests:
+- `tests/utils/` — `formatters.test.ts` (scaleFontSize small/medium/large, formatDateForDB/dbTimestamp), `search.test.ts` (searchTerms / matchesAllTerms / filterListsByQuery), `color.test.ts` (withAlpha 8-digit hex + clamping/garbage input), `validation.test.ts` (validateItemName + validateListName required/trim/max/duplicate, uniqueNormalizedNames), `itemPhotos.test.ts` (photo add/remove limits + max-pictures guard).
+- `tests/components/` — `ListCard.test.tsx` (icon/name/progress render, press, color tint), `ItemRow.test.tsx` (checked/unchecked icon, strikethrough + note indicator, toggle/edit press), `ListsView.test.tsx` (search filter, no-results, select toggle, action bar, confirm dialog, nav), `PhotoSection.test.tsx`, `SelectToggleButton.test.tsx`, `SelectionCheck.test.tsx` (unselected/selected colors, custom background), `FullscreenViewer.test.tsx` (children + close control, hidden state), `FormField.test.tsx` (label/children/error), `ColorGrid.test.tsx` (quick-color circles, selected state, custom circle, "+" trigger), `ColorPickerModal.test.tsx` (temp color OK/Cancel, seed-on-open with a `reanimated-color-picker` stub) via `tests/helpers/configStub.ts` (virtual `/ Listly` palette + `useConfig` mock) + `tests/mocks/expo-vector-icons.tsx` alias.
+- `tests/hooks/` — `useDragOrder.test.ts` (initial order, reorder + id report, no-op on unchanged order/ID count).
+- `tests/screens/` — `HomeScreen.test.tsx` (loading, grid render, empty state, search filter, no-results, FAB/tile navigation, text-size scaling), `ListsScreen.test.tsx` (rows render with progress, search, FAB + row navigation, empty state, text-size scaling), `ListDetailScreen.test.tsx` (header/progress render, toggle, add at end with position, duplicate/empty rejection, note-area expand/collapse + add-with-note clear/collapse, edit modal, delete-after-confirm, empty state), `CreateListScreen.test.tsx` (form render with default quick color, create disabled until valid, empty/clamped-name, debounced duplicate, quick-color + custom-color-picker create flows, "+" modal open/cancel), `EditListScreen.test.tsx` (prefill, max-length cap, duplicate exclusion, save/not-found) via `tests/helpers/appStub.ts` (`useApp` mock) + configStub.
 - `tests/database/` — `listContract.test.ts` (sql.js contract suite: seed data, list/item/config repo CRUD), `dbDrift.test.ts` (migration-vs-schema drift + initDatabase idempotency), `schemas.test.ts` (Zod row validation + sanitizeConfig).
 
-Updated here whenever a session adds or removes tests. A drop in the baseline is a regression signal. The RN test harness runs on `vitest-native` (real react-native, `test-renderer`) with `happy-dom`; `setupFiles` pulls in `tests/component/helpers/configStub.ts`.
+Updated here whenever a session adds or removes tests. A drop in the baseline is a regression signal. The RN test harness runs on `vitest-native` (real react-native, `test-renderer`) with `happy-dom`; `setupFiles` pulls in `tests/helpers/configStub.ts`.
 
 ## Verification loop (what "done" means)
 
@@ -72,7 +73,7 @@ acceptance criteria in a real browser.
 | SDD alignment | `spec/` + changelog + test mapping | In use | Every feature spec maps to tests + changelog entries |
 | Mobile E2E | Maestro on Android emulator | Deferred | Needed only when native-only criteria appear |
 
-Components under `tests/component/` / `tests/screens/` stub `ConfigContext`/`AppContext` via the `helpers/configStub.ts` + `helpers/appStub.ts` setup helpers and alias `@expo/vector-icons` to a plain-`Text` mock (`tests/mocks/expo-vector-icons.tsx`).
+Components under `tests/components/` / `tests/screens/` stub `ConfigContext`/`AppContext` via the `tests/helpers/configStub.ts` + `tests/helpers/appStub.ts` setup helpers and alias `@expo/vector-icons` to a plain-`Text` mock (`tests/mocks/expo-vector-icons.tsx`).
 
 ### CI workflow note
 
@@ -91,6 +92,6 @@ least once successfully with the real app (first `ListlyApp/` PR).
 3. Cover: normal cases, edge cases, and at least one regression seed per previously fixed bug.
 4. Run `npm run test` (or `npm run test:watch`) and `npm run test:all` before finishing.
 
-For component tests (`.test.tsx` under `tests/component/`), stub `ConfigContext` via a
-`tests/component/helpers/configStub.ts` setupFiles entry and alias `@expo/vector-icons` to a
+For component tests (`.test.tsx` under `tests/components/`), stub `ConfigContext` via a
+`tests/helpers/configStub.ts` setupFiles entry and alias `@expo/vector-icons` to a
 plain-`Text` mock — no other component mocks are needed.

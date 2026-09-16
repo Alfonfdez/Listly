@@ -17,11 +17,6 @@ export function useSelectMode({ deleteMany, afterDelete }: Options) {
     });
   }, []);
 
-  const enterSelectMode = useCallback((id: number) => {
-    setSelectedIds(new Set([id]));
-    setSelectMode(true);
-  }, []);
-
   const toggleItem = useCallback((id: number) => {
     setSelectedIds(prev => {
       const next = new Set(prev);
@@ -55,7 +50,6 @@ export function useSelectMode({ deleteMany, afterDelete }: Options) {
     selectedIds,
     deleteConfirmVisible,
     toggleSelectMode,
-    enterSelectMode,
     toggleItem,
     exitSelectMode,
     openDeleteConfirm: useCallback(() => setDeleteConfirmVisible(true), []),

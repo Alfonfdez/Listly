@@ -1,21 +1,10 @@
 import { createContext, useContext, useState, useEffect, useCallback, useMemo, type ReactNode } from 'react';
 import { Appearance } from 'react-native';
 import { type ColorPalette, darkColors, lightColors } from '../constants/themes';
-import { LANGUAGES, type Language } from '../constants/languages';
-import { THEMES, TEXT_SIZES, type Theme, type TextSize } from '../constants/types';
+import { THEMES, type Theme } from '../constants/types';
 import { setLanguage } from '../i18n';
-
-export interface Config {
-  theme: Theme;
-  language: Language;
-  textSize: TextSize;
-}
-
-export const DEFAULT_CONFIG: Config = {
-  theme: THEMES.system,
-  language: LANGUAGES.en,
-  textSize: TEXT_SIZES.medium,
-};
+import { DEFAULT_CONFIG } from '../database/configDefaults';
+import type { Config } from '../database/types';
 
 interface ConfigContextType {
   config: Config;

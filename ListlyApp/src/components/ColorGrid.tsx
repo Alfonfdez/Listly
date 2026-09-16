@@ -65,6 +65,8 @@ export default function ColorGrid({ selectedColor, customColor, onSelect, onOpen
   );
 }
 
+const SWATCH_SIZE = 36;
+
 const styles = StyleSheet.create({
   row: {
     flexDirection: 'row',
@@ -72,9 +74,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   circle: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
+    width: SWATCH_SIZE,
+    height: SWATCH_SIZE,
+    borderRadius: SWATCH_SIZE / 2,
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 2,

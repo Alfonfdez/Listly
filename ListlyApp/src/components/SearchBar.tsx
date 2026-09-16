@@ -2,6 +2,7 @@ import { View, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useConfig } from '../context/ConfigContext';
 import { useFontSize } from '../hooks/useFontSize';
+import { t } from '../i18n';
 import { BUTTON_BORDER_RADIUS } from './componentStyles';
 
 interface Props {
@@ -15,6 +16,7 @@ interface Props {
 export default function SearchBar({ placeholder, value, onChangeText, onClose, autoFocus = false }: Props) {
   const { activeColors: c } = useConfig();
   const fs = useFontSize();
+  const labels = t();
 
   return (
     <View style={[styles.container, { backgroundColor: c.surface, borderColor: c.border }]}>
@@ -27,7 +29,7 @@ export default function SearchBar({ placeholder, value, onChangeText, onClose, a
         onChangeText={onChangeText}
         autoFocus={autoFocus}
       />
-      <TouchableOpacity onPress={onClose} style={styles.closeButton} accessibilityLabel="Close search">
+      <TouchableOpacity onPress={onClose} style={styles.closeButton} accessibilityLabel={labels.common_close}>
         <Ionicons name="close-circle" size={20} color={c.textSecondary} />
       </TouchableOpacity>
     </View>

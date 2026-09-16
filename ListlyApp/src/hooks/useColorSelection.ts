@@ -16,5 +16,5 @@ export function useColorSelection(initialColor?: string | null) {
     }
   }, []);
 
-  return { selectedColor, customColor, setSelectedColor, setCustomColor, handleColorSelect };
+  return { selectedColor, customColor, handleColorSelect };
 }

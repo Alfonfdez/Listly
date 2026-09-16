@@ -1,6 +1,6 @@
-import type { Language } from './en';
+import type { Translations } from './en';
 
-export const es: Language = {
+export const es: Translations = {
   app_name: 'Listly',
   common_cancel: 'Cancelar',
   common_close: 'Cerrar',

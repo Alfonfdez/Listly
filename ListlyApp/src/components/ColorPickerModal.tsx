@@ -69,6 +69,8 @@ export default function ColorPickerModal({ visible, selectedColor, onSelect, onC
   );
 }
 
+const SLIDER_HEIGHT = 30;
+
 const styles = StyleSheet.create({
   header: {
     borderBottomWidth: 1,
@@ -95,8 +97,8 @@ const styles = StyleSheet.create({
   },
   slider: {
     width: '100%',
-    height: 30,
-    borderRadius: 15,
+    height: SLIDER_HEIGHT,
+    borderRadius: SLIDER_HEIGHT / 2,
     marginBottom: 12,
   },
 });

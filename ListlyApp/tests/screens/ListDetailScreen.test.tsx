@@ -7,8 +7,8 @@ import {
   resetAppStub,
   setItemsByListId,
   setLists,
-} from '../component/helpers/appStub';
-import { resetStub } from '../component/helpers/configStub';
+} from '../helpers/appStub';
+import { resetStub } from '../helpers/configStub';
 import { fireGridDragEnd, lastGrid } from '../mocks/react-native-sortables';
 import type { Item, ListWithCounts } from '../../src/database/types';
 import { darkColors } from '../../src/constants/themes';
@@ -61,7 +61,6 @@ vi.mock('../../src/hooks/useSelectMode', () => ({
   useSelectMode: () => ({
     selectMode: false,
     selectedIds: new Set(),
-    enterSelectMode: vi.fn(),
     toggleItem: vi.fn(),
     toggleSelectMode: selectMocks.toggleSelectMode,
     exitSelectMode: vi.fn(),

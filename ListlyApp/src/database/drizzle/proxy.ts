@@ -33,11 +33,8 @@ export function createSqliteProxyCallback(
         const row = await db.getFirstAsync<Record<string, unknown>>(sql, ...values);
         return { rows: row ? toPositionalArray(row) : (null as unknown as unknown[]) };
       }
-      case 'values': {
-        const rows = await db.getAllAsync<Record<string, unknown>>(sql, ...values);
-        return { rows: rows.map(toPositionalArray) };
-      }
-      default: {
+      case 'values':
+      case 'all': {
         const rows = await db.getAllAsync<Record<string, unknown>>(sql, ...values);
         return { rows: rows.map(toPositionalArray) };
       }
