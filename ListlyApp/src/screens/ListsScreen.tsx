@@ -35,15 +35,17 @@ export default function ListsScreen() {
 
   useEffect(() => {
     navigation.setOptions({
-      headerRight: () => (
-        <SelectSearchHeader
-          selectMode={selectMode}
-          showSelect={lists.length > 0}
-          searchActive={searchActive}
-          onToggleSelect={toggleSelectMode}
-          onToggleSearch={toggleSearch}
-        />
-      ),
+      headerRight: lists.length > 0
+        ? () => (
+          <SelectSearchHeader
+            selectMode={selectMode}
+            showSelect={lists.length > 0}
+            searchActive={searchActive}
+            onToggleSelect={toggleSelectMode}
+            onToggleSearch={toggleSearch}
+          />
+        )
+        : undefined,
     });
   }, [navigation, toggleSearch, toggleSelectMode, searchActive, selectMode, lists.length]);
 

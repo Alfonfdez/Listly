@@ -260,7 +260,7 @@ export default function ListDetailScreen() {
           noResults ? (
             <EmptyState icon="search-outline" message={labels.home_no_results} />
           ) : (
-            <EmptyState icon="list-outline" message={labels.item_empty} hint={labels.item_empty_hint} />
+            <EmptyState icon={list.icon as IconName} message={labels.item_empty} hint={labels.item_empty_hint} color={list.color} />
           )
         ) : (
           <Sortable.Grid
