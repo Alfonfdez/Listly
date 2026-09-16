@@ -23,6 +23,7 @@ export interface ContractItemRepo {
   get(id: number): Promise<Item | null>;
   create(data: NewItem): Promise<Item>;
   update(id: number, data: UpdateItem): Promise<void>;
+  reorder(listId: number, orderedIds: number[]): Promise<void>;
   delete(id: number): Promise<void>;
   deleteMany(ids: number[]): Promise<void>;
   toggle(id: number): Promise<void>;

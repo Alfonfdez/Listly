@@ -8,6 +8,7 @@ import { BUTTON_BORDER_RADIUS } from './componentStyles';
 import type { Item } from '../database/types';
 import { MAX_ITEM_PICTURES } from '../constants/types';
 import { parseItemPhotos } from '../utils/itemPhotos';
+import SortablePressable from './SortablePressable';
 import NoteViewer from './NoteViewer';
 import PhotoViewer from './PhotoViewer';
 
@@ -16,11 +17,10 @@ interface Props {
   selectMode: boolean;
   selected: boolean;
   onToggle: () => void;
-  onLongPress: () => void;
   onEdit: () => void;
 }
 
-function ItemRowInner({ item, selectMode, selected, onToggle, onLongPress, onEdit }: Props) {
+function ItemRowInner({ item, selectMode, selected, onToggle, onEdit }: Props) {
   const { activeColors: c } = useConfig();
   const fs = useFontSize();
   const labels = t();
@@ -43,15 +43,14 @@ function ItemRowInner({ item, selectMode, selected, onToggle, onLongPress, onEdi
   );
 
   return (
-    <Pressable
-      style={({ pressed }) => [
+    <SortablePressable
+      style={[
         styles.row,
         { backgroundColor: c.surface },
         selectMode && selected && { backgroundColor: c.primary + '15' },
-        pressed && styles.pressed,
       ]}
       onPress={onToggle}
-      onLongPress={onLongPress}
+      activeOpacity={0.7}
       accessibilityRole={selectMode ? 'checkbox' : 'checkbox'}
       accessibilityState={selectMode ? { checked: selected } : { checked: isDone }}
       accessibilityLabel={item.name}
@@ -130,7 +129,7 @@ function ItemRowInner({ item, selectMode, selected, onToggle, onLongPress, onEdi
         visible={noteViewerVisible}
         onClose={() => setNoteViewerVisible(false)}
       />
-    </Pressable>
+    </SortablePressable>
   );
 }
 

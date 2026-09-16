@@ -19,7 +19,7 @@ async function deletePhotosOf(rows: { pictures: string | null }[]): Promise<void
 export const itemRepo = {
   async listAll(): Promise<Item[]> {
     const db = await getDrizzle();
-    const rows = await db.select().from(items).all();
+    const rows = await db.select().from(items).orderBy(items.position, items.id).all();
     return parseRows(itemSchema, 'items', rows);
   },
 
@@ -54,6 +54,18 @@ export const itemRepo = {
       })
       .run();
     return { ...data, id: runResultOf(result).lastInsertRowId, created_at: dbTimestamp() };
+  },
+
+  async reorder(listId: number, orderedIds: number[]): Promise<void> {
+    await withTransaction(async db => {
+      for (let i = 0; i < orderedIds.length; i++) {
+        await db
+          .update(items)
+          .set({ position: i })
+          .where(and(eq(items.id, orderedIds[i]), eq(items.list_id, listId)))
+          .run();
+      }
+    });
   },
 
   async update(id: number, data: Partial<Omit<Item, 'id' | 'created_at'>>): Promise<void> {

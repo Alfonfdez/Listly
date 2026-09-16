@@ -1,5 +1,5 @@
 import { describe, expect, it, beforeEach, vi } from 'vitest';
-import { render, fireEvent, userEvent, waitFor } from '@testing-library/react-native';
+import { render, fireEvent, userEvent, waitFor, act } from '@testing-library/react-native';
 import type { ReactElement, ReactNode } from 'react';
 import ListDetailScreen from '../../src/screens/ListDetailScreen';
 import {
@@ -9,6 +9,7 @@ import {
   setLists,
 } from '../component/helpers/appStub';
 import { resetStub } from '../component/helpers/configStub';
+import { fireGridDragEnd, lastGrid } from '../mocks/react-native-sortables';
 import type { Item, ListWithCounts } from '../../src/database/types';
 import { darkColors } from '../../src/constants/themes';
 
@@ -19,6 +20,7 @@ const { itemRepositoryMock, selectMocks, nav, photoMocks } = vi.hoisted(() => ({
     delete: vi.fn(),
     deleteMany: vi.fn(),
     toggle: vi.fn(),
+    reorder: vi.fn(),
   },
   selectMocks: {
     toggleSelectMode: vi.fn(),
@@ -388,6 +390,40 @@ describe('ListDetailScreen', () => {
     expect(headerCmds.length).toBeGreaterThan(0);
     const last = headerCmds[headerCmds.length - 1][0] as { headerRight?: () => ReactElement };
     expect(last.headerRight).toBeUndefined();
+  });
+
+  it('reorders items through the repository when the grid drag ends', async () => {
+    itemRepositoryMock.reorder = vi.fn().mockResolvedValue(undefined);
+    const view = await render(<ListDetailScreen />);
+    await view.findByText('Milk');
+    const grid = lastGrid();
+    expect(grid?.sortEnabled).toBe(true);
+
+    fireGridDragEnd({ data: [ITEMS[1], ITEMS[0]] });
+    await waitFor(() => expect(itemRepositoryMock.reorder).toHaveBeenCalledWith(1, [2, 1]));
+  });
+
+  it('disables reordering when the list has a single item', async () => {
+    setItemsByListId(new Map([[1, [ITEMS[0]]]]));
+    const view = await render(<ListDetailScreen />);
+    await view.findByText('Milk');
+    expect(lastGrid()?.sortEnabled).toBe(false);
+  });
+
+it('disables reordering while searching', async () => {
+    const view = await render(<ListDetailScreen />);
+    await view.findByText('Milk');
+    expect(lastGrid()?.sortEnabled).toBe(true);
+
+    const opts = lastHeaderRight() as { headerRight?: () => ReactElement } | undefined;
+    const headerTree = await render(opts!.headerRight!());
+    fireEvent.press(headerTree.getByLabelText('Search'));
+    const searchInput = await view.findByPlaceholderText('Search items...', {}, { timeout: 2000 });
+    await act(async () => {
+      searchInput.props.onChangeText('Milk');
+    });
+    await waitFor(() => expect(view.getByPlaceholderText('Search items...').props.value).toBe('Milk'));
+    expect(lastGrid()?.sortEnabled).toBe(false);
   });
 });
 

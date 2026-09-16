@@ -175,7 +175,7 @@ export default function ListsView({
               renderItem={renderItem}
               keyExtractor={item => String(item.id)}
               columns={isGrid ? columns : 1}
-              sortEnabled={!selectMode && query === ''}
+              sortEnabled={!selectMode && query === '' && lists.length > 1}
               columnGap={isGrid ? GAP : 0}
               rowGap={isGrid ? GAP : 10}
               onDragEnd={handleDragEnd}
