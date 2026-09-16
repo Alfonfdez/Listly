@@ -2,8 +2,8 @@ import { describe, expect, it, beforeEach, afterEach, vi } from 'vitest';
 import { render, fireEvent, waitFor } from '@testing-library/react-native';
 import type { ReactNode } from 'react';
 import ListsView, { type ListsViewVariant } from '../../src/components/ListsView';
-import { buildAppMock, setItemsByListId, setLists, resetAppStub } from './helpers/appStub';
-import { resetStub } from './helpers/configStub';
+import { buildAppMock, setItemsByListId, setLists, resetAppStub } from '../helpers/appStub';
+import { resetStub } from '../helpers/configStub';
 import type { Item, ListWithCounts } from '../../src/database/types';
 
 vi.mock('expo-sqlite', () => ({ openDatabaseSync: vi.fn() }));

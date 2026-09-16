@@ -1,7 +1,7 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useMemo } from 'react';
 import { ActivityIndicator, ScrollView, StyleSheet, View, useWindowDimensions } from 'react-native';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
-import Sortable, { type SortableGridDragEndParams, type SortableGridRenderItem } from 'react-native-sortables';
+import Sortable, { type SortableGridRenderItem } from 'react-native-sortables';
 import { useApp } from '../context/AppContext';
 import { useConfig } from '../context/ConfigContext';
 import { listRepository as listRepo } from '../database';
@@ -17,14 +17,14 @@ import ListRow from './ListRow';
 import Fab from './Fab';
 import SelectionActionBar from './SelectionActionBar';
 import ConfirmModal from './ConfirmModal';
-
-const GAP = 12;
+import { useDragOrder } from '../hooks/useDragOrder';
+import { GRID_GAP, WIDE_BREAKPOINT, MEDIUM_BREAKPOINT } from './componentStyles';
 
 export type ListsViewVariant = 'grid' | 'list';
 
 function columnCount(width: number): number {
-  if (width >= 900) return 4;
-  if (width >= 600) return 3;
+  if (width >= WIDE_BREAKPOINT) return 4;
+  if (width >= MEDIUM_BREAKPOINT) return 3;
   return 2;
 }
 
@@ -66,8 +66,6 @@ export default function ListsView({
   const { activeColors: c } = useConfig();
   const labels = t();
 
-  const [dragOrder, setDragOrder] = useState<number[] | null>(null);
-
   const { width } = useWindowDimensions();
   const isGrid = variant === 'grid';
   const columns = columnCount(width);
@@ -83,26 +81,12 @@ export default function ListsView({
     [lists, itemsByListId, query]
   );
 
-  const displayLists = useMemo(() => {
-    if (!dragOrder) return filteredLists;
-    const byId = new Map(filteredLists.map(l => [l.id, l]));
-    const next = dragOrder
-      .map(id => byId.get(id))
-      .filter((l): l is ListWithCounts => Boolean(l));
-    return next.length === filteredLists.length ? next : filteredLists;
-  }, [filteredLists, dragOrder]);
-
-  const handleDragEnd = useCallback(
-    ({ data }: SortableGridDragEndParams<ListWithCounts>) => {
-      const ids = data.map(l => l.id);
-      if (ids.length !== filteredLists.length || ids.every((id, i) => id === filteredLists[i].id)) {
-        return;
-      }
-      setDragOrder(ids);
+  const { display: displayLists, onDragEnd: handleDragEnd } = useDragOrder(
+    filteredLists,
+    useCallback((ids: number[]) => {
       void listRepo.reorder(ids);
       void refresh();
-    },
-    [filteredLists, refresh]
+    }, [refresh])
   );
 
   const handleTilePress = useCallback(
@@ -176,8 +160,8 @@ export default function ListsView({
               keyExtractor={item => String(item.id)}
               columns={isGrid ? columns : 1}
               sortEnabled={!selectMode && query === '' && lists.length > 1}
-              columnGap={isGrid ? GAP : 0}
-              rowGap={isGrid ? GAP : 10}
+              columnGap={isGrid ? GRID_GAP : 0}
+              rowGap={isGrid ? GRID_GAP : 10}
               onDragEnd={handleDragEnd}
             />
           </ScrollView>

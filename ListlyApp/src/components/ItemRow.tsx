@@ -4,11 +4,13 @@ import { Ionicons } from '@expo/vector-icons';
 import { useConfig } from '../context/ConfigContext';
 import { useFontSize } from '../hooks/useFontSize';
 import { t } from '../i18n';
-import { BUTTON_BORDER_RADIUS } from './componentStyles';
+import { BUTTON_BORDER_RADIUS, ALPHA_SELECTED, PRESSED_OPACITY } from './componentStyles';
 import type { Item } from '../database/types';
 import { MAX_ITEM_PICTURES } from '../constants/types';
 import { parseItemPhotos } from '../utils/itemPhotos';
+import { withAlpha } from '../utils/color';
 import SortablePressable from './SortablePressable';
+import SelectionCheck from './SelectionCheck';
 import NoteViewer from './NoteViewer';
 import PhotoViewer from './PhotoViewer';
 
@@ -30,9 +32,7 @@ function ItemRowInner({ item, selectMode, selected, onToggle, onEdit }: Props) {
   const [noteViewerVisible, setNoteViewerVisible] = useState(false);
 
   const checkbox = selectMode ? (
-    <View style={[styles.check, selected ? { backgroundColor: c.primary } : { borderColor: c.border }]}>
-      {selected ? <Ionicons name="checkmark" size={12} color={c.background} /> : null}
-    </View>
+    <SelectionCheck selected={selected} style={styles.check} />
   ) : (
     <Ionicons
       name={isDone ? 'checkmark-circle' : 'ellipse-outline'}
@@ -47,11 +47,11 @@ function ItemRowInner({ item, selectMode, selected, onToggle, onEdit }: Props) {
       style={[
         styles.row,
         { backgroundColor: c.surface },
-        selectMode && selected && { backgroundColor: c.primary + '15' },
+        selectMode && selected && { backgroundColor: withAlpha(c.primary, ALPHA_SELECTED) },
       ]}
       onPress={onToggle}
-      activeOpacity={0.7}
-      accessibilityRole={selectMode ? 'checkbox' : 'checkbox'}
+                activeOpacity={PRESSED_OPACITY}
+      accessibilityRole="checkbox"
       accessibilityState={selectMode ? { checked: selected } : { checked: isDone }}
       accessibilityLabel={item.name}
     >
@@ -72,13 +72,13 @@ function ItemRowInner({ item, selectMode, selected, onToggle, onEdit }: Props) {
             {item.name}
           </Text>
           {item.note ? (
-            <Ionicons name="document-text-outline" size={16} color={c.textSecondary} style={styles.noteIcon} />
+            <Ionicons name="document-text-outline" size={16} color={c.textSecondary} />
           ) : null}
           {!selectMode ? (
             <SortablePressable
               style={styles.editButton}
               onPress={onEdit}
-              activeOpacity={0.7}
+              activeOpacity={PRESSED_OPACITY}
               accessibilityRole="button"
               accessibilityLabel={labels.item_edit_title}
               hitSlop={8}
@@ -90,7 +90,7 @@ function ItemRowInner({ item, selectMode, selected, onToggle, onEdit }: Props) {
         {item.note && !selectMode ? (
           <SortablePressable
             onPress={() => setNoteViewerVisible(true)}
-            activeOpacity={0.7}
+            activeOpacity={PRESSED_OPACITY}
             accessibilityRole="button"
             accessibilityLabel={labels.item_note_preview}
             hitSlop={4}
@@ -111,7 +111,7 @@ function ItemRowInner({ item, selectMode, selected, onToggle, onEdit }: Props) {
                 key={`${uri}-${index}`}
                 style={styles.thumb}
                 onPress={() => setViewerIndex(index)}
-                activeOpacity={0.7}
+      activeOpacity={PRESSED_OPACITY}
                 accessibilityRole="imagebutton"
                 accessibilityLabel={labels.item_photos_title}
                 hitSlop={8}
@@ -149,20 +149,10 @@ const styles = StyleSheet.create({
     borderRadius: BUTTON_BORDER_RADIUS,
     marginBottom: 8,
   },
-  pressed: {
-    opacity: 0.7,
-  },
   checkbox: {
     marginRight: 2,
   },
   check: {
-    width: 20,
-    height: 20,
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: 'transparent',
-    alignItems: 'center',
-    justifyContent: 'center',
     marginRight: 4,
   },
   content: {
@@ -177,7 +167,6 @@ const styles = StyleSheet.create({
     flex: 1,
     fontWeight: '500',
   },
-  noteIcon: {},
   notePreview: {
     marginTop: 4,
     lineHeight: 18,

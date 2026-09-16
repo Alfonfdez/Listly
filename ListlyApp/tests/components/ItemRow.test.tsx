@@ -2,7 +2,7 @@ import { describe, expect, it, vi, beforeEach } from 'vitest';
 import { render, fireEvent } from '@testing-library/react-native';
 import { userEvent } from '@testing-library/react-native';
 import ItemRow from '../../src/components/ItemRow';
-import { resetStub } from './helpers/configStub';
+import { resetStub } from '../helpers/configStub';
 import type { Item } from '../../src/database/types';
 
 function makeItem(overrides: Partial<Item> = {}): Item {

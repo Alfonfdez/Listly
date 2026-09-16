@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import Sortable, { type SortableGridDragEndParams, type SortableGridRenderItem } from 'react-native-sortables';
+import Sortable, { type SortableGridRenderItem } from 'react-native-sortables';
 import { useFocusEffect, useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
 import {
   MAX_ITEM_NAME_LENGTH,
@@ -16,12 +16,13 @@ import { useApp } from '../context/AppContext';
 import { useConfig } from '../context/ConfigContext';
 import { useFontSize } from '../hooks/useFontSize';
 import { useSelectMode } from '../hooks/useSelectMode';
+import { useDragOrder } from '../hooks/useDragOrder';
 import { t } from '../i18n';
 import { validateItemName, uniqueNormalizedNames, type ItemNameError } from '../utils/validation';
 import { filterItemsByQuery } from '../utils/search';
 import { parseItemPhotos, serializeItemPhotos } from '../utils/itemPhotos';
 import { withAlpha } from '../utils/color';
-import { BUTTON_BORDER_RADIUS } from '../components/componentStyles';
+import { BUTTON_BORDER_RADIUS, ALPHA_TINT, ALPHA_TRACK, PRESSED_OPACITY } from '../components/componentStyles';
 import ScreenShell from '../components/ScreenShell';
 import EmptyState from '../components/EmptyState';
 import SearchBar from '../components/SearchBar';
@@ -54,7 +55,6 @@ export default function ListDetailScreen() {
   const [editing, setEditing] = useState<Item | null>(null);
   const [searchActive, setSearchActive] = useState(false);
   const [query, setQuery] = useState('');
-  const [dragOrder, setDragOrder] = useState<number[] | null>(null);
   const {
     photos: newPhotos,
     setPhotos: setNewPhotos,
@@ -116,14 +116,13 @@ export default function ListDetailScreen() {
   const maxPosition = useMemo(() => items.reduce((max, i) => Math.max(max, i.position), -1) + 1, [items]);
   const filteredItems = useMemo(() => filterItemsByQuery(items, query), [items, query]);
 
-  const displayItems = useMemo(() => {
-    if (!dragOrder) return filteredItems;
-    const byId = new Map(filteredItems.map(i => [i.id, i]));
-    const next = dragOrder
-      .map(id => byId.get(id))
-      .filter((i): i is Item => Boolean(i));
-    return next.length === filteredItems.length ? next : filteredItems;
-  }, [filteredItems, dragOrder]);
+  const { display: displayItems, onDragEnd: handleDragEnd } = useDragOrder(
+    filteredItems,
+    useCallback((ids: number[]) => {
+      void itemRepo.reorder(listId, ids);
+      void refresh();
+    }, [listId, refresh])
+  );
   const editingExclusiveNames = useMemo(
     () => (editing ? uniqueNormalizedNames(items.filter(i => i.id !== editing.id).map(i => i.name)) : new Set<string>()),
     [items, editing]
@@ -143,19 +142,6 @@ export default function ListDetailScreen() {
       void refresh();
     },
     [refresh]
-  );
-
-  const handleDragEnd = useCallback(
-    ({ data }: SortableGridDragEndParams<Item>) => {
-      const ids = data.map(i => i.id);
-      if (ids.length !== filteredItems.length || ids.every((id, i) => id === filteredItems[i].id)) {
-        return;
-      }
-      setDragOrder(ids);
-      void itemRepo.reorder(listId, ids);
-      void refresh();
-    },
-    [filteredItems, listId, refresh]
   );
 
   const renderItem = useCallback<SortableGridRenderItem<Item>>(
@@ -226,7 +212,7 @@ export default function ListDetailScreen() {
   const header = (
     <View style={styles.headerBlock}>
       <View style={styles.headerRow}>
-        <View style={[styles.iconBadge, { backgroundColor: withAlpha(list.color, 13) }]}>
+        <View style={[styles.iconBadge, { backgroundColor: withAlpha(list.color, ALPHA_TINT) }]}>
           <Ionicons name={list.icon as IconName} size={24} color={list.color} />
         </View>
         <View style={styles.headerText}>
@@ -245,7 +231,7 @@ export default function ListDetailScreen() {
           <Ionicons name="create-outline" size={20} color={list.color} />
         </TouchableOpacity>
       </View>
-      <View style={[styles.progressTrack, { backgroundColor: withAlpha(list.color, 20) }]}>
+      <View style={[styles.progressTrack, { backgroundColor: withAlpha(list.color, ALPHA_TRACK) }]}>
         <View style={[styles.progressFill, { backgroundColor: list.color, width: `${pct}%` }]} />
       </View>
     </View>
@@ -330,8 +316,8 @@ export default function ListDetailScreen() {
               accessibilityRole="button"
               accessibilityLabel={labels.item_add}
             >
-              <Ionicons name="add" size={20} color="#FFFFFF" />
-              <Text style={[styles.addButtonText, { fontSize: fs(15) }]}>{labels.item_add}</Text>
+              <Ionicons name="add" size={20} color={c.background} />
+              <Text style={[styles.addButtonText, { color: c.background, fontSize: fs(15) }]}>{labels.item_add}</Text>
             </Pressable>
           </View>
           {noteExpanded ? (
@@ -404,6 +390,8 @@ export default function ListDetailScreen() {
 }
 
 const ADD_ROW_HEIGHT = 40;
+const ICON_BADGE_SIZE = 44;
+const PROGRESS_BAR_HEIGHT = 6;
 
 const styles = StyleSheet.create({
   center: {
@@ -426,8 +414,11 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   iconBadge: {
-    borderRadius: 22,
-    padding: 10,
+    width: ICON_BADGE_SIZE,
+    height: ICON_BADGE_SIZE,
+    borderRadius: ICON_BADGE_SIZE / 2,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   headerText: {
     flex: 1,
@@ -441,13 +432,13 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   progressTrack: {
-    height: 6,
-    borderRadius: 3,
+    height: PROGRESS_BAR_HEIGHT,
+    borderRadius: PROGRESS_BAR_HEIGHT / 2,
     overflow: 'hidden',
   },
   progressFill: {
-    height: 6,
-    borderRadius: 3,
+    height: PROGRESS_BAR_HEIGHT,
+    borderRadius: PROGRESS_BAR_HEIGHT / 2,
   },
   addRow: {
     paddingHorizontal: 12,
@@ -495,13 +486,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
   },
   addButtonText: {
-    color: '#FFFFFF',
     fontWeight: '600',
   },
   errorText: {
     paddingHorizontal: 4,
   },
   pressed: {
-    opacity: 0.7,
+    opacity: PRESSED_OPACITY,
   },
 });

@@ -2,8 +2,8 @@ import { describe, expect, it, beforeEach, afterEach, vi } from 'vitest';
 import { render, fireEvent } from '@testing-library/react-native';
 import type { ReactElement, ReactNode } from 'react';
 import HomeScreen from '../../src/screens/HomeScreen';
-import { buildAppMock, setItemsByListId, setLists, setLoading, resetAppStub } from '../component/helpers/appStub';
-import { resetStub, setConfig } from '../component/helpers/configStub';
+import { buildAppMock, setItemsByListId, setLists, setLoading, resetAppStub } from '../helpers/appStub';
+import { resetStub, setConfig } from '../helpers/configStub';
 import type { Item, ListWithCounts } from '../../src/database/types';
 import { TEXT_SIZES } from '../../src/constants/types';
 
@@ -29,7 +29,6 @@ vi.mock('../../src/hooks/useSelectMode', () => ({
   useSelectMode: () => ({
     selectMode: false,
     selectedIds: new Set<number>(),
-    enterSelectMode: vi.fn(),
     toggleItem: vi.fn(),
     toggleSelectMode: selectMocks.toggleSelectMode,
     exitSelectMode: vi.fn(),

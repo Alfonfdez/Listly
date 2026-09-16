@@ -122,6 +122,16 @@ Edit an existing list (name, icon, color):
 - Save via `listRepo.update(listId, { name, icon, color })`; duplicate check excludes the edited list itself.
 - Spec: spec/features/013-edit-list/.
 
+## 014-code-quality
+Status: done.
+
+Behavior-preserving code-quality refactor before Settings (005):
+- Removed dead code (`utils/language.ts`, `LIST_COLORS`, `useSelectMode.enterSelectMode`, unused hook returns/styles).
+- Centralized style tokens/magic values in `componentStyles.ts`; on-primary text uses `c.background`.
+- Extracted shared primitives `SelectionCheck`, `FullscreenViewer`, `FormField`, `ListsScreenBase`, and `useDragOrder`; single-source `Config`/`DEFAULT_CONFIG`.
+- Unified i18n naming (`Translations`/`LanguageId`) and test layout (`tests/components`, `tests/hooks`, `tests/helpers`) with new-primitive coverage.
+- Spec: spec/features/014-code-quality/.
+
 ## Future scope (not scheduled)
 - Tags, due dates, subtasks, recurring items.
 - List templates and sharing.

@@ -3,4 +3,4 @@ export const LANGUAGES = {
   es: 'es',
 } as const;
 
-export type Language = keyof typeof LANGUAGES;
+export type LanguageId = keyof typeof LANGUAGES;

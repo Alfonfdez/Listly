@@ -14,7 +14,8 @@ import { withAlpha } from '../utils/color';
 import { useColorSelection } from '../hooks/useColorSelection';
 import ColorGrid from './ColorGrid';
 import ColorPickerModal from './ColorPickerModal';
-import { BUTTON_BORDER_RADIUS } from './componentStyles';
+import FormField from './FormField';
+import { BUTTON_BORDER_RADIUS, CARD_BORDER_RADIUS, ALPHA_SELECTED, PRESSED_OPACITY, DISABLED_OPACITY } from './componentStyles';
 
 interface Props {
   initialName: string;
@@ -96,58 +97,56 @@ export default function ListForm({
     <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
       <Text style={[styles.heading, { color: c.text, fontSize: fs(16) }]}>{heading}</Text>
 
-      <Text style={[styles.label, { color: c.textSecondary, fontSize: fs(13) }]}>
-        {labels.list_name_label}
-      </Text>
-      <TextInput
-        value={name}
-        onChangeText={setName}
-        maxLength={MAX_LIST_NAME_LENGTH}
-        placeholder={labels.list_name_label}
-        placeholderTextColor={c.textSecondary}
-        style={inputStyle}
-        accessibilityLabel={labels.list_name_label}
-      />
-      {error ? (
-        <Text style={[styles.errorText, { color: c.red, fontSize: fs(12) }]}>{labels[error]}</Text>
-      ) : null}
+      <FormField
+        label={labels.list_name_label}
+        error={error ? labels[error] : null}
+        style={styles.field}
+      >
+        <TextInput
+          value={name}
+          onChangeText={setName}
+          maxLength={MAX_LIST_NAME_LENGTH}
+          placeholder={labels.list_name_label}
+          placeholderTextColor={c.textSecondary}
+          style={inputStyle}
+          accessibilityLabel={labels.list_name_label}
+        />
+      </FormField>
 
-      <Text style={[styles.label, { color: c.textSecondary, fontSize: fs(13) }]}>
-        {labels.list_icon_label}
-      </Text>
-      <View style={styles.grid}>
-        {LIST_ICONS.map(option => {
-          const selected = option === icon;
-          return (
-            <Pressable
-              key={option}
-              onPress={() => setIcon(option)}
-              accessibilityRole="button"
-              accessibilityLabel={option}
-              accessibilityState={{ selected }}
-              style={[
-                styles.iconOption,
-                {
-                  borderColor: selected ? c.primary : 'transparent',
-                  backgroundColor: selected ? withAlpha(c.primary, 15) : c.surface,
-                },
-              ]}
-            >
-              <Ionicons name={option} size={20} color={selected ? c.primary : c.text} />
-            </Pressable>
-          );
-        })}
-      </View>
+      <FormField label={labels.list_icon_label} style={styles.field}>
+        <View style={styles.grid}>
+          {LIST_ICONS.map(option => {
+            const selected = option === icon;
+            return (
+              <Pressable
+                key={option}
+                onPress={() => setIcon(option)}
+                accessibilityRole="button"
+                accessibilityLabel={option}
+                accessibilityState={{ selected }}
+                style={[
+                  styles.iconOption,
+                  {
+                    borderColor: selected ? c.primary : 'transparent',
+                    backgroundColor: selected ? withAlpha(c.primary, ALPHA_SELECTED) : c.surface,
+                  },
+                ]}
+              >
+                <Ionicons name={option} size={20} color={selected ? c.primary : c.text} />
+              </Pressable>
+            );
+          })}
+        </View>
+      </FormField>
 
-      <Text style={[styles.label, { color: c.textSecondary, fontSize: fs(13) }]}>
-        {labels.list_color_label}
-      </Text>
-      <ColorGrid
-        selectedColor={selectedColor}
-        customColor={customColor}
-        onSelect={handleColorSelect}
-        onOpenPicker={() => setPickerVisible(true)}
-      />
+      <FormField label={labels.list_color_label} style={styles.field}>
+        <ColorGrid
+          selectedColor={selectedColor}
+          customColor={customColor}
+          onSelect={handleColorSelect}
+          onOpenPicker={() => setPickerVisible(true)}
+        />
+      </FormField>
       <ColorPickerModal
         visible={pickerVisible}
         selectedColor={selectedColor}
@@ -168,7 +167,7 @@ export default function ListForm({
         accessibilityLabel={submitLabel}
         accessibilityState={{ disabled: !canSubmit }}
       >
-        <Text style={[styles.createButtonText, { color: '#FFFFFF', fontSize: fs(15) }]}>
+        <Text style={[styles.createButtonText, { color: c.background, fontSize: fs(15) }]}>
           {submitLabel}
         </Text>
       </Pressable>
@@ -185,13 +184,8 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     marginBottom: 4,
   },
-  label: {
+  field: {
     marginTop: 16,
-    marginBottom: 8,
-    fontWeight: '600',
-  },
-  errorText: {
-    marginTop: 4,
   },
   grid: {
     flexDirection: 'row',
@@ -201,7 +195,7 @@ const styles = StyleSheet.create({
   iconOption: {
     width: 44,
     height: 44,
-    borderRadius: 12,
+    borderRadius: CARD_BORDER_RADIUS,
     borderWidth: 2,
     alignItems: 'center',
     justifyContent: 'center',
@@ -216,9 +210,9 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   pressed: {
-    opacity: 0.7,
+    opacity: PRESSED_OPACITY,
   },
   disabled: {
-    opacity: 0.5,
+    opacity: DISABLED_OPACITY,
   },
 });

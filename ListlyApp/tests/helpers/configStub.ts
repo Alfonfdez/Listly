@@ -1,8 +1,8 @@
 import { vi } from 'vitest';
 import type { ReactNode } from 'react';
-import type { Config } from '../../../src/context/ConfigContext';
-import type { ColorPalette } from '../../../src/constants/themes';
-import { darkColors } from '../../../src/constants/themes';
+import type { Config } from '../../src/database/types';
+import type { ColorPalette } from '../../src/constants/themes';
+import { darkColors } from '../../src/constants/themes';
 
 const configTemplate: Config = {
   theme: 'system',
@@ -40,14 +40,14 @@ function createStub(): ConfigStubState {
 const g = globalThis as GlobalWithConfigStub;
 g.__listlyConfigStub__ = createStub();
 
-vi.mock('../../../src/context/ConfigContext', () => ({
+vi.mock('../../src/context/ConfigContext', () => ({
   useConfig: () => (globalThis as GlobalWithConfigStub).__listlyConfigStub__,
   ConfigProvider: ({ children }: { children: ReactNode }) => children,
 }));
 
 function currentStub(): ConfigStubState {
   const stub = (globalThis as GlobalWithConfigStub).__listlyConfigStub__;
-  if (!stub) throw new Error('configStub setup not loaded: register tests/component/helpers/configStub.ts in setupFiles');
+  if (!stub) throw new Error('configStub setup not loaded: register tests/helpers/configStub.ts in setupFiles');
   return stub;
 }
 

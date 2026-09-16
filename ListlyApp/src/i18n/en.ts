@@ -64,4 +64,4 @@ export const en = {
   select_delete_items_message: 'The selected items will be permanently deleted.',
 };
 
-export type Language = typeof en;
+export type Translations = typeof en;

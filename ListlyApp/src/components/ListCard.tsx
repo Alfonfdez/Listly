@@ -1,12 +1,13 @@
 import { memo } from 'react';
-import { Text, View, StyleSheet } from 'react-native';
+import { Text, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useConfig } from '../context/ConfigContext';
 import { useFontSize } from '../hooks/useFontSize';
 import { t } from '../i18n';
-import { CARD_BORDER_RADIUS } from './componentStyles';
+import { CARD_BORDER_RADIUS, ALPHA_TINT } from './componentStyles';
 import { withAlpha } from '../utils/color';
 import SortablePressable from './SortablePressable';
+import SelectionCheck from './SelectionCheck';
 import type { ListWithCounts } from '../database/types';
 import type { IconName } from '../constants/types';
 
@@ -26,7 +27,7 @@ function ListCardInner({ list, selectMode, selected, onPress }: Props) {
     <SortablePressable
       style={[
         styles.card,
-        { backgroundColor: withAlpha(list.color, 13) },
+        { backgroundColor: withAlpha(list.color, ALPHA_TINT) },
         selectMode && selected && { borderColor: c.primary },
         selectMode && !selected && { borderColor: c.border },
       ]}
@@ -35,11 +36,7 @@ function ListCardInner({ list, selectMode, selected, onPress }: Props) {
       accessibilityState={selectMode ? { checked: selected } : undefined}
       accessibilityLabel={selected ? `${list.name}, ${labels.select_selected(1)}` : list.name}
     >
-      {selectMode ? (
-        <View style={[styles.check, selected ? { backgroundColor: c.primary } : { borderColor: c.border }]}>
-          {selected ? <Ionicons name="checkmark" size={14} color={c.background} /> : null}
-        </View>
-      ) : null}
+      {selectMode ? <SelectionCheck selected={selected} style={styles.check} iconSize={14} /> : null}
       <Ionicons name={list.icon as IconName} size={28} color={list.color} />
       <Text style={[styles.name, { color: c.text, fontSize: fs(14) }]} numberOfLines={1}>
         {list.name}
@@ -67,12 +64,6 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 8,
     right: 8,
-    width: 20,
-    height: 20,
-    borderRadius: 10,
-    borderWidth: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
   },
   name: {
     fontWeight: '600',

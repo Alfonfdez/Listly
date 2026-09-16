@@ -3,7 +3,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useConfig } from '../context/ConfigContext';
 import { BLACK } from '../constants/themes';
 import { isWeb } from '../utils/platform';
-import { FAB_SIZE } from './componentStyles';
+import { FAB_SIZE, FAB_SHADOW_COLOR } from './componentStyles';
 
 interface Props {
   onPress: () => void;
@@ -45,5 +45,5 @@ const fabShadowNative = {
 };
 
 const fabShadowWeb = {
-  boxShadow: '0 3px 6px rgba(0,0,0,0.3)',
+  boxShadow: `0 3px 6px ${FAB_SHADOW_COLOR}`,
 };

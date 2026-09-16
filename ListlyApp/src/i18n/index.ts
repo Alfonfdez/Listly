@@ -1,15 +1,15 @@
-import { en, type Language } from './en';
+import { en, type Translations } from './en';
 import { es } from './es';
-import type { Language as LanguageType } from '../constants/languages';
+import type { LanguageId } from '../constants/languages';
 
-const languages: Record<string, Language> = { en, es };
+const languages: Record<LanguageId, Translations> = { en, es };
 
-let currentLanguage: Language = en;
+let currentLanguage: Translations = en;
 
-export function setLanguage(id: LanguageType) {
+export function setLanguage(id: LanguageId) {
   currentLanguage = languages[id] ?? en;
 }
 
-export function t(): Language {
+export function t(): Translations {
   return currentLanguage;
 }

@@ -1,14 +1,16 @@
 import { useEffect, useState } from 'react';
-import { Modal, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { useConfig } from '../context/ConfigContext';
 import { useFontSize } from '../hooks/useFontSize';
 import { t } from '../i18n';
-import { BUTTON_BORDER_RADIUS } from './componentStyles';
+import { BUTTON_BORDER_RADIUS, PRESSED_OPACITY, DISABLED_OPACITY } from './componentStyles';
 import { validateItemName, type ItemNameError } from '../utils/validation';
 import { MAX_ITEM_NAME_LENGTH, MAX_ITEM_NOTE_LENGTH } from '../constants/types';
 import { useItemPhotos } from '../hooks/useItemPhotos';
+import ModalShell from './ModalShell';
 import PhotoSection from './PhotoSection';
 import CharCounter from './CharCounter';
+import FormField from './FormField';
 
 interface Props {
   visible: boolean;
@@ -72,145 +74,133 @@ export default function ItemFormModal({
   const canSave = error === null && name.trim().length > 0;
 
   return (
-    <Modal visible={visible} transparent animationType="fade" onRequestClose={onCancel}>
-      <View style={styles.overlay}>
-        <View style={[styles.card, { backgroundColor: c.surface }]}>
-          <Text style={[styles.title, { color: c.text, fontSize: fs(18) }]}>{title}</Text>
+    <ModalShell
+      visible={visible}
+      onClose={onCancel}
+      maxWidth={400}
+      padding={16}
+      overlayPadding={24}
+      maxHeight="90%"
+      style={styles.content}
+    >
+      <Text style={[styles.title, { color: c.text, fontSize: fs(18) }]}>{title}</Text>
 
-          <Text style={[styles.label, { color: c.textSecondary, fontSize: fs(13) }]}>
-            {labels.item_name_label}
-          </Text>
-          <TextInput
-            value={name}
-            onChangeText={onNameChange}
-            maxLength={MAX_ITEM_NAME_LENGTH}
-            placeholder={labels.item_name_label}
-            placeholderTextColor={c.textSecondary}
-            style={[
-              styles.input,
-              { backgroundColor: c.background, borderColor: c.border, color: c.text, fontSize: fs(15) },
-            ]}
-            accessibilityLabel={labels.item_name_label}
-          />
-          <CharCounter current={name.length} max={MAX_ITEM_NAME_LENGTH} />
-          {error ? (
-            <Text style={[styles.errorText, { color: c.red, fontSize: fs(12) }]}>{labels[error]}</Text>
-          ) : null}
+      <FormField
+        label={labels.item_name_label}
+        error={error ? labels[error] : null}
+      >
+        <TextInput
+          value={name}
+          onChangeText={onNameChange}
+          maxLength={MAX_ITEM_NAME_LENGTH}
+          placeholder={labels.item_name_label}
+          placeholderTextColor={c.textSecondary}
+          style={[
+            styles.input,
+            { backgroundColor: c.background, borderColor: c.border, color: c.text, fontSize: fs(15) },
+          ]}
+          accessibilityLabel={labels.item_name_label}
+        />
+        <CharCounter current={name.length} max={MAX_ITEM_NAME_LENGTH} />
+      </FormField>
 
-          <Text style={[styles.label, { color: c.textSecondary, fontSize: fs(13) }]}>
-            {labels.item_note_label}
-          </Text>
-          <TextInput
-            value={note}
-            onChangeText={setNote}
-            maxLength={MAX_ITEM_NOTE_LENGTH}
-            placeholder={labels.item_note_label}
-            placeholderTextColor={c.textSecondary}
-            multiline
-            numberOfLines={3}
-            style={[
-              styles.input,
-              styles.noteInput,
-              { backgroundColor: c.background, borderColor: c.border, color: c.text, fontSize: fs(15) },
-            ]}
-            accessibilityLabel={labels.item_note_label}
-          />
-          <CharCounter current={note.length} max={MAX_ITEM_NOTE_LENGTH} />
+      <FormField label={labels.item_note_label}>
+        <TextInput
+          value={note}
+          onChangeText={setNote}
+          maxLength={MAX_ITEM_NOTE_LENGTH}
+          placeholder={labels.item_note_label}
+          placeholderTextColor={c.textSecondary}
+          multiline
+          numberOfLines={3}
+          style={[
+            styles.input,
+            styles.noteInput,
+            { backgroundColor: c.background, borderColor: c.border, color: c.text, fontSize: fs(15) },
+          ]}
+          accessibilityLabel={labels.item_note_label}
+        />
+        <CharCounter current={note.length} max={MAX_ITEM_NOTE_LENGTH} />
+      </FormField>
 
-          <View style={styles.photoSection}>
-            <PhotoSection
-              photos={photos}
-              onTakePhoto={() => void handleTakePhoto()}
-              onPickFromGallery={() => void handlePickFromGallery()}
-              onRemovePhoto={uri => void handleRemovePhoto(uri)}
-            />
-          </View>
-
-          {confirmDelete ? (
-            <View style={styles.confirmBlock}>
-              <Text style={[styles.title, { color: c.text, fontSize: fs(15) }]}>{labels.item_confirm_delete}</Text>
-              <View style={styles.buttonRow}>
-                <Pressable
-                  style={({ pressed }) => [styles.button, { backgroundColor: c.surface, borderColor: c.border, borderWidth: 1 }, pressed && styles.pressed]}
-                  onPress={() => setConfirmDelete(false)}
-                  accessibilityRole="button"
-                  accessibilityLabel={labels.common_cancel}
-                >
-                  <Text style={[styles.buttonText, { color: c.text, fontSize: fs(15) }]}>{labels.common_cancel}</Text>
-                </Pressable>
-                <Pressable
-                  style={({ pressed }) => [styles.button, { backgroundColor: c.red }, pressed && styles.pressed]}
-                  onPress={onDelete}
-                  accessibilityRole="button"
-                  accessibilityLabel={labels.item_delete}
-                >
-                  <Text style={[styles.buttonText, { color: '#FFFFFF', fontSize: fs(15) }]}>{labels.item_delete}</Text>
-                </Pressable>
-              </View>
-            </View>
-          ) : (
-            <>
-              <View style={styles.buttonRow}>
-                {allowDelete ? (
-                  <Pressable
-                    style={({ pressed }) => [styles.textButton, pressed && styles.pressed]}
-                    onPress={() => setConfirmDelete(true)}
-                    accessibilityRole="button"
-                    accessibilityLabel={labels.item_delete}
-                  >
-                    <Text style={[styles.destructiveText, { color: c.red, fontSize: fs(15) }]}>{labels.item_delete}</Text>
-                  </Pressable>
-                ) : (
-                  <View />
-                )}
-                <View style={styles.buttonRowRight}>
-                  <Pressable
-                    style={({ pressed }) => [styles.textButton, pressed && styles.pressed]}
-                    onPress={onCancel}
-                    accessibilityRole="button"
-                    accessibilityLabel={labels.common_cancel}
-                  >
-                    <Text style={[styles.buttonText, { color: c.textSecondary, fontSize: fs(15) }]}>{labels.common_cancel}</Text>
-                  </Pressable>
-                  <Pressable
-                    style={({ pressed }) => [styles.button, { backgroundColor: c.primary }, (!canSave || pressed) && styles.pressed, !canSave && styles.disabled]}
-                    disabled={!canSave}
-                    onPress={submit}
-                    accessibilityRole="button"
-                    accessibilityLabel={labels.item_save}
-                  >
-                    <Text style={[styles.buttonText, { color: '#FFFFFF', fontSize: fs(15) }]}>{labels.item_save}</Text>
-                  </Pressable>
-                </View>
-              </View>
-            </>
-          )}
-        </View>
+      <View style={styles.photoSection}>
+        <PhotoSection
+          photos={photos}
+          onTakePhoto={() => void handleTakePhoto()}
+          onPickFromGallery={() => void handlePickFromGallery()}
+          onRemovePhoto={uri => void handleRemovePhoto(uri)}
+        />
       </View>
-    </Modal>
+
+      {confirmDelete ? (
+        <View style={styles.confirmBlock}>
+          <Text style={[styles.title, { color: c.text, fontSize: fs(15) }]}>{labels.item_confirm_delete}</Text>
+          <View style={styles.buttonRow}>
+            <Pressable
+              style={({ pressed }) => [styles.button, { backgroundColor: c.surface, borderColor: c.border, borderWidth: 1 }, pressed && styles.pressed]}
+              onPress={() => setConfirmDelete(false)}
+              accessibilityRole="button"
+              accessibilityLabel={labels.common_cancel}
+            >
+              <Text style={[styles.buttonText, { color: c.text, fontSize: fs(15) }]}>{labels.common_cancel}</Text>
+            </Pressable>
+            <Pressable
+              style={({ pressed }) => [styles.button, { backgroundColor: c.red }, pressed && styles.pressed]}
+              onPress={onDelete}
+              accessibilityRole="button"
+              accessibilityLabel={labels.item_delete}
+            >
+              <Text style={[styles.buttonText, { color: c.background, fontSize: fs(15) }]}>{labels.item_delete}</Text>
+            </Pressable>
+          </View>
+        </View>
+      ) : (
+        <>
+          <View style={styles.buttonRow}>
+            {allowDelete ? (
+              <Pressable
+                style={({ pressed }) => [styles.textButton, pressed && styles.pressed]}
+                onPress={() => setConfirmDelete(true)}
+                accessibilityRole="button"
+                accessibilityLabel={labels.item_delete}
+              >
+                <Text style={[styles.destructiveText, { color: c.red, fontSize: fs(15) }]}>{labels.item_delete}</Text>
+              </Pressable>
+            ) : (
+              <View />
+            )}
+            <View style={styles.buttonRowRight}>
+              <Pressable
+                style={({ pressed }) => [styles.textButton, pressed && styles.pressed]}
+                onPress={onCancel}
+                accessibilityRole="button"
+                accessibilityLabel={labels.common_cancel}
+              >
+                <Text style={[styles.buttonText, { color: c.textSecondary, fontSize: fs(15) }]}>{labels.common_cancel}</Text>
+              </Pressable>
+              <Pressable
+                style={({ pressed }) => [styles.button, { backgroundColor: c.primary }, (!canSave || pressed) && styles.pressed, !canSave && styles.disabled]}
+                disabled={!canSave}
+                onPress={submit}
+                accessibilityRole="button"
+                accessibilityLabel={labels.item_save}
+              >
+                <Text style={[styles.buttonText, { color: c.background, fontSize: fs(15) }]}>{labels.item_save}</Text>
+              </Pressable>
+            </View>
+          </View>
+        </>
+      )}
+    </ModalShell>
   );
 }
 
 const styles = StyleSheet.create({
-  overlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 24,
-  },
-  card: {
-    width: '100%',
-    maxWidth: 400,
-    borderRadius: 16,
-    padding: 16,
+  content: {
     gap: 8,
   },
   title: {
     fontWeight: '700',
-  },
-  label: {
-    marginTop: 4,
   },
   input: {
     borderWidth: 1,
@@ -221,9 +211,6 @@ const styles = StyleSheet.create({
   noteInput: {
     minHeight: 72,
     textAlignVertical: 'top',
-  },
-  errorText: {
-    marginTop: -2,
   },
   photoSection: {
     marginTop: 4,
@@ -257,10 +244,10 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   pressed: {
-    opacity: 0.7,
+    opacity: PRESSED_OPACITY,
   },
   disabled: {
-    opacity: 0.5,
+    opacity: DISABLED_OPACITY,
   },
   confirmBlock: {
     marginTop: 12,
