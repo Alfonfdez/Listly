@@ -160,3 +160,13 @@
 - Spec: created `spec/features/012-reorder-items/`; updated `spec/features/010-bulk-select-delete/` (item long-press is now drag-only, select mode stays behind the header toggle); roadmap gained `## 012-reorder-items` (Status: in progress).
 - Tests: increased the `react-native-sortables` mock with `lastGrid()`/`fireGridDragEnd()`; ItemRow/ListDetailScreen reorder tests (drag-end persists via `itemRepo.reorder`, disabled with a single item / while a search query is active); `useCallback`/hook-order fix in ListDetailScreen triggered by the new hooks. Suite baseline: 19 files, 184 tests, `npm run test:all` green.
 - Fix: `itemRepo.listAll()` (the read path `AppContext.loadAll` uses) had no `ORDER BY position`, so a dragged item order reverted to insertion order on any DB re-read (reload / navigate-away-and-back) — verified on web. Added `.orderBy(position, id)` and extended the contract test asserting `listAll` returns the reordered items. Suite baseline after fix: 19 files, 184 tests, `npm run test:all` green.
+[2026-09-16] ~ | Fix item-row tap isolation (edit / note / photo)
+- Tapping an item's edit button, note preview, or photo thumbnail also toggled Done/Undone because those controls were RN Pressables nested inside the row-level SortablePressable (RNGH tap) - both actions fired on the same tap.
+- Fixed in ItemRow.tsx by converting the three interactive controls from Pressable to SortablePressable (Sortable.Touchable) so RNGH child-priority lets the inner tap win and the outer row toggle fails; outer SortablePressable keeps onPress={onToggle}; checkbox untouched.
+- Tests: added "does not toggle when tapping the note preview / a photo thumbnail" to ItemRow.test.tsx (note-via-text and photo-via-role presses assert onToggle is never called); reordered so the double-press isolation test stays last to dodge a RNTL/mock quirk where two presses on a SortablePressable in one test poison the next test's render. Suite baseline: 19 files, 186 tests, 
+pm run test:all green.
+
+[2026-09-16] ~ | Hide search/select header on Home when there are no lists
+- HomeScreen always rendered SelectSearchHeader (search + select icons) even with an empty list set, mirroring the bug ListDetailScreen had for items.
+- Fixed in HomeScreen.tsx: headerRight is registered only when lists.length > 0 (otherwise undefined), so an empty Home shows neither search nor select - consistent with the ListDetailScreen empty-state pattern.
+- Tests: HomeScreen.test.tsx empty-state case now asserts headerRight is undefined (no search, no select) instead of expecting Search to remain visible.

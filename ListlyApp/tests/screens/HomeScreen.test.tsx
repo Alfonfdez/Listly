@@ -119,12 +119,12 @@ describe('HomeScreen', () => {
     expect(header.getByLabelText('Enter select mode')).toBeTruthy();
   });
 
-  it('hides the select toggle in the header when there are no lists', async () => {
+  it('hides both search and select in the header when there are no lists', async () => {
     setLists([]);
     await render(<HomeScreen />);
-    const header = await renderHeader();
-    expect(header.getByLabelText('Search')).toBeTruthy();
-    expect(header.queryByLabelText('Enter select mode')).toBeNull();
+    const calls = nav.setOptions.mock.calls;
+    const lastSetOptions = calls[calls.length - 1]?.[0];
+    expect(lastSetOptions?.headerRight).toBeUndefined();
   });
 
   it('enters select mode when the header select toggle is pressed', async () => {

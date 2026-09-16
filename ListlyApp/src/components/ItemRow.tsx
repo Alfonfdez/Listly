@@ -1,5 +1,5 @@
 import { memo, useState } from 'react';
-import { Image, Pressable, Text, StyleSheet, View } from 'react-native';
+import { Image, Text, StyleSheet, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useConfig } from '../context/ConfigContext';
 import { useFontSize } from '../hooks/useFontSize';
@@ -75,20 +75,22 @@ function ItemRowInner({ item, selectMode, selected, onToggle, onEdit }: Props) {
             <Ionicons name="document-text-outline" size={16} color={c.textSecondary} style={styles.noteIcon} />
           ) : null}
           {!selectMode ? (
-            <Pressable
-              style={({ pressed }) => [styles.editButton, pressed && styles.pressed]}
+            <SortablePressable
+              style={styles.editButton}
               onPress={onEdit}
+              activeOpacity={0.7}
               accessibilityRole="button"
               accessibilityLabel={labels.item_edit_title}
               hitSlop={8}
             >
               <Ionicons name="pencil-outline" size={18} color={c.textSecondary} />
-            </Pressable>
+            </SortablePressable>
           ) : null}
         </View>
         {item.note && !selectMode ? (
-          <Pressable
+          <SortablePressable
             onPress={() => setNoteViewerVisible(true)}
+            activeOpacity={0.7}
             accessibilityRole="button"
             accessibilityLabel={labels.item_note_preview}
             hitSlop={4}
@@ -100,20 +102,22 @@ function ItemRowInner({ item, selectMode, selected, onToggle, onEdit }: Props) {
             >
               {item.note}
             </Text>
-          </Pressable>
+          </SortablePressable>
         ) : null}
         {photos.length > 0 && !selectMode ? (
           <View style={styles.thumbRow}>
             {photos.slice(0, MAX_ITEM_PICTURES).map((uri, index) => (
-              <Pressable
+              <SortablePressable
                 key={`${uri}-${index}`}
-                style={({ pressed }) => [styles.thumb, pressed && styles.pressed]}
+                style={styles.thumb}
                 onPress={() => setViewerIndex(index)}
+                activeOpacity={0.7}
                 accessibilityRole="imagebutton"
                 accessibilityLabel={labels.item_photos_title}
+                hitSlop={8}
               >
                 <Image source={{ uri }} style={styles.thumbImage} />
-              </Pressable>
+              </SortablePressable>
             ))}
           </View>
         ) : null}
