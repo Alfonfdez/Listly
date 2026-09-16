@@ -113,7 +113,7 @@ describe('CreateListScreen', () => {
     await user.type(view.getByLabelText('Name'), 'Groceries');
     await new Promise(resolve => setTimeout(resolve, DEBOUNCE_WAIT));
     expect(await view.findByText('A list with this name already exists')).toBeTruthy();
-    expect(listRepositoryMock.existsByName).toHaveBeenCalledWith('Groceries');
+    expect(listRepositoryMock.existsByName).toHaveBeenLastCalledWith('Groceries', undefined);
   });
 
   it('creates the list with the selected icon and color, then navigates back', async () => {

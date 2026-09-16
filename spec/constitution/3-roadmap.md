@@ -113,6 +113,15 @@ Drag-to-reorder items inside a list:
 - Long-press reserved for drag (no longer enters item select mode; select mode stays behind the header toggle).
 - Spec: spec/features/012-reorder-items/.
 
+## 013-edit-list
+Status: done.
+
+Edit an existing list (name, icon, color):
+- Shared `ListForm` component extracted from `CreateListScreen`, reused by the new `EditListScreen` (route `EditList: { listId }`).
+- Pencil entry point on the List detail header block navigates to the edit screen.
+- Save via `listRepo.update(listId, { name, icon, color })`; duplicate check excludes the edited list itself.
+- Spec: spec/features/013-edit-list/.
+
 ## Future scope (not scheduled)
 - Tags, due dates, subtasks, recurring items.
 - List templates and sharing.

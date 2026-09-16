@@ -7,6 +7,7 @@ import {
   MAX_ITEM_NAME_LENGTH,
   MAX_ITEM_NOTE_LENGTH,
   type IconName,
+  type NavigationProp,
   type RootStackParamList,
 } from '../constants/types';
 import type { Item } from '../database/types';
@@ -35,7 +36,7 @@ import { useItemPhotos } from '../hooks/useItemPhotos';
 
 export default function ListDetailScreen() {
   const route = useRoute<RouteProp<RootStackParamList, 'ListDetail'>>();
-  const navigation = useNavigation();
+  const navigation = useNavigation<NavigationProp<'ListDetail'>>();
   const { listId } = route.params;
 
   const { lists, itemsByListId, refresh } = useApp();
@@ -234,6 +235,15 @@ export default function ListDetailScreen() {
           </Text>
           <Text style={{ color: c.textSecondary, fontSize: fs(13) }}>{labels.home_progress(done, total)}</Text>
         </View>
+        <TouchableOpacity
+          onPress={() => navigation.navigate('EditList', { listId })}
+          style={styles.editButton}
+          accessibilityRole="button"
+          accessibilityLabel={labels.list_edit_label}
+          hitSlop={8}
+        >
+          <Ionicons name="create-outline" size={20} color={list.color} />
+        </TouchableOpacity>
       </View>
       <View style={[styles.progressTrack, { backgroundColor: withAlpha(list.color, 20) }]}>
         <View style={[styles.progressFill, { backgroundColor: list.color, width: `${pct}%` }]} />
@@ -422,6 +432,10 @@ const styles = StyleSheet.create({
   headerText: {
     flex: 1,
     gap: 2,
+  },
+  editButton: {
+    marginLeft: 'auto',
+    padding: 6,
   },
   listName: {
     fontWeight: '700',

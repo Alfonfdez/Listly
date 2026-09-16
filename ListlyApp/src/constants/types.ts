@@ -32,6 +32,7 @@ export type RootStackParamList = {
   Lists: undefined;
   ListDetail: { listId: number };
   CreateList: undefined;
+  EditList: { listId: number };
   Settings: undefined;
 };
 
