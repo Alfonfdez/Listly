@@ -8,15 +8,16 @@ interface Props {
   icon?: IconName;
   message: string;
   hint?: string;
+  color?: string;
 }
 
-export default function EmptyState({ icon, message, hint }: Props) {
+export default function EmptyState({ icon, message, hint, color }: Props) {
   const { activeColors: c } = useConfig();
   const fs = useFontSize();
 
   return (
     <View style={styles.container}>
-      {icon && <Ionicons name={icon} size={64} color={c.textSecondary} />}
+      {icon && <Ionicons name={icon} size={64} color={color ?? c.textSecondary} />}
       <Text style={[styles.text, { color: c.textSecondary, fontSize: fs(16) }]}>{message}</Text>
       {hint && (
         <Text style={[styles.hint, { color: c.textSecondary, fontSize: fs(13) }]}>{hint}</Text>

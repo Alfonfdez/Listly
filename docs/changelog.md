@@ -170,3 +170,13 @@ pm run test:all green.
 - HomeScreen always rendered SelectSearchHeader (search + select icons) even with an empty list set, mirroring the bug ListDetailScreen had for items.
 - Fixed in HomeScreen.tsx: headerRight is registered only when lists.length > 0 (otherwise undefined), so an empty Home shows neither search nor select - consistent with the ListDetailScreen empty-state pattern.
 - Tests: HomeScreen.test.tsx empty-state case now asserts headerRight is undefined (no search, no select) instead of expecting Search to remain visible.
+
+[2026-09-16] ~ | Differentiate ListDetail empty-state icon
+- The "No items yet" empty state on ListDetailScreen used the same generic list-outline icon as the "No lists yet" states on Home/Lists, making the two empty screens hard to tell apart.
+- EmptyState gained an optional color prop (falls back to the theme textSecondary) and ListDetailScreen now renders the list's own icon in the list's color (list.icon as IconName, list.color) when a list has no items - matching the header badge for that list while Home/Lists keep the default gray list-outline.
+- Verified on web at 375px: an empty Travel Plan list shows its cyan airplane icon (distinct from Home's gray list-outline), console 0 errors. Suite unchanged: 19 files, 186 tests, `npm run test:all` green.
+
+[2026-09-16] ~ | Hide search/select header on Lists screen when there are no lists
+- The Lists screen always registered SelectSearchHeader, so its Search icon stayed visible with an empty list set (the select icon was already hidden via showSelect).
+- Fixed in ListsScreen.tsx: headerRight is now registered only when lists.length > 0 (otherwise undefined), matching HomeScreen.
+- Test: ListsScreen.test.tsx empty-state case now asserts the last setOptions has headerRight undefined (no search, no select) instead of expecting Search to remain visible. Verified on web at 375px (with a list the icons appear; without lists they do not), console 0 errors. Suite unchanged: 19 files, 186 tests, `npm run test:all` green.
