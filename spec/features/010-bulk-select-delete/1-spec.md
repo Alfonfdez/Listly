@@ -37,9 +37,8 @@
 - No separate swipe or dedicated single-delete button is needed — the select-mode flow covers deleting one or many lists.
 
 ### 5. Select mode (items — ListDetailScreen)
-- Select mode is entered by either:
-  - Tapping the select toggle (`checkbox-outline`) in the list-detail header right, shown next to the search toggle and only when the list has at least one item; or
-  - Long-pressing any `ItemRow` (item rows are not sortable, so long-press is free for select entry).
+- Select mode is entered by tapping the select toggle (`checkbox-outline`) in the list-detail header right, shown next to the search toggle and only when the list has at least one item.
+- Long-press on an `ItemRow` is reserved for drag-reorder (sortable activation, see feature 012) and does NOT enter select mode.
 - The list-detail header also shows a search toggle beside the select toggle; tapping it opens an inline search bar that filters items by name or note (case-insensitive, all terms must match), with a "no results" state when nothing matches.
 - In select mode:
   - The header select toggle flips to a close icon (`close-outline`) that exits select mode.
@@ -79,7 +78,7 @@
 - [x] An active search query tints the header search icon.
 - [x] In select mode, tapping lists toggles selection; FAB is hidden.
 - [x] Bulk-delete confirmation dialog appears; confirming deletes selected lists and exits select mode.
-- [x] Long-press on an item row enters item select mode with a bottom action bar.
+- [x] Item select mode is entered via the header select toggle (long-press is reserved for drag-reorder, see feature 012) with a bottom action bar.
 - [x] In item select mode, tapping items toggles selection; add bar is hidden.
 - [x] Bulk-delete confirmation for items works the same way.
 - [x] All new UI respects theme tokens and `fs()` scaling.

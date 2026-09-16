@@ -19,7 +19,7 @@ function makeItem(overrides: Partial<Item> = {}): Item {
   };
 }
 
-const defaults = { selectMode: false, selected: false, onLongPress: () => {} };
+const defaults = { selectMode: false, selected: false };
 
 describe('ItemRow', () => {
   beforeEach(() => {

@@ -5,11 +5,17 @@ interface GridProps {
   data?: unknown[];
   renderItem?: (info: { item: unknown; index: number }) => ReactNode;
   keyExtractor?: (item: unknown) => string;
+  sortEnabled?: boolean;
+  onDragEnd?: (params: unknown) => void;
   children?: ReactNode;
 }
 
-const Grid = ({ data = [], renderItem, keyExtractor, children = null }: GridProps) =>
-  renderItem
+let lastGridProps: GridProps | null = null;
+
+const Grid = (props: GridProps) => {
+  const { data = [], renderItem, keyExtractor, children = null } = props;
+  lastGridProps = props;
+  return renderItem
     ? React.createElement(
         Fragment,
         null,
@@ -20,6 +26,7 @@ const Grid = ({ data = [], renderItem, keyExtractor, children = null }: GridProp
         ))
       )
     : React.createElement(Fragment, null, children);
+};
 
 interface TouchableProps {
   onTap?: () => void;
@@ -42,5 +49,13 @@ const HOLLOW_COMPONENTS: Record<string, ElementType> = {
 };
 
 const Sortable = { Grid, Touchable, ...HOLLOW_COMPONENTS };
+
+export function lastGrid() {
+  return lastGridProps;
+}
+
+export function fireGridDragEnd(params: unknown) {
+  lastGridProps?.onDragEnd?.(params);
+}
 
 export default Sortable;

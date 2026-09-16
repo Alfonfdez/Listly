@@ -103,6 +103,16 @@ Up to 3 pictures per item:
 - Native stores file URIs in the document directory; web stores base64 data URLs inline; photo files cleaned up on item/list delete.
 - Spec: spec/features/011-item-pictures/.
 
+## 012-reorder-items
+Status: done.
+
+Drag-to-reorder items inside a list:
+- `itemRepo.reorder(listId, orderedIds)` persists the new order atomically via `items.position`.
+- Sortable list-detail container (`Sortable.Grid`, 1 column); long-press drag; write-through + refresh.
+- Reordering disabled with <2 items, while a search query is active, or in select mode.
+- Long-press reserved for drag (no longer enters item select mode; select mode stays behind the header toggle).
+- Spec: spec/features/012-reorder-items/.
+
 ## Future scope (not scheduled)
 - Tags, due dates, subtasks, recurring items.
 - List templates and sharing.

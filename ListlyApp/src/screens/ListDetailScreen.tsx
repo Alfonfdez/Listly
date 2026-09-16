@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { FlatList, Pressable, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import Sortable, { type SortableGridDragEndParams, type SortableGridRenderItem } from 'react-native-sortables';
 import { useFocusEffect, useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
 import {
   MAX_ITEM_NAME_LENGTH,
@@ -52,6 +53,7 @@ export default function ListDetailScreen() {
   const [editing, setEditing] = useState<Item | null>(null);
   const [searchActive, setSearchActive] = useState(false);
   const [query, setQuery] = useState('');
+  const [dragOrder, setDragOrder] = useState<number[] | null>(null);
   const {
     photos: newPhotos,
     setPhotos: setNewPhotos,
@@ -63,7 +65,6 @@ export default function ListDetailScreen() {
   const {
     selectMode,
     selectedIds,
-    enterSelectMode,
     toggleItem,
     toggleSelectMode,
     exitSelectMode,
@@ -113,6 +114,15 @@ export default function ListDetailScreen() {
   const existingNames = useMemo(() => uniqueNormalizedNames(items.map(i => i.name)), [items]);
   const maxPosition = useMemo(() => items.reduce((max, i) => Math.max(max, i.position), -1) + 1, [items]);
   const filteredItems = useMemo(() => filterItemsByQuery(items, query), [items, query]);
+
+  const displayItems = useMemo(() => {
+    if (!dragOrder) return filteredItems;
+    const byId = new Map(filteredItems.map(i => [i.id, i]));
+    const next = dragOrder
+      .map(id => byId.get(id))
+      .filter((i): i is Item => Boolean(i));
+    return next.length === filteredItems.length ? next : filteredItems;
+  }, [filteredItems, dragOrder]);
   const editingExclusiveNames = useMemo(
     () => (editing ? uniqueNormalizedNames(items.filter(i => i.id !== editing.id).map(i => i.name)) : new Set<string>()),
     [items, editing]
@@ -122,18 +132,47 @@ export default function ListDetailScreen() {
   const total = items.length;
   const pct = total > 0 ? Math.round((done / total) * 100) : 0;
 
+  const toggle = useCallback(
+    async (item: Item) => {
+      try {
+        await itemRepo.toggle(item.id);
+      } catch (error) {
+        console.error('Failed to toggle item:', error);
+      }
+      void refresh();
+    },
+    [refresh]
+  );
+
+  const handleDragEnd = useCallback(
+    ({ data }: SortableGridDragEndParams<Item>) => {
+      const ids = data.map(i => i.id);
+      if (ids.length !== filteredItems.length || ids.every((id, i) => id === filteredItems[i].id)) {
+        return;
+      }
+      setDragOrder(ids);
+      void itemRepo.reorder(listId, ids);
+      void refresh();
+    },
+    [filteredItems, listId, refresh]
+  );
+
+  const renderItem = useCallback<SortableGridRenderItem<Item>>(
+    ({ item }) => (
+      <ItemRow
+        item={item}
+        selectMode={selectMode}
+        selected={selectedIds.has(item.id)}
+        onToggle={() => (selectMode ? toggleItem(item.id) : void toggle(item))}
+        onEdit={() => setEditing(item)}
+      />
+    ),
+    [selectMode, selectedIds, toggleItem, toggle]
+  );
+
   if (!list) {
     return <ScreenShell style={styles.center}><EmptyState icon="help-circle-outline" message={labels.home_empty} /></ScreenShell>;
   }
-
-  const toggle = async (item: Item) => {
-    try {
-      await itemRepo.toggle(item.id);
-    } catch (error) {
-      console.error('Failed to toggle item:', error);
-    }
-    void refresh();
-  };
 
   const submitAdd = async () => {
     const err = validateItemName(newName, existingNames);
@@ -206,43 +245,35 @@ export default function ListDetailScreen() {
 
   return (
     <ScreenShell>
-      <FlatList
-        data={filteredItems}
-        keyExtractor={item => String(item.id)}
-        renderItem={({ item }) => (
-          <ItemRow
-            item={item}
-            selectMode={selectMode}
-            selected={selectedIds.has(item.id)}
-            onToggle={() => selectMode ? toggleItem(item.id) : void toggle(item)}
-            onLongPress={() => enterSelectMode(item.id)}
-            onEdit={() => setEditing(item)}
+      <ScrollView contentContainerStyle={styles.listContent} showsVerticalScrollIndicator={false}>
+        {searchActive && !selectMode ? (
+          <SearchBar
+            placeholder={labels.item_search_placeholder}
+            value={query}
+            onChangeText={setQuery}
+            onClose={() => { setQuery(''); setSearchActive(false); }}
+            autoFocus
           />
-        )}
-        ListHeaderComponent={
-          <>
-            {searchActive && !selectMode ? (
-              <SearchBar
-                placeholder={labels.item_search_placeholder}
-                value={query}
-                onChangeText={setQuery}
-                onClose={() => { setQuery(''); setSearchActive(false); }}
-                autoFocus
-              />
-            ) : null}
-            {header}
-          </>
-        }
-        ListEmptyComponent={
+        ) : null}
+        {header}
+        {displayItems.length === 0 ? (
           noResults ? (
             <EmptyState icon="search-outline" message={labels.home_no_results} />
           ) : (
             <EmptyState icon="list-outline" message={labels.item_empty} hint={labels.item_empty_hint} />
           )
-        }
-        contentContainerStyle={styles.listContent}
-        showsVerticalScrollIndicator={false}
-      />
+        ) : (
+          <Sortable.Grid
+            data={displayItems}
+            keyExtractor={item => String(item.id)}
+            renderItem={renderItem}
+            columns={1}
+            sortEnabled={!selectMode && query === '' && items.length > 1}
+            rowGap={8}
+            onDragEnd={handleDragEnd}
+          />
+        )}
+      </ScrollView>
 
       {!selectMode ? (
         <View style={styles.addRow}>

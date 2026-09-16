@@ -245,6 +245,23 @@ export function runContractSuite(
         await backend.item.update(a.id, { position: 10 });
         expect((await backend.item.listByList(1)).find(i => i.id === a.id)?.position).toBe(10);
       });
+
+      it('reorder persists a new order within the list and leaves other lists untouched', async () => {
+        const ordered = await backend.item.listByList(1);
+        const ids = ordered.map(i => i.id);
+        const reversedIds = [...ids].reverse();
+        await backend.item.reorder(1, reversedIds);
+
+        const after = await backend.item.listByList(1);
+        expect(after.map(i => i.id)).toEqual(reversedIds);
+        expect(after.map(i => i.position)).toEqual([0, 1, 2, 3, 4]);
+
+        const other = await backend.item.listByList(2);
+        expect(other.map(i => i.position)).toEqual([0, 1, 2]);
+
+        const all = await backend.item.listAll();
+        expect(all.filter(i => i.list_id === 1).map(i => i.id)).toEqual(reversedIds);
+      });
     });
 
     describe('config', () => {
