@@ -20,6 +20,7 @@ import HomeScreen from '../screens/HomeScreen';
 import ListsScreen from '../screens/ListsScreen';
 import ListDetailScreen from '../screens/ListDetailScreen';
 import CreateListScreen from '../screens/CreateListScreen';
+import EditListScreen from '../screens/EditListScreen';
 import SettingsScreen from '../screens/SettingsScreen';
 import DrawerMenuButton from '../components/DrawerMenuButton';
 
@@ -137,6 +138,7 @@ const HomeStack = memo(function HomeStack() {
     { name: 'Lists', component: ListsNavCapture, title: labels.nav_lists, icon: 'list-outline', headerLeft: true },
     { name: 'ListDetail', component: ListDetailScreen, title: labels.list_detail_title, icon: 'checkbox-outline' },
     { name: 'CreateList', component: CreateListScreen, title: labels.create_list_title, icon: 'add-circle-outline' },
+    { name: 'EditList', component: EditListScreen, title: labels.edit_list_title, icon: 'create-outline' },
     { name: 'Settings', component: SettingsScreen, title: labels.settings_title, icon: 'settings-outline' },
   ], [labels]);
 

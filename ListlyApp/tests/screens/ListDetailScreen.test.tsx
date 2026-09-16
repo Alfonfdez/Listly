@@ -34,6 +34,7 @@ const { itemRepositoryMock, selectMocks, nav, photoMocks } = vi.hoisted(() => ({
   },
   nav: {
     setOptions: vi.fn(),
+    navigate: vi.fn(),
   },
 }));
 
@@ -390,6 +391,13 @@ describe('ListDetailScreen', () => {
     expect(headerCmds.length).toBeGreaterThan(0);
     const last = headerCmds[headerCmds.length - 1][0] as { headerRight?: () => ReactElement };
     expect(last.headerRight).toBeUndefined();
+  });
+
+  it('navigates to Edit List when the header pencil is pressed', async () => {
+    const view = await render(<ListDetailScreen />);
+    await view.findByText('Milk');
+    await userEvent.setup().press(view.getByLabelText('Edit list'));
+    expect(nav.navigate).toHaveBeenCalledWith('EditList', { listId: 1 });
   });
 
   it('reorders items through the repository when the grid drag ends', async () => {
