@@ -85,6 +85,25 @@ describe('ItemRow', () => {
     await user.press(view.getByLabelText('Close'));
   });
 
+  it('does not toggle when tapping the note preview', async () => {
+    const onToggle = vi.fn();
+    const view = await render(
+      <ItemRow item={makeItem({ note: 'milk whole' })} {...defaults} onToggle={onToggle} onEdit={() => {}} />
+    );
+
+    fireEvent.press(view.getByText('milk whole'));
+    expect(onToggle).not.toHaveBeenCalled();
+  });
+
+  it('does not toggle when tapping a photo thumbnail', async () => {
+    const onToggle = vi.fn();
+    const item = makeItem({ pictures: JSON.stringify(['data:image/a']) });
+    const view = await render(<ItemRow item={item} {...defaults} onToggle={onToggle} onEdit={() => {}} />);
+
+    fireEvent.press(view.getByRole('imagebutton'));
+    expect(onToggle).not.toHaveBeenCalled();
+  });
+
   it('toggles on row press and opens the editor on the edit button', async () => {
     const onToggle = vi.fn();
     const onEdit = vi.fn();
