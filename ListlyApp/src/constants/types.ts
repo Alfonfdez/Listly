@@ -20,6 +20,13 @@ export const TEXT_SIZES = {
 
 export type TextSize = keyof typeof TEXT_SIZES;
 
+export const LIST_LAYOUTS = {
+  grid: 'grid',
+  list: 'list',
+} as const;
+
+export type ListLayout = keyof typeof LIST_LAYOUTS;
+
 export const DEBOUNCE_MS = 300;
 
 export const MAX_LIST_NAME_LENGTH = 100;

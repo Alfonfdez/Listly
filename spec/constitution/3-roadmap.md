@@ -46,13 +46,16 @@ Screen for creating a new list:
 - Spec: spec/features/004-create-list-screen/.
 
 ## 005-settings-screen
-Status: not started.
+Status: done.
 
 Settings screen:
-- Appearance: Theme (dark/light/system), text size.
-- Regional: Language (en/es).
-- Layout: grid vs full-width list view for lists (config stored; pre-staged by feature 007 List row view).
-- Spec: to be created when started.
+- Single scroll with four sections: Appearance (theme, text size), Regional (language), Personalization (list layout; Show notes / Show photos), Data (export, import, delete all lists, factory reset).
+- Config gains `listLayout`, `showNotes`, `showPhotos` (persisted in the `config` table); `ConfigContext` writes through `configRepo.save` and exposes `reload()`.
+- List layout drives Home + Lists; note/photo toggles hide those fields everywhere.
+- Backup format `{ app: 'Listly', kind: 'backup', formatVersion: 1, schema, data: { lists, items, config } }`; native uses `expo-sharing` + `expo-document-picker`, web uses Blob download + file input.
+- `clearDataKeepSettings()` / `resetDatabase()` clean data (and photo files), optionally restoring default settings.
+- Drawer separator between Lists and Settings; seed data removed (fresh installs start empty).
+- Spec: spec/features/005-settings-screen/.
 
 ## 006-create-list-color-picker
 Status: done.

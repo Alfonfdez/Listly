@@ -1,7 +1,7 @@
 import { sql } from 'drizzle-orm';
 import { getDrizzle, withTransaction } from '../drizzle/engine';
 import { config } from '../drizzle/schema';
-import { DEFAULT_CONFIG, DB_KEY_MAP, sanitizeConfig, toConfigRows } from '../configDefaults';
+import { DEFAULT_CONFIG, DB_KEY_MAP, decodeConfigValue, sanitizeConfig, toConfigRows } from '../configDefaults';
 import type { Config } from '../types';
 
 function parseConfig(rows: { key: string; value: string }[]): Config {
@@ -10,7 +10,7 @@ function parseConfig(rows: { key: string; value: string }[]): Config {
   for (const [dbKey, configKey] of Object.entries(DB_KEY_MAP)) {
     const raw = map[dbKey];
     if (raw === undefined) continue;
-    parsed[configKey] = raw;
+    parsed[configKey] = decodeConfigValue(configKey, raw);
   }
   return { ...DEFAULT_CONFIG, ...(parsed as Partial<Config>) };
 }

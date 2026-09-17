@@ -20,6 +20,10 @@ export function formatDateForDB(date: Date): string {
   return `${y}-${m}-${d} ${h}:${min}:${s}`;
 }
 
+export function backupFileName(): string {
+  return `listly-backup-${new Date().toISOString().slice(0, 10)}.json`;
+}
+
 export function dbTimestamp(): string {
   return formatDateForDB(new Date());
 }

@@ -63,31 +63,35 @@ describe('db drift', () => {
     const { DB_KEY_MAP, toConfigRows } = await import('../../src/database/configDefaults');
     const { THEMES } = await import('../../src/constants/types');
 
-    expect(Object.keys(DB_KEY_MAP).sort()).toEqual(['language', 'text_size', 'theme']);
+    expect(Object.keys(DB_KEY_MAP).sort()).toEqual([
+      'language',
+      'list_layout',
+      'show_notes',
+      'show_photos',
+      'text_size',
+      'theme',
+    ]);
     const rows = toConfigRows({ theme: THEMES.dark, textSize: 'large' });
     expect(rows).toContainEqual({ key: 'theme', value: THEMES.dark });
     expect(rows).toContainEqual({ key: 'text_size', value: 'large' });
   });
 
-  it('initDatabase applies seed data exactly once and stays idempotent', async () => {
+  it('initDatabase creates an empty database at the current version and stays idempotent', async () => {
     vi.resetModules();
     resetMockDatabase();
-    const { initDatabase } = await import('../../src/database/database');
+    const { initDatabase, SCHEMA_VERSION } = await import('../../src/database/database');
     await initDatabase();
 
     const handle = openDatabaseSync('Listly.db') as DatabaseHandle;
     const version = await handle.getFirstAsync<{ user_version: number }>('PRAGMA user_version;');
-    expect(version?.user_version).toBe(4);
+    expect(version?.user_version).toBe(SCHEMA_VERSION);
     const lists = await handle.getAllAsync('SELECT * FROM lists;');
     const items = await handle.getAllAsync('SELECT * FROM items;');
-    expect(lists).toHaveLength(6);
-    expect(items).toHaveLength(19);
-    expect((lists as Array<{ position: number }>).map(l => l.position)).toEqual([0, 1, 2, 3, 4, 5]);
+    expect(lists).toHaveLength(0);
+    expect(items).toHaveLength(0);
 
     await initDatabase();
-    const listsAgain = await handle.getAllAsync('SELECT * FROM lists;');
-    const itemsAgain = await handle.getAllAsync('SELECT * FROM items;');
-    expect(listsAgain).toHaveLength(6);
-    expect(itemsAgain).toHaveLength(19);
+    expect(await handle.getAllAsync('SELECT * FROM lists;')).toHaveLength(0);
+    expect(await handle.getAllAsync('SELECT * FROM items;')).toHaveLength(0);
   });
 });

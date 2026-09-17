@@ -37,7 +37,7 @@ export default function ItemFormModal({
   onSave,
   onDelete,
 }: Props) {
-  const { activeColors: c } = useConfig();
+  const { activeColors: c, config } = useConfig();
   const fs = useFontSize();
   const labels = t();
 
@@ -104,33 +104,37 @@ export default function ItemFormModal({
         <CharCounter current={name.length} max={MAX_ITEM_NAME_LENGTH} />
       </FormField>
 
-      <FormField label={labels.item_note_label}>
-        <TextInput
-          value={note}
-          onChangeText={setNote}
-          maxLength={MAX_ITEM_NOTE_LENGTH}
-          placeholder={labels.item_note_label}
-          placeholderTextColor={c.textSecondary}
-          multiline
-          numberOfLines={3}
-          style={[
-            styles.input,
-            styles.noteInput,
-            { backgroundColor: c.background, borderColor: c.border, color: c.text, fontSize: fs(15) },
-          ]}
-          accessibilityLabel={labels.item_note_label}
-        />
-        <CharCounter current={note.length} max={MAX_ITEM_NOTE_LENGTH} />
-      </FormField>
+      {config.showNotes ? (
+        <FormField label={labels.item_note_label}>
+          <TextInput
+            value={note}
+            onChangeText={setNote}
+            maxLength={MAX_ITEM_NOTE_LENGTH}
+            placeholder={labels.item_note_label}
+            placeholderTextColor={c.textSecondary}
+            multiline
+            numberOfLines={3}
+            style={[
+              styles.input,
+              styles.noteInput,
+              { backgroundColor: c.background, borderColor: c.border, color: c.text, fontSize: fs(15) },
+            ]}
+            accessibilityLabel={labels.item_note_label}
+          />
+          <CharCounter current={note.length} max={MAX_ITEM_NOTE_LENGTH} />
+        </FormField>
+      ) : null}
 
-      <View style={styles.photoSection}>
-        <PhotoSection
-          photos={photos}
-          onTakePhoto={() => void handleTakePhoto()}
-          onPickFromGallery={() => void handlePickFromGallery()}
-          onRemovePhoto={uri => void handleRemovePhoto(uri)}
-        />
-      </View>
+      {config.showPhotos ? (
+        <View style={styles.photoSection}>
+          <PhotoSection
+            photos={photos}
+            onTakePhoto={() => void handleTakePhoto()}
+            onPickFromGallery={() => void handlePickFromGallery()}
+            onRemovePhoto={uri => void handleRemovePhoto(uri)}
+          />
+        </View>
+      ) : null}
 
       {confirmDelete ? (
         <View style={styles.confirmBlock}>

@@ -1,9 +1,9 @@
 import type { DatabaseHandle } from './types';
 import { openEngine } from './engine';
 import { createSchema } from './migrations/001_initial';
-import { seedDataInner } from './migrations/002_seed';
 import { addListPositions } from './migrations/003_list_position';
 import { addItemPictures } from './migrations/004_item_pictures';
+import { deleteItemPhotos, parseItemPhotos } from '../utils/itemPhotos';
 
 const DATABASE_NAME = 'Listly.db';
 export const SCHEMA_VERSION = 4;
@@ -28,10 +28,6 @@ async function migrate(database: DatabaseHandle): Promise<void> {
       await createSchema(database);
       await database.execAsync('PRAGMA user_version = 1');
     }
-    if (currentVersion < 2) {
-      await seedDataInner(database);
-      await database.execAsync('PRAGMA user_version = 2');
-    }
     if (currentVersion < 3) {
       await addListPositions(database);
       await database.execAsync('PRAGMA user_version = 3');
@@ -55,4 +51,32 @@ export function initDatabase(): Promise<DatabaseHandle> {
     })();
   }
   return initPromise;
+}
+
+async function deleteAllPhotos(database: DatabaseHandle): Promise<void> {
+  const rows = await database.getAllAsync<{ pictures: string | null }>('SELECT pictures FROM items');
+  const uris: string[] = [];
+  for (const row of rows) {
+    uris.push(...parseItemPhotos(row.pictures));
+  }
+  await deleteItemPhotos(uris);
+}
+
+export async function clearDataKeepSettings(): Promise<void> {
+  const database = await getDatabase();
+  await deleteAllPhotos(database);
+  await database.withTransactionAsync(async () => {
+    await database.runAsync('DELETE FROM items');
+    await database.runAsync('DELETE FROM lists');
+  });
+}
+
+export async function resetDatabase(): Promise<void> {
+  const database = await getDatabase();
+  await deleteAllPhotos(database);
+  await database.withTransactionAsync(async () => {
+    await database.runAsync('DELETE FROM items');
+    await database.runAsync('DELETE FROM lists');
+    await database.runAsync('DELETE FROM config');
+  });
 }

@@ -23,11 +23,13 @@ interface Props {
 }
 
 function ItemRowInner({ item, selectMode, selected, onToggle, onEdit }: Props) {
-  const { activeColors: c } = useConfig();
+  const { activeColors: c, config } = useConfig();
   const fs = useFontSize();
   const labels = t();
   const isDone = item.checked === 1;
   const photos = parseItemPhotos(item.pictures);
+  const showNote = config.showNotes && Boolean(item.note);
+  const showPhotos = config.showPhotos && photos.length > 0;
   const [viewerIndex, setViewerIndex] = useState<number | null>(null);
   const [noteViewerVisible, setNoteViewerVisible] = useState(false);
 
@@ -71,7 +73,7 @@ function ItemRowInner({ item, selectMode, selected, onToggle, onEdit }: Props) {
           >
             {item.name}
           </Text>
-          {item.note ? (
+          {showNote ? (
             <Ionicons name="document-text-outline" size={16} color={c.textSecondary} />
           ) : null}
           {!selectMode ? (
@@ -87,7 +89,7 @@ function ItemRowInner({ item, selectMode, selected, onToggle, onEdit }: Props) {
             </SortablePressable>
           ) : null}
         </View>
-        {item.note && !selectMode ? (
+        {showNote && !selectMode ? (
           <SortablePressable
             onPress={() => setNoteViewerVisible(true)}
             activeOpacity={PRESSED_OPACITY}
@@ -104,7 +106,7 @@ function ItemRowInner({ item, selectMode, selected, onToggle, onEdit }: Props) {
             </Text>
           </SortablePressable>
         ) : null}
-        {photos.length > 0 && !selectMode ? (
+        {showPhotos && !selectMode ? (
           <View style={styles.thumbRow}>
             {photos.slice(0, MAX_ITEM_PICTURES).map((uri, index) => (
               <SortablePressable

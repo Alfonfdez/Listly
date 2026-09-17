@@ -6,6 +6,9 @@ interface GridProps {
   renderItem?: (info: { item: unknown; index: number }) => ReactNode;
   keyExtractor?: (item: unknown) => string;
   sortEnabled?: boolean;
+  columns?: number;
+  columnGap?: number;
+  rowGap?: number;
   onDragEnd?: (params: unknown) => void;
   children?: ReactNode;
 }
