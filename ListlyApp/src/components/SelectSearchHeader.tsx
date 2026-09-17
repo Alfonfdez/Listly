@@ -3,7 +3,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useConfig } from '../context/ConfigContext';
 import SelectToggleButton from './SelectToggleButton';
 import { ICON_BUTTON_PADDING } from './componentStyles';
-import { t } from '../i18n';
+import { useLabels } from '../hooks/useLabels';
 
 interface Props {
   selectMode: boolean;
@@ -15,7 +15,7 @@ interface Props {
 
 export default function SelectSearchHeader({ selectMode, showSelect, searchActive, onToggleSelect, onToggleSearch }: Props) {
   const { activeColors: c } = useConfig();
-  const labels = t();
+  const labels = useLabels();
 
   return (
     <View style={styles.row}>

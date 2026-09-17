@@ -7,7 +7,7 @@ import { useSelectMode } from '../hooks/useSelectMode';
 import ListsView from '../components/ListsView';
 import SelectSearchHeader from '../components/SelectSearchHeader';
 
-export default function ListsScreenBase() {
+export default function ListsScreenBase({ layoutKey }: { layoutKey: 'homeLayout' | 'listsLayout' }) {
   const navigation = useNavigation();
   const { lists, refresh } = useApp();
   const { config } = useConfig();
@@ -59,7 +59,7 @@ export default function ListsScreenBase() {
 
   return (
     <ListsView
-      variant={config.listLayout}
+      variant={config[layoutKey]}
       searchActive={searchActive && !selectMode}
       query={query}
       onQueryChange={setQuery}

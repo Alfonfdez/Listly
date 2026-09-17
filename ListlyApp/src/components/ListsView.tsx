@@ -6,7 +6,7 @@ import { useApp } from '../context/AppContext';
 import { useConfig } from '../context/ConfigContext';
 import { listRepository as listRepo } from '../database';
 import type { ListWithCounts } from '../database/types';
-import { t } from '../i18n';
+import { useLabels } from '../hooks/useLabels';
 import { filterListsByQuery } from '../utils/search';
 import type { NavigationProp } from '../constants/types';
 import ScreenShell from './ScreenShell';
@@ -64,7 +64,7 @@ export default function ListsView({
   const navigation = useNavigation<NavigationProp<'Home'>>();
   const { lists, itemsByListId, loading, refresh } = useApp();
   const { activeColors: c } = useConfig();
-  const labels = t();
+  const labels = useLabels();
 
   const { width } = useWindowDimensions();
   const isGrid = variant === 'grid';

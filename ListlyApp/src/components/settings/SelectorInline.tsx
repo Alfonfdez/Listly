@@ -41,7 +41,7 @@ export default function SelectorInline<T extends string>({ options, selected, on
             accessibilityState={{ selected: isSelected }}
             accessibilityLabel={option.label}
           >
-            {option.icon}
+            {option.icon ? <View style={styles.iconWrap}>{option.icon}</View> : null}
             <Text
               style={[styles.label, { color: isSelected ? c.primary : c.text, fontSize: fs(14) }]}
               numberOfLines={1}
@@ -73,5 +73,10 @@ const styles = StyleSheet.create({
   },
   label: {
     fontWeight: '600',
+  },
+  iconWrap: {
+    height: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });

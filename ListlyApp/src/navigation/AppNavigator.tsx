@@ -14,7 +14,7 @@ import {
 } from '@react-navigation/drawer';
 import { useConfig } from '../context/ConfigContext';
 import { useFontSize } from '../hooks/useFontSize';
-import { t } from '../i18n';
+import { useLabels } from '../hooks/useLabels';
 import type { RootStackParamList, IconName } from '../constants/types';
 import HomeScreen from '../screens/HomeScreen';
 import ListsScreen from '../screens/ListsScreen';
@@ -22,6 +22,10 @@ import ListDetailScreen from '../screens/ListDetailScreen';
 import CreateListScreen from '../screens/CreateListScreen';
 import EditListScreen from '../screens/EditListScreen';
 import SettingsScreen from '../screens/SettingsScreen';
+import AppearanceScreen from '../screens/settings/AppearanceScreen';
+import RegionalScreen from '../screens/settings/RegionalScreen';
+import PersonalizationScreen from '../screens/settings/PersonalizationScreen';
+import DataScreen from '../screens/settings/DataScreen';
 import DrawerMenuButton from '../components/DrawerMenuButton';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -49,7 +53,7 @@ const HeaderTitle = memo(function HeaderTitle({ icon, title }: { icon?: IconName
 });
 
 const StackHeaderLeft = memo(function StackHeaderLeft() {
-  const labels = t();
+  const labels = useLabels();
   return <DrawerMenuButton accessibilityLabel={labels.home_open_menu} />;
 });
 
@@ -78,7 +82,7 @@ function openDrawerScreen(navigation: DrawerContentComponentProps['navigation'],
 function CustomDrawerContent(props: DrawerContentComponentProps) {
   const { activeColors: c } = useConfig();
   const fs = useFontSize();
-  const labels = t();
+  const labels = useLabels();
 
   const drawerItems: DrawerItemDef[] = [
     { label: labels.nav_home, icon: 'home-outline', screen: 'Home' },
@@ -128,7 +132,7 @@ function ListsNavCapture() {
 
 const HomeStack = memo(function HomeStack() {
   const { activeColors: c } = useConfig();
-  const labels = t();
+  const labels = useLabels();
 
   const screenOptions = useMemo(() => ({
     headerStyle: { backgroundColor: c.surface },
@@ -143,6 +147,10 @@ const HomeStack = memo(function HomeStack() {
     { name: 'CreateList', component: CreateListScreen, title: labels.create_list_title, icon: 'add-circle-outline' },
     { name: 'EditList', component: EditListScreen, title: labels.edit_list_title, icon: 'create-outline' },
     { name: 'Settings', component: SettingsScreen, title: labels.settings_title, icon: 'settings-outline' },
+    { name: 'SettingsAppearance', component: AppearanceScreen, title: labels.settings_appearance, icon: 'color-palette-outline' },
+    { name: 'SettingsRegional', component: RegionalScreen, title: labels.settings_regional, icon: 'globe-outline' },
+    { name: 'SettingsPersonalization', component: PersonalizationScreen, title: labels.settings_personalization, icon: 'options-outline' },
+    { name: 'SettingsData', component: DataScreen, title: labels.settings_data, icon: 'server-outline' },
   ], [labels]);
 
   return (
@@ -165,6 +173,7 @@ const HomeStack = memo(function HomeStack() {
 function AppDrawer() {
   const { activeColors: c } = useConfig();
   const fs = useFontSize();
+  const labels = useLabels();
 
   return (
     <Drawer.Navigator
@@ -179,7 +188,7 @@ function AppDrawer() {
       <Drawer.Screen
         name="Main"
         component={HomeStack}
-        options={{ headerShown: false, drawerLabel: t().nav_home }}
+        options={{ headerShown: false, drawerLabel: labels.nav_home }}
       />
     </Drawer.Navigator>
   );

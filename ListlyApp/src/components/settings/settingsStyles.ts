@@ -18,4 +18,5 @@ export const settingsStyles = StyleSheet.create({
   rowText: { flex: 1, gap: 2 },
   rowLabel: { fontWeight: '600' },
   rowDescription: { fontWeight: '400' },
+  groupSubtitle: { fontWeight: '400', marginBottom: 8 },
 });

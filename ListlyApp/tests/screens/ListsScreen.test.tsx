@@ -143,7 +143,7 @@ describe('ListsScreen', () => {
   });
 
   it('respects the active text size for labels', async () => {
-    setConfig({ textSize: TEXT_SIZES.large, listLayout: LIST_LAYOUTS.list });
+    setConfig({ textSize: TEXT_SIZES.large, listsLayout: LIST_LAYOUTS.list });
     const view = await render(<ListsScreen />);
     const text = await view.findByText('Groceries');
     const fontSize = flattenStyle(text.props.style).fontSize;
@@ -151,12 +151,12 @@ describe('ListsScreen', () => {
   });
 
   it('honors the configured list layout', async () => {
-    setConfig({ listLayout: LIST_LAYOUTS.list });
+    setConfig({ listsLayout: LIST_LAYOUTS.list });
     const listView = await render(<ListsScreen />);
     await listView.findByText('Groceries');
     expect(lastGrid()?.columns).toBe(1);
 
-    setConfig({ listLayout: LIST_LAYOUTS.grid });
+    setConfig({ listsLayout: LIST_LAYOUTS.grid });
     const gridView = await render(<ListsScreen />);
     await gridView.findByText('Groceries');
     expect(lastGrid()?.columns).toBeGreaterThan(1);

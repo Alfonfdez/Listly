@@ -1,7 +1,7 @@
 import { type ReactNode } from 'react';
 import { Modal, Pressable, StyleSheet, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { t } from '../i18n';
+import { useLabels } from '../hooks/useLabels';
 import { WHITE } from '../constants/themes';
 import { VIEWER_BG } from './componentStyles';
 
@@ -12,7 +12,7 @@ interface Props {
 }
 
 export default function FullscreenViewer({ visible, onClose, children }: Props) {
-  const labels = t();
+  const labels = useLabels();
 
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>

@@ -7,18 +7,24 @@ export const DEFAULT_CONFIG: Config = {
   theme: THEMES.system,
   language: LANGUAGES.en,
   textSize: TEXT_SIZES.medium,
-  listLayout: LIST_LAYOUTS.grid,
+  homeLayout: LIST_LAYOUTS.grid,
+  listsLayout: LIST_LAYOUTS.list,
   showNotes: true,
   showPhotos: true,
+  editShowNotes: true,
+  editShowPhotos: true,
 };
 
 export const DB_KEY_MAP: Record<string, keyof Config> = {
   theme: 'theme',
   language: 'language',
   text_size: 'textSize',
-  list_layout: 'listLayout',
+  home_layout: 'homeLayout',
+  lists_layout: 'listsLayout',
   show_notes: 'showNotes',
   show_photos: 'showPhotos',
+  edit_show_notes: 'editShowNotes',
+  edit_show_photos: 'editShowPhotos',
 };
 
 type ConfigValueKind = 'string' | 'boolean';
@@ -27,9 +33,12 @@ const CONFIG_VALUE_KINDS: Record<keyof Config, ConfigValueKind> = {
   theme: 'string',
   language: 'string',
   textSize: 'string',
-  listLayout: 'string',
+  homeLayout: 'string',
+  listsLayout: 'string',
   showNotes: 'boolean',
   showPhotos: 'boolean',
+  editShowNotes: 'boolean',
+  editShowPhotos: 'boolean',
 };
 
 const DB_KEY_OF: Record<string, string> = Object.fromEntries(

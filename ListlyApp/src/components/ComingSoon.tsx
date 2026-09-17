@@ -1,11 +1,12 @@
-import { t } from '../i18n';
+import { useLabels } from '../hooks/useLabels';
 import ScreenShell from './ScreenShell';
 import EmptyState from './EmptyState';
 
 export default function ComingSoon() {
+  const labels = useLabels();
   return (
     <ScreenShell>
-      <EmptyState icon="construct-outline" message={t().coming_soon} />
+      <EmptyState icon="construct-outline" message={labels.coming_soon} />
     </ScreenShell>
   );
 }

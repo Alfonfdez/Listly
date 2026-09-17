@@ -2,7 +2,7 @@ import { View, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useConfig } from '../context/ConfigContext';
 import { useFontSize } from '../hooks/useFontSize';
-import { t } from '../i18n';
+import { useLabels } from '../hooks/useLabels';
 import { BUTTON_BORDER_RADIUS } from './componentStyles';
 
 interface Props {
@@ -16,7 +16,7 @@ interface Props {
 export default function SearchBar({ placeholder, value, onChangeText, onClose, autoFocus = false }: Props) {
   const { activeColors: c } = useConfig();
   const fs = useFontSize();
-  const labels = t();
+  const labels = useLabels();
 
   return (
     <View style={[styles.container, { backgroundColor: c.surface, borderColor: c.border }]}>
