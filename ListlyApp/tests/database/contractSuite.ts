@@ -2,28 +2,8 @@ import { describe, it, expect, beforeEach } from 'vitest';
 import { DEFAULT_CONFIG } from '../../src/database/configDefaults';
 import { LANGUAGES } from '../../src/constants/languages';
 import { TEXT_SIZES, THEMES } from '../../src/constants/types';
-import type { ContractBackend, NewItem, NewList } from './contractTypes';
-
-function list(name: string, overrides: Partial<NewList> = {}): NewList {
-  return {
-    name,
-    color: '#22D3EE',
-    icon: 'cart-outline',
-    ...overrides,
-  };
-}
-
-function item(listId: number, name: string, overrides: Partial<NewItem> = {}): NewItem {
-  return {
-    list_id: listId,
-    name,
-    checked: 0,
-    note: null,
-    pictures: null,
-    position: 0,
-    ...overrides,
-  };
-}
+import { buildItem, buildList, seedFixtures } from '../helpers/fixtures';
+import type { ContractBackend } from './contractTypes';
 
 export function runContractSuite(
   name: string,
@@ -34,15 +14,18 @@ export function runContractSuite(
 
     beforeEach(async () => {
       backend = await createBackend();
+      await seedFixtures(backend);
     });
 
-    describe('seed data', () => {
-      it('seeds 6 lists ordered by position', async () => {
+    const list = buildList;
+    const item = buildItem;
+
+    describe('fixtures', () => {
+      it('exposes the seeded lists ordered by position', async () => {
         const lists = await backend.list.list();
-        expect(lists).toHaveLength(6);
-        const names = lists.map(l => l.name);
-        expect(names).toEqual(['Groceries', 'Work Tasks', 'Reading List', 'Travel Plan', 'Home Chores', 'Fitness']);
-        expect(lists.map(l => l.position)).toEqual([0, 1, 2, 3, 4, 5]);
+        expect(lists).toHaveLength(2);
+        expect(lists.map(l => l.name)).toEqual(['Groceries', 'Work Tasks']);
+        expect(lists.map(l => l.position)).toEqual([0, 1]);
       });
 
       it('withCounts reports totals and completed items per list', async () => {
@@ -50,9 +33,9 @@ export function runContractSuite(
         const groceries = counts.find(c => c.name === 'Groceries')!;
         expect(groceries.total).toBe(5);
         expect(groceries.completed).toBe(2);
-        const reading = counts.find(c => c.name === 'Reading List')!;
-        expect(reading.total).toBe(2);
-        expect(reading.completed).toBe(1);
+        const work = counts.find(c => c.name === 'Work Tasks')!;
+        expect(work.total).toBe(3);
+        expect(work.completed).toBe(0);
       });
 
       it('items are ordered by position within a list', async () => {
@@ -63,8 +46,8 @@ export function runContractSuite(
 
       it('listAll returns every item across lists', async () => {
         const items = await backend.item.listAll();
-        expect(items).toHaveLength(19);
-        expect(items.map(i => i.list_id)).toEqual(expect.arrayContaining([1, 2, 3, 4, 5, 6]));
+        expect(items).toHaveLength(8);
+        expect(items.map(i => i.list_id)).toEqual(expect.arrayContaining([1, 2]));
       });
 
       it('config.get() returns the defaults with no stored rows', async () => {
@@ -92,10 +75,10 @@ export function runContractSuite(
 
       it('create appends an new list at the end of the order', async () => {
         const created = await backend.list.create(list('Appended'));
-        expect(created.position).toBe(6);
+        expect(created.position).toBe(2);
         const ordered = await backend.list.list();
         expect(ordered[ordered.length - 1].name).toBe('Appended');
-        expect(ordered.map(l => l.position)).toEqual([0, 1, 2, 3, 4, 5, 6]);
+        expect(ordered.map(l => l.position)).toEqual([0, 1, 2]);
       });
 
       it('reorder persists a new order across list() and withCounts()', async () => {
@@ -105,7 +88,7 @@ export function runContractSuite(
 
         const after = await backend.list.list();
         expect(after.map(l => l.id)).toEqual(ids.reverse());
-        expect(after.map(l => l.position)).toEqual([0, 1, 2, 3, 4, 5]);
+        expect(after.map(l => l.position)).toEqual([0, 1]);
 
         const counts = await backend.list.withCounts();
         expect(counts.map(c => c.id)).toEqual(after.map(l => l.id));

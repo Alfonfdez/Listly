@@ -2,17 +2,15 @@ import { useEffect, useCallback, useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { listRepository as listRepo } from '../database';
 import { useApp } from '../context/AppContext';
+import { useConfig } from '../context/ConfigContext';
 import { useSelectMode } from '../hooks/useSelectMode';
-import ListsView, { type ListsViewVariant } from '../components/ListsView';
+import ListsView from '../components/ListsView';
 import SelectSearchHeader from '../components/SelectSearchHeader';
 
-interface Props {
-  variant: ListsViewVariant;
-}
-
-export default function ListsScreenBase({ variant }: Props) {
+export default function ListsScreenBase() {
   const navigation = useNavigation();
   const { lists, refresh } = useApp();
+  const { config } = useConfig();
   const [searchActive, setSearchActive] = useState(false);
   const [query, setQuery] = useState('');
 
@@ -61,7 +59,7 @@ export default function ListsScreenBase({ variant }: Props) {
 
   return (
     <ListsView
-      variant={variant}
+      variant={config.listLayout}
       searchActive={searchActive && !selectMode}
       query={query}
       onQueryChange={setQuery}

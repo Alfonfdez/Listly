@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { itemSchema, listSchema, configSchema } from '../../src/database/schemas';
 import { DEFAULT_CONFIG, sanitizeConfig } from '../../src/database/configDefaults';
 import { LANGUAGES } from '../../src/constants/languages';
-import { TEXT_SIZES, THEMES } from '../../src/constants/types';
+import { LIST_LAYOUTS, TEXT_SIZES, THEMES } from '../../src/constants/types';
 
 const VALID_LIST = { id: 1, name: 'Work Tasks', color: '#22D3EE', icon: 'briefcase-outline', created_at: '2026-09-05 08:00:00', position: 0 };
 
@@ -48,11 +48,32 @@ describe('schemas', () => {
     });
 
     it('accepts all valid enum values', () => {
-      expect(configSchema.parse({ theme: THEMES.dark, language: LANGUAGES.es, textSize: TEXT_SIZES.large })).toEqual({
+      expect(
+        configSchema.parse({
+          theme: THEMES.dark,
+          language: LANGUAGES.es,
+          textSize: TEXT_SIZES.large,
+          listLayout: LIST_LAYOUTS.list,
+          showNotes: false,
+          showPhotos: false,
+        })
+      ).toEqual({
         theme: THEMES.dark,
         language: LANGUAGES.es,
         textSize: TEXT_SIZES.large,
+        listLayout: LIST_LAYOUTS.list,
+        showNotes: false,
+        showPhotos: false,
       });
+    });
+
+    it('rejects a non-boolean visibility flag', () => {
+      expect(() => configSchema.parse({ ...DEFAULT_CONFIG, showNotes: 'yes' })).toThrow();
+      expect(() => configSchema.parse({ ...DEFAULT_CONFIG, showPhotos: 1 })).toThrow();
+    });
+
+    it('rejects an invalid list layout', () => {
+      expect(() => configSchema.parse({ ...DEFAULT_CONFIG, listLayout: 'columns' })).toThrow();
     });
 
     it('rejects an invalid theme', () => {

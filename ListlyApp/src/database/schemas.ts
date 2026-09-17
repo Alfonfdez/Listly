@@ -1,11 +1,12 @@
 import { z } from 'zod';
 
 import { LANGUAGES } from '../constants/languages';
-import { TEXT_SIZES, THEMES } from '../constants/types';
+import { LIST_LAYOUTS, TEXT_SIZES, THEMES } from '../constants/types';
 
 const themeSchema = z.enum([THEMES.dark, THEMES.light, THEMES.system]);
 const textSizeSchema = z.enum([TEXT_SIZES.small, TEXT_SIZES.medium, TEXT_SIZES.large]);
 const languageSchema = z.enum([LANGUAGES.en, LANGUAGES.es]);
+const listLayoutSchema = z.enum([LIST_LAYOUTS.grid, LIST_LAYOUTS.list]);
 
 export const listSchema = z.object({
   id: z.number().int(),
@@ -31,4 +32,7 @@ export const configSchema = z.object({
   theme: themeSchema,
   language: languageSchema,
   textSize: textSizeSchema,
+  listLayout: listLayoutSchema,
+  showNotes: z.boolean(),
+  showPhotos: z.boolean(),
 });

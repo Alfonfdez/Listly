@@ -2,7 +2,7 @@ import { describe, expect, it, vi, beforeEach } from 'vitest';
 import { render, fireEvent } from '@testing-library/react-native';
 import { userEvent } from '@testing-library/react-native';
 import ItemRow from '../../src/components/ItemRow';
-import { resetStub } from '../helpers/configStub';
+import { resetStub, setConfig } from '../helpers/configStub';
 import type { Item } from '../../src/database/types';
 
 function makeItem(overrides: Partial<Item> = {}): Item {
@@ -115,6 +115,22 @@ describe('ItemRow', () => {
     fireEvent.press(view.getByLabelText('Edit item'));
     expect(onEdit).toHaveBeenCalledTimes(1);
     expect(onToggle).toHaveBeenCalledTimes(1);
+  });
+
+  it('hides notes everywhere when showNotes is off', async () => {
+    setConfig({ showNotes: false });
+    const view = await render(
+      <ItemRow item={makeItem({ note: 'medium roast' })} {...defaults} onToggle={() => {}} onEdit={() => {}} />
+    );
+    expect(view.queryByText('document-text-outline')).toBeNull();
+    expect(view.queryByText('medium roast')).toBeNull();
+  });
+
+  it('hides photos when showPhotos is off', async () => {
+    setConfig({ showPhotos: false });
+    const item = makeItem({ pictures: JSON.stringify(['data:image/a', 'data:image/b']) });
+    const view = await render(<ItemRow item={item} {...defaults} onToggle={() => {}} onEdit={() => {}} />);
+    expect(view.queryByLabelText('Photos')).toBeNull();
   });
 });
 

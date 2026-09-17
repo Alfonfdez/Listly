@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { dbTimestamp, formatDateForDB, scaleFontSize } from '../../src/utils/formatters';
+import { dbTimestamp, formatDateForDB, scaleFontSize, backupFileName } from '../../src/utils/formatters';
 import { TEXT_SIZES } from '../../src/constants/types';
 
 describe('scaleFontSize', () => {
@@ -29,5 +29,11 @@ describe('formatDateForDB', () => {
 
   it('dbTimestamp matches the YYYY-MM-DD HH:MM:SS format', () => {
     expect(dbTimestamp()).toMatch(/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/);
+  });
+});
+
+describe('backupFileName', () => {
+  it('produces a dated json file name', () => {
+    expect(backupFileName()).toMatch(/^listly-backup-\d{4}-\d{2}-\d{2}\.json$/);
   });
 });

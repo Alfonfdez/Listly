@@ -55,11 +55,9 @@ const StackHeaderLeft = memo(function StackHeaderLeft() {
 
 type DrawerScreenName = 'Home' | 'Lists' | 'Settings';
 
-type DrawerItemDef = {
-  label: string;
-  icon: IconName;
-  screen: DrawerScreenName;
-};
+type DrawerItemDef =
+  | { label: string; icon: IconName; screen: DrawerScreenName }
+  | { separator: true };
 
 function openDrawerScreen(navigation: DrawerContentComponentProps['navigation'], screen: DrawerScreenName) {
   if (screen === 'Home' || screen === 'Lists') {
@@ -85,6 +83,7 @@ function CustomDrawerContent(props: DrawerContentComponentProps) {
   const drawerItems: DrawerItemDef[] = [
     { label: labels.nav_home, icon: 'home-outline', screen: 'Home' },
     { label: labels.nav_lists, icon: 'list-outline', screen: 'Lists' },
+    { separator: true },
     { label: labels.nav_settings, icon: 'settings-outline', screen: 'Settings' },
   ];
 
@@ -96,16 +95,20 @@ function CustomDrawerContent(props: DrawerContentComponentProps) {
             {labels.app_name}
           </Text>
         </View>
-        {drawerItems.map(item => (
-          <DrawerItem
-            key={item.screen}
-            label={item.label}
-            onPress={() => openDrawerScreen(props.navigation, item.screen)}
-            icon={({ color, size }) => <Ionicons name={item.icon} size={size} color={color} />}
-            labelStyle={{ color: c.text, fontSize: fs(14) }}
-            inactiveTintColor={c.primary}
-          />
-        ))}
+        {drawerItems.map((item, index) =>
+          'separator' in item ? (
+            <View key={`sep-${index}`} style={[styles.separator, { backgroundColor: c.border }]} />
+          ) : (
+            <DrawerItem
+              key={item.screen}
+              label={item.label}
+              onPress={() => openDrawerScreen(props.navigation, item.screen)}
+              icon={({ color, size }) => <Ionicons name={item.icon} size={size} color={color} />}
+              labelStyle={{ color: c.text, fontSize: fs(14) }}
+              inactiveTintColor={c.primary}
+            />
+          )
+        )}
       </DrawerContentScrollView>
     </View>
   );
@@ -199,6 +202,11 @@ const styles = StyleSheet.create({
   },
   drawerTitle: {
     fontWeight: '700',
+  },
+  separator: {
+    height: 1,
+    marginVertical: 8,
+    marginHorizontal: 16,
   },
   headerTitleRow: {
     flexDirection: 'row',

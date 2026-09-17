@@ -32,7 +32,8 @@
           "backgroundColor": "#0F172A"
         }
       ],
-      "expo-sqlite"
+      "expo-sqlite",
+      "expo-sharing"
     ]
   }
 }

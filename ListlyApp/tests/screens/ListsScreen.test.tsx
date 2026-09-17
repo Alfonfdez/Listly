@@ -5,7 +5,8 @@ import ListsScreen from '../../src/screens/ListsScreen';
 import { buildAppMock, setItemsByListId, setLists, resetAppStub } from '../helpers/appStub';
 import { resetStub, setConfig } from '../helpers/configStub';
 import type { Item, ListWithCounts } from '../../src/database/types';
-import { TEXT_SIZES } from '../../src/constants/types';
+import { LIST_LAYOUTS, TEXT_SIZES } from '../../src/constants/types';
+import { lastGrid } from '../mocks/react-native-sortables';
 
 vi.mock('expo-sqlite', () => ({ openDatabaseSync: vi.fn() }));
 
@@ -142,11 +143,23 @@ describe('ListsScreen', () => {
   });
 
   it('respects the active text size for labels', async () => {
-    setConfig({ textSize: TEXT_SIZES.large });
+    setConfig({ textSize: TEXT_SIZES.large, listLayout: LIST_LAYOUTS.list });
     const view = await render(<ListsScreen />);
     const text = await view.findByText('Groceries');
     const fontSize = flattenStyle(text.props.style).fontSize;
     expect(fontSize).toBe(17);
+  });
+
+  it('honors the configured list layout', async () => {
+    setConfig({ listLayout: LIST_LAYOUTS.list });
+    const listView = await render(<ListsScreen />);
+    await listView.findByText('Groceries');
+    expect(lastGrid()?.columns).toBe(1);
+
+    setConfig({ listLayout: LIST_LAYOUTS.grid });
+    const gridView = await render(<ListsScreen />);
+    await gridView.findByText('Groceries');
+    expect(lastGrid()?.columns).toBeGreaterThan(1);
   });
 });
 

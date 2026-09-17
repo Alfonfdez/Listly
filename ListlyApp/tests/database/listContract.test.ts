@@ -24,11 +24,9 @@ describe('sqlite contract', () => {
     await db.execAsync('PRAGMA foreign_keys = ON;');
 
     const { createSchema } = await import('../../src/database/migrations/001_initial');
-    const { seedDataInner } = await import('../../src/database/migrations/002_seed');
     const { addListPositions } = await import('../../src/database/migrations/003_list_position');
     const { addItemPictures } = await import('../../src/database/migrations/004_item_pictures');
     await createSchema(db);
-    await seedDataInner(db);
     await addListPositions(db);
     await addItemPictures(db);
 

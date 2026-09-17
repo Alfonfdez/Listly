@@ -8,12 +8,16 @@ const configTemplate: Config = {
   theme: 'system',
   language: 'en',
   textSize: 'medium',
+  listLayout: 'grid',
+  showNotes: true,
+  showPhotos: true,
 };
 
 interface ConfigStubState {
   config: Config;
   activeColors: ColorPalette;
   updateConfig: ReturnType<typeof vi.fn>;
+  reload: ReturnType<typeof vi.fn>;
   loading: boolean;
   reset: () => void;
 }
@@ -27,11 +31,13 @@ function createStub(): ConfigStubState {
     config: { ...configTemplate },
     activeColors: { ...darkColors },
     updateConfig: vi.fn(async () => {}),
+    reload: vi.fn(async () => {}),
     loading: false,
     reset: () => {
       state.config = { ...configTemplate };
       state.activeColors = { ...darkColors };
       state.updateConfig.mockClear();
+      state.reload.mockClear();
     },
   };
   return state;
