@@ -21,7 +21,6 @@ interface Props {
   initialName: string;
   initialIcon: IconName;
   initialColor: string;
-  heading: string;
   submitLabel: string;
   excludeId?: number;
   onSubmit: (data: { name: string; icon: IconName; color: string }) => Promise<void>;
@@ -31,7 +30,6 @@ export default function ListForm({
   initialName,
   initialIcon,
   initialColor,
-  heading,
   submitLabel,
   excludeId,
   onSubmit,
@@ -95,8 +93,6 @@ export default function ListForm({
 
   return (
     <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
-      <Text style={[styles.heading, { color: c.text, fontSize: fs(16) }]}>{heading}</Text>
-
       <FormField
         label={labels.list_name_label}
         error={error ? labels[error] : null}
@@ -179,10 +175,6 @@ const styles = StyleSheet.create({
   container: {
     padding: 16,
     paddingBottom: 32,
-  },
-  heading: {
-    fontWeight: '700',
-    marginBottom: 4,
   },
   field: {
     marginTop: 16,

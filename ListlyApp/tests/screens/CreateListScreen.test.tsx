@@ -75,7 +75,6 @@ describe('CreateListScreen', () => {
 
   it('renders the form with preselected defaults', async () => {
     const view = await render(<CreateListScreen />);
-    expect(view.getByText('Create list')).toBeTruthy();
     expect(view.getByLabelText('Name')).toBeTruthy();
     expect(view.getByLabelText(LIST_ICONS[0]).props.accessibilityState.selected).toBe(true);
     expect(view.getByLabelText(QUICK_COLORS[0]).props.accessibilityState.selected).toBe(true);

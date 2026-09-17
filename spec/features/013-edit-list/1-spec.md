@@ -15,6 +15,7 @@
 - A `ListForm` component (extracted from `CreateListScreen`) provides: name input, icon grid, color grid (+ custom color picker), debounced duplicate-name validation, and a submit button.
 - `CreateListScreen` keeps its exact current behavior by wrapping the form.
 - `EditListScreen` renders the same form pre-filled with the list's `name`, `icon`, and `color`, passing the list id as `excludeId`.
+- No in-screen heading (the nav header shows "Edit list"); field labels use the shared section-title typography (`textStyles.sectionTitle`).
 
 ### 3. EditListScreen
 - New route `EditList: { listId: number }`.

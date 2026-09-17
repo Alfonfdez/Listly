@@ -2,6 +2,7 @@ import { type ReactNode } from 'react';
 import { Text, StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
 import { useConfig } from '../context/ConfigContext';
 import { useFontSize } from '../hooks/useFontSize';
+import { SECTION_TITLE_FONT_SIZE, textStyles } from './textStyles';
 
 interface Props {
   label: string;
@@ -16,7 +17,9 @@ export default function FormField({ label, error, style, children }: Props) {
 
   return (
     <View style={style}>
-      <Text style={[styles.label, { color: c.textSecondary, fontSize: fs(13) }]}>{label}</Text>
+      <Text style={[textStyles.sectionTitle, { color: c.text, fontSize: fs(SECTION_TITLE_FONT_SIZE) }]}>
+        {label}
+      </Text>
       {children}
       {error ? (
         <Text style={[styles.error, { color: c.red, fontSize: fs(12) }]}>{error}</Text>
@@ -26,10 +29,6 @@ export default function FormField({ label, error, style, children }: Props) {
 }
 
 const styles = StyleSheet.create({
-  label: {
-    marginBottom: 8,
-    fontWeight: '600',
-  },
   error: {
     marginTop: 4,
   },

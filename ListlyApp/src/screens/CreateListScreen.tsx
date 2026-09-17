@@ -25,7 +25,6 @@ export default function CreateListScreen() {
         initialName=""
         initialIcon={LIST_ICONS[0]}
         initialColor={QUICK_COLORS[0]}
-        heading={labels.create_list_title}
         submitLabel={labels.list_create}
         onSubmit={create}
       />

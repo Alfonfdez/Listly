@@ -13,10 +13,8 @@ export const settingsStyles = StyleSheet.create({
     paddingHorizontal: 4,
   },
   card: { borderRadius: CARD_BORDER_RADIUS, padding: 16, marginBottom: 8 },
-  label: { fontWeight: '600', marginBottom: 10 },
   row: { flexDirection: 'row', alignItems: 'center', marginBottom: 12, gap: 12 },
   rowText: { flex: 1, gap: 2 },
   rowLabel: { fontWeight: '600' },
   rowDescription: { fontWeight: '400' },
-  groupSubtitle: { fontWeight: '400', marginBottom: 8 },
 });

@@ -19,7 +19,7 @@
 ### 3. Shared primitives (extract duplicated markup/logic)
 - `SelectionCheck` — one selectable check indicator used by `ItemRow`, `ListCard`, `ListRow`.
 - `FullscreenViewer` — one dark full-screen modal shell; `NoteViewer` and `PhotoViewer` become thin wrappers.
-- `FormField` — label + optional error wrapper used by `ListForm` and `ItemFormModal`.
+- `FormField` — label + optional error wrapper used by `ListForm` and `ItemFormModal`; its label uses the shared `textStyles.sectionTitle` token (`src/components/textStyles.ts`).
 - `ListsScreenBase({ variant })` — collapses the duplicated `HomeScreen`/`ListsScreen` logic; each screen is a thin wrapper choosing `variant`.
 - `useDragOrder` — shared drag-reorder state/guard hook used by `ListsView` and `ListDetailScreen`, preserving `sortEnabled` guards and the no-op-if-unchanged check.
 

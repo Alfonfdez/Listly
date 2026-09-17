@@ -1,7 +1,7 @@
 import { Text, View } from 'react-native';
 import { useConfig } from '../../context/ConfigContext';
 import { useFontSize } from '../../hooks/useFontSize';
-import { settingsStyles } from './settingsStyles';
+import { SECTION_TITLE_FONT_SIZE, textStyles } from '../textStyles';
 import SelectorInline, { type Option } from './SelectorInline';
 
 interface Props<T extends string> {
@@ -17,7 +17,7 @@ export default function SettingsSelectRow<T extends string>({ label, options, se
 
   return (
     <View>
-      <Text style={[settingsStyles.label, { color: c.text, fontSize: fs(15) }]}>{label}</Text>
+      <Text style={[textStyles.sectionTitle, { color: c.text, fontSize: fs(SECTION_TITLE_FONT_SIZE) }]}>{label}</Text>
       <SelectorInline options={options} selected={selected} onSelect={onSelect} />
     </View>
   );

@@ -145,6 +145,15 @@ Settings restructured as a hub with dedicated sub-screens:
 - Factory reset requires typing `DELETE` in a second modal.
 - Spec: spec/features/015-settings-sections/.
 
+## 016-form-typography
+Status: done.
+
+Shared section-title typography for form/list editing:
+- New `src/components/textStyles.ts` token module (`SECTION_TITLE` / `SECTION_SUBTITLE` sizes + style objects) as the single source for Finly-parity section subtitles.
+- `FormField` labels (Name / Icon / Color, item Name / Notes) now use `textStyles.sectionTitle` (`fs(15)`, weight 600, `text` color, 10px margin); settings labels (`SettingsSelectRow`, Personalization) sourced from the same token.
+- Removed the redundant in-screen "Create list" / "Edit list" heading from `ListForm` (nav header keeps the title).
+- Spec: spec/features/004-create-list-screen/, 013-edit-list/, 014-code-quality/ (updated).
+
 ## Future scope (not scheduled)
 - Tags, due dates, subtasks, recurring items.
 - List templates and sharing.
