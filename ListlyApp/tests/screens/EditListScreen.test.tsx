@@ -91,7 +91,6 @@ describe('EditListScreen', () => {
 
   it('pre-fills the form with the list name, icon, and color', async () => {
     const view = await render(<EditListScreen />);
-    expect(view.getByText('Edit list')).toBeTruthy();
     expect(view.getByLabelText('Name').props.value).toBe('Groceries');
     expect(view.getByLabelText('cart-outline').props.accessibilityState.selected).toBe(true);
     expect(view.getByLabelText('#22D3EE').props.accessibilityState.selected).toBe(true);

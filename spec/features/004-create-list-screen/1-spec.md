@@ -8,7 +8,8 @@
 ## Functional requirements
 
 ### 1. Form
-- In-screen heading `create_list_title`; the native stack header stays "Listly" (as on Home).
+- No in-screen heading; the form body starts directly with the `Name` field (the native stack header shows `create_list_title`).
+- Field labels `Name` / `Icon` / `Color` use the shared section-title typography (`textStyles.sectionTitle`: `fs(15)`, weight 600, `text` color, 10px bottom margin), matching Finly's form section titles.
 - Name field (`list_name_label`) with `maxLength = MAX_LIST_NAME_LENGTH = 100`.
 - Icon picker grid from the shared `LIST_ICONS` constant; color picker grid from `LIST_COLORS`. Both are single-select with a visible highlight on the selected option.
 - Sensible defaults preselected: the first icon and first color of each shared constant.

@@ -37,7 +37,6 @@ export default function EditListScreen() {
         initialName={list.name}
         initialIcon={list.icon as IconName}
         initialColor={list.color}
-        heading={labels.edit_list_title}
         submitLabel={labels.list_save}
         excludeId={list.id}
         onSubmit={update}

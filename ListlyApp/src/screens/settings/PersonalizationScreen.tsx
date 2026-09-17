@@ -8,6 +8,7 @@ import SettingsSection from '../../components/settings/SettingsSection';
 import SettingsSelectRow from '../../components/settings/SettingsSelectRow';
 import CheckboxRow from '../../components/settings/CheckboxRow';
 import { settingsStyles } from '../../components/settings/settingsStyles';
+import { SECTION_SUBTITLE_FONT_SIZE, SECTION_TITLE_FONT_SIZE, textStyles } from '../../components/textStyles';
 import type { Option } from '../../components/settings/SelectorInline';
 
 export default function PersonalizationScreen() {
@@ -43,11 +44,11 @@ export default function PersonalizationScreen() {
           </View>
 
           <View style={[settingsStyles.card, { backgroundColor: c.surface }]}>
-            <Text style={[settingsStyles.label, { color: c.text, fontSize: fs(15) }]}>
+            <Text style={[textStyles.sectionTitle, { color: c.text, fontSize: fs(SECTION_TITLE_FONT_SIZE) }]}>
               {labels.settings_item_display}
             </Text>
             <Text
-              style={[settingsStyles.groupSubtitle, { color: c.textSecondary, fontSize: fs(13) }]}
+              style={[textStyles.sectionSubtitle, { color: c.textSecondary, fontSize: fs(SECTION_SUBTITLE_FONT_SIZE) }]}
             >
               {labels.settings_optional_fields}
             </Text>
@@ -64,11 +65,11 @@ export default function PersonalizationScreen() {
           </View>
 
           <View style={[settingsStyles.card, { backgroundColor: c.surface }]}>
-            <Text style={[settingsStyles.label, { color: c.text, fontSize: fs(15) }]}>
+            <Text style={[textStyles.sectionTitle, { color: c.text, fontSize: fs(SECTION_TITLE_FONT_SIZE) }]}>
               {labels.settings_edit_item}
             </Text>
             <Text
-              style={[settingsStyles.groupSubtitle, { color: c.textSecondary, fontSize: fs(13) }]}
+              style={[textStyles.sectionSubtitle, { color: c.textSecondary, fontSize: fs(SECTION_SUBTITLE_FONT_SIZE) }]}
             >
               {labels.settings_optional_fields}
             </Text>
