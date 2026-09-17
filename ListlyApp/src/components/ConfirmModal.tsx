@@ -1,3 +1,4 @@
+import { type ReactNode } from 'react';
 import { StyleSheet, Text } from 'react-native';
 import { useConfig } from '../context/ConfigContext';
 import { useFontSize } from '../hooks/useFontSize';
@@ -13,6 +14,8 @@ interface Props {
   onCancel: () => void;
   onConfirm: () => void;
   destructive?: boolean;
+  confirmDisabled?: boolean;
+  children?: ReactNode;
 }
 
 export default function ConfirmModal({
@@ -24,6 +27,8 @@ export default function ConfirmModal({
   onCancel,
   onConfirm,
   destructive = false,
+  confirmDisabled = false,
+  children,
 }: Props) {
   const { activeColors: c } = useConfig();
   const fs = useFontSize();
@@ -34,12 +39,14 @@ export default function ConfirmModal({
       {message ? (
         <Text style={[styles.message, { color: c.textSecondary, fontSize: fs(14) }]}>{message}</Text>
       ) : null}
+      {children}
       <ModalFooter
         cancelLabel={cancelLabel}
         confirmLabel={confirmLabel}
         onCancel={onCancel}
         onConfirm={onConfirm}
         destructive={destructive}
+        confirmDisabled={confirmDisabled}
       />
     </ModalShell>
   );

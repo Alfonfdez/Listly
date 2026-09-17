@@ -3,7 +3,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { WHITE, TRANSPARENT } from '../constants/themes';
 import { QUICK_COLORS } from '../constants/listColors';
 import { useConfig } from '../context/ConfigContext';
-import { t } from '../i18n';
+import { useLabels } from '../hooks/useLabels';
 
 interface Props {
   selectedColor: string | null;
@@ -14,7 +14,7 @@ interface Props {
 
 export default function ColorGrid({ selectedColor, customColor, onSelect, onOpenPicker }: Props) {
   const { activeColors: c } = useConfig();
-  const labels = t();
+  const labels = useLabels();
 
   return (
     <View style={styles.row}>

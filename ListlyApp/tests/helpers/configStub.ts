@@ -8,9 +8,12 @@ const configTemplate: Config = {
   theme: 'system',
   language: 'en',
   textSize: 'medium',
-  listLayout: 'grid',
+  homeLayout: 'grid',
+  listsLayout: 'list',
   showNotes: true,
   showPhotos: true,
+  editShowNotes: true,
+  editShowPhotos: true,
 };
 
 interface ConfigStubState {

@@ -3,7 +3,7 @@ import { Image, Text, StyleSheet, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useConfig } from '../context/ConfigContext';
 import { useFontSize } from '../hooks/useFontSize';
-import { t } from '../i18n';
+import { useLabels } from '../hooks/useLabels';
 import { BUTTON_BORDER_RADIUS, ALPHA_SELECTED, PRESSED_OPACITY } from './componentStyles';
 import type { Item } from '../database/types';
 import { MAX_ITEM_PICTURES } from '../constants/types';
@@ -25,7 +25,7 @@ interface Props {
 function ItemRowInner({ item, selectMode, selected, onToggle, onEdit }: Props) {
   const { activeColors: c, config } = useConfig();
   const fs = useFontSize();
-  const labels = t();
+  const labels = useLabels();
   const isDone = item.checked === 1;
   const photos = parseItemPhotos(item.pictures);
   const showNote = config.showNotes && Boolean(item.note);

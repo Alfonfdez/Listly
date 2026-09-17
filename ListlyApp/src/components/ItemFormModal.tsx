@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { useConfig } from '../context/ConfigContext';
 import { useFontSize } from '../hooks/useFontSize';
-import { t } from '../i18n';
+import { useLabels } from '../hooks/useLabels';
 import { BUTTON_BORDER_RADIUS, PRESSED_OPACITY, DISABLED_OPACITY } from './componentStyles';
 import { validateItemName, type ItemNameError } from '../utils/validation';
 import { MAX_ITEM_NAME_LENGTH, MAX_ITEM_NOTE_LENGTH } from '../constants/types';
@@ -39,7 +39,7 @@ export default function ItemFormModal({
 }: Props) {
   const { activeColors: c, config } = useConfig();
   const fs = useFontSize();
-  const labels = t();
+  const labels = useLabels();
 
   const [name, setName] = useState(initialName);
   const [note, setNote] = useState(initialNote);
@@ -104,7 +104,7 @@ export default function ItemFormModal({
         <CharCounter current={name.length} max={MAX_ITEM_NAME_LENGTH} />
       </FormField>
 
-      {config.showNotes ? (
+      {config.editShowNotes ? (
         <FormField label={labels.item_note_label}>
           <TextInput
             value={note}
@@ -125,7 +125,7 @@ export default function ItemFormModal({
         </FormField>
       ) : null}
 
-      {config.showPhotos ? (
+      {config.editShowPhotos ? (
         <View style={styles.photoSection}>
           <PhotoSection
             photos={photos}

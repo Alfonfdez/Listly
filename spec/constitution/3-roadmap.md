@@ -135,6 +135,16 @@ Behavior-preserving code-quality refactor before Settings (005):
 - Unified i18n naming (`Translations`/`LanguageId`) and test layout (`tests/components`, `tests/hooks`, `tests/helpers`) with new-primitive coverage.
 - Spec: spec/features/014-code-quality/.
 
+## 015-settings-sections
+Status: done.
+
+Settings restructured as a hub with dedicated sub-screens:
+- Settings hub (Appearance, Regional, Personalization, Data) navigating to new stack screens.
+- `listLayout` split into `homeLayout` (grid) + `listsLayout` (list); new `editShowNotes` / `editShowPhotos` option checkboxes gate the edit-item modal while `showNotes` / `showPhotos` scope to list-detail rows.
+- Finly parity: Appearance options carry icons (Dark, Light, System) and size glyphs with one shared button height; Regional shows an uppercase `LANGUAGE` header above the `Language` label over a bordered flag dropdown (emoji on native, SVG on web) with a temporary selection applied via Select / discarded via Cancel; Personalization splits the Lists screen into three background-separated cards (Layout / Item display / Edit item) with no dividers, the last two using "Optional fields" checkboxes.
+- Factory reset requires typing `DELETE` in a second modal.
+- Spec: spec/features/015-settings-sections/.
+
 ## Future scope (not scheduled)
 - Tags, due dates, subtasks, recurring items.
 - List templates and sharing.

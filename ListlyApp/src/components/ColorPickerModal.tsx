@@ -4,7 +4,7 @@ import ColorPicker, { Panel1, HueSlider, OpacitySlider, Preview } from 'reanimat
 import { useConfig } from '../context/ConfigContext';
 import { useFontSize } from '../hooks/useFontSize';
 import { useResetOnOpen } from '../hooks/useResetOnOpen';
-import { t } from '../i18n';
+import { useLabels } from '../hooks/useLabels';
 import { CARD_BORDER_RADIUS } from './componentStyles';
 import ModalShell from './ModalShell';
 import ModalFooter from './ModalFooter';
@@ -19,7 +19,7 @@ interface Props {
 export default function ColorPickerModal({ visible, selectedColor, onSelect, onClose }: Props) {
   const { activeColors: c } = useConfig();
   const fs = useFontSize();
-  const labels = t();
+  const labels = useLabels();
   const [tempColor, setTempColor] = useState(selectedColor ?? c.primary);
 
   const resetOnOpen = useCallback(() => {

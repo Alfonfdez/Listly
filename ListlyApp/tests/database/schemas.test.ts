@@ -53,27 +53,36 @@ describe('schemas', () => {
           theme: THEMES.dark,
           language: LANGUAGES.es,
           textSize: TEXT_SIZES.large,
-          listLayout: LIST_LAYOUTS.list,
+          homeLayout: LIST_LAYOUTS.list,
+          listsLayout: LIST_LAYOUTS.grid,
           showNotes: false,
           showPhotos: false,
+          editShowNotes: false,
+          editShowPhotos: false,
         })
       ).toEqual({
         theme: THEMES.dark,
         language: LANGUAGES.es,
         textSize: TEXT_SIZES.large,
-        listLayout: LIST_LAYOUTS.list,
+        homeLayout: LIST_LAYOUTS.list,
+        listsLayout: LIST_LAYOUTS.grid,
         showNotes: false,
         showPhotos: false,
+        editShowNotes: false,
+        editShowPhotos: false,
       });
     });
 
     it('rejects a non-boolean visibility flag', () => {
       expect(() => configSchema.parse({ ...DEFAULT_CONFIG, showNotes: 'yes' })).toThrow();
       expect(() => configSchema.parse({ ...DEFAULT_CONFIG, showPhotos: 1 })).toThrow();
+      expect(() => configSchema.parse({ ...DEFAULT_CONFIG, editShowNotes: 'no' })).toThrow();
+      expect(() => configSchema.parse({ ...DEFAULT_CONFIG, editShowPhotos: 0 })).toThrow();
     });
 
     it('rejects an invalid list layout', () => {
-      expect(() => configSchema.parse({ ...DEFAULT_CONFIG, listLayout: 'columns' })).toThrow();
+      expect(() => configSchema.parse({ ...DEFAULT_CONFIG, homeLayout: 'columns' })).toThrow();
+      expect(() => configSchema.parse({ ...DEFAULT_CONFIG, listsLayout: 'columns' })).toThrow();
     });
 
     it('rejects an invalid theme', () => {

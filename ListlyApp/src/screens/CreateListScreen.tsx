@@ -1,6 +1,6 @@
 import { useNavigation } from '@react-navigation/native';
 import { useApp } from '../context/AppContext';
-import { t } from '../i18n';
+import { useLabels } from '../hooks/useLabels';
 import { LIST_ICONS } from '../constants/listIcons';
 import { QUICK_COLORS } from '../constants/listColors';
 import type { IconName, NavigationProp } from '../constants/types';
@@ -11,7 +11,7 @@ import ListForm from '../components/ListForm';
 export default function CreateListScreen() {
   const navigation = useNavigation<NavigationProp<'CreateList'>>();
   const { refresh } = useApp();
-  const labels = t();
+  const labels = useLabels();
 
   const create = async ({ name, icon, color }: { name: string; icon: IconName; color: string }) => {
     await listRepo.create({ name, icon, color });

@@ -1,6 +1,6 @@
 import { TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { t } from '../i18n';
+import { useLabels } from '../hooks/useLabels';
 import { ICON_BUTTON_PADDING } from './componentStyles';
 
 interface Props {
@@ -10,7 +10,7 @@ interface Props {
 }
 
 export default function SelectToggleButton({ active, onToggle, color }: Props) {
-  const labels = t();
+  const labels = useLabels();
   return (
     <TouchableOpacity
       onPress={onToggle}

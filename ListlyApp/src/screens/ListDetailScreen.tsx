@@ -17,7 +17,7 @@ import { useConfig } from '../context/ConfigContext';
 import { useFontSize } from '../hooks/useFontSize';
 import { useSelectMode } from '../hooks/useSelectMode';
 import { useDragOrder } from '../hooks/useDragOrder';
-import { t } from '../i18n';
+import { useLabels } from '../hooks/useLabels';
 import { validateItemName, uniqueNormalizedNames, type ItemNameError } from '../utils/validation';
 import { filterItemsByQuery } from '../utils/search';
 import { parseItemPhotos, serializeItemPhotos } from '../utils/itemPhotos';
@@ -43,7 +43,7 @@ export default function ListDetailScreen() {
   const { lists, itemsByListId, refresh } = useApp();
   const { activeColors: c } = useConfig();
   const fs = useFontSize();
-  const labels = t();
+  const labels = useLabels();
 
   const list = useMemo(() => lists.find(l => l.id === listId), [lists, listId]);
   const items = useMemo(() => itemsByListId.get(listId) ?? [], [itemsByListId, listId]);

@@ -2,7 +2,7 @@ import { useCallback } from 'react';
 import { StyleSheet } from 'react-native';
 import { useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
 import { useApp } from '../context/AppContext';
-import { t } from '../i18n';
+import { useLabels } from '../hooks/useLabels';
 import type { IconName, NavigationProp, RootStackParamList } from '../constants/types';
 import { listRepository as listRepo } from '../database';
 import ScreenShell from '../components/ScreenShell';
@@ -14,7 +14,7 @@ export default function EditListScreen() {
   const navigation = useNavigation<NavigationProp<'EditList'>>();
   const { listId } = route.params;
   const { lists, refresh } = useApp();
-  const labels = t();
+  const labels = useLabels();
 
   const list = lists.find(l => l.id === listId);
 

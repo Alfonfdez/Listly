@@ -195,7 +195,7 @@ describe('database reset helpers', () => {
     const { resetDatabase } = await import('../../src/database/database');
 
     await listRepo.create({ name: 'Groceries', color: '#22D3EE', icon: 'cart-outline' });
-    await configRepo.save({ theme: 'dark', listLayout: 'list', showNotes: false });
+    await configRepo.save({ theme: 'dark', listsLayout: 'grid', showNotes: false });
 
     await resetDatabase();
 

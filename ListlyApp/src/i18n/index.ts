@@ -10,6 +10,10 @@ export function setLanguage(id: LanguageId) {
   currentLanguage = languages[id] ?? en;
 }
 
+export function getLabels(id: LanguageId): Translations {
+  return languages[id] ?? en;
+}
+
 export function t(): Translations {
   return currentLanguage;
 }

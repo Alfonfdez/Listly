@@ -27,6 +27,8 @@ export const LIST_LAYOUTS = {
 
 export type ListLayout = keyof typeof LIST_LAYOUTS;
 
+export const FACTORY_RESET_CONFIRMATION = 'DELETE';
+
 export const DEBOUNCE_MS = 300;
 
 export const MAX_LIST_NAME_LENGTH = 100;
@@ -41,6 +43,10 @@ export type RootStackParamList = {
   CreateList: undefined;
   EditList: { listId: number };
   Settings: undefined;
+  SettingsAppearance: undefined;
+  SettingsRegional: undefined;
+  SettingsPersonalization: undefined;
+  SettingsData: undefined;
 };
 
 export type NavigationProp<RouteName extends keyof RootStackParamList> =

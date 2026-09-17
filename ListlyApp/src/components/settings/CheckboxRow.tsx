@@ -10,7 +10,7 @@ interface Props {
   label: string;
 }
 
-export default function ToggleRow({ checked, onToggle, label }: Props) {
+export default function CheckboxRow({ checked, onToggle, label }: Props) {
   const { activeColors: c } = useConfig();
   const fs = useFontSize();
 
@@ -23,12 +23,12 @@ export default function ToggleRow({ checked, onToggle, label }: Props) {
       accessibilityState={{ checked }}
       accessibilityLabel={label}
     >
-      <Text style={[styles.label, { color: c.text, fontSize: fs(15) }]}>{label}</Text>
       <Ionicons
-        name={checked ? 'toggle' : 'toggle-outline'}
-        size={32}
+        name={checked ? 'checkbox' : 'square-outline'}
+        size={22}
         color={checked ? c.primary : c.textSecondary}
       />
+      <Text style={[styles.label, { color: c.text, fontSize: fs(14) }]}>{label}</Text>
     </TouchableOpacity>
   );
 }
@@ -37,12 +37,10 @@ const styles = StyleSheet.create({
   row: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingVertical: 8,
-    gap: 12,
+    gap: 10,
+    paddingVertical: 6,
   },
   label: {
-    flex: 1,
-    fontWeight: '600',
+    fontWeight: '500',
   },
 });

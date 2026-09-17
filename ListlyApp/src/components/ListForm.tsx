@@ -3,7 +3,7 @@ import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-
 import { Ionicons } from '@expo/vector-icons';
 import { useConfig } from '../context/ConfigContext';
 import { useFontSize } from '../hooks/useFontSize';
-import { t } from '../i18n';
+import { useLabels } from '../hooks/useLabels';
 import { LIST_ICONS } from '../constants/listIcons';
 import { DEBOUNCE_MS, MAX_LIST_NAME_LENGTH } from '../constants/types';
 import type { IconName } from '../constants/types';
@@ -38,7 +38,7 @@ export default function ListForm({
 }: Props) {
   const { activeColors: c } = useConfig();
   const fs = useFontSize();
-  const labels = t();
+  const labels = useLabels();
 
   const [name, setName] = useState(initialName);
   const [icon, setIcon] = useState<IconName>(initialIcon);

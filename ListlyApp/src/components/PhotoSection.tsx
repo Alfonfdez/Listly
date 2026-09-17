@@ -3,7 +3,7 @@ import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useConfig } from '../context/ConfigContext';
 import { useFontSize } from '../hooks/useFontSize';
-import { t } from '../i18n';
+import { useLabels } from '../hooks/useLabels';
 import { MAX_ITEM_PICTURES } from '../constants/types';
 import { isNative } from '../utils/platform';
 import ConfirmModal from './ConfirmModal';
@@ -22,7 +22,7 @@ export default function PhotoSection({ photos, onTakePhoto, onPickFromGallery, o
   const [photoToDelete, setPhotoToDelete] = useState<string | null>(null);
   const { activeColors: c } = useConfig();
   const fs = useFontSize();
-  const labels = t();
+  const labels = useLabels();
 
   const handleSourceOption = (action: () => void) => {
     setSourceModalVisible(false);

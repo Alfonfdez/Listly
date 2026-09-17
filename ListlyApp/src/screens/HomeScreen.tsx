@@ -1,5 +1,5 @@
 import ListsScreenBase from './ListsScreenBase';
 
 export default function HomeScreen() {
-  return <ListsScreenBase />;
+  return <ListsScreenBase layoutKey="homeLayout" />;
 }

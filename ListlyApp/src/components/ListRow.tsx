@@ -3,7 +3,7 @@ import { Text, View, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useConfig } from '../context/ConfigContext';
 import { useFontSize } from '../hooks/useFontSize';
-import { t } from '../i18n';
+import { useLabels } from '../hooks/useLabels';
 import { CARD_BORDER_RADIUS, ALPHA_TINT, ALPHA_BADGE } from './componentStyles';
 import { withAlpha } from '../utils/color';
 import SortablePressable from './SortablePressable';
@@ -21,7 +21,7 @@ interface Props {
 function ListRowInner({ list, selectMode, selected, onPress }: Props) {
   const { activeColors: c } = useConfig();
   const fs = useFontSize();
-  const labels = t();
+  const labels = useLabels();
 
   return (
     <SortablePressable
