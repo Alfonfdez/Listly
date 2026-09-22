@@ -171,6 +171,15 @@ User-defined collections that organize lists, plus a first-class Collections scr
 - i18n: `collection_*`, `collections_empty`, `home_add_collection`, `home_add_choice_title`, `home_section_lists`, `home_empty_all` / `home_empty_all_hint`, `collection_delete_many_title` / `collection_delete_combined_title` (+ messages), layout/settings keys in both `en` and `es`.
 - Spec: spec/features/016-collections/.
 
+## 017-copy-list
+Status: done.
+
+Copy a list's contents to the clipboard from the list detail screen:
+- Two header-row copy buttons (shown only when the list has items): *Copy names* (`list-outline`) and *Copy all* (`copy-outline`).
+- `src/utils/copyList.ts` `buildListCopyText(listName, items, withNotes)` → list name first, then each item in position order; done items prefixed `✅`; notes appended after ` — ` when copying all.
+- Clipboard via `expo-clipboard` (`setStringAsync`); transient checkmark + "Copied" feedback.
+- Spec: spec/features/017-copy-list/.
+
 ## Future scope (not scheduled)
 - Tags, due dates, subtasks, recurring items.
 - List templates and sharing.

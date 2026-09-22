@@ -17,6 +17,7 @@
 - **reanimated-color-picker** — the quick/custom color picker modal.
 - **expo-image-picker** + **expo-file-system** — item photos (pick, copy to storage, clean up).
 - **expo-sharing** + **expo-document-picker** — backup export/import on native.
+- **expo-clipboard** — copying a list's contents to the clipboard.
 - **expo-splash-screen** / **expo-status-bar** — startup splash and status-bar theming.
 
 ## File structure (React Native with Expo project)
