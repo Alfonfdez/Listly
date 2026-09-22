@@ -14,12 +14,13 @@ import type { IconName } from '../constants/types';
 
 interface Props {
   list: ListWithCounts;
+  collection?: { name: string; color: string };
   selectMode: boolean;
   selected: boolean;
   onPress: () => void;
 }
 
-function ListRowInner({ list, selectMode, selected, onPress }: Props) {
+function ListRowInner({ list, collection, selectMode, selected, onPress }: Props) {
   const { activeColors: c } = useConfig();
   const fs = useFontSize();
   const labels = useLabels();
@@ -45,9 +46,19 @@ function ListRowInner({ list, selectMode, selected, onPress }: Props) {
           <SelectionCheck selected={selected} style={styles.check} unselectedBackground={c.surface} />
         ) : null}
       </View>
-      <Text style={[styles.name, { color: c.text, fontSize: fs(15) }]} numberOfLines={1}>
-        {list.name}
-      </Text>
+      <View style={styles.nameColumn}>
+        <Text style={[styles.name, { color: c.text, fontSize: fs(15) }]} numberOfLines={1}>
+          {list.name}
+        </Text>
+        {collection && !selectMode ? (
+          <View style={styles.collectionRow}>
+            <Ionicons name="albums-outline" size={12} color={collection.color} />
+            <Text style={[styles.collectionName, { color: collection.color, fontSize: fs(12) }]} numberOfLines={1}>
+              {collection.name}
+            </Text>
+          </View>
+        ) : null}
+      </View>
       <Text style={[styles.progress, { color: c.textSecondary, fontSize: fs(13) }]}>
         {labels.home_progress(list.completed, list.total)}
       </Text>
@@ -87,8 +98,18 @@ const styles = StyleSheet.create({
     right: -3,
   },
   name: {
-    flex: 1,
     fontWeight: '600',
+  },
+  nameColumn: {
+    flex: 1,
+  },
+  collectionRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  collectionName: {
+    fontWeight: '500',
   },
   progress: {
     fontWeight: '500',

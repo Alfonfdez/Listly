@@ -39,6 +39,34 @@ describe('ListCard', () => {
     expect(view.getByText('list-outline')).toBeTruthy();
   });
 
+  it('shows the collection name when a collection is provided', async () => {
+    const view = await render(
+      <ListCard
+        list={LIST}
+        collection={{ name: 'Shopping', color: '#A855F7' }}
+        selectMode={false}
+        selected={false}
+        onPress={() => {}}
+      />
+    );
+
+    expect(view.getByText('Shopping')).toBeTruthy();
+  });
+
+  it('hides the collection name in select mode', async () => {
+    const view = await render(
+      <ListCard
+        list={LIST}
+        collection={{ name: 'Shopping', color: '#A855F7' }}
+        selectMode
+        selected={false}
+        onPress={() => {}}
+      />
+    );
+
+    expect(view.queryByText('Shopping')).toBeNull();
+  });
+
   it('calls onPress when pressed', async () => {
     const onPress = vi.fn();
     const view = await render(

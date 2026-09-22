@@ -11,9 +11,10 @@ Listly 1.0 screens. Each maps to a feature spec (`spec/features/<NNN>-…/`) wit
 - Tapping a list → List detail; tapping a collection → Collection detail.
 - Select mode (header toggle) selects collections and standalone lists together for a combined delete.
 
-## 2. Lists (007-home-and-nav-polish)
+## 2. Lists (007-home-and-nav-polish, 016-collections)
 - Drawer screen listing all lists as full-width rows (icon, name, progress).
 - Same search/select/FAB behavior as Home; list layout by default.
+- A list that belongs to a collection shows its collection name (with a small folder icon, in the collection's color) under the list name.
 
 ## 3. Collections (016-collections)
 - Drawer screen listing only collections (grid or list layout).

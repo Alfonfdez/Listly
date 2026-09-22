@@ -62,12 +62,13 @@
 - List detail: `headerRight` shows only search and select toggles, and only when the list has items; the delete action lives on the Edit List screen.
 - Collection detail: `headerRight` shows only search and select toggles, and only while the collection has member lists; the delete action lives on the Edit Collection screen.
 
-### 11. Collection/list visual polish (icons, empty state, type badge, accent bar, section titles)
+### 11. Collection/list visual polish (icons, empty state, type badge, accent bar, section titles, membership hint)
 - The collection identity icon is `albums-outline` everywhere a folder icon used to appear: the Collections screen and collection-detail empty states, the Create collection / Collection detail header icons, and the Home FAB *Add collection* chooser row.
 - Home's fully-empty state (no collections *and* no lists) shows a distinct message + hint ("No collections or lists yet" / "Tap + to create your first collection or list", `home-outline` icon); the Lists screen keeps the existing lists-only empty state.
 - Collections and lists carry a small fixed *type badge* so they are distinguishable in both grid and list layouts: `albums-outline` for collections, `list-outline` for lists, positioned top-right on grid cards and trailing on list rows, and hidden in select mode (where `SelectionCheck` occupies the corner).
 - Collections additionally carry a colored *accent bar* (top edge on grid cards, left edge on list rows) in the collection's color, reinforcing the container look beyond the type badge.
 - On Home, the *Collections* and *Lists* section titles render with a leading type icon (`albums-outline` / `list-outline`); the *Lists* title appears whenever Home has standalone lists (not only when collections are also present).
+- On the Lists screen, a list that belongs to a collection shows the collection name (with a small `albums-outline` icon, in the collection's color) under the list name; standalone lists show no hint.
 
 ### 12. i18n
 - All new strings live in `en` and `es` (`collection_*`, `collections_empty`, `home_add_collection`, `home_add_choice_title`, `home_section_lists`, `home_empty_all` / `home_empty_all_hint`, `collection_delete_*` (single/many/combined variants + messages), `settings_collections_screen`, `settings_list_layout`, `layout_grid`, `layout_list`) and are read through `useLabels()`.
@@ -102,5 +103,6 @@
 - [x] Collections and lists carry a fixed type badge (`albums-outline` / `list-outline`) in both grid and list layouts so they are visually distinguishable; collections additionally carry a colored accent bar (top edge on grid cards, left edge on list rows).
 - [x] The collection identity icon `albums-outline` appears in the Add-chooser row, the Create/Detail headers, and the Collections/collection-detail empty states; Home's fully-empty state shows a combined "no collections or lists" message with the `home-outline` icon.
 - [x] On Home, the *Collections* and *Lists* section titles show their type icon, and the *Lists* title appears even when there are only lists (no collections).
+- [x] On the Lists screen, a list inside a collection shows its collection name (collection color) under the list name; standalone lists show no hint.
 - [x] Switching to Spanish shows the translated collection labels, layout and delete-chooser labels.
 - [x] `npm run test:all` passes.

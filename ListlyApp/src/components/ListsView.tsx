@@ -156,10 +156,15 @@ export default function ListsView({
   );
 
   const renderItem = useCallback<SortableGridRenderItem<ListWithCounts>>(
-    ({ item }) => (
-      isGrid ? (
+    ({ item }) => {
+      const collection =
+        mode === 'lists' && item.collection_id != null
+          ? collections.find(col => col.id === item.collection_id)
+          : undefined;
+      return isGrid ? (
         <ListCard
           list={item}
+          collection={collection}
           selectMode={selectMode}
           selected={selectedIds.has(item.id)}
           onPress={() => handleTilePress(item)}
@@ -167,13 +172,14 @@ export default function ListsView({
       ) : (
         <ListRow
           list={item}
+          collection={collection}
           selectMode={selectMode}
           selected={selectedIds.has(item.id)}
           onPress={() => handleTilePress(item)}
         />
-      )
-    ),
-    [isGrid, selectMode, selectedIds, handleTilePress]
+      );
+    },
+    [isGrid, selectMode, selectedIds, handleTilePress, mode, collections]
   );
 
   const renderCollection = useCallback<SortableGridRenderItem<CollectionWithCounts>>(
