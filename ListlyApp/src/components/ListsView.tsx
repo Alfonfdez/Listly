@@ -1,5 +1,6 @@
 import { useCallback, useMemo, useState, type ReactNode } from 'react';
 import { ActivityIndicator, ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import Sortable, { type SortableGridRenderItem } from 'react-native-sortables';
 import { useApp } from '../context/AppContext';
@@ -264,9 +265,12 @@ export default function ListsView({
         {hasContent ? (
           <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
             {inHome && displayCollections.length > 0 && (
-              <Text style={[styles.sectionTitle, { color: c.textSecondary, fontSize: fs(12) }]}>
-                {labels.collection_section_title}
-              </Text>
+              <View style={styles.sectionTitleRow}>
+                <Ionicons name="albums-outline" size={14} color={c.textSecondary} />
+                <Text style={[styles.sectionTitle, { color: c.textSecondary, fontSize: fs(12) }]}>
+                  {labels.collection_section_title}
+                </Text>
+              </View>
             )}
             {showCollectionsSection && (
               <Sortable.Grid
@@ -281,10 +285,13 @@ export default function ListsView({
                 onDragEnd={handleCollectionsDragEnd}
               />
             )}
-            {inHome && displayCollections.length > 0 && displayLists.length > 0 && (
-              <Text style={[styles.sectionTitle, { color: c.textSecondary, fontSize: fs(12) }]}>
-                {labels.home_section_lists}
-              </Text>
+            {inHome && displayLists.length > 0 && (
+              <View style={styles.sectionTitleRow}>
+                <Ionicons name="list-outline" size={14} color={c.textSecondary} />
+                <Text style={[styles.sectionTitle, { color: c.textSecondary, fontSize: fs(12) }]}>
+                  {labels.home_section_lists}
+                </Text>
+              </View>
             )}
             {showListsSection && (
               <Sortable.Grid
@@ -379,6 +386,11 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     textTransform: 'uppercase',
     letterSpacing: 0.5,
+  },
+  sectionTitleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
     marginTop: 8,
   },
 });

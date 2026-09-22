@@ -41,6 +41,17 @@ export const es: Translations = {
   collections_empty_hint: 'Pulsa + para crear tu primera colección',
   home_add_collection_fab: 'Añadir colección',
   collection_delete_many_title: (n: number) => `¿Eliminar ${n} ${n === 1 ? 'colección' : 'colecciones'}?`,
+  collection_delete_combined_title: (collections: number, lists: number) => {
+    const c = collections === 1 ? 'colección' : 'colecciones';
+    if (lists === 0) return `¿Eliminar ${collections} ${c}?`;
+    const l = lists === 1 ? 'lista' : 'listas';
+    return `¿Eliminar ${collections} ${c} y ${lists} ${l}?`;
+  },
+  collection_delete_combined_message:
+    'Las colecciones y listas seleccionadas y sus elementos se eliminarán permanentemente.',
+  collection_delete_empty_many_message: 'Estas colecciones vacías se eliminarán. No se puede deshacer.',
+  collection_delete_standalone_message:
+    'Las listas seleccionadas fuera de cualquier colección también se eliminarán. ¿Qué hacer con las listas dentro de las colecciones seleccionadas?',
   home_open_menu: 'Abrir menú',
   home_search_placeholder: 'Buscar listas y elementos...',
   home_progress: (checked: number, total: number) => `${checked}/${total}`,

@@ -283,3 +283,12 @@ pm run test:all green.
 - Merged the `018-collections-screen` spec into `spec/features/016-collections/` (the collections implementation feature) and removed the `018-collections-screen` folder.
 - `016-collections` now has the full three-document set: `1-spec.md` (merged + type-badge/icon/empty-state polish documented, 17 acceptance criteria), `2-plan.md` (architecture/components/navigation/i18n/data-flow/risks), `3-tasks.md` (full checklist).
 - Roadmap: removed the standalone `## 018-collections-screen` entry and folded its bullets into `## 016-collections` (Status: done).
+
+[2026-09-22] ~ | Unified delete modal, trash spacing, accent bars, section-title icons
+- Unified combined delete: `ListsScreenBase` now deletes collections and standalone lists in a single modal — the shared `CollectionDeleteModal` chooser when at least one selected collection has member lists (`listsByCollectionId`), or one destructive `ConfirmModal` ("Delete N collections and M lists?") when none do — removing the old second lists-confirm fallthrough and the pointless chooser on empty collections.
+- `CollectionDeleteModal` gained a `standaloneListCount` prop and a clarifying message (`collection_delete_standalone_message`) when standalone lists are also selected; new i18n keys `collection_delete_combined_title` / `collection_delete_combined_message` / `collection_delete_empty_many_message` (en/es).
+- Detail header: the delete (trash) button now gets extra `marginRight` spacing from the search/select toggles only when those are present (`CollectionDetailScreen`, `ListDetailScreen`).
+- Collection visual: `CollectionCard` (top) and `CollectionRow` (left) render a colored accent bar in the collection's color (`overflow: hidden`), reinforcing the container look alongside the `TypeBadge`.
+- Home section titles: `ListsView` now shows the *Lists* title whenever Home has standalone lists (not only alongside collections) and both *Collections* / *Lists* titles render a leading type icon (`albums-outline` / `list-outline`).
+- Tests: rewrote `HomeSelectionFlow` (chooser move/cascade + empty-collection confirm, both delete standalone lists in one action) and added an empty-collection confirm case to `CollectionsScreen`; `setListsByCollectionId` used to model collections-with-lists. Suite baseline: 38 files, 287 tests, `npm run test:all` green.
+- Docs: `016-collections/1-spec.md` (sections 5/8/10/11/12 + acceptance criteria), `2-plan.md` (data flow), `3-tasks.md`, roadmap 016 bullets.

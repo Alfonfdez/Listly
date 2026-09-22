@@ -14,12 +14,20 @@ import ModalFooter from './ModalFooter';
 interface Props {
   visible: boolean;
   collections: CollectionWithCounts[];
+  standaloneListCount?: number;
   onMove: () => void;
   onDelete: () => void;
   onCancel: () => void;
 }
 
-export default function CollectionDeleteModal({ visible, collections, onMove, onDelete, onCancel }: Props) {
+export default function CollectionDeleteModal({
+  visible,
+  collections,
+  standaloneListCount = 0,
+  onMove,
+  onDelete,
+  onCancel,
+}: Props) {
   const { activeColors: c } = useConfig();
   const fs = useFontSize();
   const labels = useLabels();
@@ -48,7 +56,7 @@ export default function CollectionDeleteModal({ visible, collections, onMove, on
         {labels.collection_delete_many_title(collections.length)}
       </Text>
       <Text style={[styles.message, { color: c.textSecondary, fontSize: fs(14) }]}>
-        {labels.collection_delete_message}
+        {standaloneListCount > 0 ? labels.collection_delete_standalone_message : labels.collection_delete_message}
       </Text>
       {collections.length > 1 ? (
         <ScrollView style={styles.list} showsVerticalScrollIndicator={false}>

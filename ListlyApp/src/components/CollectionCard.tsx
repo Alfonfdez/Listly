@@ -1,5 +1,5 @@
 import { memo } from 'react';
-import { Text, StyleSheet } from 'react-native';
+import { Text, View, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useConfig } from '../context/ConfigContext';
 import { useFontSize } from '../hooks/useFontSize';
@@ -37,6 +37,7 @@ function CollectionCardInner({ collection, selectMode, selected, onPress }: Prop
       accessibilityState={selectMode ? { checked: selected } : undefined}
       accessibilityLabel={selected ? `${collection.name}, ${labels.select_selected(1)}` : collection.name}
     >
+      <View style={[styles.accentBar, { backgroundColor: collection.color }]} />
       {selectMode ? <SelectionCheck selected={selected} style={styles.check} iconSize={14} /> : null}
       {!selectMode ? <TypeBadge type="collection" style={styles.typeBadge} /> : null}
       <Ionicons name={collection.icon as IconName} size={28} color={collection.color} />
@@ -61,6 +62,14 @@ const styles = StyleSheet.create({
     gap: 10,
     borderWidth: 1,
     borderColor: 'transparent',
+    overflow: 'hidden',
+  },
+  accentBar: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    height: 3,
   },
   check: {
     position: 'absolute',

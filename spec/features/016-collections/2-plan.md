@@ -52,7 +52,7 @@ New keys (en/es): `collection_*`, `collections_empty` (+ hint), `home_add_collec
 
 - `useApp()` → `collections`, `listsByCollectionId`, `baseLists`, `lists`, `itemsByListId`; refresh on focus.
 - Home search filters collections by name and lists by name + item names; Collections search filters collections only.
-- Combined select: `selectedIds` (lists) + `selectedCollectionIds` (collections) → `selectedCount`; delete routes through `CollectionDeleteModal` when collections are selected, then falls through to the lists confirm.
+- Combined select: `selectedIds` (lists) + `selectedCollectionIds` (collections) → `selectedCount`; delete routes through a single modal — `CollectionDeleteModal` chooser when a selected collection has member lists, or one destructive `ConfirmModal` when none do — deleting the standalone lists and collections together.
 
 ## Risks / notes
 

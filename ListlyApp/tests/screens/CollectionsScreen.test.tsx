@@ -3,7 +3,7 @@ import { render, fireEvent, waitFor } from '@testing-library/react-native';
 import { useEffect, useState, type ReactNode } from 'react';
 import { View } from 'react-native';
 import CollectionsScreen from '../../src/screens/CollectionsScreen';
-import { buildAppMock, setCollections, resetAppStub, setLists } from '../helpers/appStub';
+import { buildAppMock, setCollections, resetAppStub, setLists, setListsByCollectionId } from '../helpers/appStub';
 import { resetStub } from '../helpers/configStub';
 import type { CollectionWithCounts, ListWithCounts } from '../../src/database/types';
 
@@ -37,6 +37,18 @@ const COLLECTIONS: CollectionWithCounts[] = [
 ];
 
 const LISTS: ListWithCounts[] = [];
+
+const MEMBER_LIST: ListWithCounts = {
+  id: 3,
+  name: 'In Collection',
+  color: '#FBBF24',
+  icon: 'list-outline',
+  collection_id: 10,
+  created_at: 'x',
+  position: 0,
+  total: 0,
+  completed: 0,
+};
 
 const nav = { navigate: vi.fn(), setOptions: vi.fn() };
 
@@ -89,6 +101,7 @@ describe('CollectionsScreen', () => {
     dbMocks.deleteManyLists.mockClear();
     setCollections(COLLECTIONS);
     setLists(LISTS);
+    setListsByCollectionId(new Map([[10, [MEMBER_LIST]]]));
   });
 
   afterEach(() => {
@@ -190,5 +203,21 @@ describe('CollectionsScreen', () => {
     await waitFor(() => expect(dbMocks.deleteManyCollections).not.toHaveBeenCalled());
     await waitFor(() => expect(dbMocks.deleteManyLists).not.toHaveBeenCalled());
     expect(view.getByText('1 selected')).toBeTruthy();
+  });
+
+  it('confirms an empty collection without the move/delete chooser', async () => {
+    const view = await renderScreen();
+    fireEvent.press(view.getByLabelText('Enter select mode'));
+    fireEvent.press(await view.findByRole('checkbox', { name: 'Weekend' }));
+    await waitFor(() => expect(view.getByText('1 selected')).toBeTruthy());
+
+    fireEvent.press(view.getByText('Delete'));
+    expect(await view.findByText('Delete 1 collection?')).toBeTruthy();
+    expect(view.queryByText('Move lists to Lists')).toBeNull();
+    expect(view.getByText('These empty collections will be removed. It cannot be undone.')).toBeTruthy();
+
+    fireEvent.press(view.getAllByLabelText('Delete')[1]);
+    await waitFor(() => expect(dbMocks.deleteManyCollections).toHaveBeenCalledWith([11], 'cascade'));
+    expect(dbMocks.deleteManyLists).not.toHaveBeenCalled();
   });
 });

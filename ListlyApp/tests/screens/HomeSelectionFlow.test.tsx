@@ -3,7 +3,7 @@ import { render, fireEvent, waitFor } from '@testing-library/react-native';
 import { useEffect, useState, type ReactNode } from 'react';
 import { View } from 'react-native';
 import HomeScreen from '../../src/screens/HomeScreen';
-import { buildAppMock, resetAppStub, setCollections, setLists, setBaseLists } from '../helpers/appStub';
+import { buildAppMock, resetAppStub, setCollections, setLists, setBaseLists, setListsByCollectionId } from '../helpers/appStub';
 import { resetStub } from '../helpers/configStub';
 import type { CollectionWithCounts, ListWithCounts } from '../../src/database/types';
 
@@ -39,6 +39,18 @@ const LISTS: ListWithCounts[] = [
 const COLLECTIONS: CollectionWithCounts[] = [
   { id: 10, name: 'Shopping', color: '#A855F7', icon: 'folder-outline', created_at: 'x', position: 0, total: 3, completed: 1 },
 ];
+
+const MEMBER_LIST: ListWithCounts = {
+  id: 3,
+  name: 'In Collection',
+  color: '#FBBF24',
+  icon: 'list-outline',
+  collection_id: 10,
+  created_at: 'x',
+  position: 0,
+  total: 0,
+  completed: 0,
+};
 
 const nav = { navigate: vi.fn(), setOptions: vi.fn() };
 
@@ -98,7 +110,8 @@ describe('Home combined selection', () => {
     resetAppStub();
   });
 
-  it('deletes selected collections first, then falls through to the lists confirm', async () => {
+  it('deletes collections and standalone lists in one chooser modal (move)', async () => {
+    setListsByCollectionId(new Map([[10, [MEMBER_LIST]]]));
     const view = await renderScreen();
     fireEvent.press(view.getByLabelText('Enter select mode'));
 
@@ -109,13 +122,46 @@ describe('Home combined selection', () => {
 
     fireEvent.press(view.getByText('Delete'));
     expect(await view.findByText('Delete 1 collection?')).toBeTruthy();
+    expect(view.getByText(/outside any collection/)).toBeTruthy();
 
     fireEvent.press(view.getByLabelText('Move lists to Lists'));
     await waitFor(() => expect(dbMocks.deleteManyCollections).toHaveBeenCalledWith([10], 'move'));
-    expect(dbMocks.deleteManyLists).not.toHaveBeenCalled();
+    await waitFor(() => expect(dbMocks.deleteManyLists).toHaveBeenCalledWith([1]));
+  });
 
-    expect(await view.findByText('Delete 1 list?')).toBeTruthy();
+  it('deletes collections and standalone lists in one chooser modal (delete lists too)', async () => {
+    setListsByCollectionId(new Map([[10, [MEMBER_LIST]]]));
+    const view = await renderScreen();
+    fireEvent.press(view.getByLabelText('Enter select mode'));
+
+    fireEvent.press(await view.findByRole('checkbox', { name: 'Shopping' }));
+    await waitFor(() => expect(view.getByText('1 selected')).toBeTruthy());
+    fireEvent.press(await view.findByRole('checkbox', { name: 'Groceries' }));
+    await waitFor(() => expect(view.getByText('2 selected')).toBeTruthy());
+
+    fireEvent.press(view.getByText('Delete'));
+    await view.findByText('Delete 1 collection?');
+    fireEvent.press(view.getByLabelText('Delete lists too'));
+
+    await waitFor(() => expect(dbMocks.deleteManyCollections).toHaveBeenCalledWith([10], 'cascade'));
+    await waitFor(() => expect(dbMocks.deleteManyLists).toHaveBeenCalledWith([1]));
+  });
+
+  it('shows a single confirm when no selected collection has lists', async () => {
+    const view = await renderScreen();
+    fireEvent.press(view.getByLabelText('Enter select mode'));
+
+    fireEvent.press(await view.findByRole('checkbox', { name: 'Shopping' }));
+    await waitFor(() => expect(view.getByText('1 selected')).toBeTruthy());
+    fireEvent.press(await view.findByRole('checkbox', { name: 'Groceries' }));
+    await waitFor(() => expect(view.getByText('2 selected')).toBeTruthy());
+
+    fireEvent.press(view.getByText('Delete'));
+    expect(await view.findByText('Delete 1 collection and 1 list?')).toBeTruthy();
+    expect(view.queryByText('Move lists to Lists')).toBeNull();
+
     fireEvent.press(view.getAllByLabelText('Delete')[1]);
+    await waitFor(() => expect(dbMocks.deleteManyCollections).toHaveBeenCalledWith([10], 'cascade'));
     await waitFor(() => expect(dbMocks.deleteManyLists).toHaveBeenCalledWith([1]));
   });
 });

@@ -69,7 +69,7 @@ export default function CollectionDetailScreen() {
               accessibilityRole="button"
               accessibilityLabel={labels.collection_delete_label}
               hitSlop={8}
-              style={({ pressed }) => pressed && styles.pressed}
+              style={({ pressed }) => [hasLists && styles.trashSpacing, pressed && styles.pressed]}
             >
               <Ionicons name="trash-outline" size={20} color={c.red} />
             </Pressable>
@@ -208,6 +208,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
+  },
+  trashSpacing: {
+    marginRight: 12,
   },
   headerBlock: {
     marginBottom: 16,
