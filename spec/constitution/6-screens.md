@@ -1,41 +1,57 @@
 # Screens
 
-Planned screens for Listly 1.0. Each gets a dedicated feature spec (`spec/features/<NNN>-…/`) with functional requirements, plan, and tasks.
+Listly 1.0 screens. Each maps to a feature spec (`spec/features/<NNN>-…/`) with functional requirements, plan, and tasks.
 
-## 1. Home (001-home-screen)
-Lists overview:
+## 1. Home (001-home-screen, 016-collections)
 - Header with hamburger menu (Drawer) + "Listly" title.
-- Search bar to filter lists and items.
-- Grid/list of lists: each tile shows icon + name + color + progress (N/total completed).
-- Floating "+" FAB → Create List.
-- Empty state with message and CTA when no lists exist.
-- Tapping a list → List detail.
+- Search toggle in the header to filter lists and items.
+- *Collections* section (tiles) above the *Lists* section; each tile shows icon + name + color + N/total progress.
+- Floating "+" FAB → Add chooser (Add collection / Add list).
+- Empty state when there are no collections and no lists.
+- Tapping a list → List detail; tapping a collection → Collection detail.
+- Select mode (header toggle) selects collections and standalone lists together for a combined delete.
 
-## 2. List detail (003-list-detail-screen, not started)
-- Header with list icon + name + back button.
-- Progress indicator (completed/total).
-- Item list: checkbox toggle, name (strikethrough when checked), note indicator.
-- Add item input (or modal), edit/delete item.
+## 2. Lists (007-home-and-nav-polish)
+- Drawer screen listing all lists as full-width rows (icon, name, progress).
+- Same search/select/FAB behavior as Home; list layout by default.
+
+## 3. Collections (016-collections)
+- Drawer screen listing only collections (grid or list layout).
+- Search, drag-reorder, FAB → Create Collection, header select toggle.
+
+## 4. List detail (003-list-detail-screen, 008, 011, 012, 013)
+- Header block: list icon/name/color + N/total progress + edit pencil + delete (trash).
+- Item list: checkbox toggle, name (strikethrough when checked), note preview, photo thumbnails.
+- Inline add bar with a details area (note + photos); edit/delete via modal.
+- Search/select toggles in the header (when items exist); long-press drag-reorders items.
 - Empty state when the list has no items.
 
-## 3. Create List (004-create-list-screen, not started)
-- Name field with validation (non-empty, unique).
-- Icon grid (shared `LIST_ICONS`).
-- Color grid.
-- "Create" button (disabled until valid).
+## 5. Collection detail (016-collections)
+- Header block: tinted badge, colored name, N/total, edit pencil, delete (trash).
+- Member lists grid with search, select-mode bulk delete, reorder, and empty state; FAB adds a list into the collection.
+- Delete: empty → single confirm; non-empty → move-lists-to-Lists or delete-lists-too.
 
-## 4. Modify/Delete List (planned, not started)
-- Same form as Create, preloaded.
-- Delete with confirmation modal (cascades to items).
+## 6. Create / Edit List (004, 006, 013)
+- Shared `ListForm`: name (validated), icon grid, color grid + custom color picker; debounced duplicate check.
+- Create list (FAB / Add chooser); Edit list (pencil on list detail).
 
-## 5. Settings (005-settings-screen, not started)
-- Appearance: Theme (dark/light/system), Text size (small/medium/large).
-- Regional: Language (en/es).
+## 7. Create / Edit Collection (016)
+- Shared `CollectionForm`: name (validated), icon grid, quick/custom color picker.
+- Create collection (FAB / Add chooser); Edit collection (pencil on collection detail).
 
-## Navigation map (planned)
+## 8. Settings (005, 015)
+- Hub with four rows: Appearance (theme, text size), Regional (language), Personalization (Home/Lists/Collections layouts + item/edit visibility), Data (export/import backup, delete all lists, factory reset).
+
+## Navigation map
 ```
-AppNavigator (Drawer)
-├── Home (Stack root → HomeScreen)
-├── Lists → Stack: HomeScreen (lists), ListScreen, CreateListScreen, ModifyList (planned)
-└── Settings → SettingsScreen (planned)
+AppNavigator (Drawer → Main native stack)
+├── Home          → HomeScreen (lists + collections overview)
+├── Lists         → ListsScreen (standalone lists)
+├── Collections   → CollectionsScreen
+├── ListDetail / CollectionDetail
+├── CreateList / EditList
+├── CreateCollection / EditCollection
+└── Settings      → SettingsScreen → Appearance / Regional / Personalization / Data
 ```
+
+Drawer entries: Home, Collections, Lists, Settings (with a separator before Settings).
