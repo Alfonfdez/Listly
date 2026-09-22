@@ -1,6 +1,7 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import * as Clipboard from 'expo-clipboard';
 import Sortable, { type SortableGridRenderItem } from 'react-native-sortables';
 import { useFocusEffect, useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
 import {
@@ -20,6 +21,7 @@ import { useDragOrder } from '../hooks/useDragOrder';
 import { useLabels } from '../hooks/useLabels';
 import { validateItemName, uniqueNormalizedNames, type ItemNameError } from '../utils/validation';
 import { filterItemsByQuery } from '../utils/search';
+import { buildListCopyText } from '../utils/copyList';
 import { parseItemPhotos, serializeItemPhotos } from '../utils/itemPhotos';
 import { withAlpha } from '../utils/color';
 import { BUTTON_BORDER_RADIUS, ALPHA_TINT, ALPHA_TRACK, PRESSED_OPACITY } from '../components/componentStyles';
@@ -56,6 +58,8 @@ export default function ListDetailScreen() {
   const [searchActive, setSearchActive] = useState(false);
   const [query, setQuery] = useState('');
   const [deleteListVisible, setDeleteListVisible] = useState(false);
+  const [copiedAction, setCopiedAction] = useState<'all' | 'names' | null>(null);
+  const copyTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
   const {
     photos: newPhotos,
     setPhotos: setNewPhotos,
@@ -125,6 +129,12 @@ export default function ListDetailScreen() {
     };
   }, [navigation]);
 
+  useEffect(() => {
+    return () => {
+      if (copyTimeout.current) clearTimeout(copyTimeout.current);
+    };
+  }, []);
+
   const existingNames = useMemo(() => uniqueNormalizedNames(items.map(i => i.name)), [items]);
   const maxPosition = useMemo(() => items.reduce((max, i) => Math.max(max, i.position), -1) + 1, [items]);
   const filteredItems = useMemo(() => filterItemsByQuery(items, query), [items, query]);
@@ -168,6 +178,18 @@ export default function ListDetailScreen() {
       />
     ),
     [selectMode, selectedIds, toggleItem, toggle]
+  );
+
+  const copyList = useCallback(
+    (withNotes: boolean) => {
+      if (!list) return;
+      const text = buildListCopyText(list.name, items, withNotes);
+      void Clipboard.setStringAsync(text);
+      setCopiedAction(withNotes ? 'all' : 'names');
+      if (copyTimeout.current) clearTimeout(copyTimeout.current);
+      copyTimeout.current = setTimeout(() => setCopiedAction(null), 1500);
+    },
+    [list, items]
   );
 
   if (!list) {
@@ -245,6 +267,41 @@ export default function ListDetailScreen() {
           </Text>
           <Text style={{ color: c.textSecondary, fontSize: fs(13) }}>{labels.home_progress(done, total)}</Text>
         </View>
+        {items.length > 0 ? (
+          <View style={styles.copyGroup}>
+            <TouchableOpacity
+              onPress={() => copyList(false)}
+              style={styles.copyButton}
+              accessibilityRole="button"
+              accessibilityLabel={labels.list_copy_names}
+              hitSlop={8}
+            >
+              <Ionicons
+                name={copiedAction === 'names' ? 'checkmark' : 'copy-outline'}
+                size={20}
+                color={copiedAction === 'names' ? c.green : list.color}
+              />
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => copyList(true)}
+              style={styles.copyButton}
+              accessibilityRole="button"
+              accessibilityLabel={labels.list_copy_all}
+              hitSlop={8}
+            >
+              <Ionicons
+                name={copiedAction === 'all' ? 'checkmark' : 'reader-outline'}
+                size={20}
+                color={copiedAction === 'all' ? c.green : list.color}
+              />
+            </TouchableOpacity>
+            {copiedAction ? (
+              <Text style={[styles.copiedLabel, { color: c.green, fontSize: fs(12) }]}>
+                {copiedAction === 'all' ? labels.list_copied_notes : labels.list_copied_names}
+              </Text>
+            ) : null}
+          </View>
+        ) : null}
         <TouchableOpacity
           onPress={() => navigation.navigate('EditList', { listId })}
           style={styles.editButton}
@@ -470,6 +527,17 @@ const styles = StyleSheet.create({
   editButton: {
     marginLeft: 'auto',
     padding: 6,
+  },
+  copyGroup: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  copyButton: {
+    padding: 4,
+  },
+  copiedLabel: {
+    fontWeight: '600',
   },
   listName: {
     fontWeight: '700',

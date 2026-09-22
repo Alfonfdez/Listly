@@ -19,8 +19,9 @@ Listly 1.0 screens. Each maps to a feature spec (`spec/features/<NNN>-…/`) wit
 - Drawer screen listing only collections (grid or list layout).
 - Search, drag-reorder, FAB → Create Collection, header select toggle.
 
-## 4. List detail (003-list-detail-screen, 008, 011, 012, 013)
+## 4. List detail (003-list-detail-screen, 008, 011, 012, 013, 017)
 - Header block: list icon/name/color + N/total progress + edit pencil + delete (trash).
+- Copy buttons (names / names+notes) in the header when items exist, writing to the clipboard.
 - Item list: checkbox toggle, name (strikethrough when checked), note preview, photo thumbnails.
 - Inline add bar with a details area (note + photos); edit/delete via modal.
 - Search/select toggles in the header (when items exist); long-press drag-reorders items.

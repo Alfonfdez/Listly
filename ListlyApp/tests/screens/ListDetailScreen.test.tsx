@@ -15,7 +15,7 @@ import { fireGridDragEnd, lastGrid } from '../mocks/react-native-sortables';
 import type { Item, ListWithCounts } from '../../src/database/types';
 import { darkColors } from '../../src/constants/themes';
 
-const { itemRepositoryMock, listRepositoryMock, selectMocks, nav, photoMocks } = vi.hoisted(() => ({
+const { itemRepositoryMock, listRepositoryMock, selectMocks, nav, photoMocks, clipboardMock } = vi.hoisted(() => ({
   itemRepositoryMock: {
     create: vi.fn(),
     update: vi.fn(),
@@ -44,11 +44,18 @@ const { itemRepositoryMock, listRepositoryMock, selectMocks, nav, photoMocks } =
     navigate: vi.fn(),
     goBack: vi.fn(),
   },
+  clipboardMock: {
+    setStringAsync: vi.fn(async () => true),
+  },
 }));
 
 vi.mock('../../src/database', () => ({
   itemRepository: itemRepositoryMock,
   listRepository: listRepositoryMock,
+}));
+
+vi.mock('expo-clipboard', () => ({
+  setStringAsync: clipboardMock.setStringAsync,
 }));
 
 vi.mock('../../src/hooks/useItemPhotos', () => ({
@@ -127,6 +134,8 @@ describe('ListDetailScreen', () => {
     selectMocks.toggleSelectMode.mockReset();
     nav.setOptions.mockReset();
     nav.goBack.mockReset();
+    clipboardMock.setStringAsync.mockReset();
+    clipboardMock.setStringAsync.mockResolvedValue(true);
     photoMocks.photos = [];
     photoMocks.setPhotos.mockClear();
     setLists([LIST]);
@@ -419,6 +428,50 @@ describe('ListDetailScreen', () => {
     await view.findByText('Milk');
     await userEvent.setup().press(view.getByLabelText('Edit list'));
     expect(nav.navigate).toHaveBeenCalledWith('EditList', { listId: 1 });
+  });
+
+  it('shows copy icons only when the list has items', async () => {
+    setItemsByListId(new Map([[1, []]]));
+    const view = await render(<ListDetailScreen />);
+    await view.findByText('No items yet');
+    expect(view.queryByLabelText('Copy list')).toBeNull();
+    expect(view.queryByLabelText('Copy list with notes')).toBeNull();
+  });
+
+  it('copies item names without notes via the simple copy action', async () => {
+    const user = userEvent.setup();
+    const view = await render(<ListDetailScreen />);
+    await view.findByText('Milk');
+    await user.press(view.getByLabelText('Copy list'));
+    await waitFor(() =>
+      expect(clipboardMock.setStringAsync).toHaveBeenCalledWith('Groceries\n✅ Milk\nEggs')
+    );
+  });
+
+  it('copies item names and notes via the full copy action', async () => {
+    const user = userEvent.setup();
+    const view = await render(<ListDetailScreen />);
+    await view.findByText('Milk');
+    await user.press(view.getByLabelText('Copy list with notes'));
+    await waitFor(() =>
+      expect(clipboardMock.setStringAsync).toHaveBeenCalledWith('Groceries\n✅ Milk\nEggs — free-range')
+    );
+  });
+
+  it('shows a specific confirmation after the simple copy', async () => {
+    const user = userEvent.setup();
+    const view = await render(<ListDetailScreen />);
+    await view.findByText('Milk');
+    await user.press(view.getByLabelText('Copy list'));
+    expect(await view.findByText('List copied')).toBeTruthy();
+  });
+
+  it('shows a specific confirmation after the full copy', async () => {
+    const user = userEvent.setup();
+    const view = await render(<ListDetailScreen />);
+    await view.findByText('Milk');
+    await user.press(view.getByLabelText('Copy list with notes'));
+    expect(await view.findByText('List + notes copied')).toBeTruthy();
   });
 
   it('reorders items through the repository when the grid drag ends', async () => {

@@ -311,3 +311,17 @@ pm run test:all green.
 - `5-validations.md`: added collection-name rules (`MAX_COLLECTION_NAME_LENGTH = 100`, globally-unique duplicate check).
 - `6-screens.md`: rewrote from a "planned / not started" draft into the actual 1.0 screens (Home, Lists, Collections, list/collection detail, create/edit forms, Settings hub) with a correct navigation map.
 - `7-platform-differences.md`: replaced the "no native-only criteria" note with the real native-only surfaces (item-photo camera capture, native backup share/pick vs web Blob/file-input).
+
+[2026-09-22] + | Feature 017 — copy list to clipboard
+- New `src/utils/copyList.ts` (`buildListCopyText(listName, items, withNotes)`) — list name first, then each item in `position` order; done items prefixed `✅ `; notes appended after ` — ` when copying all.
+- `ListDetailScreen` header row gains two copy buttons (shown only when the list has items): *Copy names* (`list-outline`) and *Copy all* (`copy-outline`), writing to the clipboard via `expo-clipboard` (`setStringAsync`) with a transient checkmark + "Copied" label (~1.5s).
+- i18n: `list_copy_names` / `list_copy_all` / `list_copied` (en/es).
+- Tests: `copyList` util (order, `✅` marker, notes, empty list) + `ListDetailScreen` copy flows (hidden when empty, correct clipboard text, confirmation). Suite baseline: 39 files, 295 tests, `npm run test:all` green.
+- Spec: `spec/features/017-copy-list/` (1-spec with 7 acceptance criteria, 2-plan, 3-tasks); roadmap `## 017-copy-list` (done) + `6-screens.md` line.
+- Verified on web at 375px: copy icons appear with items and are hidden on an empty list; "Copy list" produces `Snacks` / `✅ Milk` / `Eggs` and "Copy list with notes" produces `Snacks` / `✅ Milk` / `Eggs — free-range`; "Copied" feedback appears; 0 console errors.
+
+[2026-09-22] ~ | Feature 017 — clearer copy icons + specific feedback
+- Replaced the confusing `list-outline` "Copy names" icon with `copy-outline`, and the "Copy all" icon with `reader-outline` (distinct, not reused by the `ItemRow` note indicator).
+- The transient confirmation is now action-specific: "List copied" (names only) vs "List + notes copied" (with notes), replacing the generic "Copied". i18n keys `list_copied` → `list_copied_names` / `list_copied_notes` (en/es).
+- Tests: split the confirmation test into the two specific labels. Suite baseline: 39 files, 296 tests, `npm run test:all` green.
+- Docs: updated `017-copy-list` 1-spec (icons, feedback, i18n) and 2-plan (i18n + data flow).
