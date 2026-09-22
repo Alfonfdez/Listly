@@ -21,6 +21,9 @@ import ListsScreen from '../screens/ListsScreen';
 import ListDetailScreen from '../screens/ListDetailScreen';
 import CreateListScreen from '../screens/CreateListScreen';
 import EditListScreen from '../screens/EditListScreen';
+import CreateCollectionScreen from '../screens/CreateCollectionScreen';
+import EditCollectionScreen from '../screens/EditCollectionScreen';
+import CollectionDetailScreen from '../screens/CollectionDetailScreen';
 import SettingsScreen from '../screens/SettingsScreen';
 import AppearanceScreen from '../screens/settings/AppearanceScreen';
 import RegionalScreen from '../screens/settings/RegionalScreen';
@@ -146,6 +149,9 @@ const HomeStack = memo(function HomeStack() {
     { name: 'ListDetail', component: ListDetailScreen, title: labels.list_detail_title, icon: 'checkbox-outline' },
     { name: 'CreateList', component: CreateListScreen, title: labels.create_list_title, icon: 'add-circle-outline' },
     { name: 'EditList', component: EditListScreen, title: labels.edit_list_title, icon: 'create-outline' },
+    { name: 'CollectionDetail', component: CollectionDetailScreen, title: labels.collection_detail_title, icon: 'folder-open-outline' },
+    { name: 'CreateCollection', component: CreateCollectionScreen, title: labels.create_collection_title, icon: 'folder-outline' },
+    { name: 'EditCollection', component: EditCollectionScreen, title: labels.edit_collection_title, icon: 'create-outline' },
     { name: 'Settings', component: SettingsScreen, title: labels.settings_title, icon: 'settings-outline' },
     { name: 'SettingsAppearance', component: AppearanceScreen, title: labels.settings_appearance, icon: 'color-palette-outline' },
     { name: 'SettingsRegional', component: RegionalScreen, title: labels.settings_regional, icon: 'globe-outline' },

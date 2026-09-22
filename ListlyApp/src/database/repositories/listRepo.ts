@@ -19,6 +19,10 @@ async function deletePhotosOfItems(listIds: number[]): Promise<void> {
   await deleteItemPhotos(uris);
 }
 
+export type NewList = Omit<List, 'id' | 'created_at' | 'position' | 'collection_id'> & {
+  collection_id?: number | null;
+};
+
 export const listRepo = {
   async list(): Promise<List[]> {
     const db = await getDrizzle();
@@ -32,11 +36,17 @@ export const listRepo = {
     return parseRowOrNull(listSchema, 'lists', row);
   },
 
-  async create(data: Omit<List, 'id' | 'created_at' | 'position'>): Promise<List> {
+  async create(data: NewList): Promise<List> {
     const db = await getDrizzle();
+    const collectionId = data.collection_id ?? null;
     const maxRow = await db
       .select({ m: sql<number>`COALESCE(MAX(${lists.position}), -1) + 1` })
       .from(lists)
+      .where(
+        collectionId !== null
+          ? eq(lists.collection_id, collectionId)
+          : sql`${lists.collection_id} IS NULL`
+      )
       .get();
     const position = maxRow?.m ?? 0;
     const result = await db
@@ -45,10 +55,11 @@ export const listRepo = {
         name: data.name,
         color: data.color,
         icon: data.icon,
+        collection_id: collectionId,
         position,
       })
       .run();
-    return { ...data, id: runResultOf(result).lastInsertRowId, created_at: dbTimestamp(), position };
+    return { ...data, collection_id: collectionId, id: runResultOf(result).lastInsertRowId, created_at: dbTimestamp(), position };
   },
 
   async reorder(orderedIds: number[]): Promise<void> {
@@ -59,7 +70,7 @@ export const listRepo = {
     });
   },
 
-  async update(id: number, data: Partial<Omit<List, 'id' | 'created_at'>>): Promise<void> {
+  async update(id: number, data: Partial<Omit<NewList, 'collection_id'>>): Promise<void> {
     const db = await getDrizzle();
     const set: Partial<typeof lists.$inferInsert> = {};
     if (data.name !== undefined) set.name = data.name;
@@ -95,6 +106,7 @@ export const listRepo = {
         icon: lists.icon,
         created_at: lists.created_at,
         position: lists.position,
+        collection_id: lists.collection_id,
         total: sql<number>`COUNT(${items.id})`,
         completed: sql<number>`COALESCE(SUM(CASE WHEN ${items.checked} = 1 THEN 1 ELSE 0 END), 0)`,
       })

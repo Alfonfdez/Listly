@@ -4,12 +4,18 @@ import { listRepository as listRepo } from '../database';
 import { useApp } from '../context/AppContext';
 import { useConfig } from '../context/ConfigContext';
 import { useSelectMode } from '../hooks/useSelectMode';
-import ListsView from '../components/ListsView';
+import ListsView, { type ListViewMode } from '../components/ListsView';
 import SelectSearchHeader from '../components/SelectSearchHeader';
 
-export default function ListsScreenBase({ layoutKey }: { layoutKey: 'homeLayout' | 'listsLayout' }) {
+export default function ListsScreenBase({
+  layoutKey,
+  mode = 'lists',
+}: {
+  layoutKey: 'homeLayout' | 'listsLayout';
+  mode?: ListViewMode;
+}) {
   const navigation = useNavigation();
-  const { lists, refresh } = useApp();
+  const { lists, collections, refresh } = useApp();
   const { config } = useConfig();
   const [searchActive, setSearchActive] = useState(false);
   const [query, setQuery] = useState('');
@@ -35,13 +41,15 @@ export default function ListsScreenBase({ layoutKey }: { layoutKey: 'homeLayout'
     if (searchActive) setQuery('');
   }, [searchActive, selectMode]);
 
+  const hasData = lists.length > 0 || (mode === 'home' && collections.length > 0);
+
   useEffect(() => {
     navigation.setOptions({
-      headerRight: lists.length > 0
+      headerRight: hasData
         ? () => (
             <SelectSearchHeader
               selectMode={selectMode}
-              showSelect={lists.length > 0}
+              showSelect={hasData}
               searchActive={searchActive}
               onToggleSelect={toggleSelectMode}
               onToggleSearch={toggleSearch}
@@ -49,7 +57,7 @@ export default function ListsScreenBase({ layoutKey }: { layoutKey: 'homeLayout'
           )
         : undefined,
     });
-  }, [navigation, toggleSearch, toggleSelectMode, searchActive, selectMode, lists.length]);
+  }, [navigation, toggleSearch, toggleSelectMode, searchActive, selectMode, hasData]);
 
   useEffect(() => {
     return () => {
@@ -59,6 +67,7 @@ export default function ListsScreenBase({ layoutKey }: { layoutKey: 'homeLayout'
 
   return (
     <ListsView
+      mode={mode}
       variant={config[layoutKey]}
       searchActive={searchActive && !selectMode}
       query={query}

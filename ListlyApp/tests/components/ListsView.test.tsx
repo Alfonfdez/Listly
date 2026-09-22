@@ -1,8 +1,8 @@
 import { describe, expect, it, beforeEach, afterEach, vi } from 'vitest';
 import { render, fireEvent, waitFor } from '@testing-library/react-native';
 import type { ReactNode } from 'react';
-import ListsView, { type ListsViewVariant } from '../../src/components/ListsView';
-import { buildAppMock, setItemsByListId, setLists, resetAppStub } from '../helpers/appStub';
+import ListsView, { type ListsViewVariant, type ListViewMode } from '../../src/components/ListsView';
+import { buildAppMock, setItemsByListId, setLists, setBaseLists, resetAppStub } from '../helpers/appStub';
 import { resetStub } from '../helpers/configStub';
 import type { Item, ListWithCounts } from '../../src/database/types';
 
@@ -31,8 +31,8 @@ vi.mock('@react-navigation/native', async () => {
 });
 
 const LISTS: ListWithCounts[] = [
-  { id: 1, name: 'Groceries', color: '#22D3EE', icon: 'cart-outline', created_at: 'x', position: 0, total: 5, completed: 2 },
-  { id: 2, name: 'Work Tasks', color: '#34D399', icon: 'briefcase-outline', created_at: 'x', position: 1, total: 2, completed: 0 },
+  { id: 1, name: 'Groceries', color: '#22D3EE', icon: 'cart-outline', collection_id: null, created_at: 'x', position: 0, total: 5, completed: 2 },
+  { id: 2, name: 'Work Tasks', color: '#34D399', icon: 'briefcase-outline', collection_id: null, created_at: 'x', position: 1, total: 2, completed: 0 },
 ];
 
 function items(names: string[]): Item[] {
@@ -41,6 +41,7 @@ function items(names: string[]): Item[] {
 
 interface Overrides {
   variant?: ListsViewVariant;
+  mode?: ListViewMode;
   searchActive?: boolean;
   query?: string;
   selectMode?: boolean;
@@ -51,6 +52,7 @@ interface Overrides {
 function renderView(overrides: Overrides = {}) {
   const props = {
     variant: overrides.variant ?? 'grid',
+    mode: overrides.mode ?? 'home',
     searchActive: overrides.searchActive ?? false,
     query: overrides.query ?? '',
     onQueryChange: vi.fn(),
@@ -74,6 +76,7 @@ describe('ListsView', () => {
     resetAppStub();
     nav.navigate.mockClear();
     setLists(LISTS);
+    setBaseLists(LISTS);
     setItemsByListId(new Map([[1, items(['Milk', 'Coffee beans'])]]));
   });
 
@@ -116,9 +119,11 @@ describe('ListsView', () => {
   });
 
   it('calls onToggleItem when a tile is tapped in select mode', async () => {
-    const onToggleItem = vi.fn();
+const onToggleItem = vi.fn();
+    const onExitSelectMode = vi.fn();
     const view = await render(
       <ListsView
+        mode="home"
         variant="grid"
         searchActive={false}
         query=""
@@ -128,7 +133,7 @@ describe('ListsView', () => {
         selectedIds={new Set([1])}
         onToggleItem={onToggleItem}
         onOpenDeleteConfirm={vi.fn()}
-        onExitSelectMode={vi.fn()}
+        onExitSelectMode={onExitSelectMode}
         deleteConfirmVisible={false}
         onCancelDeleteConfirm={vi.fn()}
         onConfirmDelete={vi.fn()}
@@ -145,12 +150,13 @@ describe('ListsView', () => {
     const view = await render(
       <ListsView
         variant="grid"
+        mode="home"
         searchActive={false}
         query=""
         onQueryChange={vi.fn()}
         onSearchClose={vi.fn()}
         selectMode
-        selectedIds={new Set([1, 2])}
+        selectedIds={new Set([1])}
         onToggleItem={vi.fn()}
         onOpenDeleteConfirm={onOpenDeleteConfirm}
         onExitSelectMode={vi.fn()}
@@ -170,19 +176,20 @@ describe('ListsView', () => {
     const view = await render(
       <ListsView
         variant="grid"
+        mode="home"
         searchActive={false}
         query=""
         onQueryChange={vi.fn()}
         onSearchClose={vi.fn()}
         selectMode
-        selectedIds={new Set([1, 2])}
+        selectedIds={new Set([1])}
         onToggleItem={vi.fn()}
         onOpenDeleteConfirm={vi.fn()}
         onExitSelectMode={onExitSelectMode}
         deleteConfirmVisible={false}
         onCancelDeleteConfirm={vi.fn()}
         onConfirmDelete={vi.fn()}
-        selectedCount={2}
+        selectedCount={1}
       />
     );
     await view.findByText('Groceries');

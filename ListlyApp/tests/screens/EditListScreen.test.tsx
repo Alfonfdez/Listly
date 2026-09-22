@@ -58,6 +58,7 @@ const LIST: ListWithCounts = {
   name: 'Groceries',
   color: '#22D3EE',
   icon: 'cart-outline',
+  collection_id: null,
   created_at: 'x',
   position: 0,
   total: 5,
@@ -69,9 +70,10 @@ const OTHER: ListWithCounts = {
   name: 'Work Tasks',
   color: '#34D399',
   icon: 'briefcase-outline',
+  collection_id: null,
   created_at: 'x',
   position: 1,
-  total: 0,
+  total: 2,
   completed: 0,
 };
 

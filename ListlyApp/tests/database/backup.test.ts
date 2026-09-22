@@ -19,6 +19,7 @@ const LIST_ROW = {
   name: 'Groceries',
   color: '#22D3EE',
   icon: 'cart-outline',
+  collection_id: null,
   created_at: '2026-01-01 00:00:00',
   position: 0,
 };
@@ -40,8 +41,9 @@ function makeSnapshot(overrides: Partial<BackupSnapshot> = {}): BackupSnapshot {
     kind: 'backup',
     formatVersion: BACKUP_FORMAT_VERSION,
     exportedAt: '2026-01-01T00:00:00.000Z',
-    schema: 4,
+    schema: 5,
     data: {
+      collections: [],
       lists: [LIST_ROW],
       items: [ITEM_ROW],
       config: [{ key: 'theme', value: 'dark' }],
@@ -114,7 +116,7 @@ describe('backup service', () => {
     expect(snapshot.app).toBe('Listly');
     expect(snapshot.kind).toBe('backup');
     expect(snapshot.formatVersion).toBe(BACKUP_FORMAT_VERSION);
-    expect(snapshot.schema).toBe(4);
+    expect(snapshot.schema).toBe(5);
     expect(snapshot.data.lists).toHaveLength(1);
     expect(snapshot.data.items).toHaveLength(1);
 

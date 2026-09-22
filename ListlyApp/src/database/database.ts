@@ -1,12 +1,10 @@
 import type { DatabaseHandle } from './types';
 import { openEngine } from './engine';
 import { createSchema } from './migrations/001_initial';
-import { addListPositions } from './migrations/003_list_position';
-import { addItemPictures } from './migrations/004_item_pictures';
 import { deleteItemPhotos, parseItemPhotos } from '../utils/itemPhotos';
 
 const DATABASE_NAME = 'Listly.db';
-export const SCHEMA_VERSION = 4;
+export const SCHEMA_VERSION = 5;
 
 let dbPromise: Promise<DatabaseHandle> | null = null;
 
@@ -24,18 +22,20 @@ async function migrate(database: DatabaseHandle): Promise<void> {
   if (currentVersion >= SCHEMA_VERSION) return;
 
   await database.withTransactionAsync(async () => {
-    if (currentVersion < 1) {
-      await createSchema(database);
-      await database.execAsync('PRAGMA user_version = 1');
+    // Pre-1.0 development: the schema is free to change, so an out-of-date
+    // database is rebuilt from the single canonical schema instead of being
+    // migrated incrementally. Once v1.0.0 is released this becomes a real
+    // versioned migration chain.
+    if (currentVersion > 0) {
+      await database.execAsync(`
+        DROP TABLE IF EXISTS items;
+        DROP TABLE IF EXISTS lists;
+        DROP TABLE IF EXISTS collections;
+        DROP TABLE IF EXISTS config;
+      `);
     }
-    if (currentVersion < 3) {
-      await addListPositions(database);
-      await database.execAsync('PRAGMA user_version = 3');
-    }
-    if (currentVersion < 4) {
-      await addItemPictures(database);
-      await database.execAsync('PRAGMA user_version = 4');
-    }
+    await createSchema(database);
+    await database.execAsync(`PRAGMA user_version = ${SCHEMA_VERSION}`);
   });
 }
 
@@ -68,6 +68,7 @@ export async function clearDataKeepSettings(): Promise<void> {
   await database.withTransactionAsync(async () => {
     await database.runAsync('DELETE FROM items');
     await database.runAsync('DELETE FROM lists');
+    await database.runAsync('DELETE FROM collections');
   });
 }
 
@@ -77,6 +78,7 @@ export async function resetDatabase(): Promise<void> {
   await database.withTransactionAsync(async () => {
     await database.runAsync('DELETE FROM items');
     await database.runAsync('DELETE FROM lists');
+    await database.runAsync('DELETE FROM collections');
     await database.runAsync('DELETE FROM config');
   });
 }
