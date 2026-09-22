@@ -7,7 +7,7 @@ import { useConfig } from '../context/ConfigContext';
 import { useFontSize } from '../hooks/useFontSize';
 import { useLabels } from '../hooks/useLabels';
 import { useSelectMode } from '../hooks/useSelectMode';
-import { collectionRepository as collectionRepo, listRepository as listRepo } from '../database';
+import { listRepository as listRepo } from '../database';
 import type { IconName, NavigationProp, RootStackParamList } from '../constants/types';
 import { withAlpha } from '../utils/color';
 import { ALPHA_TINT, PRESSED_OPACITY } from '../components/componentStyles';
@@ -15,7 +15,6 @@ import ScreenShell from '../components/ScreenShell';
 import EmptyState from '../components/EmptyState';
 import ListsView from '../components/ListsView';
 import SelectSearchHeader from '../components/SelectSearchHeader';
-import CollectionDeleteModal from '../components/CollectionDeleteModal';
 import ConfirmModal from '../components/ConfirmModal';
 
 export default function CollectionDetailScreen() {
@@ -33,8 +32,6 @@ export default function CollectionDetailScreen() {
 
   const [searchActive, setSearchActive] = useState(false);
   const [query, setQuery] = useState('');
-  const [collectionDeleteVisible, setCollectionDeleteVisible] = useState(false);
-  const [deleteConfirmVisible, setDeleteConfirmVisible] = useState(false);
 
   const {
     selectMode,
@@ -61,33 +58,21 @@ export default function CollectionDetailScreen() {
 
   useEffect(() => {
     navigation.setOptions({
-      headerRight: () => (
-        <View style={styles.headerActions}>
-          {!selectMode ? (
-            <Pressable
-              onPress={() => (hasLists ? setCollectionDeleteVisible(true) : setDeleteConfirmVisible(true))}
-              accessibilityRole="button"
-              accessibilityLabel={labels.collection_delete_label}
-              hitSlop={8}
-              style={({ pressed }) => [hasLists && styles.trashSpacing, pressed && styles.pressed]}
-            >
-              <Ionicons name="trash-outline" size={20} color={c.red} />
-            </Pressable>
-          ) : null}
-          <SelectSearchHeader
-            selectMode={selectMode}
-            showSelect={hasLists}
-            showSearch={hasLists}
-            searchActive={searchActive}
-            onToggleSelect={toggleSelectMode}
-            onToggleSearch={toggleSearch}
-          />
-        </View>
-      ),
+      headerRight: hasLists
+        ? () => (
+            <SelectSearchHeader
+              selectMode={selectMode}
+              showSelect={hasLists}
+              showSearch={hasLists}
+              searchActive={searchActive}
+              onToggleSelect={toggleSelectMode}
+              onToggleSearch={toggleSearch}
+            />
+          )
+        : undefined,
     });
   }, [
-    navigation, selectMode, toggleSelectMode, searchActive, toggleSearch,
-    hasLists, labels.collection_delete_label, c.red,
+    navigation, selectMode, toggleSelectMode, searchActive, toggleSearch, hasLists,
   ]);
 
   useEffect(() => {
@@ -102,19 +87,6 @@ export default function CollectionDetailScreen() {
 
   const done = listsInCollection.reduce((sum, list) => sum + list.completed, 0);
   const total = listsInCollection.reduce((sum, list) => sum + list.total, 0);
-
-  const performDelete = async (mode: 'move' | 'cascade') => {
-    try {
-      await collectionRepo.delete(collectionId, mode);
-      await refresh();
-    } catch (error) {
-      console.error('Failed to delete collection:', error);
-    } finally {
-      setCollectionDeleteVisible(false);
-      setDeleteConfirmVisible(false);
-      navigation.goBack();
-    }
-  };
 
   const header = (
     <View style={styles.headerBlock}>
@@ -166,25 +138,6 @@ export default function CollectionDetailScreen() {
         selectedCount={selectedIds.size}
       />
 
-      <CollectionDeleteModal
-        visible={collectionDeleteVisible}
-        collections={[collection]}
-        onMove={() => void performDelete('move')}
-        onDelete={() => void performDelete('cascade')}
-        onCancel={() => setCollectionDeleteVisible(false)}
-      />
-
-      <ConfirmModal
-        visible={deleteConfirmVisible}
-        title={labels.collection_delete_empty_title}
-        message={labels.collection_delete_empty_message}
-        cancelLabel={labels.common_cancel}
-        confirmLabel={labels.collection_delete_label}
-        onCancel={() => setDeleteConfirmVisible(false)}
-        onConfirm={() => void performDelete('cascade')}
-        destructive
-      />
-
       <ConfirmModal
         visible={listDeleteVisible}
         title={labels.select_delete_lists_confirm(selectedIds.size)}
@@ -203,14 +156,6 @@ const styles = StyleSheet.create({
   center: {
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  headerActions: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-  },
-  trashSpacing: {
-    marginRight: 12,
   },
   headerBlock: {
     marginBottom: 16,

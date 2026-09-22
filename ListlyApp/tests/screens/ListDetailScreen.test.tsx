@@ -404,23 +404,12 @@ describe('ListDetailScreen', () => {
     expect(header.getByLabelText('Enter select mode')).toBeTruthy();
   });
 
-  it('shows only the list delete button when the list has no items', async () => {
+  it('has no header actions when the list has no items', async () => {
     setItemsByListId(new Map([[1, []]]));
-    const header = await renderHeader();
-    expect(header.getByLabelText('Delete list')).toBeTruthy();
-    expect(header.queryByLabelText('Search')).toBeNull();
-    expect(header.queryByLabelText('Enter select mode')).toBeNull();
-  });
-
-  it('deletes the list after confirming the delete dialog', async () => {
-    const view = await renderWithHeader();
-    fireEvent.press(view.getByLabelText('Delete list'));
-    expect(await view.findByText('Delete list?')).toBeTruthy();
-    expect(listRepositoryMock.delete).not.toHaveBeenCalled();
-
-    fireEvent.press(view.getAllByLabelText('Delete list')[0]);
-    await waitFor(() => expect(listRepositoryMock.delete).toHaveBeenCalledWith(1));
-    expect(nav.goBack).toHaveBeenCalled();
+    await render(<ListDetailScreen />);
+    const calls = nav.setOptions.mock.calls;
+    const lastSetOptions = calls[calls.length - 1]?.[0];
+    expect(lastSetOptions?.headerRight).toBeUndefined();
   });
 
   it('navigates to Edit List when the header pencil is pressed', async () => {

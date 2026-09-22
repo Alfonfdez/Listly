@@ -19,10 +19,10 @@ A single `ListForm` is extracted from `CreateListScreen` and reused by the new `
 
 | Component | Location | Change |
 |-----------|----------|--------|
-| `ListForm` | `src/components/ListForm.tsx` | **New** — name input + counter, icon grid, color grid + picker, debounced duplicate validation, submit |
+| `ListForm` | `src/components/ListForm.tsx` | **New** — name input + counter, icon grid, color grid + picker, debounced duplicate validation, submit; optional outlined-red delete button (`deleteLabel`/`onDelete`) |
 | `CreateListScreen` | `src/screens/CreateListScreen.tsx` | Thin wrapper over `ListForm` (behavior unchanged) |
-| `EditListScreen` | `src/screens/EditListScreen.tsx` | **New** — pre-filled `ListForm`; save via `listRepo.update` |
-| `ListDetailScreen` | `src/screens/ListDetailScreen.tsx` | Pencil button in header row → `EditList` |
+| `EditListScreen` | `src/screens/EditListScreen.tsx` | **New** — pre-filled `ListForm`; save via `listRepo.update`; delete button → confirm → `listRepo.delete` |
+| `ListDetailScreen` | `src/screens/ListDetailScreen.tsx` | Pencil button in header row → `EditList` (delete no longer in header) |
 
 ## Navigation
 
@@ -35,7 +35,7 @@ New keys en/es: `edit_list_title`, `list_edit_label`, `list_save`. Field labels 
 
 ## Data flow
 
-- `EditListScreen` finds the list, pre-fills name/icon/color, passes `listId` as `excludeId`; save → `listRepo.update` → `refresh()` → `goBack()`. Missing id renders the not-found empty state.
+- `EditListScreen` finds the list, pre-fills name/icon/color, passes `listId` as `excludeId`; save → `listRepo.update` → `refresh()` → `goBack()`. Delete → confirm → `listRepo.delete` → `refresh()` → `popToTop()`. Missing id renders the not-found empty state.
 
 ## Risks / notes
 

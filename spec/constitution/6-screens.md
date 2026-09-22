@@ -20,25 +20,26 @@ Listly 1.0 screens. Each maps to a feature spec (`spec/features/<NNN>-…/`) wit
 - Search, drag-reorder, FAB → Create Collection, header select toggle.
 
 ## 4. List detail (003-list-detail-screen, 008, 011, 012, 013, 017)
-- Header block: list icon/name/color + N/total progress + edit pencil + delete (trash).
+- Header block: list icon/name/color + N/total progress + edit pencil.
 - Copy buttons (names / names+notes) in the header when items exist, writing to the clipboard.
 - Item list: checkbox toggle, name (strikethrough when checked), note preview, photo thumbnails.
 - Inline add bar with a details area (note + photos); edit/delete via modal.
 - Search/select toggles in the header (when items exist); long-press drag-reorders items.
 - Empty state when the list has no items.
+- Delete lives on Edit List (pencil → Edit List → Delete).
 
 ## 5. Collection detail (016-collections)
-- Header block: tinted badge, colored name, N/total, edit pencil, delete (trash).
+- Header block: tinted badge, colored name, N/total, edit pencil.
 - Member lists grid with search, select-mode bulk delete, reorder, and empty state; FAB adds a list into the collection.
-- Delete: empty → single confirm; non-empty → move-lists-to-Lists or delete-lists-too.
+- Delete lives on Edit Collection (pencil → Edit Collection → Delete): empty → single confirm; non-empty → move-lists-to-Lists or delete-lists-too.
 
 ## 6. Create / Edit List (004, 006, 013)
 - Shared `ListForm`: name (validated), icon grid, color grid + custom color picker; debounced duplicate check.
-- Create list (FAB / Add chooser); Edit list (pencil on list detail).
+- Create list (FAB / Add chooser); Edit list (pencil on list detail) with an outlined-red *Delete list* button above Save.
 
 ## 7. Create / Edit Collection (016)
 - Shared `CollectionForm`: name (validated), icon grid, quick/custom color picker.
-- Create collection (FAB / Add chooser); Edit collection (pencil on collection detail).
+- Create collection (FAB / Add chooser); Edit collection (pencil on collection detail) with an outlined-red *Delete collection* button above Save.
 
 ## 8. Settings (005, 015)
 - Hub with four rows: Appearance (theme, text size), Regional (language), Personalization (Home/Lists/Collections layouts + item/edit visibility), Data (export/import backup, delete all lists, factory reset).

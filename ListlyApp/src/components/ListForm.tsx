@@ -24,6 +24,8 @@ interface Props {
   submitLabel: string;
   excludeId?: number;
   initialCollectionId?: number | null;
+  deleteLabel?: string;
+  onDelete?: () => void;
   onSubmit: (data: {
     name: string;
     icon: IconName;
@@ -39,6 +41,8 @@ export default function ListForm({
   submitLabel,
   excludeId,
   initialCollectionId,
+  deleteLabel,
+  onDelete,
   onSubmit,
 }: Props) {
   const { activeColors: c } = useConfig();
@@ -162,6 +166,23 @@ export default function ListForm({
         onClose={() => setPickerVisible(false)}
       />
 
+      {deleteLabel && onDelete ? (
+        <Pressable
+          onPress={onDelete}
+          style={({ pressed }) => [
+            styles.deleteButton,
+            { borderColor: c.red },
+            pressed && styles.pressed,
+          ]}
+          accessibilityRole="button"
+          accessibilityLabel={deleteLabel}
+        >
+          <Text style={[styles.deleteButtonText, { color: c.red, fontSize: fs(15) }]}>
+            {deleteLabel}
+          </Text>
+        </Pressable>
+      ) : null}
+
       <Pressable
         style={({ pressed }) => [
           styles.createButton,
@@ -205,10 +226,20 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   createButton: {
-    marginTop: 28,
+    marginTop: 16,
     borderRadius: BUTTON_BORDER_RADIUS,
     paddingVertical: 12,
     alignItems: 'center',
+  },
+  deleteButton: {
+    marginTop: 28,
+    borderRadius: BUTTON_BORDER_RADIUS,
+    borderWidth: 1,
+    paddingVertical: 12,
+    alignItems: 'center',
+  },
+  deleteButtonText: {
+    fontWeight: '600',
   },
   createButtonText: {
     fontWeight: '600',

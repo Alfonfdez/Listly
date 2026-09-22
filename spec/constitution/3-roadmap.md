@@ -131,6 +131,7 @@ Edit an existing list (name, icon, color):
 - Shared `ListForm` component extracted from `CreateListScreen`, reused by the new `EditListScreen` (route `EditList: { listId }`).
 - Pencil entry point on the List detail header block navigates to the edit screen.
 - Save via `listRepo.update(listId, { name, icon, color })`; duplicate check excludes the edited list itself.
+- Delete moved into Edit List: an outlined-red *Delete list* button above Save (confirm → `listRepo.delete` → returns to the overview); the list-detail header no longer shows a delete icon.
 - Spec: spec/features/013-edit-list/.
 
 ## 014-code-quality
@@ -161,12 +162,12 @@ User-defined collections that organize lists, plus a first-class Collections scr
 - AppContext groups lists per collection (`listsByCollectionId`) and exposes `baseLists` (standalone lists) + `collections` (`CollectionWithCounts`).
 - Home shows a *Collections* section (collection tiles with icon, name, and N/total progress over their member lists) above the standalone *Lists* section; both are drag-reorderable via `Sortable.Grid`, and search scopes collections by name (lists still by name + item names).
 - Home FAB opens an "Add" chooser (Add collection / Add list); Lists and Collection modes keep the direct FAB → Create list, and creating inside a collection passes `collectionId` to scope the new list's position.
-- Collection detail: header block (tinted icon badge, colored name, N/total), member-list grid with search + select-mode bulk delete, pencil → edit, trash → move-lists-to-Lists or delete-lists-too (single confirm when empty), FAB adds a list into the collection.
+- Collection detail: header block (tinted icon badge, colored name, N/total), member-list grid with search + select-mode bulk delete, pencil → edit (delete lives on Edit Collection), FAB adds a list into the collection.
 - Shared `CollectionForm` (name with `validateCollectionName` + debounced duplicate check excluding the edited collection, icon grid, quick/custom color picker), `CreateCollectionScreen` and `EditCollectionScreen`.
 - Drawer gains a *Collections* entry (`albums-outline`) opening a dedicated Collections screen (`ListsScreenBase` in `collections` mode: collections only, grid/list, search, drag-reorder, FAB → Create Collection, header select toggle).
 - Home select mode mixes collections and standalone lists (combined `N selected`); *Delete* opens a single modal — the shared `CollectionDeleteModal` chooser (`Delete N collections?`, *Move lists to Lists* / *Delete lists too*) when a selected collection has lists, or one destructive confirm (`Delete N collections and M lists?`) when none do — deleting the standalone lists and collections together with no fallthrough.
 - Per-section layout keys `homeCollectionsLayout` / `homeListsLayout` / `collectionsLayout` / `listsLayout` (defaults grid/grid/grid/list; legacy `home_layout` ignored) with Personalization rows for Home Collections, Home Lists, Collections screen, and Lists screen.
-- Detail-header cleanup: list detail trash always present (search/select only with items); collection detail trash always present (empty → single confirm, non-empty → chooser); the trash is spaced apart from the search/select toggles when those are present.
+- Detail-header cleanup: list/collection detail headers show only search/select toggles (gated on items/member lists); delete moved into the Edit List / Edit Collection screens (outlined-red button above Save, empty → confirm / non-empty → chooser).
 - Visual polish: the collection identity icon `albums-outline` replaces folder icons (empty states, Create/Detail headers, Add-chooser); Home's fully-empty state gets a combined "no collections or lists" message (`home-outline`); collections and lists carry a small fixed type badge (`albums-outline` / `list-outline`) plus a colored accent bar (top on grid cards, left on list rows); Home's *Collections* / *Lists* section titles show their type icon, and the *Lists* title appears even when there are only lists.
 - i18n: `collection_*`, `collections_empty`, `home_add_collection`, `home_add_choice_title`, `home_section_lists`, `home_empty_all` / `home_empty_all_hint`, `collection_delete_many_title` / `collection_delete_combined_title` (+ messages), layout/settings keys in both `en` and `es`.
 - Spec: spec/features/016-collections/.
