@@ -15,6 +15,16 @@ export const listSchema = z.object({
   icon: z.string(),
   created_at: z.string(),
   position: z.number().int(),
+  collection_id: z.number().int().nullable(),
+});
+
+export const collectionSchema = z.object({
+  id: z.number().int(),
+  name: z.string(),
+  color: z.string(),
+  icon: z.string(),
+  created_at: z.string(),
+  position: z.number().int(),
 });
 
 export const itemSchema = z.object({

@@ -10,7 +10,8 @@ vi.mock('expo-sqlite', async () => {
 await import('expo-sqlite');
 
 const EXPECTED_COLUMNS: Record<string, string[]> = {
-  lists: ['id', 'name', 'color', 'icon', 'created_at', 'position'],
+  lists: ['id', 'name', 'color', 'icon', 'created_at', 'position', 'collection_id'],
+  collections: ['id', 'name', 'color', 'icon', 'created_at', 'position'],
   items: ['id', 'list_id', 'name', 'checked', 'note', 'position', 'created_at', 'pictures'],
   config: ['key', 'value'],
 };

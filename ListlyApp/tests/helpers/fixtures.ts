@@ -5,6 +5,7 @@ export function buildList(name: string, overrides: Partial<NewList> = {}): NewLi
     name,
     color: '#22D3EE',
     icon: 'cart-outline',
+    collection_id: null,
     ...overrides,
   };
 }

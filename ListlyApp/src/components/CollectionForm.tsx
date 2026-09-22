@@ -5,11 +5,11 @@ import { useConfig } from '../context/ConfigContext';
 import { useFontSize } from '../hooks/useFontSize';
 import { useLabels } from '../hooks/useLabels';
 import { LIST_ICONS } from '../constants/listIcons';
-import { DEBOUNCE_MS, MAX_LIST_NAME_LENGTH } from '../constants/types';
+import { DEBOUNCE_MS, MAX_COLLECTION_NAME_LENGTH } from '../constants/types';
 import type { IconName } from '../constants/types';
-import type { ListNameError } from '../utils/validation';
-import { validateListName } from '../utils/validation';
-import { listRepository as listRepo } from '../database';
+import type { CollectionNameError } from '../utils/validation';
+import { validateCollectionName } from '../utils/validation';
+import { collectionRepository as collectionRepo } from '../database';
 import { withAlpha } from '../utils/color';
 import { useColorSelection } from '../hooks/useColorSelection';
 import ColorGrid from './ColorGrid';
@@ -23,22 +23,15 @@ interface Props {
   initialColor: string;
   submitLabel: string;
   excludeId?: number;
-  initialCollectionId?: number | null;
-  onSubmit: (data: {
-    name: string;
-    icon: IconName;
-    color: string;
-    collectionId?: number | null;
-  }) => Promise<void>;
+  onSubmit: (data: { name: string; icon: IconName; color: string }) => Promise<void>;
 }
 
-export default function ListForm({
+export default function CollectionForm({
   initialName,
   initialIcon,
   initialColor,
   submitLabel,
   excludeId,
-  initialCollectionId,
   onSubmit,
 }: Props) {
   const { activeColors: c } = useConfig();
@@ -49,20 +42,20 @@ export default function ListForm({
   const [icon, setIcon] = useState<IconName>(initialIcon);
   const [pickerVisible, setPickerVisible] = useState(false);
   const { selectedColor, customColor, handleColorSelect } = useColorSelection(initialColor);
-  const [error, setError] = useState<ListNameError | null>(null);
+  const [error, setError] = useState<CollectionNameError | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const requestSeq = useRef(0);
 
   useEffect(() => {
     const trimmed = name.trim();
     const seq = ++requestSeq.current;
-    setError(validateListName(trimmed, false, MAX_LIST_NAME_LENGTH));
-    if (trimmed.length === 0 || trimmed.length > MAX_LIST_NAME_LENGTH) return;
+    setError(validateCollectionName(trimmed, false, MAX_COLLECTION_NAME_LENGTH));
+    if (trimmed.length === 0 || trimmed.length > MAX_COLLECTION_NAME_LENGTH) return;
 
     const handle = setTimeout(() => {
-      void listRepo.existsByName(trimmed, excludeId).then(exists => {
+      void collectionRepo.existsByName(trimmed, excludeId).then(exists => {
         if (requestSeq.current !== seq) return;
-        setError(validateListName(trimmed, exists, MAX_LIST_NAME_LENGTH));
+        setError(validateCollectionName(trimmed, exists, MAX_COLLECTION_NAME_LENGTH));
       });
     }, DEBOUNCE_MS);
     return () => clearTimeout(handle);
@@ -76,17 +69,12 @@ export default function ListForm({
     if (error !== null || trimmed.length === 0) return;
     setSubmitting(true);
     try {
-      const exists = await listRepo.existsByName(trimmed, excludeId);
+      const exists = await collectionRepo.existsByName(trimmed, excludeId);
       if (exists) {
-        setError('list_name_duplicate');
+        setError('collection_name_duplicate');
         return;
       }
-      await onSubmit({
-        name: trimmed,
-        icon: icon ?? initialIcon,
-        color: selectedColor ?? initialColor,
-        collectionId: initialCollectionId,
-      });
+      await onSubmit({ name: trimmed, icon: icon ?? initialIcon, color: selectedColor ?? initialColor });
     } finally {
       setSubmitting(false);
     }
@@ -106,22 +94,22 @@ export default function ListForm({
   return (
     <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
       <FormField
-        label={labels.list_name_label}
+        label={labels.collection_name_label}
         error={error ? labels[error] : null}
         style={styles.field}
       >
         <TextInput
           value={name}
           onChangeText={setName}
-          maxLength={MAX_LIST_NAME_LENGTH}
-          placeholder={labels.list_name_label}
+          maxLength={MAX_COLLECTION_NAME_LENGTH}
+          placeholder={labels.collection_name_label}
           placeholderTextColor={c.textSecondary}
           style={inputStyle}
-          accessibilityLabel={labels.list_name_label}
+          accessibilityLabel={labels.collection_name_label}
         />
       </FormField>
 
-      <FormField label={labels.list_icon_label} style={styles.field}>
+      <FormField label={labels.collection_icon_label} style={styles.field}>
         <View style={styles.grid}>
           {LIST_ICONS.map(option => {
             const selected = option === icon;
@@ -147,7 +135,7 @@ export default function ListForm({
         </View>
       </FormField>
 
-      <FormField label={labels.list_color_label} style={styles.field}>
+      <FormField label={labels.collection_color_label} style={styles.field}>
         <ColorGrid
           selectedColor={selectedColor}
           customColor={customColor}

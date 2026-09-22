@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
-import { itemSchema, listSchema } from './schemas';
-import type { DatabaseHandle, Item, List } from './types';
+import { collectionSchema, itemSchema, listSchema } from './schemas';
+import type { Collection, DatabaseHandle, Item, List } from './types';
 
 interface ConfigRow {
   key: string;
@@ -15,6 +15,11 @@ const configRowSchema = z.object({
   value: z.string(),
 });
 
+const backupCollectionSchema = collectionSchema;
+const backupListSchema = listSchema
+  .extend({ collection_id: z.number().int().nullable().optional() })
+  .transform(value => ({ ...value, collection_id: value.collection_id ?? null }));
+
 const snapshotSchema = z.object({
   app: z.literal('Listly'),
   kind: z.literal('backup'),
@@ -22,7 +27,8 @@ const snapshotSchema = z.object({
   exportedAt: z.string(),
   schema: z.number().int(),
   data: z.object({
-    lists: z.array(listSchema),
+    collections: z.array(backupCollectionSchema).optional().default([]),
+    lists: z.array(backupListSchema),
     items: z.array(itemSchema),
     config: z.array(configRowSchema),
   }),
@@ -61,7 +67,8 @@ export function serializeBackup(snapshot: BackupSnapshot): string {
 }
 
 export async function buildBackup(db: DatabaseHandle, schemaVersion: number): Promise<BackupSnapshot> {
-  const [lists, items, config] = await Promise.all([
+  const [collections, lists, items, config] = await Promise.all([
+    db.getAllAsync<Collection>('SELECT * FROM collections ORDER BY position, id'),
     db.getAllAsync<List>('SELECT * FROM lists ORDER BY position, id'),
     db.getAllAsync<Item>('SELECT * FROM items ORDER BY position, id'),
     db.getAllAsync<ConfigRow>('SELECT key, value FROM config'),
@@ -73,7 +80,7 @@ export async function buildBackup(db: DatabaseHandle, schemaVersion: number): Pr
     formatVersion: BACKUP_FORMAT_VERSION,
     exportedAt: new Date().toISOString(),
     schema: schemaVersion,
-    data: { lists, items, config },
+    data: { collections, lists, items, config },
   };
 }
 
@@ -81,17 +88,31 @@ export async function applyBackup(db: DatabaseHandle, snapshot: BackupSnapshot):
   await db.withTransactionAsync(async () => {
     await db.runAsync('DELETE FROM items');
     await db.runAsync('DELETE FROM lists');
+    await db.runAsync('DELETE FROM collections');
     await db.runAsync('DELETE FROM config');
+
+    for (const collection of snapshot.data.collections ?? []) {
+      await db.runAsync(
+        'INSERT INTO collections (id, name, color, icon, created_at, position) VALUES (?, ?, ?, ?, ?, ?)',
+        collection.id,
+        collection.name,
+        collection.color,
+        collection.icon,
+        collection.created_at,
+        collection.position
+      );
+    }
 
     for (const list of snapshot.data.lists) {
       await db.runAsync(
-        'INSERT INTO lists (id, name, color, icon, created_at, position) VALUES (?, ?, ?, ?, ?, ?)',
+        'INSERT INTO lists (id, name, color, icon, created_at, position, collection_id) VALUES (?, ?, ?, ?, ?, ?, ?)',
         list.id,
         list.name,
         list.color,
         list.icon,
         list.created_at,
-        list.position
+        list.position,
+        list.collection_id
       );
     }
 

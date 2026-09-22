@@ -2,13 +2,24 @@ import type { DatabaseHandle } from '../types';
 
 export async function createSchema(db: DatabaseHandle): Promise<void> {
   await db.execAsync(`
-    CREATE TABLE IF NOT EXISTS lists (
+    CREATE TABLE IF NOT EXISTS collections (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       name TEXT NOT NULL,
       color TEXT NOT NULL,
       icon TEXT NOT NULL,
       created_at TEXT NOT NULL DEFAULT (datetime('now', 'localtime')),
       position INTEGER NOT NULL DEFAULT 0
+    );
+
+    CREATE TABLE IF NOT EXISTS lists (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      name TEXT NOT NULL,
+      color TEXT NOT NULL,
+      icon TEXT NOT NULL,
+      created_at TEXT NOT NULL DEFAULT (datetime('now', 'localtime')),
+      position INTEGER NOT NULL DEFAULT 0,
+      collection_id INTEGER,
+      FOREIGN KEY (collection_id) REFERENCES collections(id)
     );
 
     CREATE TABLE IF NOT EXISTS items (
@@ -19,6 +30,7 @@ export async function createSchema(db: DatabaseHandle): Promise<void> {
       note TEXT,
       position INTEGER NOT NULL DEFAULT 0,
       created_at TEXT NOT NULL DEFAULT (datetime('now', 'localtime')),
+      pictures TEXT,
       FOREIGN KEY (list_id) REFERENCES lists(id) ON DELETE CASCADE
     );
 
@@ -31,5 +43,8 @@ export async function createSchema(db: DatabaseHandle): Promise<void> {
     CREATE INDEX IF NOT EXISTS items_list_position ON items(list_id, position);
     CREATE INDEX IF NOT EXISTS items_name_idx ON items(name COLLATE NOCASE);
     CREATE INDEX IF NOT EXISTS lists_name_idx ON lists(name COLLATE NOCASE);
+    CREATE INDEX IF NOT EXISTS lists_collection_id ON lists(collection_id);
+    CREATE INDEX IF NOT EXISTS lists_position ON lists(position);
+    CREATE INDEX IF NOT EXISTS collections_position ON collections(position);
   `);
 }

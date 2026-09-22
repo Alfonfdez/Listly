@@ -51,6 +51,7 @@ const nav = { goBack: vi.fn() };
 
 vi.mock('@react-navigation/native', () => ({
   useNavigation: () => nav,
+  useRoute: () => ({ params: { collectionId: undefined } }),
 }));
 
 const DEBOUNCE_WAIT = 350;

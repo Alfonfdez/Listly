@@ -1,12 +1,25 @@
 import type { z } from 'zod';
 
-import { configSchema, itemSchema, listSchema } from './schemas';
+import { collectionSchema, configSchema, itemSchema, listSchema } from './schemas';
 
 export type List = z.infer<typeof listSchema>;
 export type Item = z.infer<typeof itemSchema>;
 export type Config = z.infer<typeof configSchema>;
+export type Collection = z.infer<typeof collectionSchema>;
 
 export interface ListWithCounts {
+  id: number;
+  name: string;
+  color: string;
+  icon: string;
+  created_at: string;
+  position: number;
+  collection_id: number | null;
+  total: number;
+  completed: number;
+}
+
+export interface CollectionWithCounts {
   id: number;
   name: string;
   color: string;

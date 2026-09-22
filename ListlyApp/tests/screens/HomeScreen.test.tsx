@@ -2,7 +2,7 @@ import { describe, expect, it, beforeEach, afterEach, vi } from 'vitest';
 import { render, fireEvent } from '@testing-library/react-native';
 import type { ReactElement, ReactNode } from 'react';
 import HomeScreen from '../../src/screens/HomeScreen';
-import { buildAppMock, setItemsByListId, setLists, setLoading, resetAppStub } from '../helpers/appStub';
+import { buildAppMock, setItemsByListId, setLists, setLoading, setBaseLists, resetAppStub } from '../helpers/appStub';
 import { resetStub, setConfig } from '../helpers/configStub';
 import type { Item, ListWithCounts } from '../../src/database/types';
 import { TEXT_SIZES } from '../../src/constants/types';
@@ -40,8 +40,8 @@ vi.mock('../../src/hooks/useSelectMode', () => ({
 }));
 
 const LISTS: ListWithCounts[] = [
-  { id: 1, name: 'Groceries', color: '#22D3EE', icon: 'cart-outline', created_at: 'x', position: 0, total: 5, completed: 2 },
-  { id: 2, name: 'Work Tasks', color: '#34D399', icon: 'briefcase-outline', created_at: 'x', position: 1, total: 2, completed: 0 },
+  { id: 1, name: 'Groceries', color: '#22D3EE', icon: 'cart-outline', collection_id: null, created_at: 'x', position: 0, total: 5, completed: 2 },
+  { id: 2, name: 'Work Tasks', color: '#34D399', icon: 'briefcase-outline', collection_id: null, created_at: 'x', position: 1, total: 2, completed: 0 },
 ];
 
 function items(names: string[]): Item[] {
@@ -84,6 +84,7 @@ describe('HomeScreen', () => {
     nav.setOptions.mockClear();
     selectMocks.toggleSelectMode.mockClear();
     setLists(LISTS);
+    setBaseLists(LISTS);
     setItemsByListId(new Map([[1, items(['Milk', 'Coffee beans'])]]));
   });
 
@@ -107,6 +108,7 @@ describe('HomeScreen', () => {
 
   it('shows the empty state and keeps the FAB when there are no lists', async () => {
     setLists([]);
+    setBaseLists([]);
     const view = await render(<HomeScreen />);
     expect(await view.findByText('No lists yet')).toBeTruthy();
     expect(view.getByLabelText('Add list')).toBeTruthy();
@@ -133,11 +135,20 @@ describe('HomeScreen', () => {
     expect(selectMocks.toggleSelectMode).toHaveBeenCalled();
   });
 
-  it('navigates to Create List from the FAB', async () => {
+  it('opens the Add chooser from the FAB and navigates to Create List', async () => {
     const view = await render(<HomeScreen />);
     await view.findByText('Groceries');
     fireEvent.press(view.getByLabelText('Add list'));
+    fireEvent.press(await view.findByText('Add list'));
     expect(nav.navigate).toHaveBeenCalledWith('CreateList');
+  });
+
+  it('navigates to Create Collection from the Add chooser', async () => {
+    const view = await render(<HomeScreen />);
+    await view.findByText('Groceries');
+    fireEvent.press(view.getByLabelText('Add list'));
+    fireEvent.press(await view.findByText('Add collection'));
+    expect(nav.navigate).toHaveBeenCalledWith('CreateCollection');
   });
 
   it('navigates to ListDetail when a tile is pressed', async () => {

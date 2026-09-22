@@ -1,9 +1,16 @@
 import { createContext, useContext, useEffect, useMemo, useCallback, useState, type ReactNode } from 'react';
-import type { Item, ListWithCounts } from '../database/types';
-import { listRepository as listRepo, itemRepository as itemRepo } from '../database';
+import type { CollectionWithCounts, Item, ListWithCounts } from '../database/types';
+import {
+  listRepository as listRepo,
+  itemRepository as itemRepo,
+  collectionRepository as collectionRepo,
+} from '../database';
 
 interface AppContextType {
   lists: ListWithCounts[];
+  collections: CollectionWithCounts[];
+  listsByCollectionId: Map<number, ListWithCounts[]>;
+  baseLists: ListWithCounts[];
   itemsByListId: Map<number, Item[]>;
   loading: boolean;
   refresh: () => Promise<void>;
@@ -17,8 +24,20 @@ export function useApp() {
   return ctx;
 }
 
-async function loadAll(): Promise<{ lists: ListWithCounts[]; itemsByListId: Map<number, Item[]> }> {
-  const [lists, items] = await Promise.all([listRepo.withCounts(), itemRepo.listAll()]);
+interface LoadedData {
+  lists: ListWithCounts[];
+  collections: CollectionWithCounts[];
+  listsByCollectionId: Map<number, ListWithCounts[]>;
+  baseLists: ListWithCounts[];
+  itemsByListId: Map<number, Item[]>;
+}
+
+async function loadAll(): Promise<LoadedData> {
+  const [lists, items, collections] = await Promise.all([
+    listRepo.withCounts(),
+    itemRepo.listAll(),
+    collectionRepo.withCounts(),
+  ]);
   const itemsByListId = new Map<number, Item[]>();
   for (const item of items) {
     const existing = itemsByListId.get(item.list_id);
@@ -28,11 +47,28 @@ async function loadAll(): Promise<{ lists: ListWithCounts[]; itemsByListId: Map<
       itemsByListId.set(item.list_id, [item]);
     }
   }
-  return { lists, itemsByListId };
+  const listsByCollectionId = new Map<number, ListWithCounts[]>();
+  const baseLists: ListWithCounts[] = [];
+  for (const list of lists) {
+    if (list.collection_id === null) {
+      baseLists.push(list);
+    } else {
+      const existing = listsByCollectionId.get(list.collection_id);
+      if (existing) {
+        existing.push(list);
+      } else {
+        listsByCollectionId.set(list.collection_id, [list]);
+      }
+    }
+  }
+  return { lists, itemsByListId, collections, listsByCollectionId, baseLists };
 }
 
 export function AppProvider({ children }: { children: ReactNode }) {
   const [lists, setLists] = useState<ListWithCounts[]>([]);
+  const [collections, setCollections] = useState<CollectionWithCounts[]>([]);
+  const [listsByCollectionId, setListsByCollectionId] = useState<Map<number, ListWithCounts[]>>(new Map());
+  const [baseLists, setBaseLists] = useState<ListWithCounts[]>([]);
   const [itemsByListId, setItemsByListId] = useState<Map<number, Item[]>>(new Map());
   const [loading, setLoading] = useState(true);
 
@@ -43,6 +79,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
         const data = await loadAll();
         if (!active) return;
         setLists(data.lists);
+        setCollections(data.collections);
+        setListsByCollectionId(data.listsByCollectionId);
+        setBaseLists(data.baseLists);
         setItemsByListId(data.itemsByListId);
       } catch (error) {
         console.error('Failed to load lists:', error);
@@ -58,6 +97,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
     try {
       const data = await loadAll();
       setLists(data.lists);
+      setCollections(data.collections);
+      setListsByCollectionId(data.listsByCollectionId);
+      setBaseLists(data.baseLists);
       setItemsByListId(data.itemsByListId);
     } catch (error) {
       console.error('Failed to refresh lists:', error);
@@ -65,8 +107,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const value = useMemo(
-    () => ({ lists, itemsByListId, loading, refresh }),
-    [lists, itemsByListId, loading, refresh]
+    () => ({ lists, collections, listsByCollectionId, baseLists, itemsByListId, loading, refresh }),
+    [lists, collections, listsByCollectionId, baseLists, itemsByListId, loading, refresh]
   );
 
   return (
