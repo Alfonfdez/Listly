@@ -39,6 +39,17 @@ export const en = {
   collections_empty_hint: 'Tap + to create your first collection',
   home_add_collection_fab: 'Add collection',
   collection_delete_many_title: (n: number) => `Delete ${n} collection${n === 1 ? '' : 's'}?`,
+  collection_delete_combined_title: (collections: number, lists: number) => {
+    const c = collections === 1 ? 'collection' : 'collections';
+    if (lists === 0) return `Delete ${collections} ${c}?`;
+    const l = lists === 1 ? 'list' : 'lists';
+    return `Delete ${collections} ${c} and ${lists} ${l}?`;
+  },
+  collection_delete_combined_message:
+    'The selected collections and lists and their items will be permanently deleted.',
+  collection_delete_empty_many_message: 'These empty collections will be removed. It cannot be undone.',
+  collection_delete_standalone_message:
+    'Selected lists outside any collection will also be deleted. What should happen to the lists inside the selected collections?',
   home_open_menu: 'Open menu',
   home_search_placeholder: 'Search lists and items...',
   home_progress: (checked: number, total: number) => `${checked}/${total}`,

@@ -101,7 +101,7 @@ export default function ListDetailScreen() {
               accessibilityRole="button"
               accessibilityLabel={labels.list_delete_label}
               hitSlop={8}
-              style={({ pressed }) => pressed && styles.pressed}
+              style={({ pressed }) => [items.length > 0 && styles.trashSpacing, pressed && styles.pressed]}
             >
               <Ionicons name="trash-outline" size={20} color={c.red} />
             </Pressable>
@@ -437,6 +437,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
+  },
+  trashSpacing: {
+    marginRight: 12,
   },
   listContent: {
     flexGrow: 1,

@@ -31,9 +31,10 @@
 
 ### 5. Combined collection + list select on Home
 - On Home, select mode applies to collections *and* standalone lists together: tapping either type toggles it, and the action bar count shows the combined selection (`N selected`).
-- Pressing *Delete* (Home) with collections selected opens the shared collection chooser modal (title `Delete N collections?`, the selected names listed when more than one) offering *Move lists to Lists* (`deleteMany(ids, 'move')`) or *Delete lists too* (`deleteMany(ids, 'cascade')`).
-- After the collection deletion succeeds, any lists still selected fall through to the existing lists confirm dialog (`Delete N lists?`); with nothing left selected, select mode exits.
-- With no collections selected, Delete behaves as before: the lists confirm dialog.
+- Pressing *Delete* (Home) with collections selected opens a single modal:
+  - if at least one selected collection has member lists → the shared chooser (`Delete N collections?`, the selected names listed when more than one) with *Move lists to Lists* / *Delete lists too*; a message clarifies that the selected standalone lists are also deleted;
+  - otherwise → a single destructive confirm (`Delete N collections and M lists?`, or `Delete N collections?` when no lists are selected).
+- Either way the standalone lists and the collections are deleted in one action (no second modal); with only lists selected, Delete uses the existing lists confirm dialog.
 - The Collections screen supports the same combined-select deletion on its own collection list via the shared `CollectionDeleteModal`.
 
 ### 6. Collection detail
@@ -47,7 +48,8 @@
 - Create Collection seeds the default icon/color and persists through `collectionRepo.create`; Edit Collection prefills and saves through `collectionRepo.update`; both refresh and go back on success.
 
 ### 8. Shared collection delete modal
-- New shared `CollectionDeleteModal` (title, optional name list for multi-select, *Move lists to Lists* / *Delete lists too* options, cancel) reused by Home/Lists/Collections combined select and by Collection detail, keeping one behavior everywhere.
+- New shared `CollectionDeleteModal` (title, optional name list for multi-select, *Move lists to Lists* / *Delete lists too* options, cancel, and a clarifying message when standalone lists are also selected) reused by Home/Lists/Collections combined select and by Collection detail, keeping one behavior everywhere.
+- When the selected collections all have no member lists, the flow collapses to a single destructive confirm (no move/delete-too chooser) and deletes the collections and any selected standalone lists together.
 - Collection detail wires the header trash through it: empty collection → single confirm; non-empty → the chooser.
 
 ### 9. Per-section layout preferences
@@ -59,14 +61,17 @@
 ### 10. Detail-screen header cleanup
 - List detail: the list delete (trash) button is always present in `headerRight`; search and select toggles appear only when the list has items.
 - Collection detail: the delete (trash) button is always present; search and select toggles appear only while the collection has member lists.
+- The delete (trash) button is separated from the search/select toggles with extra spacing when those toggles are present (no extra spacing when it is the only icon).
 
-### 11. Collection/list visual polish (icons, empty state, type badge)
+### 11. Collection/list visual polish (icons, empty state, type badge, accent bar, section titles)
 - The collection identity icon is `albums-outline` everywhere a folder icon used to appear: the Collections screen and collection-detail empty states, the Create collection / Collection detail header icons, and the Home FAB *Add collection* chooser row.
 - Home's fully-empty state (no collections *and* no lists) shows a distinct message + hint ("No collections or lists yet" / "Tap + to create your first collection or list", `home-outline` icon); the Lists screen keeps the existing lists-only empty state.
 - Collections and lists carry a small fixed *type badge* so they are distinguishable in both grid and list layouts: `albums-outline` for collections, `list-outline` for lists, positioned top-right on grid cards and trailing on list rows, and hidden in select mode (where `SelectionCheck` occupies the corner).
+- Collections additionally carry a colored *accent bar* (top edge on grid cards, left edge on list rows) in the collection's color, reinforcing the container look beyond the type badge.
+- On Home, the *Collections* and *Lists* section titles render with a leading type icon (`albums-outline` / `list-outline`); the *Lists* title appears whenever Home has standalone lists (not only when collections are also present).
 
 ### 12. i18n
-- All new strings live in `en` and `es` (`collection_*`, `collections_empty`, `home_add_collection`, `home_add_choice_title`, `home_section_lists`, `home_empty_all` / `home_empty_all_hint`, `collection_delete_*` (single/many variants), `settings_collections_screen`, `settings_list_layout`, `layout_grid`, `layout_list`) and are read through `useLabels()`.
+- All new strings live in `en` and `es` (`collection_*`, `collections_empty`, `home_add_collection`, `home_add_choice_title`, `home_section_lists`, `home_empty_all` / `home_empty_all_hint`, `collection_delete_*` (single/many/combined variants + messages), `settings_collections_screen`, `settings_list_layout`, `layout_grid`, `layout_list`) and are read through `useLabels()`.
 
 ---
 
@@ -74,7 +79,7 @@
 
 - **TypeScript strict**, no `any`; theme tokens and `fs()` for all styling; no magic strings (i18n keys, typed validation error codes, `MAX_COLLECTION_NAME_LENGTH`, layout values via `LIST_LAYOUTS`).
 - **Multilingual**: every label in both `en` and `es`, reactive to the configured language via `useLabels()`.
-- **Tests**: DB drift guards `collections` + `collection_id`; repo/schema/backup suites cover schema 5; config suite covers the four layout keys; `collectionRepo.deleteMany(ids, mode)` move/cascade unit tests; screen/component tests cover the Home Add chooser (both navigations), the collection detail flows, the Collections screen, the combined Home selection flow (collections → lists fallthrough, move vs cascade, cancel), the collection detail chooser, the List detail always-visible trash, and the type badges; fixture helpers extended (`setCollections`, `setBaseLists`, `buildList` `collection_id`, config stub layout keys).
+- **Tests**: DB drift guards `collections` + `collection_id`; repo/schema/backup suites cover schema 5; config suite covers the four layout keys; `collectionRepo.deleteMany(ids, mode)` move/cascade unit tests; screen/component tests cover the Home Add chooser (both navigations), the collection detail flows, the Collections screen, the combined Home selection flow (single modal: chooser move/cascade, empty-collection confirm, cancel), the collection detail chooser, the List detail always-visible trash, and the type badges; fixture helpers extended (`setCollections`, `setBaseLists`, `buildList` `collection_id`, config stub layout keys).
 - **Verification**: `npm run test:all` passes, and the web loop at 375px exercises the criteria below with 0 console errors.
 
 ---
@@ -90,11 +95,13 @@
 - [x] Search narrows collections by name (on Home alongside the list search, and on the Collections screen).
 - [x] Select-mode bulk delete of member lists works inside a collection.
 - [x] The drawer shows a *Collections* entry that opens a Collections screen showing only collections with the chosen layout, an empty state when none exist, and a FAB that creates a collection.
-- [x] Home select mode selects collections and standalone lists together, the count combines them, *Delete* opens the `Delete N collections?` chooser, and *Move lists to Lists* keeps the lists (falling through to the list confirm when lists are still selected) while *Delete lists too* removes them.
+- [x] Home select mode selects collections and standalone lists together, the count combines them, and *Delete* shows a single modal: the `Delete N collections?` chooser (Move lists to Lists / Delete lists too) when a selected collection has lists, or a `Delete N collections and M lists?` confirm when none do — with no second modal for the standalone lists.
 - [x] Cancelling the collection chooser deletes nothing and keeps the selection intact.
 - [x] Personalization offers Grid/List for Home *Collections*, Home *Lists*, the Collections screen, and the Lists screen; toggling a layout changes the corresponding section and persists across a reload (new installs start with the documented defaults).
 - [x] List detail shows the trash button even when the list is empty, without search/select toggles; collection detail also shows trash on an empty collection (single confirm) and the chooser on a non-empty one.
-- [x] Collections and lists carry a fixed type badge (`albums-outline` / `list-outline`) in both grid and list layouts so they are visually distinguishable.
+- [x] The detail-screen delete (trash) button is visually separated from the search/select toggles when those are present.
+- [x] Collections and lists carry a fixed type badge (`albums-outline` / `list-outline`) in both grid and list layouts so they are visually distinguishable; collections additionally carry a colored accent bar (top edge on grid cards, left edge on list rows).
 - [x] The collection identity icon `albums-outline` appears in the Add-chooser row, the Create/Detail headers, and the Collections/collection-detail empty states; Home's fully-empty state shows a combined "no collections or lists" message with the `home-outline` icon.
+- [x] On Home, the *Collections* and *Lists* section titles show their type icon, and the *Lists* title appears even when there are only lists (no collections).
 - [x] Switching to Spanish shows the translated collection labels, layout and delete-chooser labels.
 - [x] `npm run test:all` passes.

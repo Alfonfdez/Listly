@@ -6,6 +6,10 @@
 - [x] Home: *Collections* section (drag-reorderable, search-scoped) above *Lists*; FAB → `AddChooserModal` (Add collection / Add list).
 - [x] Collections screen: drawer entry (`albums-outline`), `ListsScreenBase` in `collections` mode, empty state, FAB → Create Collection, search + drag-reorder + select toggle.
 - [x] Combined select on Home: collections + standalone lists, combined count, `CollectionDeleteModal` (`Delete N collections?`) with move/cascade, fallthrough to lists confirm.
+- [x] Unified delete: single modal — chooser when a selected collection has member lists, one destructive confirm otherwise; standalone lists + collections deleted together (no fallthrough).
+- [x] Trash spacing: detail-screen delete button separated from search/select toggles when present.
+- [x] Collection accent bar (top on grid cards, left on list rows) on top of the `TypeBadge`.
+- [x] Home section titles: leading `albums-outline` / `list-outline` icons; *Lists* title shows with lists-only.
 - [x] `CollectionDeleteModal` shared by Home/Lists/Collections and Collection detail (empty → single confirm, non-empty → chooser).
 - [x] Collection detail: header block (badge, colored name, N/total, edit), member grid (search/select/reorder), trash flow, FAB → Create List with `collectionId`.
 - [x] `CollectionForm` + `CreateCollectionScreen` / `EditCollectionScreen` (name validation + debounced duplicate check excluding self, icon grid, quick/custom color picker).

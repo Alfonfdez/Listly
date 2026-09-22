@@ -37,6 +37,7 @@ function CollectionRowInner({ collection, selectMode, selected, onPress }: Props
       accessibilityState={selectMode ? { checked: selected } : undefined}
       accessibilityLabel={selected ? `${collection.name}, ${labels.select_selected(1)}` : collection.name}
     >
+      <View style={[styles.accentBar, { backgroundColor: collection.color }]} />
       <View style={styles.badgeWrap}>
         <View style={[styles.badge, { backgroundColor: withAlpha(collection.color, ALPHA_BADGE) }]}>
           <Ionicons name={collection.icon as IconName} size={22} color={collection.color} />
@@ -68,6 +69,14 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     borderWidth: 1,
     borderColor: 'transparent',
+    overflow: 'hidden',
+  },
+  accentBar: {
+    position: 'absolute',
+    left: 0,
+    top: 0,
+    bottom: 0,
+    width: 4,
   },
   badgeWrap: {
     width: BADGE_SIZE,
