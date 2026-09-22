@@ -292,3 +292,7 @@ pm run test:all green.
 - Home section titles: `ListsView` now shows the *Lists* title whenever Home has standalone lists (not only alongside collections) and both *Collections* / *Lists* titles render a leading type icon (`albums-outline` / `list-outline`).
 - Tests: rewrote `HomeSelectionFlow` (chooser move/cascade + empty-collection confirm, both delete standalone lists in one action) and added an empty-collection confirm case to `CollectionsScreen`; `setListsByCollectionId` used to model collections-with-lists. Suite baseline: 38 files, 287 tests, `npm run test:all` green.
 - Docs: `016-collections/1-spec.md` (sections 5/8/10/11/12 + acceptance criteria), `2-plan.md` (data flow), `3-tasks.md`, roadmap 016 bullets.
+
+[2026-09-22] ~ | ListlyApp dependencies — Expo SDK 57 patch bump
+- Bumped `expo` 57.0.22 → 57.0.24, `expo-image-picker` 57.0.17 → 57.0.19, and `expo-sharing` 57.0.20 → 57.0.21 via `npx expo install --fix`; `npx expo install --check` now reports "Dependencies are up to date".
+- `npm run test:all` still green (typecheck + lint + 38 files / 287 tests).
