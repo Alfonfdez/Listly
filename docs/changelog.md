@@ -332,3 +332,9 @@ pm run test:all green.
 - `EditListScreen` now hosts the list delete: confirm → `listRepo.delete` → `refresh()` → `popToTop()`. `EditCollectionScreen` hosts the collection delete: empty → single confirm, non-empty → `CollectionDeleteModal` (move / delete-lists-too) → `collectionRepo.delete(id, mode)` → `popToTop()`.
 - Tests: removed the list-delete tests from `ListDetailScreen`, added a delete-flow test to `EditListScreen`, removed the trash/delete tests from `CollectionDetailScreen`, and added `EditCollectionScreen.test.tsx` (empty confirm + move/cascade). Suite baseline: 40 files, 297 tests, `npm run test:all` green.
 - Docs: updated `016-collections` (1-spec sections 6/7/8/10 + criteria, plan, tasks), `013-edit-list` (1-spec + plan + tasks), roadmap 013/016 bullets, and `6-screens.md`.
+
+[2026-09-22] ~ | Show a list's collection on the Lists screen
+- `ListsView.renderItem` (lists mode) now resolves each list's containing collection and passes it to `ListRow` / `ListCard`.
+- `ListRow` and `ListCard` gained an optional `collection` prop: when a list belongs to a collection, a small `albums-outline` icon + the collection name render under the list name in the collection's color (hidden in select mode); standalone lists show no hint.
+- Tests: `ListsView` (collection-list shows its collection, standalone doesn't) + `ListCard` (hint shows / hides in select mode). Suite baseline: 40 files, 301 tests, `npm run test:all` green.
+- Docs: `016-collections` 1-spec (section 11 + acceptance criterion), `6-screens.md` (Lists screen), roadmap 016 bullet.

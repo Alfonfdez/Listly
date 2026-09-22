@@ -271,4 +271,24 @@ const onToggleItem = vi.fn();
     const view = await renderView({ selectMode: true, selectedIds: new Set([1]), selectedCollectionIds: new Set([10]) });
     expect(await view.findByText('2 selected')).toBeTruthy();
   });
+
+  it('shows the containing collection name under a collection list (lists mode)', async () => {
+    setLists([
+      { id: 1, name: 'Groceries', color: '#22D3EE', icon: 'cart-outline', collection_id: 10, created_at: 'x', position: 0, total: 5, completed: 2 },
+      { id: 2, name: 'Work Tasks', color: '#34D399', icon: 'briefcase-outline', collection_id: null, created_at: 'x', position: 1, total: 2, completed: 0 },
+    ]);
+    setCollections([{ id: 10, name: 'Shopping', color: '#A855F7', icon: 'folder-outline', created_at: 'x', position: 0, total: 3, completed: 1 }]);
+    const view = await renderView({ mode: 'lists' });
+    expect(await view.findByText('Groceries')).toBeTruthy();
+    expect(view.getByText('Work Tasks')).toBeTruthy();
+    expect(view.getAllByText('Shopping').length).toBe(1);
+  });
+
+  it('shows the containing collection name under a list row (lists mode, list layout)', async () => {
+    setLists([{ id: 1, name: 'Groceries', color: '#22D3EE', icon: 'cart-outline', collection_id: 10, created_at: 'x', position: 0, total: 5, completed: 2 }]);
+    setCollections([{ id: 10, name: 'Shopping', color: '#A855F7', icon: 'folder-outline', created_at: 'x', position: 0, total: 3, completed: 1 }]);
+    const view = await renderView({ mode: 'lists', variant: 'list' });
+    expect(await view.findByText('Groceries')).toBeTruthy();
+    expect(view.getByText('Shopping')).toBeTruthy();
+  });
 });

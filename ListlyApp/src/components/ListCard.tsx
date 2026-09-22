@@ -1,5 +1,5 @@
 import { memo } from 'react';
-import { Text, StyleSheet } from 'react-native';
+import { Text, View, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useConfig } from '../context/ConfigContext';
 import { useFontSize } from '../hooks/useFontSize';
@@ -14,12 +14,13 @@ import type { IconName } from '../constants/types';
 
 interface Props {
   list: ListWithCounts;
+  collection?: { name: string; color: string };
   selectMode: boolean;
   selected: boolean;
   onPress: () => void;
 }
 
-function ListCardInner({ list, selectMode, selected, onPress }: Props) {
+function ListCardInner({ list, collection, selectMode, selected, onPress }: Props) {
   const { activeColors: c } = useConfig();
   const fs = useFontSize();
   const labels = useLabels();
@@ -43,6 +44,14 @@ function ListCardInner({ list, selectMode, selected, onPress }: Props) {
       <Text style={[styles.name, { color: c.text, fontSize: fs(14) }]} numberOfLines={1}>
         {list.name}
       </Text>
+      {collection && !selectMode ? (
+        <View style={styles.collectionRow}>
+          <Ionicons name="albums-outline" size={12} color={collection.color} />
+          <Text style={[styles.collectionName, { color: collection.color, fontSize: fs(12) }]} numberOfLines={1}>
+            {collection.name}
+          </Text>
+        </View>
+      ) : null}
       <Text style={[styles.progress, { color: c.textSecondary, fontSize: fs(12) }]}>
         {labels.home_progress(list.completed, list.total)}
       </Text>
@@ -74,6 +83,14 @@ const styles = StyleSheet.create({
   },
   name: {
     fontWeight: '600',
+  },
+  collectionRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  collectionName: {
+    fontWeight: '500',
   },
   progress: {
     fontWeight: '500',
