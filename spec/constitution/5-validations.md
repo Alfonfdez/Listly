@@ -7,10 +7,12 @@ General data-validation conventions for Listly. Feature specs define their exact
 - **Non-empty**: a required field is invalid when empty after trimming.
 - **Max length** (named constants, never magic numbers):
   - List name: `MAX_LIST_NAME_LENGTH = 100`
+  - Collection name: `MAX_COLLECTION_NAME_LENGTH = 100`
   - Item name: `MAX_ITEM_NAME_LENGTH = 200`
   - Item note: `MAX_ITEM_NOTE_LENGTH = 2000`
 - **Duplicate names**:
   - List names are unique globally (case-insensitive, NOCASE).
+  - Collection names are unique globally (case-insensitive).
   - Item names are unique *within their list* (case-insensitive).
   - Duplicate checks exclude the current row when editing (e.g., `existsByName(name, excludeId)`).
 - **Debounce**: duplicate checks run with a ~300 ms debounce against the repository.

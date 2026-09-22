@@ -18,8 +18,9 @@ Listly targets **iOS, Android, and web** with one codebase. This file collects h
 - Never rely on `Platform.OS === 'web'` inline: use `src/utils/platform.ts` constants (`isWeb`, `isNative`, `isIOS`, `isAndroid`).
 
 ## Native-only features
-- The MVP (lists + items + search + notes) has **no native-only criteria**, so web E2E verification fully covers it.
-- Anything camera/file-system based added later must be gated with `isNative`, hidden on web, and its criteria reported "not checkable on web".
+- **Item photos (camera):** the "Take photo" source is native-only and gated with `isNative`; web stores base64 data URLs inline while native copies files into the document directory. Camera capture is reported "not checkable on web".
+- **Backup share/pick:** native uses `expo-sharing` + `expo-document-picker`; web downloads a Blob and imports via a hidden file input (same `backupIO` API, per-platform implementation).
+- Anything else native-only must be gated with `isNative`, hidden on web, and its criteria reported "not checkable on web".
 
 ## Verification
 - Web acceptance criteria are checked in a real browser at 375px (mobile criteria) via the `verification-loop` skill.

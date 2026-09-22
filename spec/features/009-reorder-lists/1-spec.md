@@ -36,9 +36,9 @@
 
 ## Acceptance criteria
 
-- [ ] Lists have an order: row lists and Home grid list them by `position`.
-- [ ] Dragging a list on Home reorders it and other lists follow.
-- [ ] Dragging a list on the Lists rows has the same effect.
-- [ ] The new order persists after a reload (DB `position` writes).
-- [ ] A list created afterwards is appended at the end.
-- [ ] Tap still opens list detail; searching keeps filtering; all theme/text-size behavior is unchanged.
+- [x] Lists have an order: row lists and Home grid list them by `position`.
+- [x] Dragging a list on Home reorders it and other lists follow.
+- [x] Dragging a list on the Lists rows has the same effect.
+- [x] The new order persists after a reload (DB `position` writes).
+- [x] A list created afterwards is appended at the end.
+- [x] Tap still opens list detail; searching keeps filtering; all theme/text-size behavior is unchanged.

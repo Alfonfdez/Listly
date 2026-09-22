@@ -85,6 +85,14 @@ Expandable note area in the add-item bar:
 - Fields clear and the area collapses after submission.
 - Spec: spec/features/008-add-item-note/.
 
+## 009-reorder-lists
+Status: done.
+
+Drag-to-reorder lists on Home and Lists:
+- Migration 003 adds `lists.position` (backfill + index), `SCHEMA_VERSION` 3; Drizzle/Zod/`ListWithCounts` include `position`; `listRepo` orders by position, appends on create, and `reorder(orderedIds)` persists atomically.
+- Home grid and Lists rows are drag-reorderable via `Sortable.Grid` (long-press drag, write-through + refresh); dragging is disabled while a search query is active.
+- Spec: spec/features/009-reorder-lists/.
+
 ## 010-bulk-select-delete
 Status: complete.
 

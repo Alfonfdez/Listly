@@ -62,16 +62,15 @@ interface ColorPalette {
 
 | fs(N) | Usage | Examples |
 |-------|-------|----------|
-| `fs(11)` | Auxiliary text, small labels | chart labels, hint text |
+| `fs(11)` | Auxiliary text, small labels | char counters, hint text |
 | `fs(12)` | Badges, metadata, secondary labels | progress counts, error messages |
-| `fs(13)` | Tabs, chips, sort labels | type tabs, search chips |
+| `fs(13)` | Secondary labels, hints | progress text, empty-state hints |
 | `fs(14)` | **Standard** — body text, names, buttons | list names, buttons, modals |
 | `fs(15)` | List item names, search input | item names, SearchBar |
 | `fs(16)` | Screen titles, modal titles | modal titles, section headers |
 | `fs(17)` | Stack navigator header titles | All `headerTitle` in AppNavigator.tsx |
-| `fs(18)` | Modal totals, large emphasis | progress numbers in dialogs |
-| `fs(22)` | Screen totals (progress numbers) | per-list progress numbers |
-| `fs(28)` | HomeScreen main count | main "N lists" total |
+| `fs(18)` | List/collection detail names, modal titles | header names, totals |
+| `fs(24)` | Drawer title | "Listly" app name in the drawer header |
 
 ### Font Weights
 
@@ -84,11 +83,13 @@ interface ColorPalette {
 ## Icons
 - **Library:** `@expo/vector-icons` (Ionicons)
 - **Usage:** `Ionicons` used throughout the app.
-- **List icons:** defined in `constants/listIcons.ts` (`LIST_ICONS`).
+- **List icons:** defined in `constants/listIcons.ts` (`LIST_ICONS`), reused by collections.
+- **Quick colors:** defined in `constants/listColors.ts` (`QUICK_COLORS`).
+- **Type identity:** the collection identity icon is `albums-outline`; lists use `list-outline`.
 
 ## Layout & Spacing
-- **Screen padding:** `paddingHorizontal: 16`
-- **Section spacing:** `marginTop: 16` between sections
+- **Screen padding:** `paddingHorizontal: 12`
+- **Section spacing:** `marginTop: 8` for section titles; `gap: 12` between grid items
 - **Border radius:** `10` for inputs/buttons, `12` for cards, `16` for modals, `999` for pill/circle
 - **Grid gap:** `12` for icon/color grids
 

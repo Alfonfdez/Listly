@@ -296,3 +296,18 @@ pm run test:all green.
 [2026-09-22] ~ | ListlyApp dependencies — Expo SDK 57 patch bump
 - Bumped `expo` 57.0.22 → 57.0.24, `expo-image-picker` 57.0.17 → 57.0.19, and `expo-sharing` 57.0.20 → 57.0.21 via `npx expo install --fix`; `npx expo install --check` now reports "Dependencies are up to date".
 - `npm run test:all` still green (typecheck + lint + 38 files / 287 tests).
+
+[2026-09-22] ~ | Complete spec docs to the 3-document structure
+- Created the missing `2-plan.md` + `3-tasks.md` for seven features that only had `1-spec.md`: 005-settings-screen, 010-bulk-select-delete, 011-item-pictures, 012-reorder-items, 013-edit-list, 014-code-quality, 015-settings-sections (14 files, matching the current code and the `016`/`007` format).
+- Flipped stale unchecked tasks/criteria to `[x]`: `009-reorder-lists` `1-spec.md` acceptance criteria + `3-tasks.md`, and `001`/`002`/`003`/`004` `3-tasks.md`.
+- Added the missing `## 009-reorder-lists` entry to `spec/constitution/3-roadmap.md` (Status: done).
+
+[2026-09-22] ~ | Refresh tech-stack doc to match current code
+- `spec/constitution/2-tech-stack.md`: expanded the "Languages and tools" list with the missing packages (`react-native-sortables`, `react-native-svg`, `expo-image-picker`/`expo-file-system`, `expo-sharing`/`expo-document-picker`, `expo-splash-screen`/`expo-status-bar`, `react-native-web`, `react-native-worklets`, `reanimated-color-picker`) and rewrote the "File structure" tree as a trimmed, corrected view of the actual `src/` tree (renamed/deleted files fixed; collections, settings sub-screens, DB migrations/repos, and newer hooks/components added).
+
+[2026-09-22] ~ | Refresh remaining constitution docs to match current code
+- `1-mission.md`: product + goal now mention grouping lists into collections and per-item photos.
+- `4-design-system.md`: removed the stale `fs(22)`/`fs(28)` rows and added `fs(24)` (drawer title); corrected screen padding to `12`; added `listColors.ts` and the `albums-outline`/`list-outline` type identity to the icons section.
+- `5-validations.md`: added collection-name rules (`MAX_COLLECTION_NAME_LENGTH = 100`, globally-unique duplicate check).
+- `6-screens.md`: rewrote from a "planned / not started" draft into the actual 1.0 screens (Home, Lists, Collections, list/collection detail, create/edit forms, Settings hub) with a correct navigation map.
+- `7-platform-differences.md`: replaced the "no native-only criteria" note with the real native-only surfaces (item-photo camera capture, native backup share/pick vs web Blob/file-input).
