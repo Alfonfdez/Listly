@@ -8,6 +8,7 @@ import { CARD_BORDER_RADIUS, ALPHA_TINT } from './componentStyles';
 import { withAlpha } from '../utils/color';
 import SortablePressable from './SortablePressable';
 import SelectionCheck from './SelectionCheck';
+import TypeBadge from './TypeBadge';
 import type { ListWithCounts } from '../database/types';
 import type { IconName } from '../constants/types';
 
@@ -37,6 +38,7 @@ function ListCardInner({ list, selectMode, selected, onPress }: Props) {
       accessibilityLabel={selected ? `${list.name}, ${labels.select_selected(1)}` : list.name}
     >
       {selectMode ? <SelectionCheck selected={selected} style={styles.check} iconSize={14} /> : null}
+      {!selectMode ? <TypeBadge type="list" style={styles.typeBadge} /> : null}
       <Ionicons name={list.icon as IconName} size={28} color={list.color} />
       <Text style={[styles.name, { color: c.text, fontSize: fs(14) }]} numberOfLines={1}>
         {list.name}
@@ -61,6 +63,11 @@ const styles = StyleSheet.create({
     borderColor: 'transparent',
   },
   check: {
+    position: 'absolute',
+    top: 8,
+    right: 8,
+  },
+  typeBadge: {
     position: 'absolute',
     top: 8,
     right: 8,

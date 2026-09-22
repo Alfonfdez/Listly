@@ -8,12 +8,13 @@ import { useLabels } from '../hooks/useLabels';
 interface Props {
   selectMode: boolean;
   showSelect: boolean;
+  showSearch?: boolean;
   searchActive: boolean;
   onToggleSelect: () => void;
   onToggleSearch: () => void;
 }
 
-export default function SelectSearchHeader({ selectMode, showSelect, searchActive, onToggleSelect, onToggleSearch }: Props) {
+export default function SelectSearchHeader({ selectMode, showSelect, showSearch = true, searchActive, onToggleSelect, onToggleSearch }: Props) {
   const { activeColors: c } = useConfig();
   const labels = useLabels();
 
@@ -22,18 +23,20 @@ export default function SelectSearchHeader({ selectMode, showSelect, searchActiv
       {showSelect && (
         <SelectToggleButton active={selectMode} onToggle={onToggleSelect} color={c.primary} />
       )}
-      <TouchableOpacity
-        onPress={onToggleSearch}
-        style={{ padding: ICON_BUTTON_PADDING }}
-        accessibilityRole="button"
-        accessibilityLabel={labels.common_search}
-      >
-        <Ionicons
-          name={searchActive ? 'close' : 'search-outline'}
-          size={22}
-          color={searchActive ? c.primary : c.text}
-        />
-      </TouchableOpacity>
+      {showSearch && (
+        <TouchableOpacity
+          onPress={onToggleSearch}
+          style={{ padding: ICON_BUTTON_PADDING }}
+          accessibilityRole="button"
+          accessibilityLabel={labels.common_search}
+        >
+          <Ionicons
+            name={searchActive ? 'close' : 'search-outline'}
+            size={22}
+            color={searchActive ? c.primary : c.text}
+          />
+        </TouchableOpacity>
+      )}
     </View>
   );
 }

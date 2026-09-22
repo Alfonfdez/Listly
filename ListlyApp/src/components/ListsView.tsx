@@ -16,6 +16,7 @@ import EmptyState from './EmptyState';
 import ListCard from './ListCard';
 import ListRow from './ListRow';
 import CollectionCard from './CollectionCard';
+import CollectionRow from './CollectionRow';
 import Fab from './Fab';
 import AddChooserModal from './AddChooserModal';
 import SelectionActionBar from './SelectionActionBar';
@@ -23,7 +24,7 @@ import ConfirmModal from './ConfirmModal';
 import { useDragOrder } from '../hooks/useDragOrder';
 import { GRID_GAP, WIDE_BREAKPOINT, MEDIUM_BREAKPOINT } from './componentStyles';
 
-export type ListViewMode = 'home' | 'lists' | 'collection';
+export type ListViewMode = 'home' | 'lists' | 'collections' | 'collection';
 export type ListsViewVariant = 'grid' | 'list';
 
 function columnCount(width: number): number {
@@ -35,6 +36,7 @@ function columnCount(width: number): number {
 interface Props {
   mode: ListViewMode;
   variant: ListsViewVariant;
+  collectionsVariant: ListsViewVariant;
   collectionId?: number;
   header?: ReactNode;
   searchActive: boolean;
@@ -43,7 +45,9 @@ interface Props {
   onSearchClose: () => void;
   selectMode: boolean;
   selectedIds: ReadonlySet<number>;
+  selectedCollectionIds: ReadonlySet<number>;
   onToggleItem: (id: number) => void;
+  onToggleCollection: (id: number) => void;
   onOpenDeleteConfirm: () => void;
   onExitSelectMode: () => void;
   deleteConfirmVisible: boolean;
@@ -55,6 +59,7 @@ interface Props {
 export default function ListsView({
   mode,
   variant,
+  collectionsVariant,
   collectionId,
   header,
   searchActive,
@@ -63,7 +68,9 @@ export default function ListsView({
   onSearchClose,
   selectMode,
   selectedIds,
+  selectedCollectionIds,
   onToggleItem,
+  onToggleCollection,
   onOpenDeleteConfirm,
   onExitSelectMode,
   deleteConfirmVisible,
@@ -80,6 +87,7 @@ export default function ListsView({
 
   const { width } = useWindowDimensions();
   const isGrid = variant === 'grid';
+  const isCollectionsGrid = collectionsVariant === 'grid';
   const columns = columnCount(width);
 
   useFocusEffect(
@@ -93,6 +101,7 @@ export default function ListsView({
       return listsByCollectionId.get(collectionId) ?? [];
     }
     if (mode === 'home') return baseLists;
+    if (mode === 'collections') return [];
     return lists;
   }, [mode, collectionId, listsByCollectionId, baseLists, lists]);
 
@@ -136,9 +145,13 @@ export default function ListsView({
 
   const handleCollectionPress = useCallback(
     (collection: CollectionWithCounts) => {
-      navigation.navigate('CollectionDetail', { collectionId: collection.id });
+      if (selectMode) {
+        onToggleCollection(collection.id);
+      } else {
+        navigation.navigate('CollectionDetail', { collectionId: collection.id });
+      }
     },
-    [navigation]
+    [selectMode, onToggleCollection, navigation]
   );
 
   const renderItem = useCallback<SortableGridRenderItem<ListWithCounts>>(
@@ -164,9 +177,23 @@ export default function ListsView({
 
   const renderCollection = useCallback<SortableGridRenderItem<CollectionWithCounts>>(
     ({ item }) => (
-      <CollectionCard collection={item} onPress={() => handleCollectionPress(item)} />
+      isCollectionsGrid ? (
+        <CollectionCard
+          collection={item}
+          selectMode={selectMode}
+          selected={selectedCollectionIds.has(item.id)}
+          onPress={() => handleCollectionPress(item)}
+        />
+      ) : (
+        <CollectionRow
+          collection={item}
+          selectMode={selectMode}
+          selected={selectedCollectionIds.has(item.id)}
+          onPress={() => handleCollectionPress(item)}
+        />
+      )
     ),
-    [handleCollectionPress]
+    [isCollectionsGrid, selectMode, selectedCollectionIds, handleCollectionPress]
   );
 
   if (loading) {
@@ -179,9 +206,10 @@ export default function ListsView({
 
   const searching = searchActive && query.trim().length > 0;
   const inHome = mode === 'home';
-  const hasContent = inHome
-    ? filteredCollections.length > 0 || filteredLists.length > 0
-    : filteredLists.length > 0;
+  const inCollections = mode === 'collections';
+  const showCollectionsSection = (inHome || inCollections) && displayCollections.length > 0;
+  const showListsSection = mode !== 'collections' && displayLists.length > 0;
+  const hasContent = showCollectionsSection || showListsSection;
 
   const renderEmpty = () => {
     if (searching) {
@@ -190,9 +218,27 @@ export default function ListsView({
     if (mode === 'collection') {
       return (
         <EmptyState
-          icon="folder-open-outline"
+          icon="albums-outline"
           message={labels.collection_empty}
           hint={labels.collection_empty_hint}
+        />
+      );
+    }
+    if (mode === 'collections') {
+      return (
+        <EmptyState
+          icon="albums-outline"
+          message={labels.collections_empty}
+          hint={labels.collections_empty_hint}
+        />
+      );
+    }
+    if (mode === 'home') {
+      return (
+        <EmptyState
+          icon="home-outline"
+          message={labels.home_empty_all}
+          hint={labels.home_empty_all_hint}
         />
       );
     }
@@ -222,16 +268,16 @@ export default function ListsView({
                 {labels.collection_section_title}
               </Text>
             )}
-            {inHome && displayCollections.length > 0 && (
+            {showCollectionsSection && (
               <Sortable.Grid
-                key={`collections-${columns}`}
+                key={isCollectionsGrid ? `collections-${columns}` : 'collections-list'}
                 data={displayCollections}
                 renderItem={renderCollection}
                 keyExtractor={item => String(item.id)}
-                columns={columns}
+                columns={isCollectionsGrid ? columns : 1}
                 sortEnabled={!selectMode && !searching && displayCollections.length > 1}
-                columnGap={GRID_GAP}
-                rowGap={GRID_GAP}
+                columnGap={isCollectionsGrid ? GRID_GAP : 0}
+                rowGap={isCollectionsGrid ? GRID_GAP : 10}
                 onDragEnd={handleCollectionsDragEnd}
               />
             )}
@@ -240,7 +286,7 @@ export default function ListsView({
                 {labels.home_section_lists}
               </Text>
             )}
-            {displayLists.length > 0 && (
+            {showListsSection && (
               <Sortable.Grid
                 key={isGrid ? `grid-${columns}` : 'list'}
                 data={displayLists}
@@ -265,11 +311,13 @@ export default function ListsView({
                 setChooserVisible(true);
               } else if (mode === 'collection') {
                 navigation.navigate('CreateList', { collectionId });
+              } else if (mode === 'collections') {
+                navigation.navigate('CreateCollection');
               } else {
                 navigation.navigate('CreateList');
               }
             }}
-            accessibilityLabel={labels.home_add}
+            accessibilityLabel={inCollections ? labels.home_add_collection_fab : labels.home_add}
           />
         ) : (
           <SelectionActionBar

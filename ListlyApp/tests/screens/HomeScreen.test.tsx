@@ -19,6 +19,9 @@ vi.mock('../../src/database', () => ({
     deleteMany: vi.fn(async () => {}),
   },
   itemRepository: {},
+  collectionRepository: {
+    deleteMany: vi.fn(async () => {}),
+  },
 }));
 
 const selectMocks = vi.hoisted(() => ({
@@ -110,7 +113,8 @@ describe('HomeScreen', () => {
     setLists([]);
     setBaseLists([]);
     const view = await render(<HomeScreen />);
-    expect(await view.findByText('No lists yet')).toBeTruthy();
+    expect(await view.findByText('No collections or lists yet')).toBeTruthy();
+    expect(view.getByText('Tap + to create your first collection or list')).toBeTruthy();
     expect(view.getByLabelText('Add list')).toBeTruthy();
   });
 

@@ -1,0 +1,18 @@
+# 016 — Collections: Tasks
+
+- [x] Create `spec/features/016-collections/` (1-spec, 2-plan, 3-tasks); consolidate the former `018-collections-screen` spec here.
+- [x] Add `collections` table + `lists.collection_id` FK (index, `SCHEMA_VERSION` 5) with Drizzle/Zod/drift/backup/clear/reset coverage.
+- [x] `AppContext`: expose `collections`, `listsByCollectionId`, `baseLists`; scope new-list position per collection.
+- [x] Home: *Collections* section (drag-reorderable, search-scoped) above *Lists*; FAB → `AddChooserModal` (Add collection / Add list).
+- [x] Collections screen: drawer entry (`albums-outline`), `ListsScreenBase` in `collections` mode, empty state, FAB → Create Collection, search + drag-reorder + select toggle.
+- [x] Combined select on Home: collections + standalone lists, combined count, `CollectionDeleteModal` (`Delete N collections?`) with move/cascade, fallthrough to lists confirm.
+- [x] `CollectionDeleteModal` shared by Home/Lists/Collections and Collection detail (empty → single confirm, non-empty → chooser).
+- [x] Collection detail: header block (badge, colored name, N/total, edit), member grid (search/select/reorder), trash flow, FAB → Create List with `collectionId`.
+- [x] `CollectionForm` + `CreateCollectionScreen` / `EditCollectionScreen` (name validation + debounced duplicate check excluding self, icon grid, quick/custom color picker).
+- [x] Per-section layouts: `homeCollectionsLayout` / `homeListsLayout` / `collectionsLayout` / `listsLayout` config keys + Personalization rows; legacy `home_layout` ignored.
+- [x] Detail-header cleanup: list detail trash always present (search/select only with items); collection detail trash always present.
+- [x] Visual polish: `albums-outline` replaces folder icons; Home fully-empty combined state (`home-outline` + `home_empty_all`); `TypeBadge` on collection/list cards + rows.
+- [x] i18n keys in en/es; fix Spanish plural (`¿Eliminar N colecciones?`).
+- [x] Tests: config layout keys, `deleteMany(ids, mode)` move/cascade, CollectionsScreen, Home combined-select flow, CollectionDetail chooser, ListDetail trash, TypeBadge, updated fixtures. `npm run test:all` green.
+- [x] Verification loop at 375px (drawer → Collections, combined select move/cascade/cancel, layouts + reload, search + drag-reorder, empty states, type badges, Spanish, 0 console errors) + flip acceptance criteria `[x]`.
+- [x] Update roadmap (016 → done), harnesses baseline, changelog (append at end).

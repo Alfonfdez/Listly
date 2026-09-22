@@ -1,10 +1,10 @@
 import { memo } from 'react';
-import { Text, StyleSheet } from 'react-native';
+import { Text, View, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useConfig } from '../context/ConfigContext';
 import { useFontSize } from '../hooks/useFontSize';
 import { useLabels } from '../hooks/useLabels';
-import { CARD_BORDER_RADIUS, ALPHA_TINT } from './componentStyles';
+import { CARD_BORDER_RADIUS, ALPHA_TINT, ALPHA_BADGE } from './componentStyles';
 import { withAlpha } from '../utils/color';
 import SortablePressable from './SortablePressable';
 import SelectionCheck from './SelectionCheck';
@@ -19,7 +19,7 @@ interface Props {
   onPress: () => void;
 }
 
-function CollectionCardInner({ collection, selectMode, selected, onPress }: Props) {
+function CollectionRowInner({ collection, selectMode, selected, onPress }: Props) {
   const { activeColors: c } = useConfig();
   const fs = useFontSize();
   const labels = useLabels();
@@ -27,7 +27,7 @@ function CollectionCardInner({ collection, selectMode, selected, onPress }: Prop
   return (
     <SortablePressable
       style={[
-        styles.card,
+        styles.row,
         { backgroundColor: withAlpha(collection.color, ALPHA_TINT) },
         selectMode && selected && { borderColor: c.primary },
         selectMode && !selected && { borderColor: c.border },
@@ -37,45 +37,62 @@ function CollectionCardInner({ collection, selectMode, selected, onPress }: Prop
       accessibilityState={selectMode ? { checked: selected } : undefined}
       accessibilityLabel={selected ? `${collection.name}, ${labels.select_selected(1)}` : collection.name}
     >
-      {selectMode ? <SelectionCheck selected={selected} style={styles.check} iconSize={14} /> : null}
-      {!selectMode ? <TypeBadge type="collection" style={styles.typeBadge} /> : null}
-      <Ionicons name={collection.icon as IconName} size={28} color={collection.color} />
-      <Text style={[styles.name, { color: c.text, fontSize: fs(14) }]} numberOfLines={1}>
+      <View style={styles.badgeWrap}>
+        <View style={[styles.badge, { backgroundColor: withAlpha(collection.color, ALPHA_BADGE) }]}>
+          <Ionicons name={collection.icon as IconName} size={22} color={collection.color} />
+        </View>
+        {selectMode ? (
+          <SelectionCheck selected={selected} style={styles.check} unselectedBackground={c.surface} />
+        ) : null}
+      </View>
+      <Text style={[styles.name, { color: c.text, fontSize: fs(15) }]} numberOfLines={1}>
         {collection.name}
       </Text>
-      <Text style={[styles.progress, { color: c.textSecondary, fontSize: fs(12) }]}>
+      <Text style={[styles.progress, { color: c.textSecondary, fontSize: fs(13) }]}>
         {labels.home_progress(collection.completed, collection.total)}
       </Text>
+      {!selectMode ? <TypeBadge type="collection" /> : null}
     </SortablePressable>
   );
 }
 
-export default memo(CollectionCardInner);
+const BADGE_SIZE = 40;
 
 const styles = StyleSheet.create({
-  card: {
+  row: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
     borderRadius: CARD_BORDER_RADIUS,
-    paddingVertical: 16,
+    paddingVertical: 12,
     paddingHorizontal: 14,
-    alignItems: 'flex-start',
-    gap: 10,
     borderWidth: 1,
     borderColor: 'transparent',
   },
+  badgeWrap: {
+    width: BADGE_SIZE,
+    height: BADGE_SIZE,
+    position: 'relative',
+  },
+  badge: {
+    width: BADGE_SIZE,
+    height: BADGE_SIZE,
+    borderRadius: BADGE_SIZE / 2,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   check: {
     position: 'absolute',
-    top: 8,
-    right: 8,
-  },
-  typeBadge: {
-    position: 'absolute',
-    top: 8,
-    right: 8,
+    top: -3,
+    right: -3,
   },
   name: {
+    flex: 1,
     fontWeight: '600',
   },
   progress: {
     fontWeight: '500',
   },
 });
+
+export default memo(CollectionRowInner);

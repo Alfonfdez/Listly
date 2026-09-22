@@ -1,6 +1,8 @@
 import { describe, expect, it, beforeEach, vi } from 'vitest';
 import { render, fireEvent, userEvent, waitFor, act } from '@testing-library/react-native';
 import type { ReactElement, ReactNode } from 'react';
+import { useEffect, useState } from 'react';
+import { View } from 'react-native';
 import ListDetailScreen from '../../src/screens/ListDetailScreen';
 import {
   buildAppMock,
@@ -13,13 +15,18 @@ import { fireGridDragEnd, lastGrid } from '../mocks/react-native-sortables';
 import type { Item, ListWithCounts } from '../../src/database/types';
 import { darkColors } from '../../src/constants/themes';
 
-const { itemRepositoryMock, selectMocks, nav, photoMocks } = vi.hoisted(() => ({
+const { itemRepositoryMock, listRepositoryMock, selectMocks, nav, photoMocks } = vi.hoisted(() => ({
   itemRepositoryMock: {
     create: vi.fn(),
     update: vi.fn(),
     delete: vi.fn(),
     deleteMany: vi.fn(),
     toggle: vi.fn(),
+    reorder: vi.fn(),
+  },
+  listRepositoryMock: {
+    delete: vi.fn(),
+    deleteMany: vi.fn(),
     reorder: vi.fn(),
   },
   selectMocks: {
@@ -35,11 +42,13 @@ const { itemRepositoryMock, selectMocks, nav, photoMocks } = vi.hoisted(() => ({
   nav: {
     setOptions: vi.fn(),
     navigate: vi.fn(),
+    goBack: vi.fn(),
   },
 }));
 
 vi.mock('../../src/database', () => ({
   itemRepository: itemRepositoryMock,
+  listRepository: listRepositoryMock,
 }));
 
 vi.mock('../../src/hooks/useItemPhotos', () => ({
@@ -113,8 +122,11 @@ describe('ListDetailScreen', () => {
     itemRepositoryMock.delete.mockResolvedValue(undefined);
     itemRepositoryMock.deleteMany.mockResolvedValue(undefined);
     itemRepositoryMock.toggle.mockResolvedValue(undefined);
+    listRepositoryMock.delete.mockReset();
+    listRepositoryMock.delete.mockResolvedValue(undefined);
     selectMocks.toggleSelectMode.mockReset();
     nav.setOptions.mockReset();
+    nav.goBack.mockReset();
     photoMocks.photos = [];
     photoMocks.setPhotos.mockClear();
     setLists([LIST]);
@@ -383,14 +395,23 @@ describe('ListDetailScreen', () => {
     expect(header.getByLabelText('Enter select mode')).toBeTruthy();
   });
 
-  it('does not register a select toggle when the list has no items', async () => {
+  it('shows only the list delete button when the list has no items', async () => {
     setItemsByListId(new Map([[1, []]]));
-    await render(<ListDetailScreen />);
-    const calls = nav.setOptions.mock.calls;
-    const headerCmds = calls.filter((c) => c[0] && 'headerRight' in c[0]);
-    expect(headerCmds.length).toBeGreaterThan(0);
-    const last = headerCmds[headerCmds.length - 1][0] as { headerRight?: () => ReactElement };
-    expect(last.headerRight).toBeUndefined();
+    const header = await renderHeader();
+    expect(header.getByLabelText('Delete list')).toBeTruthy();
+    expect(header.queryByLabelText('Search')).toBeNull();
+    expect(header.queryByLabelText('Enter select mode')).toBeNull();
+  });
+
+  it('deletes the list after confirming the delete dialog', async () => {
+    const view = await renderWithHeader();
+    fireEvent.press(view.getByLabelText('Delete list'));
+    expect(await view.findByText('Delete list?')).toBeTruthy();
+    expect(listRepositoryMock.delete).not.toHaveBeenCalled();
+
+    fireEvent.press(view.getAllByLabelText('Delete list')[0]);
+    await waitFor(() => expect(listRepositoryMock.delete).toHaveBeenCalledWith(1));
+    expect(nav.goBack).toHaveBeenCalled();
   });
 
   it('navigates to Edit List when the header pencil is pressed', async () => {
@@ -449,6 +470,26 @@ async function renderHeader() {
   const opts = lastHeaderRight() as { headerRight?: () => ReactElement } | undefined;
   if (!opts?.headerRight) throw new Error('headerRight not registered');
   return render(opts.headerRight());
+}
+
+function ScreenWithHeader({ screen }: { screen: ReactNode }) {
+  const [header, setHeader] = useState<(() => ReactNode) | null>(null);
+  useEffect(() => {
+    const opts = lastHeaderRight();
+    setHeader(() => (opts && 'headerRight' in opts ? opts.headerRight : null));
+  }, []);
+  return (
+    <View>
+      {screen}
+      {header ? header() : null}
+    </View>
+  );
+}
+
+async function renderWithHeader() {
+  const view = await render(<ScreenWithHeader screen={<ListDetailScreen />} />);
+  await view.findByText('Milk');
+  return view;
 }
 
 function fireEventPress(view: Awaited<ReturnType<typeof render>>, label: string) {

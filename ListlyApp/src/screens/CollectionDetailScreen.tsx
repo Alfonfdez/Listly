@@ -10,13 +10,12 @@ import { useSelectMode } from '../hooks/useSelectMode';
 import { collectionRepository as collectionRepo, listRepository as listRepo } from '../database';
 import type { IconName, NavigationProp, RootStackParamList } from '../constants/types';
 import { withAlpha } from '../utils/color';
-import { ALPHA_TINT, PRESSED_OPACITY, CARD_BORDER_RADIUS } from '../components/componentStyles';
+import { ALPHA_TINT, PRESSED_OPACITY } from '../components/componentStyles';
 import ScreenShell from '../components/ScreenShell';
 import EmptyState from '../components/EmptyState';
 import ListsView from '../components/ListsView';
 import SelectSearchHeader from '../components/SelectSearchHeader';
-import ModalShell from '../components/ModalShell';
-import ModalFooter from '../components/ModalFooter';
+import CollectionDeleteModal from '../components/CollectionDeleteModal';
 import ConfirmModal from '../components/ConfirmModal';
 
 export default function CollectionDetailScreen() {
@@ -34,7 +33,7 @@ export default function CollectionDetailScreen() {
 
   const [searchActive, setSearchActive] = useState(false);
   const [query, setQuery] = useState('');
-  const [deleteChoiceVisible, setDeleteChoiceVisible] = useState(false);
+  const [collectionDeleteVisible, setCollectionDeleteVisible] = useState(false);
   const [deleteConfirmVisible, setDeleteConfirmVisible] = useState(false);
 
   const {
@@ -58,13 +57,15 @@ export default function CollectionDetailScreen() {
     if (searchActive) setQuery('');
   }, [searchActive, selectMode]);
 
+  const hasLists = listsInCollection.length > 0;
+
   useEffect(() => {
     navigation.setOptions({
       headerRight: () => (
         <View style={styles.headerActions}>
           {!selectMode ? (
             <Pressable
-              onPress={() => (listsInCollection.length > 0 ? setDeleteChoiceVisible(true) : setDeleteConfirmVisible(true))}
+              onPress={() => (hasLists ? setCollectionDeleteVisible(true) : setDeleteConfirmVisible(true))}
               accessibilityRole="button"
               accessibilityLabel={labels.collection_delete_label}
               hitSlop={8}
@@ -75,7 +76,8 @@ export default function CollectionDetailScreen() {
           ) : null}
           <SelectSearchHeader
             selectMode={selectMode}
-            showSelect={listsInCollection.length > 0}
+            showSelect={hasLists}
+            showSearch={hasLists}
             searchActive={searchActive}
             onToggleSelect={toggleSelectMode}
             onToggleSearch={toggleSearch}
@@ -85,7 +87,7 @@ export default function CollectionDetailScreen() {
     });
   }, [
     navigation, selectMode, toggleSelectMode, searchActive, toggleSearch,
-    listsInCollection.length, labels.collection_delete_label, c.red,
+    hasLists, labels.collection_delete_label, c.red,
   ]);
 
   useEffect(() => {
@@ -108,7 +110,7 @@ export default function CollectionDetailScreen() {
     } catch (error) {
       console.error('Failed to delete collection:', error);
     } finally {
-      setDeleteChoiceVisible(false);
+      setCollectionDeleteVisible(false);
       setDeleteConfirmVisible(false);
       navigation.goBack();
     }
@@ -144,6 +146,7 @@ export default function CollectionDetailScreen() {
       <ListsView
         mode="collection"
         variant="grid"
+        collectionsVariant="grid"
         collectionId={collectionId}
         header={header}
         searchActive={searchActive && !selectMode}
@@ -152,7 +155,9 @@ export default function CollectionDetailScreen() {
         onSearchClose={() => { setQuery(''); setSearchActive(false); }}
         selectMode={selectMode}
         selectedIds={selectedIds}
+        selectedCollectionIds={new Set()}
         onToggleItem={toggleItem}
+        onToggleCollection={() => {}}
         onOpenDeleteConfirm={openDeleteConfirm}
         onExitSelectMode={exitSelectMode}
         deleteConfirmVisible={listDeleteVisible}
@@ -161,44 +166,13 @@ export default function CollectionDetailScreen() {
         selectedCount={selectedIds.size}
       />
 
-      <ModalShell visible={deleteChoiceVisible} onClose={() => setDeleteChoiceVisible(false)} padding={20}>
-        <Text style={[styles.modalTitle, { color: c.text, fontSize: fs(17) }]}>{labels.collection_delete_title}</Text>
-        <Text style={[styles.modalMessage, { color: c.textSecondary, fontSize: fs(14) }]}>
-          {labels.collection_delete_message}
-        </Text>
-        <View style={styles.optionStack}>
-          {[
-            {
-              icon: 'move-outline' as IconName,
-              label: labels.collection_delete_move,
-              color: c.primary,
-              action: () => void performDelete('move'),
-            },
-            {
-              icon: 'trash-outline' as IconName,
-              label: labels.collection_delete_also,
-              color: c.red,
-              action: () => void performDelete('cascade'),
-            },
-          ].map(option => (
-            <Pressable
-              key={option.label}
-              onPress={option.action}
-              accessibilityRole="button"
-              accessibilityLabel={option.label}
-              style={({ pressed }) => [
-                styles.option,
-                { backgroundColor: c.background, borderColor: c.border },
-                pressed && styles.pressed,
-              ]}
-            >
-              <Ionicons name={option.icon} size={18} color={option.color} />
-              <Text style={[styles.optionText, { color: c.text, fontSize: fs(15) }]}>{option.label}</Text>
-            </Pressable>
-          ))}
-        </View>
-        <ModalFooter confirmLabel={labels.common_cancel} onConfirm={() => setDeleteChoiceVisible(false)} />
-      </ModalShell>
+      <CollectionDeleteModal
+        visible={collectionDeleteVisible}
+        collections={[collection]}
+        onMove={() => void performDelete('move')}
+        onDelete={() => void performDelete('cascade')}
+        onCancel={() => setCollectionDeleteVisible(false)}
+      />
 
       <ConfirmModal
         visible={deleteConfirmVisible}
@@ -261,27 +235,6 @@ const styles = StyleSheet.create({
   editButton: {
     marginLeft: 'auto',
     padding: 6,
-  },
-  modalTitle: {
-    fontWeight: '700',
-    marginBottom: 6,
-  },
-  modalMessage: {
-    marginBottom: 16,
-  },
-  optionStack: {
-    gap: 10,
-  },
-  option: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-    padding: 12,
-    borderRadius: CARD_BORDER_RADIUS,
-    borderWidth: 1,
-  },
-  optionText: {
-    fontWeight: '500',
   },
   pressed: {
     opacity: PRESSED_OPACITY,

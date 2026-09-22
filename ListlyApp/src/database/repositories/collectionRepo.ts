@@ -91,8 +91,16 @@ export const collectionRepo = {
     await deletePhotosOfItems(listIds);
   },
 
-  async deleteMany(ids: number[]): Promise<void> {
+  async deleteMany(ids: number[], mode: 'move' | 'cascade' = 'cascade'): Promise<void> {
     if (ids.length === 0) return;
+    if (mode === 'move') {
+      await withTransaction(async tx => {
+        await tx.update(lists).set({ collection_id: null }).where(inArray(lists.collection_id, ids)).run();
+        await tx.delete(collections).where(inArray(collections.id, ids)).run();
+      });
+      return;
+    }
+
     const db = await getDrizzle();
     const listIds = (await db.select({ id: lists.id }).from(lists).where(inArray(lists.collection_id, ids)).all()).map(r => r.id);
     await withTransaction(async tx => {

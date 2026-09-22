@@ -1,5 +1,5 @@
 import ListsScreenBase from './ListsScreenBase';
 
 export default function ListsScreen() {
-  return <ListsScreenBase layoutKey="listsLayout" />;
+  return <ListsScreenBase listsLayoutKey="listsLayout" />;
 }
