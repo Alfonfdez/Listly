@@ -1,5 +1,5 @@
 import { describe, expect, it, beforeEach, vi } from 'vitest';
-import { render, fireEvent, waitFor } from '@testing-library/react-native';
+import { render } from '@testing-library/react-native';
 import { useEffect, useState, type ReactNode } from 'react';
 import { View } from 'react-native';
 import CollectionDetailScreen from '../../src/screens/CollectionDetailScreen';
@@ -111,48 +111,18 @@ describe('CollectionDetailScreen', () => {
     expect(await view.findByText('No lists yet')).toBeTruthy();
   });
 
-  it('registers trash, search and select in the header when the collection has lists', async () => {
+  it('registers search and select in the header when the collection has lists', async () => {
     const view = await renderWithHeader();
-    expect(view.getByLabelText('Delete collection')).toBeTruthy();
     expect(view.getByLabelText('Search')).toBeTruthy();
     expect(view.getByLabelText('Enter select mode')).toBeTruthy();
   });
 
-  it('shows only the trash button when the collection has no lists', async () => {
+  it('has no header actions when the collection has no lists', async () => {
     setListsByCollectionId(new Map([[10, []]]));
-    const view = await renderWithHeader();
-    expect(view.getByLabelText('Delete collection')).toBeTruthy();
-    expect(view.queryByLabelText('Search')).toBeNull();
-    expect(view.queryByLabelText('Enter select mode')).toBeNull();
-  });
-
-  it('opens the collection delete modal and moves the lists on confirm', async () => {
-    const view = await renderWithHeader();
-    fireEvent.press(view.getByLabelText('Delete collection'));
-    expect(await view.findByText('Delete 1 collection?')).toBeTruthy();
-
-    fireEvent.press(view.getByLabelText('Move lists to Lists'));
-    await waitFor(() => expect(collectionRepositoryMock.delete).toHaveBeenCalledWith(10, 'move'));
-    expect(nav.goBack).toHaveBeenCalled();
-  });
-
-  it('supports cascading deletion of the member lists', async () => {
-    const view = await renderWithHeader();
-    fireEvent.press(view.getByLabelText('Delete collection'));
-    await view.findByText('Delete 1 collection?');
-    fireEvent.press(view.getByLabelText('Delete lists too'));
-
-    await waitFor(() => expect(collectionRepositoryMock.delete).toHaveBeenCalledWith(10, 'cascade'));
-  });
-
-  it('confirms deletion of an empty collection with the single confirm modal', async () => {
-    setListsByCollectionId(new Map([[10, []]]));
-    const view = await renderWithHeader();
-    fireEvent.press(view.getByLabelText('Delete collection'));
-    expect(await view.findByText('This empty collection will be removed. It cannot be undone.')).toBeTruthy();
-
-    fireEvent.press(view.getAllByLabelText('Delete collection')[0]);
-    await waitFor(() => expect(collectionRepositoryMock.delete).toHaveBeenCalledWith(10, 'cascade'));
+    await render(<CollectionDetailScreen />);
+    const calls = nav.setOptions.mock.calls;
+    const lastSetOptions = calls[calls.length - 1]?.[0];
+    expect(lastSetOptions?.headerRight).toBeUndefined();
   });
 });
 

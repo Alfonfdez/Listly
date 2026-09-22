@@ -7,16 +7,16 @@
 - [x] Collections screen: drawer entry (`albums-outline`), `ListsScreenBase` in `collections` mode, empty state, FAB → Create Collection, search + drag-reorder + select toggle.
 - [x] Combined select on Home: collections + standalone lists, combined count, `CollectionDeleteModal` (`Delete N collections?`) with move/cascade, fallthrough to lists confirm.
 - [x] Unified delete: single modal — chooser when a selected collection has member lists, one destructive confirm otherwise; standalone lists + collections deleted together (no fallthrough).
-- [x] Trash spacing: detail-screen delete button separated from search/select toggles when present.
+- [x] Move delete out of the detail headers into Edit List / Edit Collection (outlined-red button above Save, empty → confirm / non-empty → chooser, returns to the overview).
 - [x] Collection accent bar (top on grid cards, left on list rows) on top of the `TypeBadge`.
 - [x] Home section titles: leading `albums-outline` / `list-outline` icons; *Lists* title shows with lists-only.
-- [x] `CollectionDeleteModal` shared by Home/Lists/Collections and Collection detail (empty → single confirm, non-empty → chooser).
-- [x] Collection detail: header block (badge, colored name, N/total, edit), member grid (search/select/reorder), trash flow, FAB → Create List with `collectionId`.
+- [x] `CollectionDeleteModal` shared by Home/Lists/Collections combined select and Edit Collection (empty → single confirm, non-empty → chooser).
+- [x] Collection detail: header block (badge, colored name, N/total, edit), member grid (search/select/reorder), FAB → Create List with `collectionId`.
 - [x] `CollectionForm` + `CreateCollectionScreen` / `EditCollectionScreen` (name validation + debounced duplicate check excluding self, icon grid, quick/custom color picker).
 - [x] Per-section layouts: `homeCollectionsLayout` / `homeListsLayout` / `collectionsLayout` / `listsLayout` config keys + Personalization rows; legacy `home_layout` ignored.
-- [x] Detail-header cleanup: list detail trash always present (search/select only with items); collection detail trash always present.
+- [x] Detail-header cleanup: list/collection detail headers show only search/select toggles (gated on items/member lists); no delete icon.
 - [x] Visual polish: `albums-outline` replaces folder icons; Home fully-empty combined state (`home-outline` + `home_empty_all`); `TypeBadge` on collection/list cards + rows.
 - [x] i18n keys in en/es; fix Spanish plural (`¿Eliminar N colecciones?`).
-- [x] Tests: config layout keys, `deleteMany(ids, mode)` move/cascade, CollectionsScreen, Home combined-select flow, CollectionDetail chooser, ListDetail trash, TypeBadge, updated fixtures. `npm run test:all` green.
+- [x] Tests: config layout keys, `deleteMany(ids, mode)` move/cascade, CollectionsScreen, Home combined-select flow, Edit Collection delete flows, Edit List delete flow, TypeBadge, updated fixtures. `npm run test:all` green.
 - [x] Verification loop at 375px (drawer → Collections, combined select move/cascade/cancel, layouts + reload, search + drag-reorder, empty states, type badges, Spanish, 0 console errors) + flip acceptance criteria `[x]`.
 - [x] Update roadmap (016 → done), harnesses baseline, changelog (append at end).

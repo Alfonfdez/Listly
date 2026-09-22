@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import { StyleSheet } from 'react-native';
 import { useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
 import { useApp } from '../context/AppContext';
@@ -8,6 +8,7 @@ import { listRepository as listRepo } from '../database';
 import ScreenShell from '../components/ScreenShell';
 import EmptyState from '../components/EmptyState';
 import ListForm from '../components/ListForm';
+import ConfirmModal from '../components/ConfirmModal';
 
 export default function EditListScreen() {
   const route = useRoute<RouteProp<RootStackParamList, 'EditList'>>();
@@ -15,6 +16,7 @@ export default function EditListScreen() {
   const { listId } = route.params;
   const { lists, refresh } = useApp();
   const labels = useLabels();
+  const [deleteVisible, setDeleteVisible] = useState(false);
 
   const list = lists.find(l => l.id === listId);
 
@@ -26,6 +28,17 @@ export default function EditListScreen() {
     },
     [listId, refresh, navigation]
   );
+
+  const remove = useCallback(async () => {
+    try {
+      await listRepo.delete(listId);
+      await refresh();
+      navigation.popToTop();
+    } catch (error) {
+      console.error('Failed to delete list:', error);
+      setDeleteVisible(false);
+    }
+  }, [listId, refresh, navigation]);
 
   if (!list) {
     return <ScreenShell style={styles.center}><EmptyState icon="help-circle-outline" message={labels.home_empty} /></ScreenShell>;
@@ -39,7 +52,20 @@ export default function EditListScreen() {
         initialColor={list.color}
         submitLabel={labels.list_save}
         excludeId={list.id}
+        deleteLabel={labels.list_delete_label}
+        onDelete={() => setDeleteVisible(true)}
         onSubmit={update}
+      />
+
+      <ConfirmModal
+        visible={deleteVisible}
+        title={labels.list_delete_confirm}
+        message={labels.list_delete_message}
+        cancelLabel={labels.common_cancel}
+        confirmLabel={labels.list_delete_label}
+        onCancel={() => setDeleteVisible(false)}
+        onConfirm={() => void remove()}
+        destructive
       />
     </ScreenShell>
   );

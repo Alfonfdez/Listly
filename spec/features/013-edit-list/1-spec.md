@@ -15,6 +15,7 @@
 - A `ListForm` component (extracted from `CreateListScreen`) provides: name input, icon grid, color grid (+ custom color picker), debounced duplicate-name validation, and a submit button.
 - `CreateListScreen` keeps its exact current behavior by wrapping the form.
 - `EditListScreen` renders the same form pre-filled with the list's `name`, `icon`, and `color`, passing the list id as `excludeId`.
+- `ListForm` accepts an optional `deleteLabel` / `onDelete`; when provided (edit mode) it renders an outlined-red delete button above the submit button.
 - No in-screen heading (the nav header shows "Edit list"); field labels use the shared section-title typography (`textStyles.sectionTitle`).
 
 ### 3. EditListScreen
@@ -23,10 +24,12 @@
 - A missing/invalid list id renders the existing not-found empty state.
 - Save calls `listRepo.update(listId, { name, icon, color })`, refreshes app state, and goes back.
 - The submit button label is "Save"; screen/nav titles use "Edit list".
+- Renders an outlined-red *Delete list* button above *Save*; confirming deletes the list (`listRepo.delete`) and returns to the overview (`popToTop`).
 
 ### 4. Entry point: List detail header
 - A pencil button sits at the right edge of the list header block on `ListDetailScreen` (next to the list icon/name/progress).
 - Tapping it navigates to `EditList` for the current list. It is always available (list exists) and does not conflict with item select/search modes.
+- List deletion moved here: the List detail header no longer shows a delete (trash) icon — delete is reached via the pencil → Edit List.
 
 ---
 
@@ -34,8 +37,8 @@
 
 - **Multilingual**: new strings in `en` and `es` (`edit_list_title`, `list_edit_label`, `list_save`), existing validation/color/icon keys reused.
 - **Theme/text size**: form renders with the current theme tokens and `fs()` font scaling, same as create.
-- **Tests**: `EditListScreen` tests (prefill, duplicate-excludes-self, save+refresh+goBack, not-found); `ListDetailScreen` pencil navigation test; existing `CreateListScreen` tests stay green after the shared-form extraction.
-- **Verification**: web loop at 375px (open edit from the pencil, change name/icon/color, save, see the header update; duplicate name error; same-name save allowed).
+- **Tests**: `EditListScreen` tests (prefill, duplicate-excludes-self, save+refresh+goBack, not-found, delete confirm → `listRepo.delete` → popToTop); `ListDetailScreen` pencil navigation test; existing `CreateListScreen` tests stay green after the shared-form extraction.
+- **Verification**: web loop at 375px (open edit from the pencil, change name/icon/color, save, see the header update; duplicate name error; same-name save allowed; delete via Edit List returns to the overview).
 
 ---
 
@@ -47,3 +50,4 @@
 - [x] Saving without changing the name does not trigger a duplicate-name error.
 - [x] A different existing list's name triggers the duplicate-name error and blocks saving.
 - [x] Create list still works exactly as before (shared form, no behavior change).
+- [x] Edit List shows an outlined-red *Delete list* button above Save; confirming deletes the list and returns to the overview.

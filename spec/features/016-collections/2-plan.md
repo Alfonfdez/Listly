@@ -35,8 +35,8 @@ AppDrawer
 | `ListsScreenBase` | `src/screens/` | **New** — shared Home/Lists/Collections orchestration |
 | `HomeScreen` / `ListsScreen` | `src/screens/` | Thin wrappers over `ListsScreenBase` |
 | `CollectionsScreen` | `src/screens/` | **New** — `ListsScreenBase` in `collections` mode |
-| `CollectionDetailScreen` | `src/screens/` | Header block, member grid, trash → `CollectionDeleteModal` |
-| `CollectionForm` + `Create/EditCollectionScreen` | `src/screens/`, `src/components/` | **New** — shared form + screens |
+| `CollectionDetailScreen` | `src/screens/` | Header block, member grid, search/select only |
+| `CollectionForm` + `Create/EditCollectionScreen` | `src/screens/`, `src/components/` | **New** — shared form + screens; Edit Collection hosts the delete button → `CollectionDeleteModal` / single confirm |
 | `PersonalizationScreen` | `src/screens/settings/` | 4 layout rows (Home Collections/Lists, Collections, Lists) |
 
 ## Navigation

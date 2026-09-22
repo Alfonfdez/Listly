@@ -325,3 +325,10 @@ pm run test:all green.
 - The transient confirmation is now action-specific: "List copied" (names only) vs "List + notes copied" (with notes), replacing the generic "Copied". i18n keys `list_copied` → `list_copied_names` / `list_copied_notes` (en/es).
 - Tests: split the confirmation test into the two specific labels. Suite baseline: 39 files, 296 tests, `npm run test:all` green.
 - Docs: updated `017-copy-list` 1-spec (icons, feedback, i18n) and 2-plan (i18n + data flow).
+
+[2026-09-22] ~ | Move delete out of detail headers into the Edit screens
+- Removed the delete (trash) icon from the `ListDetailScreen` and `CollectionDetailScreen` nav headers, which now show only the search/select toggles (gated on items / member lists). Removed the now-dead list/collection delete flows, `headerActions`/`trashSpacing` styles, and unused repo imports from those screens.
+- `ListForm` / `CollectionForm` gained optional `deleteLabel`/`onDelete` props rendering an outlined-red "Delete …" button above Save (create screens unaffected).
+- `EditListScreen` now hosts the list delete: confirm → `listRepo.delete` → `refresh()` → `popToTop()`. `EditCollectionScreen` hosts the collection delete: empty → single confirm, non-empty → `CollectionDeleteModal` (move / delete-lists-too) → `collectionRepo.delete(id, mode)` → `popToTop()`.
+- Tests: removed the list-delete tests from `ListDetailScreen`, added a delete-flow test to `EditListScreen`, removed the trash/delete tests from `CollectionDetailScreen`, and added `EditCollectionScreen.test.tsx` (empty confirm + move/cascade). Suite baseline: 40 files, 297 tests, `npm run test:all` green.
+- Docs: updated `016-collections` (1-spec sections 6/7/8/10 + criteria, plan, tasks), `013-edit-list` (1-spec + plan + tasks), roadmap 013/016 bullets, and `6-screens.md`.

@@ -12,7 +12,7 @@ import {
   type RootStackParamList,
 } from '../constants/types';
 import type { Item } from '../database/types';
-import { itemRepository as itemRepo, listRepository as listRepo } from '../database';
+import { itemRepository as itemRepo } from '../database';
 import { useApp } from '../context/AppContext';
 import { useConfig } from '../context/ConfigContext';
 import { useFontSize } from '../hooks/useFontSize';
@@ -57,7 +57,6 @@ export default function ListDetailScreen() {
   const [editing, setEditing] = useState<Item | null>(null);
   const [searchActive, setSearchActive] = useState(false);
   const [query, setQuery] = useState('');
-  const [deleteListVisible, setDeleteListVisible] = useState(false);
   const [copiedAction, setCopiedAction] = useState<'all' | 'names' | null>(null);
   const copyTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
   const {
@@ -97,31 +96,20 @@ export default function ListDetailScreen() {
 
   useEffect(() => {
     navigation.setOptions({
-      headerRight: () => (
-        <View style={styles.headerActions}>
-          {!selectMode ? (
-            <Pressable
-              onPress={() => setDeleteListVisible(true)}
-              accessibilityRole="button"
-              accessibilityLabel={labels.list_delete_label}
-              hitSlop={8}
-              style={({ pressed }) => [items.length > 0 && styles.trashSpacing, pressed && styles.pressed]}
-            >
-              <Ionicons name="trash-outline" size={20} color={c.red} />
-            </Pressable>
-          ) : null}
-          <SelectSearchHeader
-            selectMode={selectMode}
-            showSelect={items.length > 0}
-            showSearch={items.length > 0}
-            searchActive={searchActive}
-            onToggleSelect={toggleSelectMode}
-            onToggleSearch={toggleSearch}
-          />
-        </View>
-      ),
+      headerRight: items.length > 0
+        ? () => (
+            <SelectSearchHeader
+              selectMode={selectMode}
+              showSelect={items.length > 0}
+              showSearch={items.length > 0}
+              searchActive={searchActive}
+              onToggleSelect={toggleSelectMode}
+              onToggleSearch={toggleSearch}
+            />
+          )
+        : undefined,
     });
-  }, [navigation, selectMode, toggleSelectMode, searchActive, toggleSearch, items.length, labels.list_delete_label, c.red]);
+  }, [navigation, selectMode, toggleSelectMode, searchActive, toggleSearch, items.length]);
 
   useEffect(() => {
     return () => {
@@ -242,17 +230,6 @@ export default function ListDetailScreen() {
       console.error('Failed to delete item:', error);
     }
     void refresh();
-  };
-
-  const confirmDeleteList = async () => {
-    try {
-      await listRepo.delete(listId);
-      await refresh();
-      navigation.goBack();
-    } catch (error) {
-      console.error('Failed to delete list:', error);
-      setDeleteListVisible(false);
-    }
   };
 
   const header = (
@@ -457,17 +434,6 @@ export default function ListDetailScreen() {
       />
 
       <ConfirmModal
-        visible={deleteListVisible}
-        title={labels.list_delete_confirm}
-        message={labels.list_delete_message}
-        cancelLabel={labels.common_cancel}
-        confirmLabel={labels.list_delete_label}
-        onCancel={() => setDeleteListVisible(false)}
-        onConfirm={() => void confirmDeleteList()}
-        destructive
-      />
-
-      <ConfirmModal
         visible={deleteConfirmVisible}
         title={labels.select_delete_items_confirm(selectedIds.size)}
         message={labels.select_delete_items_message}
@@ -489,14 +455,6 @@ const styles = StyleSheet.create({
   center: {
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  headerActions: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-  },
-  trashSpacing: {
-    marginRight: 12,
   },
   listContent: {
     flexGrow: 1,

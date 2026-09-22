@@ -34,6 +34,7 @@ const { listRepositoryMock } = vi.hoisted(() => ({
   listRepositoryMock: {
     existsByName: vi.fn(),
     update: vi.fn(),
+    delete: vi.fn(),
   },
 }));
 
@@ -46,7 +47,7 @@ vi.mock('../../src/context/AppContext', () => ({
   AppProvider: ({ children }: { children: ReactNode }) => children as ReactNode,
 }));
 
-const nav = { goBack: vi.fn() };
+const nav = { goBack: vi.fn(), popToTop: vi.fn() };
 
 vi.mock('@react-navigation/native', () => ({
   useRoute: () => ({ params: { listId: 1 } }),
@@ -84,10 +85,13 @@ describe('EditListScreen', () => {
     resetStub();
     resetAppStub();
     nav.goBack.mockClear();
+    nav.popToTop.mockClear();
     listRepositoryMock.existsByName.mockReset();
     listRepositoryMock.update.mockReset();
+    listRepositoryMock.delete.mockReset();
     listRepositoryMock.existsByName.mockResolvedValue(false);
     listRepositoryMock.update.mockResolvedValue(undefined);
+    listRepositoryMock.delete.mockResolvedValue(undefined);
     setLists([LIST, OTHER]);
   });
 
@@ -162,5 +166,18 @@ describe('EditListScreen', () => {
     const view = await render(<EditListScreen />);
     expect(await view.findByText('No lists yet')).toBeTruthy();
     expect(view.queryByLabelText('Save')).toBeNull();
+  });
+
+  it('deletes the list after confirming and returns to the overview', async () => {
+    const user = userEvent.setup();
+    const view = await render(<EditListScreen />);
+    await user.press(view.getByLabelText('Delete list'));
+    expect(await view.findByText('Delete list?')).toBeTruthy();
+    expect(listRepositoryMock.delete).not.toHaveBeenCalled();
+
+    const buttons = view.getAllByLabelText('Delete list');
+    await user.press(buttons[buttons.length - 1]);
+    await waitFor(() => expect(listRepositoryMock.delete).toHaveBeenCalledWith(1));
+    expect(nav.popToTop).toHaveBeenCalled();
   });
 });
