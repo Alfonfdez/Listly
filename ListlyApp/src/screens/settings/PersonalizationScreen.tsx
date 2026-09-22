@@ -26,10 +26,25 @@ export default function PersonalizationScreen() {
       <ScrollView style={settingsStyles.container} contentContainerStyle={settingsStyles.content}>
         <SettingsSection title={labels.settings_home_screen}>
           <SettingsSelectRow
+            label={labels.collection_section_title}
+            options={layoutOptions}
+            selected={config.homeCollectionsLayout}
+            onSelect={homeCollectionsLayout => void updateConfig({ homeCollectionsLayout })}
+          />
+          <SettingsSelectRow
+            label={labels.home_section_lists}
+            options={layoutOptions}
+            selected={config.homeListsLayout}
+            onSelect={homeListsLayout => void updateConfig({ homeListsLayout })}
+          />
+        </SettingsSection>
+
+        <SettingsSection title={labels.settings_collections_screen}>
+          <SettingsSelectRow
             label={labels.settings_list_layout}
             options={layoutOptions}
-            selected={config.homeLayout}
-            onSelect={homeLayout => void updateConfig({ homeLayout })}
+            selected={config.collectionsLayout}
+            onSelect={collectionsLayout => void updateConfig({ collectionsLayout })}
           />
         </SettingsSection>
 

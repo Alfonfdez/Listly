@@ -8,6 +8,7 @@ import { CARD_BORDER_RADIUS, ALPHA_TINT, ALPHA_BADGE } from './componentStyles';
 import { withAlpha } from '../utils/color';
 import SortablePressable from './SortablePressable';
 import SelectionCheck from './SelectionCheck';
+import TypeBadge from './TypeBadge';
 import type { ListWithCounts } from '../database/types';
 import type { IconName } from '../constants/types';
 
@@ -50,6 +51,7 @@ function ListRowInner({ list, selectMode, selected, onPress }: Props) {
       <Text style={[styles.progress, { color: c.textSecondary, fontSize: fs(13) }]}>
         {labels.home_progress(list.completed, list.total)}
       </Text>
+      {!selectMode ? <TypeBadge type="list" /> : null}
     </SortablePressable>
   );
 }

@@ -40,6 +40,7 @@ export const MAX_ITEM_PICTURES = 3;
 export type RootStackParamList = {
   Home: undefined;
   Lists: undefined;
+  Collections: undefined;
   ListDetail: { listId: number };
   CreateList: { collectionId?: number } | undefined;
   EditList: { listId: number };

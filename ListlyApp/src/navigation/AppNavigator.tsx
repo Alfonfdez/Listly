@@ -18,6 +18,7 @@ import { useLabels } from '../hooks/useLabels';
 import type { RootStackParamList, IconName } from '../constants/types';
 import HomeScreen from '../screens/HomeScreen';
 import ListsScreen from '../screens/ListsScreen';
+import CollectionsScreen from '../screens/CollectionsScreen';
 import ListDetailScreen from '../screens/ListDetailScreen';
 import CreateListScreen from '../screens/CreateListScreen';
 import EditListScreen from '../screens/EditListScreen';
@@ -60,14 +61,14 @@ const StackHeaderLeft = memo(function StackHeaderLeft() {
   return <DrawerMenuButton accessibilityLabel={labels.home_open_menu} />;
 });
 
-type DrawerScreenName = 'Home' | 'Lists' | 'Settings';
+type DrawerScreenName = 'Home' | 'Lists' | 'Collections' | 'Settings';
 
 type DrawerItemDef =
   | { label: string; icon: IconName; screen: DrawerScreenName }
   | { separator: true };
 
 function openDrawerScreen(navigation: DrawerContentComponentProps['navigation'], screen: DrawerScreenName) {
-  if (screen === 'Home' || screen === 'Lists') {
+  if (screen === 'Home' || screen === 'Lists' || screen === 'Collections') {
     if (_stackNav) {
       _stackNav.dispatch(
         CommonActions.reset({
@@ -89,6 +90,7 @@ function CustomDrawerContent(props: DrawerContentComponentProps) {
 
   const drawerItems: DrawerItemDef[] = [
     { label: labels.nav_home, icon: 'home-outline', screen: 'Home' },
+    { label: labels.nav_collections, icon: 'albums-outline', screen: 'Collections' },
     { label: labels.nav_lists, icon: 'list-outline', screen: 'Lists' },
     { separator: true },
     { label: labels.nav_settings, icon: 'settings-outline', screen: 'Settings' },
@@ -133,6 +135,12 @@ function ListsNavCapture() {
   return <ListsScreen />;
 }
 
+function CollectionsNavCapture() {
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  useEffect(() => { _stackNav = navigation; }, [navigation]);
+  return <CollectionsScreen />;
+}
+
 const HomeStack = memo(function HomeStack() {
   const { activeColors: c } = useConfig();
   const labels = useLabels();
@@ -146,11 +154,12 @@ const HomeStack = memo(function HomeStack() {
   const screens = useMemo<ScreenDef[]>(() => [
     { name: 'Home', component: HomeNavCapture, title: labels.app_name, icon: 'home-outline', headerLeft: true },
     { name: 'Lists', component: ListsNavCapture, title: labels.nav_lists, icon: 'list-outline', headerLeft: true },
+    { name: 'Collections', component: CollectionsNavCapture, title: labels.nav_collections, icon: 'albums-outline', headerLeft: true },
     { name: 'ListDetail', component: ListDetailScreen, title: labels.list_detail_title, icon: 'checkbox-outline' },
     { name: 'CreateList', component: CreateListScreen, title: labels.create_list_title, icon: 'add-circle-outline' },
     { name: 'EditList', component: EditListScreen, title: labels.edit_list_title, icon: 'create-outline' },
-    { name: 'CollectionDetail', component: CollectionDetailScreen, title: labels.collection_detail_title, icon: 'folder-open-outline' },
-    { name: 'CreateCollection', component: CreateCollectionScreen, title: labels.create_collection_title, icon: 'folder-outline' },
+    { name: 'CollectionDetail', component: CollectionDetailScreen, title: labels.collection_detail_title, icon: 'albums-outline' },
+    { name: 'CreateCollection', component: CreateCollectionScreen, title: labels.create_collection_title, icon: 'albums-outline' },
     { name: 'EditCollection', component: EditCollectionScreen, title: labels.edit_collection_title, icon: 'create-outline' },
     { name: 'Settings', component: SettingsScreen, title: labels.settings_title, icon: 'settings-outline' },
     { name: 'SettingsAppearance', component: AppearanceScreen, title: labels.settings_appearance, icon: 'color-palette-outline' },

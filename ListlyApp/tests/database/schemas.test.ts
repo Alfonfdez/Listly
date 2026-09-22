@@ -53,7 +53,9 @@ describe('schemas', () => {
           theme: THEMES.dark,
           language: LANGUAGES.es,
           textSize: TEXT_SIZES.large,
-          homeLayout: LIST_LAYOUTS.list,
+          homeCollectionsLayout: LIST_LAYOUTS.list,
+          homeListsLayout: LIST_LAYOUTS.grid,
+          collectionsLayout: LIST_LAYOUTS.list,
           listsLayout: LIST_LAYOUTS.grid,
           showNotes: false,
           showPhotos: false,
@@ -64,7 +66,9 @@ describe('schemas', () => {
         theme: THEMES.dark,
         language: LANGUAGES.es,
         textSize: TEXT_SIZES.large,
-        homeLayout: LIST_LAYOUTS.list,
+        homeCollectionsLayout: LIST_LAYOUTS.list,
+        homeListsLayout: LIST_LAYOUTS.grid,
+        collectionsLayout: LIST_LAYOUTS.list,
         listsLayout: LIST_LAYOUTS.grid,
         showNotes: false,
         showPhotos: false,
@@ -81,7 +85,9 @@ describe('schemas', () => {
     });
 
     it('rejects an invalid list layout', () => {
-      expect(() => configSchema.parse({ ...DEFAULT_CONFIG, homeLayout: 'columns' })).toThrow();
+      expect(() => configSchema.parse({ ...DEFAULT_CONFIG, homeCollectionsLayout: 'columns' })).toThrow();
+      expect(() => configSchema.parse({ ...DEFAULT_CONFIG, homeListsLayout: 'columns' })).toThrow();
+      expect(() => configSchema.parse({ ...DEFAULT_CONFIG, collectionsLayout: 'columns' })).toThrow();
       expect(() => configSchema.parse({ ...DEFAULT_CONFIG, listsLayout: 'columns' })).toThrow();
     });
 

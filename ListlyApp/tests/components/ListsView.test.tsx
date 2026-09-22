@@ -2,9 +2,9 @@ import { describe, expect, it, beforeEach, afterEach, vi } from 'vitest';
 import { render, fireEvent, waitFor } from '@testing-library/react-native';
 import type { ReactNode } from 'react';
 import ListsView, { type ListsViewVariant, type ListViewMode } from '../../src/components/ListsView';
-import { buildAppMock, setItemsByListId, setLists, setBaseLists, resetAppStub } from '../helpers/appStub';
+import { buildAppMock, setItemsByListId, setLists, setBaseLists, setCollections, resetAppStub } from '../helpers/appStub';
 import { resetStub } from '../helpers/configStub';
-import type { Item, ListWithCounts } from '../../src/database/types';
+import type { CollectionWithCounts, Item, ListWithCounts } from '../../src/database/types';
 
 vi.mock('expo-sqlite', () => ({ openDatabaseSync: vi.fn() }));
 
@@ -14,8 +14,9 @@ vi.mock('../../src/context/AppContext', () => ({
 }));
 
 vi.mock('../../src/database', () => ({
-  listRepository: { deleteMany: vi.fn(async () => {}) },
+  listRepository: { deleteMany: vi.fn(async () => {}), reorder: vi.fn(async () => {}) },
   itemRepository: {},
+  collectionRepository: { deleteMany: vi.fn(async () => {}), reorder: vi.fn(async () => {}) },
 }));
 
 const nav = { navigate: vi.fn() };
@@ -41,17 +42,20 @@ function items(names: string[]): Item[] {
 
 interface Overrides {
   variant?: ListsViewVariant;
+  collectionsVariant?: ListsViewVariant;
   mode?: ListViewMode;
   searchActive?: boolean;
   query?: string;
   selectMode?: boolean;
   selectedIds?: ReadonlySet<number>;
+  selectedCollectionIds?: ReadonlySet<number>;
   deleteConfirmVisible?: boolean;
 }
 
 function renderView(overrides: Overrides = {}) {
   const props = {
     variant: overrides.variant ?? 'grid',
+    collectionsVariant: overrides.collectionsVariant ?? 'grid',
     mode: overrides.mode ?? 'home',
     searchActive: overrides.searchActive ?? false,
     query: overrides.query ?? '',
@@ -59,16 +63,22 @@ function renderView(overrides: Overrides = {}) {
     onSearchClose: vi.fn(),
     selectMode: overrides.selectMode ?? false,
     selectedIds: overrides.selectedIds ?? new Set<number>(),
+    selectedCollectionIds: overrides.selectedCollectionIds ?? new Set<number>(),
     onToggleItem: vi.fn(),
+    onToggleCollection: vi.fn(),
     onOpenDeleteConfirm: vi.fn(),
     onExitSelectMode: vi.fn(),
     deleteConfirmVisible: overrides.deleteConfirmVisible ?? false,
     onCancelDeleteConfirm: vi.fn(),
     onConfirmDelete: vi.fn(),
-    selectedCount: overrides.selectedIds?.size ?? 0,
+    selectedCount: (overrides.selectedIds?.size ?? 0) + (overrides.selectedCollectionIds?.size ?? 0),
   };
   return render(<ListsView {...props} />);
 }
+
+const COLLECTIONS: CollectionWithCounts[] = [
+  { id: 10, name: 'Shopping', color: '#A78BFA', icon: 'cart-outline', created_at: 'x', position: 0, total: 5, completed: 2 },
+];
 
 describe('ListsView', () => {
   beforeEach(() => {
@@ -125,13 +135,16 @@ const onToggleItem = vi.fn();
       <ListsView
         mode="home"
         variant="grid"
+        collectionsVariant="grid"
         searchActive={false}
         query=""
         onQueryChange={vi.fn()}
         onSearchClose={vi.fn()}
         selectMode
         selectedIds={new Set([1])}
+        selectedCollectionIds={new Set()}
         onToggleItem={onToggleItem}
+        onToggleCollection={vi.fn()}
         onOpenDeleteConfirm={vi.fn()}
         onExitSelectMode={onExitSelectMode}
         deleteConfirmVisible={false}
@@ -150,6 +163,7 @@ const onToggleItem = vi.fn();
     const view = await render(
       <ListsView
         variant="grid"
+        collectionsVariant="grid"
         mode="home"
         searchActive={false}
         query=""
@@ -157,7 +171,9 @@ const onToggleItem = vi.fn();
         onSearchClose={vi.fn()}
         selectMode
         selectedIds={new Set([1])}
+        selectedCollectionIds={new Set()}
         onToggleItem={vi.fn()}
+        onToggleCollection={vi.fn()}
         onOpenDeleteConfirm={onOpenDeleteConfirm}
         onExitSelectMode={vi.fn()}
         deleteConfirmVisible={false}
@@ -176,6 +192,7 @@ const onToggleItem = vi.fn();
     const view = await render(
       <ListsView
         variant="grid"
+        collectionsVariant="grid"
         mode="home"
         searchActive={false}
         query=""
@@ -183,7 +200,9 @@ const onToggleItem = vi.fn();
         onSearchClose={vi.fn()}
         selectMode
         selectedIds={new Set([1])}
+        selectedCollectionIds={new Set()}
         onToggleItem={vi.fn()}
+        onToggleCollection={vi.fn()}
         onOpenDeleteConfirm={vi.fn()}
         onExitSelectMode={onExitSelectMode}
         deleteConfirmVisible={false}
@@ -208,5 +227,48 @@ const onToggleItem = vi.fn();
     await view.findByText('Groceries');
     fireEvent.press(view.getByText('Groceries'));
     expect(nav.navigate).toHaveBeenCalledWith('ListDetail', { listId: 1 });
+  });
+
+  it('renders the Collections section above Lists on Home', async () => {
+    setCollections(COLLECTIONS);
+    const view = await renderView();
+    expect(await view.findByText('Collections')).toBeTruthy();
+    expect(view.getByText('Shopping')).toBeTruthy();
+  });
+
+  it('navigates to collection detail when a collection tile is pressed', async () => {
+    setCollections(COLLECTIONS);
+    const view = await renderView();
+    await view.findByText('Shopping');
+    fireEvent.press(view.getByText('Shopping'));
+    expect(nav.navigate).toHaveBeenCalledWith('CollectionDetail', { collectionId: 10 });
+  });
+
+  it('toggles a collection instead of navigating in select mode', async () => {
+    setCollections(COLLECTIONS);
+    const view = await renderView({ selectMode: true });
+    await view.findByText('Shopping');
+    fireEvent.press(view.getByRole('checkbox', { name: /Shopping/ }));
+    expect(nav.navigate).not.toHaveBeenCalledWith('CollectionDetail', { collectionId: 10 });
+  });
+
+  it('supports the collections-only mode with empty state and add-collection FAB', async () => {
+    const view = await renderView({ mode: 'collections' });
+    expect(await view.findByText('No collections yet')).toBeTruthy();
+    expect(view.getByText('Tap + to create your first collection')).toBeTruthy();
+    expect(view.getByLabelText('Add collection')).toBeTruthy();
+    expect(view.queryByLabelText('Add list')).toBeNull();
+  });
+
+  it('renders collection rows for the list variant on Home', async () => {
+    setCollections(COLLECTIONS);
+    const view = await renderView({ collectionsVariant: 'list' });
+    expect(await view.findByText('Shopping')).toBeTruthy();
+  });
+
+  it('shows collections alongside lists in the select-mode count', async () => {
+    setCollections(COLLECTIONS);
+    const view = await renderView({ selectMode: true, selectedIds: new Set([1]), selectedCollectionIds: new Set([10]) });
+    expect(await view.findByText('2 selected')).toBeTruthy();
   });
 });

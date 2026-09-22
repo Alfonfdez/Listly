@@ -31,6 +31,14 @@ describe('ListCard', () => {
     expect(view.getByText('2/5')).toBeTruthy();
   });
 
+  it('shows a list type badge outside select mode', async () => {
+    const view = await render(
+      <ListCard list={LIST} selectMode={false} selected={false} onPress={() => {}} />
+    );
+
+    expect(view.getByText('list-outline')).toBeTruthy();
+  });
+
   it('calls onPress when pressed', async () => {
     const onPress = vi.fn();
     const view = await render(

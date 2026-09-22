@@ -45,7 +45,7 @@ export default function AddChooserModal({ visible, onClose, onAddList, onAddColl
         {labels.home_add_choice_title}
       </Text>
       <View style={styles.stack}>
-        {row('folder-outline', labels.home_add_collection, onAddCollection, labels.home_add_collection)}
+        {row('albums-outline', labels.home_add_collection, onAddCollection, labels.home_add_collection)}
         {row('list-outline', labels.home_add, onAddList, labels.home_add)}
       </View>
       <ModalFooter confirmLabel={labels.common_close} onConfirm={onClose} />
