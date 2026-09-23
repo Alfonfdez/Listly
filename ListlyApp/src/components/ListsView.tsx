@@ -1,16 +1,17 @@
-import { useCallback, useMemo, useRef, useState, type ReactNode } from 'react';
-import { ActivityIndicator, ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { useCallback, useMemo, useState, type ReactNode } from 'react';
+import { ActivityIndicator, ScrollView, StyleSheet, View, useWindowDimensions } from 'react-native';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
-import Sortable, { type DragStartParams, type SortableGridRenderItem } from 'react-native-sortables';
+import Sortable, { type SortableGridRenderItem } from 'react-native-sortables';
 import { useApp } from '../context/AppContext';
 import { useConfig } from '../context/ConfigContext';
-import { collectionRepository as collectionRepo, listRepository as listRepo } from '../database';
+import { collectionRepository as collectionRepo } from '../database';
 import type { CollectionWithCounts, ListWithCounts } from '../database/types';
 import { useLabels } from '../hooks/useLabels';
-import { useFontSize } from '../hooks/useFontSize';
+import { useDragOrder } from '../hooks/useDragOrder';
+import { useCollectionDropZones } from '../hooks/useCollectionDropZones';
 import { filterListsByQuery } from '../utils/search';
 import type { NavigationProp } from '../constants/types';
+import { ICONS } from '../constants/icons';
 import ScreenShell from './ScreenShell';
 import SearchBar from './SearchBar';
 import EmptyState from './EmptyState';
@@ -22,20 +23,9 @@ import Fab from './Fab';
 import AddChooserModal from './AddChooserModal';
 import SelectionActionBar from './SelectionActionBar';
 import ConfirmModal from './ConfirmModal';
-import { useDragOrder } from '../hooks/useDragOrder';
-import { withAlpha } from '../utils/color';
-import { TRANSPARENT } from '../constants/themes';
-import { ICONS } from '../constants/icons';
-import {
-  GRID_GAP,
-  WIDE_BREAKPOINT,
-  MEDIUM_BREAKPOINT,
-  ALPHA_TINT,
-  ALPHA_SUBTLE,
-  FAB_SIZE,
-  FAB_BOTTOM_OFFSET,
-  ZONE_MIN_ACTIVATION_DISTANCE,
-} from './componentStyles';
+import SectionTitle from './SectionTitle';
+import RemoveFromCollectionTarget from './RemoveFromCollectionTarget';
+import { GRID_GAP, WIDE_BREAKPOINT, MEDIUM_BREAKPOINT, ZONE_MIN_ACTIVATION_DISTANCE } from './componentStyles';
 
 export type ListViewMode = 'home' | 'lists' | 'collections' | 'collection';
 export type ListsViewVariant = 'grid' | 'list';
@@ -94,7 +84,6 @@ export default function ListsView({
   const navigation = useNavigation<NavigationProp<'Home'>>();
   const { lists, collections, listsByCollectionId, baseLists, itemsByListId, loading, refresh } = useApp();
   const { activeColors: c } = useConfig();
-  const fs = useFontSize();
   const labels = useLabels();
   const [chooserVisible, setChooserVisible] = useState(false);
 
@@ -129,23 +118,24 @@ export default function ListsView({
     return collections.filter(col => col.name.toLowerCase().includes(needle));
   }, [collections, query]);
 
-  const { display: displayLists, onDragEnd: handleDragEnd } = useDragOrder(
-    filteredLists,
-    useCallback((ids: number[]) => {
-      setRemoveTargetActive(false);
-      if (zoneDropHandledRef.current) {
-        zoneDropHandledRef.current = false;
-        if (pendingMoveRef.current === null) void refresh();
-        return;
-      }
-      if (hoverCollectionIdRef.current !== null) {
-        void refresh();
-        return;
-      }
-      void listRepo.reorder(ids);
-      void refresh();
-    }, [refresh])
-  );
+  const inCollectionDetail = mode === 'collection';
+
+  const {
+    hoverCollectionId,
+    removeTargetActive,
+    removeHover,
+    handleListsDragStart,
+    handleCollectionsDragStart,
+    handleListsDragEnd,
+    handleZoneEnter,
+    handleZoneLeave,
+    handleZoneDrop,
+    handleRemoveZoneEnter,
+    handleRemoveZoneLeave,
+    handleRemoveZoneDrop,
+  } = useCollectionDropZones({ refresh, inCollectionDetail });
+
+  const { display: displayLists, onDragEnd: handleDragEnd } = useDragOrder(filteredLists, handleListsDragEnd);
 
   const { display: displayCollections, onDragEnd: handleCollectionsDragEnd } = useDragOrder(
     filteredCollections,
@@ -175,89 +165,6 @@ export default function ListsView({
       }
     },
     [selectMode, onToggleCollection, navigation]
-  );
-
-  const [hoverCollectionId, setHoverCollectionId] = useState<number | null>(null);
-  const [removeTargetActive, setRemoveTargetActive] = useState(false);
-  const [removeHover, setRemoveHover] = useState(false);
-  const hoverCollectionIdRef = useRef<number | null>(null);
-  const draggingListRef = useRef<number | null>(null);
-  const zoneDropHandledRef = useRef(false);
-  const pendingMoveRef = useRef<Promise<void> | null>(null);
-
-  const inCollectionDetail = mode === 'collection';
-
-  const handleListsDragStart = useCallback(
-    (params: DragStartParams) => {
-      draggingListRef.current = Number(params.key);
-      setHoverCollectionId(null);
-      hoverCollectionIdRef.current = null;
-      setRemoveHover(false);
-      setRemoveTargetActive(inCollectionDetail);
-    },
-    [inCollectionDetail]
-  );
-
-  const handleCollectionsDragStart = useCallback(() => {
-    draggingListRef.current = null;
-    setHoverCollectionId(null);
-    hoverCollectionIdRef.current = null;
-    setRemoveHover(false);
-    setRemoveTargetActive(false);
-  }, []);
-
-  const handleRemoveZoneEnter = useCallback(() => {
-    if (draggingListRef.current === null) return;
-    setRemoveHover(true);
-  }, []);
-
-  const handleRemoveZoneLeave = useCallback(() => {
-    setRemoveHover(false);
-  }, []);
-
-  const performZoneDrop = useCallback(
-    (action: (listId: number) => Promise<void>) => {
-      const listId = draggingListRef.current;
-      if (listId === null) return;
-      draggingListRef.current = null;
-      zoneDropHandledRef.current = true;
-      const move = action(listId);
-      pendingMoveRef.current = move;
-      void move.then(() => {
-        pendingMoveRef.current = null;
-        void refresh();
-      });
-    },
-    [refresh]
-  );
-
-  const handleRemoveZoneDrop = useCallback(() => {
-    setRemoveHover(false);
-    setRemoveTargetActive(false);
-    performZoneDrop(id => listRepo.removeFromCollection(id));
-  }, [performZoneDrop]);
-
-  const handleZoneEnter = useCallback(
-    (collectionId: number) => {
-      if (draggingListRef.current === null) return;
-      setHoverCollectionId(collectionId);
-      hoverCollectionIdRef.current = collectionId;
-    },
-    []
-  );
-
-  const handleZoneLeave = useCallback(() => {
-    setHoverCollectionId(null);
-    hoverCollectionIdRef.current = null;
-  }, []);
-
-  const handleZoneDrop = useCallback(
-    (collectionId: number) => {
-      setHoverCollectionId(null);
-      hoverCollectionIdRef.current = null;
-      performZoneDrop(id => listRepo.moveToCollection(id, collectionId));
-    },
-    [performZoneDrop]
   );
 
   const renderItem = useCallback<SortableGridRenderItem<ListWithCounts>>(
@@ -395,12 +302,7 @@ export default function ListsView({
           {hasContent ? (
             <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
               {inHome && displayCollections.length > 0 && (
-                <View style={styles.sectionTitleRow}>
-                  <Ionicons name={ICONS.collection} size={14} color={c.textSecondary} />
-                  <Text style={[styles.sectionTitle, { color: c.textSecondary, fontSize: fs(12) }]}>
-                    {labels.collection_section_title}
-                  </Text>
-                </View>
+                <SectionTitle icon={ICONS.collection} label={labels.collection_section_title} />
               )}
               {showCollectionsSection && (
                 <Sortable.Grid
@@ -417,12 +319,7 @@ export default function ListsView({
                 />
               )}
               {inHome && displayLists.length > 0 && (
-                <View style={styles.sectionTitleRow}>
-                  <Ionicons name={ICONS.list} size={14} color={c.textSecondary} />
-                  <Text style={[styles.sectionTitle, { color: c.textSecondary, fontSize: fs(12) }]}>
-                    {labels.home_section_lists}
-                  </Text>
-                </View>
+                <SectionTitle icon={ICONS.list} label={labels.home_section_lists} />
               )}
               {showListsSection && (
                 <Sortable.Grid
@@ -444,30 +341,15 @@ export default function ListsView({
           )}
 
           {inCollectionDetail && (
-            <Sortable.BaseZone
+            <RemoveFromCollectionTarget
+              active={removeTargetActive}
+              hover={removeHover}
               onItemEnter={handleRemoveZoneEnter}
               onItemLeave={handleRemoveZoneLeave}
               onItemDrop={handleRemoveZoneDrop}
-              style={[
-                styles.removeTarget,
-                {
-                  opacity: removeTargetActive ? 1 : 0,
-                  borderColor: removeHover ? c.primary : TRANSPARENT,
-                  backgroundColor: removeHover
-                    ? withAlpha(c.primary, ALPHA_TINT)
-                    : withAlpha(c.textSecondary, ALPHA_SUBTLE),
-                },
-              ]}
-              pointerEvents={removeTargetActive ? 'auto' : 'none'}
-              accessibilityRole="button"
-              accessibilityLabel={labels.collection_remove_label}
-              accessibilityHint={removeTargetActive ? labels.collection_remove_hint : undefined}
-            >
-              <Ionicons name={ICONS.removeFromCollection} size={20} color={removeHover ? c.primary : c.textSecondary} />
-              <Text style={[styles.removeTargetText, { color: removeHover ? c.primary : c.textSecondary, fontSize: fs(13) }]}>
-                {labels.collection_remove_label}
-              </Text>
-            </Sortable.BaseZone>
+              label={labels.collection_remove_label}
+              hint={labels.collection_remove_hint}
+            />
           )}
         </Sortable.MultiZoneProvider>
 
@@ -541,31 +423,5 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     paddingBottom: 96,
     gap: 12,
-  },
-  sectionTitle: {
-    fontWeight: '700',
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
-  },
-  sectionTitleRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    marginTop: 8,
-  },
-  removeTarget: {
-    position: 'absolute',
-    alignSelf: 'center',
-    bottom: FAB_BOTTOM_OFFSET + FAB_SIZE + 16,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    paddingVertical: 10,
-    paddingHorizontal: 18,
-    borderRadius: 24,
-    borderWidth: 1,
-  },
-  removeTargetText: {
-    fontWeight: '600',
   },
 });
