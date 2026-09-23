@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react';
 import { Animated, StyleSheet, Text } from 'react-native';
 import { useConfig } from '../context/ConfigContext';
 import { useFontSize } from '../hooks/useFontSize';
+import { isNative } from '../utils/platform';
 import { MODAL_BORDER_RADIUS } from './componentStyles';
 
 interface Props {
@@ -17,7 +18,7 @@ export default function Toast({ message }: Props) {
     Animated.timing(opacity, {
       toValue: message ? 1 : 0,
       duration: 200,
-      useNativeDriver: true,
+      useNativeDriver: isNative,
     }).start();
   }, [message, opacity]);
 
