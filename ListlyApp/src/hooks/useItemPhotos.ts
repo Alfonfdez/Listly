@@ -32,43 +32,32 @@ async function copyPhotoToStorage(src: string): Promise<string> {
 export function useItemPhotos(initialPhotos: string[] = []) {
   const [photos, setPhotos] = useState<string[]>(initialPhotos);
 
+  const addAsset = useCallback(async (asset: ImagePicker.ImagePickerAsset) => {
+    try {
+      const uri = isWeb ? await webPhotoUri(asset) : await copyPhotoToStorage(asset.uri);
+      setPhotos(prev => [...prev, uri]);
+    } catch (err) {
+      console.error('Failed to add photo:', err);
+    }
+  }, []);
+
   const handleTakePhoto = useCallback(async () => {
     const { status } = await ImagePicker.requestCameraPermissionsAsync();
     if (status !== 'granted') return;
     const result = await ImagePicker.launchCameraAsync({ mediaTypes: ['images'], quality: PHOTO_QUALITY });
     if (!result.canceled && result.assets[0]) {
-      try {
-        const dest = await copyPhotoToStorage(result.assets[0].uri);
-        setPhotos(prev => [...prev, dest]);
-      } catch (err) {
-        console.error('Failed to copy photo:', err);
-      }
+      await addAsset(result.assets[0]);
     }
-  }, []);
+  }, [addAsset]);
 
   const handlePickFromGallery = useCallback(async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== 'granted') return;
     const result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ['images'], quality: PHOTO_QUALITY });
     if (!result.canceled && result.assets[0]) {
-      const asset = result.assets[0];
-      if (isWeb) {
-        try {
-          const dataUri = await webPhotoUri(asset);
-          setPhotos(prev => [...prev, dataUri]);
-        } catch (err) {
-          console.error('Failed to read photo:', err);
-        }
-        return;
-      }
-      try {
-        const dest = await copyPhotoToStorage(asset.uri);
-        setPhotos(prev => [...prev, dest]);
-      } catch (err) {
-        console.error('Failed to copy photo:', err);
-      }
+      await addAsset(result.assets[0]);
     }
-  }, []);
+  }, [addAsset]);
 
   const handleRemovePhoto = useCallback(async (uri: string) => {
     await deleteItemPhotos([uri]);

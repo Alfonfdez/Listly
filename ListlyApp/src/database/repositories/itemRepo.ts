@@ -6,15 +6,7 @@ import type { Item } from '../types';
 import { itemSchema } from '../schemas';
 import { parseRowOrNull, parseRows } from '../validate';
 import { dbTimestamp } from '../../utils/formatters';
-import { deleteItemPhotos, parseItemPhotos } from '../../utils/itemPhotos';
-
-async function deletePhotosOf(rows: { pictures: string | null }[]): Promise<void> {
-  const uris: string[] = [];
-  for (const row of rows) {
-    uris.push(...parseItemPhotos(row.pictures));
-  }
-  await deleteItemPhotos(uris);
-}
+import { deletePhotosOfItems } from './shared';
 
 export const itemRepo = {
   async listAll(): Promise<Item[]> {
@@ -84,7 +76,7 @@ export const itemRepo = {
     const db = await getDrizzle();
     const row = await db.select({ pictures: items.pictures }).from(items).where(eq(items.id, id)).get();
     await db.delete(items).where(eq(items.id, id)).run();
-    await deletePhotosOf(row ? [row] : []);
+    await deletePhotosOfItems(row ? [row] : []);
   },
 
   async deleteMany(ids: number[]): Promise<void> {
@@ -92,7 +84,7 @@ export const itemRepo = {
     await withTransaction(async db => {
       const rows = await db.select({ pictures: items.pictures }).from(items).where(inArray(items.id, ids)).all();
       await db.delete(items).where(inArray(items.id, ids)).run();
-      await deletePhotosOf(rows);
+      await deletePhotosOfItems(rows);
     });
   },
 

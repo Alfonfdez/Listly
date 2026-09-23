@@ -6,18 +6,7 @@ import type { Collection, CollectionWithCounts } from '../types';
 import { collectionSchema } from '../schemas';
 import { parseRowOrNull, parseRows } from '../validate';
 import { dbTimestamp } from '../../utils/formatters';
-import { deleteItemPhotos, parseItemPhotos } from '../../utils/itemPhotos';
-
-async function deletePhotosOfItems(listIds: number[]): Promise<void> {
-  const db = await getDrizzle();
-  const rows = await db
-    .select({ pictures: items.pictures })
-    .from(items)
-    .where(inArray(items.list_id, listIds))
-    .all();
-  const uris = rows.flatMap(row => parseItemPhotos(row.pictures));
-  await deleteItemPhotos(uris);
-}
+import { countsSelection, deletePhotosOfLists, nextPositionSql } from './shared';
 
 export type NewCollection = Omit<Collection, 'id' | 'created_at' | 'position'>;
 
@@ -37,7 +26,7 @@ export const collectionRepo = {
   async create(data: NewCollection): Promise<Collection> {
     const db = await getDrizzle();
     const maxRow = await db
-      .select({ m: sql<number>`COALESCE(MAX(${collections.position}), -1) + 1` })
+      .select({ m: nextPositionSql(collections.position) })
       .from(collections)
       .get();
     const position = maxRow?.m ?? 0;
@@ -88,7 +77,7 @@ export const collectionRepo = {
       }
       await db.delete(collections).where(eq(collections.id, id)).run();
     });
-    await deletePhotosOfItems(listIds);
+    await deletePhotosOfLists(listIds);
   },
 
   async deleteMany(ids: number[], mode: 'move' | 'cascade' = 'cascade'): Promise<void> {
@@ -109,7 +98,7 @@ export const collectionRepo = {
       }
       await tx.delete(collections).where(inArray(collections.id, ids)).run();
     });
-    await deletePhotosOfItems(listIds);
+    await deletePhotosOfLists(listIds);
   },
 
   async withCounts(): Promise<CollectionWithCounts[]> {
@@ -122,8 +111,7 @@ export const collectionRepo = {
         icon: collections.icon,
         created_at: collections.created_at,
         position: collections.position,
-        total: sql<number>`COUNT(${items.id})`,
-        completed: sql<number>`COALESCE(SUM(CASE WHEN ${items.checked} = 1 THEN 1 ELSE 0 END), 0)`,
+        ...countsSelection,
       })
       .from(collections)
       .leftJoin(lists, eq(lists.collection_id, collections.id))

@@ -379,3 +379,11 @@ pm run test:all green.
 - `ListsScreenBase.tsx`: extracted `resetSelectionExtras()` (toggle/exit select) and merged `performCollectionDelete` / `confirmCombinedDelete` into one `runCollectionDelete(mode, closeModal, errorLabel)`.
 - `ListsView.tsx`: extracted `performZoneDrop(action)` shared by the collection-hover drop and the remove-from-collection drop.
 - Behavior-preserving; `npm run test:all` green (41 files, 319 tests).
+
+[2026-09-23] ~ | Refactor: repository helpers + config/validation (Phase 3 core + Phase 5)
+- New `src/database/repositories/shared.ts` with `countsSelection` (`total`/`completed` SQL), `nextPositionSql(column)` (`COALESCE(MAX(...), -1) + 1`), `deletePhotosOfItems(rows)` and `deletePhotosOfLists(listIds)`.
+- `listRepo.ts` / `collectionRepo.ts` / `itemRepo.ts` now use the shared helpers (removed the duplicated photo-cleanup function, the `nextPosition` SQL literal and the withCounts aggregate SQL).
+- `configDefaults.ts`: dropped the parallel `CONFIG_VALUE_KINDS` map; `decodeConfigValue` derives the value kind from `DEFAULT_CONFIG`.
+- `validation.ts`: single `validateName(value, maxLength, isDuplicate)` core behind `validateItemName` / `validateListName` / `validateCollectionName` (public APIs unchanged).
+- `useItemPhotos.ts`: extracted `addAsset(asset)` shared by the camera and gallery pickers.
+- Behavior-preserving; `npm run test:all` green (41 files, 319 tests).

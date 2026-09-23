@@ -4,34 +4,31 @@ import {
   MAX_LIST_NAME_LENGTH,
 } from '../constants/types';
 
-export type ItemNameError = 'item_name_required' | 'item_name_duplicate' | 'item_name_max';
+type NameErrorCode = 'name_required' | 'name_max' | 'name_duplicate';
+
+function validateName(
+  value: string,
+  maxLength: number,
+  isDuplicate: (normalized: string) => boolean
+): NameErrorCode | null {
+  const trimmed = value.trim();
+  if (trimmed.length === 0) return 'name_required';
+  if (trimmed.length > maxLength) return 'name_max';
+  if (isDuplicate(trimmed.toLowerCase())) return 'name_duplicate';
+  return null;
+}
+
+export type ItemNameError = `item_${NameErrorCode}`;
+export type ListNameError = `list_${NameErrorCode}`;
+export type CollectionNameError = `collection_${NameErrorCode}`;
 
 export function validateItemName(
   value: string,
   existingNames: ReadonlySet<string>,
   maxLength = MAX_ITEM_NAME_LENGTH
 ): ItemNameError | null {
-  const trimmed = value.trim();
-  if (trimmed.length === 0) return 'item_name_required';
-  if (trimmed.length > maxLength) return 'item_name_max';
-  if (existingNames.has(trimmed.toLowerCase())) return 'item_name_duplicate';
-  return null;
-}
-
-export type ListNameError = 'list_name_required' | 'list_name_max' | 'list_name_duplicate';
-export type CollectionNameError =
-  | 'collection_name_required'
-  | 'collection_name_max'
-  | 'collection_name_duplicate';
-
-type NameErrorCode = 'name_required' | 'name_max' | 'name_duplicate';
-
-function validateName(value: string, exists: boolean, maxLength: number): NameErrorCode | null {
-  const trimmed = value.trim();
-  if (trimmed.length === 0) return 'name_required';
-  if (trimmed.length > maxLength) return 'name_max';
-  if (exists) return 'name_duplicate';
-  return null;
+  const code = validateName(value, maxLength, normalized => existingNames.has(normalized));
+  return code ? (`item_${code}` as ItemNameError) : null;
 }
 
 export function validateListName(
@@ -39,7 +36,7 @@ export function validateListName(
   exists: boolean,
   maxLength = MAX_LIST_NAME_LENGTH
 ): ListNameError | null {
-  const code = validateName(value, exists, maxLength);
+  const code = validateName(value, maxLength, () => exists);
   return code ? (`list_${code}` as ListNameError) : null;
 }
 
@@ -48,7 +45,7 @@ export function validateCollectionName(
   exists: boolean,
   maxLength = MAX_COLLECTION_NAME_LENGTH
 ): CollectionNameError | null {
-  const code = validateName(value, exists, maxLength);
+  const code = validateName(value, maxLength, () => exists);
   return code ? (`collection_${code}` as CollectionNameError) : null;
 }
 
