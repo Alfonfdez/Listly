@@ -440,3 +440,7 @@ pm run test:all green.
 [2026-09-23] ~ | Fix: hide ListCard reserved collection line on native
 - In `ListCard`, the reserved collection slot (standalone lists on the Lists screen grid) is now hidden with `opacity: 0` on the row instead of `color: 'transparent'` on the icon/text, which was not reliably invisible on Android. `color` falls back to `c.textSecondary`; the row still occupies its line so card heights stay uniform.
 - Web behavior is unchanged (already invisible); `npm run test:all` green (44 files, 333 tests).
+
+[2026-09-23] ~ | Fix: Toast native-driver warning on web
+- `Toast.tsx` now uses `useNativeDriver: isNative` (from `utils/platform`) instead of `true`, removing the web warning "useNativeDriver is not supported because the native animated module is missing"; the native driver is still used on iOS/Android.
+- `npm run test:all` green (44 files, 333 tests); web load shows no `useNativeDriver` warning.
