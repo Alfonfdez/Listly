@@ -30,9 +30,10 @@ Listly 1.0 screens. Each maps to a feature spec (`spec/features/<NNN>-…/`) wit
 - Empty state when the list has no items.
 - Delete lives on Edit List (pencil → Edit List → Delete).
 
-## 5. Collection detail (016-collections)
+## 5. Collection detail (016-collections, 019-remove-list-from-collection)
 - Header block: tinted badge, colored name, N/total, edit pencil.
 - Member lists grid with search, select-mode bulk delete, reorder, and empty state; FAB adds a list into the collection.
+- Dragging a member up to a "Remove from collection" target that appears at the bottom of the screen (above the FAB) takes the list out of the collection and makes it standalone; the target is highlighted while hovered, and members stay draggable even with a single member.
 - Delete lives on Edit Collection (pencil → Edit Collection → Delete): empty → single confirm; non-empty → move-lists-to-Lists or delete-lists-too.
 
 ## 6. Create / Edit List (004, 006, 013)

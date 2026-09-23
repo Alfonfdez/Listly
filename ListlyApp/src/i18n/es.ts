@@ -61,6 +61,8 @@ export const es: Translations = {
   home_empty_all_hint: 'Pulsa + para crear tu primera colección o lista',
   home_no_results: 'Sin resultados',
   home_drop_hint: 'Suelta para mover la lista a esta colección',
+  collection_remove_label: 'Quitar de la colección',
+  collection_remove_hint: 'Suelta para quitar esta lista de la colección',
   item_add_placeholder: 'Añade un elemento...',
   item_search_placeholder: 'Buscar elementos...',
   item_add: 'Añadir',

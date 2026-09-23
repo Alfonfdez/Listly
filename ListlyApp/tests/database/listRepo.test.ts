@@ -102,3 +102,49 @@ describe('listRepo.moveToCollection', () => {
     expect((await b.lists.get(a2.id))?.position).toBe(1);
   });
 });
+
+describe('listRepo.removeFromCollection', () => {
+  let b: Backend;
+
+  beforeAll(async () => {
+    await initSqlJsOnce();
+  });
+
+  beforeEach(async () => {
+    b = await createBackend();
+  });
+
+  it('removes a member from its collection making it a standalone list at the end', async () => {
+    const { a, a1, a2, free } = await seedTwoCollections(b);
+    await b.lists.moveToCollection(free.id, a.id);
+    expect((await b.lists.get(free.id))?.collection_id).toBe(a.id);
+
+    await b.lists.removeFromCollection(a1.id);
+
+    expect((await b.lists.get(a1.id))?.collection_id).toBeNull();
+    expect((await b.lists.get(free.id))?.collection_id).toBe(a.id);
+    expect((await b.lists.get(free.id))?.position).toBe(2);
+    expect((await b.lists.get(a1.id))?.position).toBe(0);
+  });
+
+  it('removes the only member of a collection', async () => {
+    const { bcol, free } = await seedTwoCollections(b);
+    await b.lists.moveToCollection(free.id, bcol.id);
+
+    await b.lists.removeFromCollection(free.id);
+
+    expect((await b.lists.get(free.id))?.collection_id).toBeNull();
+    expect((await b.lists.get(free.id))?.position).toBe(0);
+  });
+
+it('appends the removed list after existing standalone lists', async () => {
+    const { a, a1, a2 } = await seedTwoCollections(b);
+
+    await b.lists.removeFromCollection(a1.id);
+
+    expect((await b.lists.get(a1.id))?.collection_id).toBeNull();
+    expect((await b.lists.get(a1.id))?.position).toBe(1);
+    expect((await b.lists.get(a2.id))?.collection_id).toBe(a.id);
+    expect((await b.lists.get(a2.id))?.position).toBe(1);
+  });
+});

@@ -1,5 +1,5 @@
 import React, { Fragment, type ElementType, type ReactNode } from 'react';
-import { Pressable } from 'react-native';
+import { Pressable, View } from 'react-native';
 
 interface GridProps {
   data?: unknown[];
@@ -56,7 +56,12 @@ let lastZoneHandlerProps: ZoneHandlersProps[] = [];
 
 const BaseZone = (props: ZoneHandlersProps) => {
   lastZoneHandlerProps.push(props);
-  return React.createElement(Fragment, null, props.children);
+  const { children, onItemEnter, onItemLeave, onItemDrop, minActivationDistance, ...viewProps } = props;
+  void onItemEnter;
+  void onItemLeave;
+  void onItemDrop;
+  void minActivationDistance;
+  return React.createElement(View, viewProps, children);
 };
 
 const HOLLOW_COMPONENTS: Record<string, ElementType> = {

@@ -23,7 +23,8 @@ import AddChooserModal from './AddChooserModal';
 import SelectionActionBar from './SelectionActionBar';
 import ConfirmModal from './ConfirmModal';
 import { useDragOrder } from '../hooks/useDragOrder';
-import { GRID_GAP, WIDE_BREAKPOINT, MEDIUM_BREAKPOINT } from './componentStyles';
+import { withAlpha } from '../utils/color';
+import { GRID_GAP, WIDE_BREAKPOINT, MEDIUM_BREAKPOINT, ALPHA_TINT, FAB_SIZE } from './componentStyles';
 
 export type ListViewMode = 'home' | 'lists' | 'collections' | 'collection';
 export type ListsViewVariant = 'grid' | 'list';
@@ -120,6 +121,7 @@ export default function ListsView({
   const { display: displayLists, onDragEnd: handleDragEnd } = useDragOrder(
     filteredLists,
     useCallback((ids: number[]) => {
+      setRemoveTargetActive(false);
       if (zoneDropHandledRef.current) {
         zoneDropHandledRef.current = false;
         if (pendingMoveRef.current === null) void refresh();
@@ -165,22 +167,57 @@ export default function ListsView({
   );
 
   const [hoverCollectionId, setHoverCollectionId] = useState<number | null>(null);
+  const [removeTargetActive, setRemoveTargetActive] = useState(false);
+  const [removeHover, setRemoveHover] = useState(false);
   const hoverCollectionIdRef = useRef<number | null>(null);
   const draggingListRef = useRef<number | null>(null);
   const zoneDropHandledRef = useRef(false);
   const pendingMoveRef = useRef<Promise<void> | null>(null);
 
-  const handleListsDragStart = useCallback((params: DragStartParams) => {
-    draggingListRef.current = Number(params.key);
-    setHoverCollectionId(null);
-    hoverCollectionIdRef.current = null;
-  }, []);
+  const inCollectionDetail = mode === 'collection';
+
+  const handleListsDragStart = useCallback(
+    (params: DragStartParams) => {
+      draggingListRef.current = Number(params.key);
+      setHoverCollectionId(null);
+      hoverCollectionIdRef.current = null;
+      setRemoveHover(false);
+      setRemoveTargetActive(inCollectionDetail);
+    },
+    [inCollectionDetail]
+  );
 
   const handleCollectionsDragStart = useCallback(() => {
     draggingListRef.current = null;
     setHoverCollectionId(null);
     hoverCollectionIdRef.current = null;
+    setRemoveHover(false);
+    setRemoveTargetActive(false);
   }, []);
+
+  const handleRemoveZoneEnter = useCallback(() => {
+    if (draggingListRef.current === null) return;
+    setRemoveHover(true);
+  }, []);
+
+  const handleRemoveZoneLeave = useCallback(() => {
+    setRemoveHover(false);
+  }, []);
+
+  const handleRemoveZoneDrop = useCallback(() => {
+    setRemoveHover(false);
+    setRemoveTargetActive(false);
+    const listId = draggingListRef.current;
+    if (listId === null) return;
+    draggingListRef.current = null;
+    zoneDropHandledRef.current = true;
+    const remove = listRepo.removeFromCollection(listId);
+    pendingMoveRef.current = remove;
+    void remove.then(() => {
+      pendingMoveRef.current = null;
+      void refresh();
+    });
+  }, [refresh]);
 
   const handleZoneEnter = useCallback(
     (collectionId: number) => {
@@ -329,7 +366,7 @@ export default function ListsView({
     return <EmptyState icon="list-outline" message={labels.home_empty} hint={labels.home_empty_hint} />;
   };
 
-  const sortEnabled = !selectMode && !searching && displayLists.length > (inHome ? 0 : 1);
+  const sortEnabled = !selectMode && !searching && displayLists.length > (inHome || inCollectionDetail ? 0 : 1);
 
   return (
     <ScreenShell>
@@ -395,6 +432,33 @@ export default function ListsView({
             </ScrollView>
           ) : (
             renderEmpty()
+          )}
+
+          {inCollectionDetail && (
+            <Sortable.BaseZone
+              onItemEnter={handleRemoveZoneEnter}
+              onItemLeave={handleRemoveZoneLeave}
+              onItemDrop={handleRemoveZoneDrop}
+              style={[
+                styles.removeTarget,
+                {
+                  opacity: removeTargetActive ? 1 : 0,
+                  borderColor: removeHover ? c.primary : 'transparent',
+                  backgroundColor: removeHover
+                    ? withAlpha(c.primary, ALPHA_TINT)
+                    : withAlpha(c.textSecondary, 0.08),
+                },
+              ]}
+              pointerEvents={removeTargetActive ? 'auto' : 'none'}
+              accessibilityRole="button"
+              accessibilityLabel={labels.collection_remove_label}
+              accessibilityHint={removeTargetActive ? labels.collection_remove_hint : undefined}
+            >
+              <Ionicons name="arrow-undo-outline" size={20} color={removeHover ? c.primary : c.textSecondary} />
+              <Text style={[styles.removeTargetText, { color: removeHover ? c.primary : c.textSecondary, fontSize: fs(13) }]}>
+                {labels.collection_remove_label}
+              </Text>
+            </Sortable.BaseZone>
           )}
         </Sortable.MultiZoneProvider>
 
@@ -479,5 +543,20 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 6,
     marginTop: 8,
+  },
+  removeTarget: {
+    position: 'absolute',
+    alignSelf: 'center',
+    bottom: 56 + FAB_SIZE + 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    paddingVertical: 10,
+    paddingHorizontal: 18,
+    borderRadius: 24,
+    borderWidth: 1,
+  },
+  removeTargetText: {
+    fontWeight: '600',
   },
 });

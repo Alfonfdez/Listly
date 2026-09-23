@@ -191,6 +191,15 @@ Drag a standalone list onto a collection on Home to group it:
 - On Home the lists grid enables dragging with ≥ 1 list (other screens keep the `> 1` reorder guard), so a lone list can be dragged into a collection.
 - Spec: spec/features/018-drag-list-into-collection/.
 
+## 019-remove-list-from-collection
+Status: done.
+
+Drag a member list out of a collection on Collection detail to make it standalone:
+- A "Remove from collection" target (pill with icon + label) appears above the FAB while a member list is dragged; dropping on it removes the list (`listRepo.removeFromCollection` sets `collection_id = NULL` and appends it at the end of the standalone lists) and skips the grid reorder.
+- The target is highlighted while hovered; releasing a member elsewhere keeps reordering within the collection.
+- The members grid enables dragging with ≥ 1 list on Collection detail (like Home), so a lone member can be dragged out.
+- Spec: spec/features/019-remove-list-from-collection/.
+
 ## Future scope (not scheduled)
 - Tags, due dates, subtasks, recurring items.
 - List templates and sharing.
