@@ -365,3 +365,10 @@ pm run test:all green.
 - i18n en/es: `collection_remove_label`, `collection_remove_hint`.
 - Tests: `listRepo` (append-at-end, lone member, existing standalones) and `ListsView` (lone-member draggable, target revealed only during a member drag, drop removes + skips reorder, target absent outside collection mode, reorder intact when released elsewhere).
 - Docs: new `019-remove-list-from-collection` spec, roadmap entry, `6-screens.md` Collection detail bullet.
+
+[2026-09-23] ~ | Refactor: shared entity form + magic values to constants
+- New `src/components/EntityForm.tsx` (generic `<TError extends StringTranslationKey>` name/icon/color form: debounced duplicate check, submit, delete/save buttons) and `src/components/IconGrid.tsx`; `ListForm.tsx` / `CollectionForm.tsx` are now thin wrappers passing their entity-specific validate/existsByName/labels/max-length (public props unchanged), removing ~250 duplicated lines.
+- New `src/constants/icons.ts` (`ICONS` map) replacing repeated icon-name literals (`albums-outline`, `list-outline`, `create-outline`, `help-circle-outline`, `arrow-undo-outline`).
+- New constants: `ALPHA_SUBTLE`, `HIT_SLOP`, `HIT_SLOP_SMALL`, `FAB_BOTTOM_OFFSET`, `ZONE_MIN_ACTIVATION_DISTANCE` (componentStyles.ts) and `COPY_FEEDBACK_MS`, `PHOTO_QUALITY` (constants/types.ts); replaced the `1500` copy timeout, `quality: 0.7`, `minActivationDistance={8}`, duplicated FAB `bottom: 56`, `0.08` alpha, and `hitSlop={8|4}` literals.
+- Replaced remaining `'transparent'` literals with the existing `TRANSPARENT` token (ListCard/ListRow/CollectionCard/CollectionRow/ModalFooter/SelectionCheck/SelectorInline/OptionPickerModal/ListsView).
+- Behavior-preserving; `npm run test:all` green (41 files, 319 tests).

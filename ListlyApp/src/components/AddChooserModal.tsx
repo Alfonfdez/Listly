@@ -6,6 +6,7 @@ import { useLabels } from '../hooks/useLabels';
 import ModalShell from './ModalShell';
 import ModalFooter from './ModalFooter';
 import { CARD_BORDER_RADIUS } from './componentStyles';
+import { ICONS } from '../constants/icons';
 import type { IconName } from '../constants/types';
 
 interface Props {
@@ -45,8 +46,8 @@ export default function AddChooserModal({ visible, onClose, onAddList, onAddColl
         {labels.home_add_choice_title}
       </Text>
       <View style={styles.stack}>
-        {row('albums-outline', labels.home_add_collection, onAddCollection, labels.home_add_collection)}
-        {row('list-outline', labels.home_add, onAddList, labels.home_add)}
+        {row(ICONS.collection, labels.home_add_collection, onAddCollection, labels.home_add_collection)}
+        {row(ICONS.list, labels.home_add, onAddList, labels.home_add)}
       </View>
       <ModalFooter confirmLabel={labels.common_close} onConfirm={onClose} />
     </ModalShell>

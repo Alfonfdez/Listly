@@ -2,6 +2,7 @@ import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { useConfig } from '../context/ConfigContext';
 import { useFontSize } from '../hooks/useFontSize';
 import { BUTTON_BORDER_RADIUS } from './componentStyles';
+import { TRANSPARENT } from '../constants/themes';
 
 interface Props {
   cancelLabel?: string;
@@ -77,7 +78,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1,
-    borderColor: 'transparent',
+    borderColor: TRANSPARENT,
   },
   buttonText: {
     fontWeight: '600',

@@ -1,6 +1,7 @@
 import { View, StyleSheet, type StyleProp, type ViewStyle } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useConfig } from '../context/ConfigContext';
+import { ICONS } from '../constants/icons';
 import type { IconName } from '../constants/types';
 
 interface Props {
@@ -10,7 +11,7 @@ interface Props {
 
 export default function TypeBadge({ type, style }: Props) {
   const { activeColors: c } = useConfig();
-  const icon: IconName = type === 'collection' ? 'albums-outline' : 'list-outline';
+  const icon: IconName = type === 'collection' ? ICONS.collection : ICONS.list;
 
   return (
     <View style={[styles.badge, { backgroundColor: c.surface, borderColor: c.border }, style]}>

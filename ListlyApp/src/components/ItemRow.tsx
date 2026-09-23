@@ -4,7 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useConfig } from '../context/ConfigContext';
 import { useFontSize } from '../hooks/useFontSize';
 import { useLabels } from '../hooks/useLabels';
-import { BUTTON_BORDER_RADIUS, ALPHA_SELECTED, PRESSED_OPACITY } from './componentStyles';
+import { BUTTON_BORDER_RADIUS, ALPHA_SELECTED, PRESSED_OPACITY, HIT_SLOP, HIT_SLOP_SMALL } from './componentStyles';
 import type { Item } from '../database/types';
 import { MAX_ITEM_PICTURES } from '../constants/types';
 import { parseItemPhotos } from '../utils/itemPhotos';
@@ -83,7 +83,7 @@ function ItemRowInner({ item, selectMode, selected, onToggle, onEdit }: Props) {
               activeOpacity={PRESSED_OPACITY}
               accessibilityRole="button"
               accessibilityLabel={labels.item_edit_title}
-              hitSlop={8}
+              hitSlop={HIT_SLOP}
             >
               <Ionicons name="pencil-outline" size={18} color={c.textSecondary} />
             </SortablePressable>
@@ -95,7 +95,7 @@ function ItemRowInner({ item, selectMode, selected, onToggle, onEdit }: Props) {
             activeOpacity={PRESSED_OPACITY}
             accessibilityRole="button"
             accessibilityLabel={labels.item_note_preview}
-            hitSlop={4}
+            hitSlop={HIT_SLOP_SMALL}
           >
             <Text
               style={[styles.notePreview, { color: c.textSecondary, fontSize: fs(13) }]}
@@ -116,7 +116,7 @@ function ItemRowInner({ item, selectMode, selected, onToggle, onEdit }: Props) {
       activeOpacity={PRESSED_OPACITY}
                 accessibilityRole="imagebutton"
                 accessibilityLabel={labels.item_photos_title}
-                hitSlop={8}
+                hitSlop={HIT_SLOP}
               >
                 <Image source={{ uri }} style={styles.thumbImage} />
               </SortablePressable>

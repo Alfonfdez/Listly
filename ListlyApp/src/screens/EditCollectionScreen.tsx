@@ -4,6 +4,7 @@ import { useNavigation, useRoute, type RouteProp } from '@react-navigation/nativ
 import { useApp } from '../context/AppContext';
 import { useLabels } from '../hooks/useLabels';
 import type { IconName, NavigationProp, RootStackParamList } from '../constants/types';
+import { ICONS } from '../constants/icons';
 import { collectionRepository as collectionRepo } from '../database';
 import ScreenShell from '../components/ScreenShell';
 import EmptyState from '../components/EmptyState';
@@ -52,7 +53,7 @@ export default function EditCollectionScreen() {
   );
 
   if (!collection) {
-    return <ScreenShell style={styles.center}><EmptyState icon="help-circle-outline" message={labels.home_empty} /></ScreenShell>;
+    return <ScreenShell style={styles.center}><EmptyState icon={ICONS.notFound} message={labels.home_empty} /></ScreenShell>;
   }
 
   return (

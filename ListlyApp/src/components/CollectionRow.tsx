@@ -5,6 +5,7 @@ import { useConfig } from '../context/ConfigContext';
 import { useFontSize } from '../hooks/useFontSize';
 import { useLabels } from '../hooks/useLabels';
 import { CARD_BORDER_RADIUS, ALPHA_TINT, ALPHA_BADGE } from './componentStyles';
+import { TRANSPARENT } from '../constants/themes';
 import { withAlpha } from '../utils/color';
 import SortablePressable from './SortablePressable';
 import SelectionCheck from './SelectionCheck';
@@ -71,7 +72,7 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     paddingHorizontal: 14,
     borderWidth: 1,
-    borderColor: 'transparent',
+    borderColor: TRANSPARENT,
     overflow: 'hidden',
   },
   accentBar: {

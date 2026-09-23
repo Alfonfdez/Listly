@@ -1,7 +1,7 @@
 import { TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useLabels } from '../hooks/useLabels';
-import { ICON_BUTTON_PADDING } from './componentStyles';
+import { ICON_BUTTON_PADDING, HIT_SLOP } from './componentStyles';
 
 interface Props {
   active: boolean;
@@ -14,7 +14,7 @@ export default function SelectToggleButton({ active, onToggle, color }: Props) {
   return (
     <TouchableOpacity
       onPress={onToggle}
-      hitSlop={8}
+      hitSlop={HIT_SLOP}
       style={{ padding: ICON_BUTTON_PADDING }}
       accessibilityRole="button"
       accessibilityLabel={active ? labels.select_exit_mode : labels.select_enter_mode}

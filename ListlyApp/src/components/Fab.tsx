@@ -3,7 +3,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useConfig } from '../context/ConfigContext';
 import { BLACK } from '../constants/themes';
 import { isWeb } from '../utils/platform';
-import { FAB_SIZE, FAB_SHADOW_COLOR } from './componentStyles';
+import { FAB_SIZE, FAB_SHADOW_COLOR, FAB_BOTTOM_OFFSET } from './componentStyles';
 
 interface Props {
   onPress: () => void;
@@ -26,7 +26,7 @@ export default function Fab({ onPress, accessibilityLabel }: Props) {
 const styles = StyleSheet.create({
   fab: {
     position: 'absolute',
-    bottom: 56,
+    bottom: FAB_BOTTOM_OFFSET,
     alignSelf: 'center',
     width: FAB_SIZE,
     height: FAB_SIZE,

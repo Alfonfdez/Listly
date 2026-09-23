@@ -7,6 +7,7 @@ import { useFocusEffect, useNavigation, useRoute, type RouteProp } from '@react-
 import {
   MAX_ITEM_NAME_LENGTH,
   MAX_ITEM_NOTE_LENGTH,
+  COPY_FEEDBACK_MS,
   type IconName,
   type NavigationProp,
   type RootStackParamList,
@@ -24,7 +25,8 @@ import { filterItemsByQuery } from '../utils/search';
 import { buildListCopyText } from '../utils/copyList';
 import { parseItemPhotos, serializeItemPhotos } from '../utils/itemPhotos';
 import { withAlpha } from '../utils/color';
-import { BUTTON_BORDER_RADIUS, ALPHA_TINT, ALPHA_TRACK, PRESSED_OPACITY } from '../components/componentStyles';
+import { BUTTON_BORDER_RADIUS, ALPHA_TINT, ALPHA_TRACK, PRESSED_OPACITY, HIT_SLOP } from '../components/componentStyles';
+import { ICONS } from '../constants/icons';
 import ScreenShell from '../components/ScreenShell';
 import EmptyState from '../components/EmptyState';
 import SearchBar from '../components/SearchBar';
@@ -175,13 +177,13 @@ export default function ListDetailScreen() {
       void Clipboard.setStringAsync(text);
       setCopiedAction(withNotes ? 'all' : 'names');
       if (copyTimeout.current) clearTimeout(copyTimeout.current);
-      copyTimeout.current = setTimeout(() => setCopiedAction(null), 1500);
+      copyTimeout.current = setTimeout(() => setCopiedAction(null), COPY_FEEDBACK_MS);
     },
     [list, items]
   );
 
   if (!list) {
-    return <ScreenShell style={styles.center}><EmptyState icon="help-circle-outline" message={labels.home_empty} /></ScreenShell>;
+    return <ScreenShell style={styles.center}><EmptyState icon={ICONS.notFound} message={labels.home_empty} /></ScreenShell>;
   }
 
   const submitAdd = async () => {
@@ -251,7 +253,7 @@ export default function ListDetailScreen() {
               style={styles.copyButton}
               accessibilityRole="button"
               accessibilityLabel={labels.list_copy_names}
-              hitSlop={8}
+              hitSlop={HIT_SLOP}
             >
               <Ionicons
                 name={copiedAction === 'names' ? 'checkmark' : 'copy-outline'}
@@ -264,7 +266,7 @@ export default function ListDetailScreen() {
               style={styles.copyButton}
               accessibilityRole="button"
               accessibilityLabel={labels.list_copy_all}
-              hitSlop={8}
+              hitSlop={HIT_SLOP}
             >
               <Ionicons
                 name={copiedAction === 'all' ? 'checkmark' : 'reader-outline'}
@@ -284,9 +286,9 @@ export default function ListDetailScreen() {
           style={styles.editButton}
           accessibilityRole="button"
           accessibilityLabel={labels.list_edit_label}
-          hitSlop={8}
+          hitSlop={HIT_SLOP}
         >
-          <Ionicons name="create-outline" size={20} color={list.color} />
+          <Ionicons name={ICONS.edit} size={20} color={list.color} />
         </TouchableOpacity>
       </View>
       <View style={[styles.progressTrack, { backgroundColor: withAlpha(list.color, ALPHA_TRACK) }]}>

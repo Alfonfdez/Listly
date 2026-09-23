@@ -30,6 +30,8 @@ export type ListLayout = keyof typeof LIST_LAYOUTS;
 export const FACTORY_RESET_CONFIRMATION = 'DELETE';
 
 export const DEBOUNCE_MS = 300;
+export const COPY_FEEDBACK_MS = 1500;
+export const PHOTO_QUALITY = 0.7;
 
 export const MAX_LIST_NAME_LENGTH = 100;
 export const MAX_COLLECTION_NAME_LENGTH = 100;

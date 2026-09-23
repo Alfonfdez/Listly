@@ -5,6 +5,8 @@ import { useConfig } from '../context/ConfigContext';
 import { useFontSize } from '../hooks/useFontSize';
 import { useLabels } from '../hooks/useLabels';
 import { CARD_BORDER_RADIUS, ALPHA_TINT, ALPHA_BADGE } from './componentStyles';
+import { TRANSPARENT } from '../constants/themes';
+import { ICONS } from '../constants/icons';
 import { withAlpha } from '../utils/color';
 import SortablePressable from './SortablePressable';
 import SelectionCheck from './SelectionCheck';
@@ -52,7 +54,7 @@ function ListRowInner({ list, collection, selectMode, selected, onPress }: Props
         </Text>
         {collection && !selectMode ? (
           <View style={styles.collectionRow}>
-            <Ionicons name="albums-outline" size={12} color={collection.color} />
+            <Ionicons name={ICONS.collection} size={12} color={collection.color} />
             <Text style={[styles.collectionName, { color: collection.color, fontSize: fs(12) }]} numberOfLines={1}>
               {collection.name}
             </Text>
@@ -78,7 +80,7 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     paddingHorizontal: 14,
     borderWidth: 1,
-    borderColor: 'transparent',
+    borderColor: TRANSPARENT,
   },
   badgeWrap: {
     width: BADGE_SIZE,

@@ -16,6 +16,7 @@ import { useConfig } from '../context/ConfigContext';
 import { useFontSize } from '../hooks/useFontSize';
 import { useLabels } from '../hooks/useLabels';
 import type { RootStackParamList, IconName } from '../constants/types';
+import { ICONS } from '../constants/icons';
 import HomeScreen from '../screens/HomeScreen';
 import ListsScreen from '../screens/ListsScreen';
 import CollectionsScreen from '../screens/CollectionsScreen';
@@ -90,8 +91,8 @@ function CustomDrawerContent(props: DrawerContentComponentProps) {
 
   const drawerItems: DrawerItemDef[] = [
     { label: labels.nav_home, icon: 'home-outline', screen: 'Home' },
-    { label: labels.nav_collections, icon: 'albums-outline', screen: 'Collections' },
-    { label: labels.nav_lists, icon: 'list-outline', screen: 'Lists' },
+    { label: labels.nav_collections, icon: ICONS.collection, screen: 'Collections' },
+    { label: labels.nav_lists, icon: ICONS.list, screen: 'Lists' },
     { separator: true },
     { label: labels.nav_settings, icon: 'settings-outline', screen: 'Settings' },
   ];
@@ -153,14 +154,14 @@ const HomeStack = memo(function HomeStack() {
 
   const screens = useMemo<ScreenDef[]>(() => [
     { name: 'Home', component: HomeNavCapture, title: labels.app_name, icon: 'home-outline', headerLeft: true },
-    { name: 'Lists', component: ListsNavCapture, title: labels.nav_lists, icon: 'list-outline', headerLeft: true },
-    { name: 'Collections', component: CollectionsNavCapture, title: labels.nav_collections, icon: 'albums-outline', headerLeft: true },
+    { name: 'Lists', component: ListsNavCapture, title: labels.nav_lists, icon: ICONS.list, headerLeft: true },
+    { name: 'Collections', component: CollectionsNavCapture, title: labels.nav_collections, icon: ICONS.collection, headerLeft: true },
     { name: 'ListDetail', component: ListDetailScreen, title: labels.list_detail_title, icon: 'checkbox-outline' },
     { name: 'CreateList', component: CreateListScreen, title: labels.create_list_title, icon: 'add-circle-outline' },
-    { name: 'EditList', component: EditListScreen, title: labels.edit_list_title, icon: 'create-outline' },
-    { name: 'CollectionDetail', component: CollectionDetailScreen, title: labels.collection_detail_title, icon: 'albums-outline' },
-    { name: 'CreateCollection', component: CreateCollectionScreen, title: labels.create_collection_title, icon: 'albums-outline' },
-    { name: 'EditCollection', component: EditCollectionScreen, title: labels.edit_collection_title, icon: 'create-outline' },
+    { name: 'EditList', component: EditListScreen, title: labels.edit_list_title, icon: ICONS.edit },
+    { name: 'CollectionDetail', component: CollectionDetailScreen, title: labels.collection_detail_title, icon: ICONS.collection },
+    { name: 'CreateCollection', component: CreateCollectionScreen, title: labels.create_collection_title, icon: ICONS.collection },
+    { name: 'EditCollection', component: EditCollectionScreen, title: labels.edit_collection_title, icon: ICONS.edit },
     { name: 'Settings', component: SettingsScreen, title: labels.settings_title, icon: 'settings-outline' },
     { name: 'SettingsAppearance', component: AppearanceScreen, title: labels.settings_appearance, icon: 'color-palette-outline' },
     { name: 'SettingsRegional', component: RegionalScreen, title: labels.settings_regional, icon: 'globe-outline' },

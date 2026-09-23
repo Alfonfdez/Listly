@@ -2,6 +2,7 @@ import { View, StyleSheet, type StyleProp, type ViewStyle } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useConfig } from '../context/ConfigContext';
 import { SELECTION_CHECK_SIZE, SELECTION_CHECK_RADIUS } from './componentStyles';
+import { TRANSPARENT } from '../constants/themes';
 
 interface Props {
   selected: boolean;
@@ -19,7 +20,7 @@ export default function SelectionCheck({ selected, style, iconSize = 12, unselec
         styles.check,
         selected
           ? { backgroundColor: c.primary, borderColor: c.primary }
-          : { backgroundColor: unselectedBackground ?? 'transparent', borderColor: c.border },
+          : { backgroundColor: unselectedBackground ?? TRANSPARENT, borderColor: c.border },
         style,
       ]}
     >

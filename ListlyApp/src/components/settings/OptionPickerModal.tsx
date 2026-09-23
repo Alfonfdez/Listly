@@ -5,6 +5,7 @@ import { useConfig } from '../../context/ConfigContext';
 import { useFontSize } from '../../hooks/useFontSize';
 import { useResetOnOpen } from '../../hooks/useResetOnOpen';
 import { BUTTON_BORDER_RADIUS, PRESSED_OPACITY } from '../componentStyles';
+import { TRANSPARENT } from '../../constants/themes';
 import ModalShell from '../ModalShell';
 import type { Option } from './SelectorInline';
 
@@ -143,7 +144,7 @@ const styles = StyleSheet.create({
     borderRadius: BUTTON_BORDER_RADIUS,
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: 'transparent',
+    borderColor: TRANSPARENT,
   },
   confirm: {
     borderWidth: 0,
