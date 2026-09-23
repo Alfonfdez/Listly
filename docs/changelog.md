@@ -394,3 +394,10 @@ pm run test:all green.
 - `repositories/shared.ts`: added `reorderPositions(orderedIds, updateOne)`; exported `DrizzleDb` from `drizzle/engine.ts`; `listRepo` / `collectionRepo` / `itemRepo` reorder methods now use it (itemRepo keeps its `list_id` guard).
 - New `src/utils/set.ts` (`toggleInSet`); used by `useSelectMode.toggleItem` and `ListsScreenBase.toggleCollection`.
 - Behavior-preserving; `npm run test:all` green (41 files, 319 tests).
+
+[2026-09-23] ~ | Refactor: split ListsView into a drop-zone hook and components
+- New `src/hooks/useCollectionDropZones.ts`: owns the drag-drop state/refs and handlers (`handleListsDragStart`, `handleCollectionsDragStart`, `handleListsDragEnd`, collection zone enter/leave/drop, remove-target enter/leave/drop + `performZoneDrop`).
+- New `src/components/RemoveFromCollectionTarget.tsx`: the collection-detail remove pill (`Sortable.BaseZone` stays the outer measured element) and its styles.
+- New `src/components/SectionTitle.tsx`: the shared section icon + upper-case label row.
+- `ListsView.tsx` now delegates to those (571 -> 399 lines); `ListViewMode` / `ListsViewVariant` still exported from it.
+- Behavior-preserving; `npm run test:all` green (41 files, 319 tests).
