@@ -10,7 +10,8 @@ import { useSelectMode } from '../hooks/useSelectMode';
 import { listRepository as listRepo } from '../database';
 import type { IconName, NavigationProp, RootStackParamList } from '../constants/types';
 import { withAlpha } from '../utils/color';
-import { ALPHA_TINT, PRESSED_OPACITY } from '../components/componentStyles';
+import { ALPHA_TINT, PRESSED_OPACITY, HIT_SLOP } from '../components/componentStyles';
+import { ICONS } from '../constants/icons';
 import ScreenShell from '../components/ScreenShell';
 import EmptyState from '../components/EmptyState';
 import ListsView from '../components/ListsView';
@@ -82,7 +83,7 @@ export default function CollectionDetailScreen() {
   }, [navigation]);
 
   if (!collection) {
-    return <ScreenShell style={styles.center}><EmptyState icon="help-circle-outline" message={labels.home_empty} /></ScreenShell>;
+    return <ScreenShell style={styles.center}><EmptyState icon={ICONS.notFound} message={labels.home_empty} /></ScreenShell>;
   }
 
   const done = listsInCollection.reduce((sum, list) => sum + list.completed, 0);
@@ -105,9 +106,9 @@ export default function CollectionDetailScreen() {
           style={styles.editButton}
           accessibilityRole="button"
           accessibilityLabel={labels.collection_edit_label}
-          hitSlop={8}
+          hitSlop={HIT_SLOP}
         >
-          <Ionicons name="create-outline" size={20} color={collection.color} />
+          <Ionicons name={ICONS.edit} size={20} color={collection.color} />
         </Pressable>
       </View>
     </View>

@@ -24,7 +24,18 @@ import SelectionActionBar from './SelectionActionBar';
 import ConfirmModal from './ConfirmModal';
 import { useDragOrder } from '../hooks/useDragOrder';
 import { withAlpha } from '../utils/color';
-import { GRID_GAP, WIDE_BREAKPOINT, MEDIUM_BREAKPOINT, ALPHA_TINT, FAB_SIZE } from './componentStyles';
+import { TRANSPARENT } from '../constants/themes';
+import { ICONS } from '../constants/icons';
+import {
+  GRID_GAP,
+  WIDE_BREAKPOINT,
+  MEDIUM_BREAKPOINT,
+  ALPHA_TINT,
+  ALPHA_SUBTLE,
+  FAB_SIZE,
+  FAB_BOTTOM_OFFSET,
+  ZONE_MIN_ACTIVATION_DISTANCE,
+} from './componentStyles';
 
 export type ListViewMode = 'home' | 'lists' | 'collections' | 'collection';
 export type ListsViewVariant = 'grid' | 'list';
@@ -281,7 +292,7 @@ export default function ListsView({
   const renderCollection = useCallback<SortableGridRenderItem<CollectionWithCounts>>(
     ({ item }) => (
       <Sortable.BaseZone
-        minActivationDistance={8}
+        minActivationDistance={ZONE_MIN_ACTIVATION_DISTANCE}
         onItemEnter={() => handleZoneEnter(item.id)}
         onItemLeave={handleZoneLeave}
         onItemDrop={() => handleZoneDrop(item.id)}
@@ -339,7 +350,7 @@ export default function ListsView({
     if (mode === 'collection') {
       return (
         <EmptyState
-          icon="albums-outline"
+          icon={ICONS.collection}
           message={labels.collection_empty}
           hint={labels.collection_empty_hint}
         />
@@ -348,7 +359,7 @@ export default function ListsView({
     if (mode === 'collections') {
       return (
         <EmptyState
-          icon="albums-outline"
+          icon={ICONS.collection}
           message={labels.collections_empty}
           hint={labels.collections_empty_hint}
         />
@@ -363,7 +374,7 @@ export default function ListsView({
         />
       );
     }
-    return <EmptyState icon="list-outline" message={labels.home_empty} hint={labels.home_empty_hint} />;
+    return <EmptyState icon={ICONS.list} message={labels.home_empty} hint={labels.home_empty_hint} />;
   };
 
   const sortEnabled = !selectMode && !searching && displayLists.length > (inHome || inCollectionDetail ? 0 : 1);
@@ -387,7 +398,7 @@ export default function ListsView({
             <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
               {inHome && displayCollections.length > 0 && (
                 <View style={styles.sectionTitleRow}>
-                  <Ionicons name="albums-outline" size={14} color={c.textSecondary} />
+                  <Ionicons name={ICONS.collection} size={14} color={c.textSecondary} />
                   <Text style={[styles.sectionTitle, { color: c.textSecondary, fontSize: fs(12) }]}>
                     {labels.collection_section_title}
                   </Text>
@@ -409,7 +420,7 @@ export default function ListsView({
               )}
               {inHome && displayLists.length > 0 && (
                 <View style={styles.sectionTitleRow}>
-                  <Ionicons name="list-outline" size={14} color={c.textSecondary} />
+                  <Ionicons name={ICONS.list} size={14} color={c.textSecondary} />
                   <Text style={[styles.sectionTitle, { color: c.textSecondary, fontSize: fs(12) }]}>
                     {labels.home_section_lists}
                   </Text>
@@ -443,10 +454,10 @@ export default function ListsView({
                 styles.removeTarget,
                 {
                   opacity: removeTargetActive ? 1 : 0,
-                  borderColor: removeHover ? c.primary : 'transparent',
+                  borderColor: removeHover ? c.primary : TRANSPARENT,
                   backgroundColor: removeHover
                     ? withAlpha(c.primary, ALPHA_TINT)
-                    : withAlpha(c.textSecondary, 0.08),
+                    : withAlpha(c.textSecondary, ALPHA_SUBTLE),
                 },
               ]}
               pointerEvents={removeTargetActive ? 'auto' : 'none'}
@@ -454,7 +465,7 @@ export default function ListsView({
               accessibilityLabel={labels.collection_remove_label}
               accessibilityHint={removeTargetActive ? labels.collection_remove_hint : undefined}
             >
-              <Ionicons name="arrow-undo-outline" size={20} color={removeHover ? c.primary : c.textSecondary} />
+              <Ionicons name={ICONS.removeFromCollection} size={20} color={removeHover ? c.primary : c.textSecondary} />
               <Text style={[styles.removeTargetText, { color: removeHover ? c.primary : c.textSecondary, fontSize: fs(13) }]}>
                 {labels.collection_remove_label}
               </Text>
@@ -547,7 +558,7 @@ const styles = StyleSheet.create({
   removeTarget: {
     position: 'absolute',
     alignSelf: 'center',
-    bottom: 56 + FAB_SIZE + 16,
+    bottom: FAB_BOTTOM_OFFSET + FAB_SIZE + 16,
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,

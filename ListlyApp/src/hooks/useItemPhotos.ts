@@ -1,6 +1,7 @@
 import { useCallback, useState } from 'react';
 import * as ImagePicker from 'expo-image-picker';
 import { isWeb } from '../utils/platform';
+import { PHOTO_QUALITY } from '../constants/types';
 import { deleteItemPhotos, itemPhotoFileName } from '../utils/itemPhotos';
 import { File, Paths } from '../utils/fileIo';
 
@@ -34,7 +35,7 @@ export function useItemPhotos(initialPhotos: string[] = []) {
   const handleTakePhoto = useCallback(async () => {
     const { status } = await ImagePicker.requestCameraPermissionsAsync();
     if (status !== 'granted') return;
-    const result = await ImagePicker.launchCameraAsync({ mediaTypes: ['images'], quality: 0.7 });
+    const result = await ImagePicker.launchCameraAsync({ mediaTypes: ['images'], quality: PHOTO_QUALITY });
     if (!result.canceled && result.assets[0]) {
       try {
         const dest = await copyPhotoToStorage(result.assets[0].uri);
@@ -48,7 +49,7 @@ export function useItemPhotos(initialPhotos: string[] = []) {
   const handlePickFromGallery = useCallback(async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== 'granted') return;
-    const result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ['images'], quality: 0.7 });
+    const result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ['images'], quality: PHOTO_QUALITY });
     if (!result.canceled && result.assets[0]) {
       const asset = result.assets[0];
       if (isWeb) {

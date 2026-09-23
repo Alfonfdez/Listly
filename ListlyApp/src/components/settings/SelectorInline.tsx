@@ -4,6 +4,7 @@ import { useConfig } from '../../context/ConfigContext';
 import { useFontSize } from '../../hooks/useFontSize';
 import { withAlpha } from '../../utils/color';
 import { ALPHA_SELECTED, BUTTON_BORDER_RADIUS, PRESSED_OPACITY } from '../componentStyles';
+import { TRANSPARENT } from '../../constants/themes';
 
 export interface Option<T extends string = string> {
   label: string;
@@ -32,7 +33,7 @@ export default function SelectorInline<T extends string>({ options, selected, on
               styles.option,
               {
                 borderColor: isSelected ? c.primary : c.border,
-                backgroundColor: isSelected ? withAlpha(c.primary, ALPHA_SELECTED) : 'transparent',
+                backgroundColor: isSelected ? withAlpha(c.primary, ALPHA_SELECTED) : TRANSPARENT,
               },
             ]}
             onPress={() => onSelect(option.value)}
