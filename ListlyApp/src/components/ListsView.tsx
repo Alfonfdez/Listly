@@ -215,20 +215,27 @@ export default function ListsView({
     setRemoveHover(false);
   }, []);
 
+  const performZoneDrop = useCallback(
+    (action: (listId: number) => Promise<void>) => {
+      const listId = draggingListRef.current;
+      if (listId === null) return;
+      draggingListRef.current = null;
+      zoneDropHandledRef.current = true;
+      const move = action(listId);
+      pendingMoveRef.current = move;
+      void move.then(() => {
+        pendingMoveRef.current = null;
+        void refresh();
+      });
+    },
+    [refresh]
+  );
+
   const handleRemoveZoneDrop = useCallback(() => {
     setRemoveHover(false);
     setRemoveTargetActive(false);
-    const listId = draggingListRef.current;
-    if (listId === null) return;
-    draggingListRef.current = null;
-    zoneDropHandledRef.current = true;
-    const remove = listRepo.removeFromCollection(listId);
-    pendingMoveRef.current = remove;
-    void remove.then(() => {
-      pendingMoveRef.current = null;
-      void refresh();
-    });
-  }, [refresh]);
+    performZoneDrop(id => listRepo.removeFromCollection(id));
+  }, [performZoneDrop]);
 
   const handleZoneEnter = useCallback(
     (collectionId: number) => {
@@ -248,18 +255,9 @@ export default function ListsView({
     (collectionId: number) => {
       setHoverCollectionId(null);
       hoverCollectionIdRef.current = null;
-      const listId = draggingListRef.current;
-      if (listId === null) return;
-      draggingListRef.current = null;
-      zoneDropHandledRef.current = true;
-      const move = listRepo.moveToCollection(listId, collectionId);
-      pendingMoveRef.current = move;
-      void move.then(() => {
-        pendingMoveRef.current = null;
-        void refresh();
-      });
+      performZoneDrop(id => listRepo.moveToCollection(id, collectionId));
     },
-    [refresh]
+    [performZoneDrop]
   );
 
   const renderItem = useCallback<SortableGridRenderItem<ListWithCounts>>(

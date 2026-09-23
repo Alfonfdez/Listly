@@ -24,11 +24,11 @@ import { validateItemName, uniqueNormalizedNames, type ItemNameError } from '../
 import { filterItemsByQuery } from '../utils/search';
 import { buildListCopyText } from '../utils/copyList';
 import { parseItemPhotos, serializeItemPhotos } from '../utils/itemPhotos';
-import { withAlpha } from '../utils/color';
-import { BUTTON_BORDER_RADIUS, ALPHA_TINT, ALPHA_TRACK, PRESSED_OPACITY, HIT_SLOP } from '../components/componentStyles';
-import { ICONS } from '../constants/icons';
+import { BUTTON_BORDER_RADIUS, PRESSED_OPACITY, HIT_SLOP } from '../components/componentStyles';
 import ScreenShell from '../components/ScreenShell';
 import EmptyState from '../components/EmptyState';
+import NotFoundScreen from '../components/NotFoundScreen';
+import DetailHeader from '../components/DetailHeader';
 import SearchBar from '../components/SearchBar';
 import ItemRow from '../components/ItemRow';
 import ItemFormModal from '../components/ItemFormModal';
@@ -183,7 +183,7 @@ export default function ListDetailScreen() {
   );
 
   if (!list) {
-    return <ScreenShell style={styles.center}><EmptyState icon={ICONS.notFound} message={labels.home_empty} /></ScreenShell>;
+    return <NotFoundScreen />;
   }
 
   const submitAdd = async () => {
@@ -235,18 +235,16 @@ export default function ListDetailScreen() {
   };
 
   const header = (
-    <View style={styles.headerBlock}>
-      <View style={styles.headerRow}>
-        <View style={[styles.iconBadge, { backgroundColor: withAlpha(list.color, ALPHA_TINT) }]}>
-          <Ionicons name={list.icon as IconName} size={24} color={list.color} />
-        </View>
-        <View style={styles.headerText}>
-          <Text style={[styles.listName, { color: list.color, fontSize: fs(18) }]} numberOfLines={1}>
-            {list.name}
-          </Text>
-          <Text style={{ color: c.textSecondary, fontSize: fs(13) }}>{labels.home_progress(done, total)}</Text>
-        </View>
-        {items.length > 0 ? (
+    <DetailHeader
+      icon={list.icon as IconName}
+      color={list.color}
+      name={list.name}
+      progressLabel={labels.home_progress(done, total)}
+      onEdit={() => navigation.navigate('EditList', { listId })}
+      editAccessibilityLabel={labels.list_edit_label}
+      progressPercent={pct}
+      trailing={
+        items.length > 0 ? (
           <View style={styles.copyGroup}>
             <TouchableOpacity
               onPress={() => copyList(false)}
@@ -280,21 +278,9 @@ export default function ListDetailScreen() {
               </Text>
             ) : null}
           </View>
-        ) : null}
-        <TouchableOpacity
-          onPress={() => navigation.navigate('EditList', { listId })}
-          style={styles.editButton}
-          accessibilityRole="button"
-          accessibilityLabel={labels.list_edit_label}
-          hitSlop={HIT_SLOP}
-        >
-          <Ionicons name={ICONS.edit} size={20} color={list.color} />
-        </TouchableOpacity>
-      </View>
-      <View style={[styles.progressTrack, { backgroundColor: withAlpha(list.color, ALPHA_TRACK) }]}>
-        <View style={[styles.progressFill, { backgroundColor: list.color, width: `${pct}%` }]} />
-      </View>
-    </View>
+        ) : null
+      }
+    />
   );
 
   const noResults = searchActive && items.length > 0 && filteredItems.length === 0;
@@ -450,43 +436,13 @@ export default function ListDetailScreen() {
 }
 
 const ADD_ROW_HEIGHT = 40;
-const ICON_BADGE_SIZE = 44;
-const PROGRESS_BAR_HEIGHT = 6;
 
 const styles = StyleSheet.create({
-  center: {
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
   listContent: {
     flexGrow: 1,
     paddingHorizontal: 12,
     paddingTop: 12,
     paddingBottom: 12,
-  },
-  headerBlock: {
-    marginBottom: 16,
-    gap: 12,
-  },
-  headerRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-  },
-  iconBadge: {
-    width: ICON_BADGE_SIZE,
-    height: ICON_BADGE_SIZE,
-    borderRadius: ICON_BADGE_SIZE / 2,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  headerText: {
-    flex: 1,
-    gap: 2,
-  },
-  editButton: {
-    marginLeft: 'auto',
-    padding: 6,
   },
   copyGroup: {
     flexDirection: 'row',
@@ -498,18 +454,6 @@ const styles = StyleSheet.create({
   },
   copiedLabel: {
     fontWeight: '600',
-  },
-  listName: {
-    fontWeight: '700',
-  },
-  progressTrack: {
-    height: PROGRESS_BAR_HEIGHT,
-    borderRadius: PROGRESS_BAR_HEIGHT / 2,
-    overflow: 'hidden',
-  },
-  progressFill: {
-    height: PROGRESS_BAR_HEIGHT,
-    borderRadius: PROGRESS_BAR_HEIGHT / 2,
   },
   addRow: {
     paddingHorizontal: 12,

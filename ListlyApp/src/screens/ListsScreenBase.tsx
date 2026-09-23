@@ -56,19 +56,21 @@ export default function ListsScreenBase({
     if (searchActive) setQuery('');
   }, [searchActive, selectMode]);
 
-  const handleToggleSelectMode = useCallback(() => {
+  const resetSelectionExtras = useCallback(() => {
     setSelectedCollectionIds(new Set());
     setCollectionDeleteVisible(false);
     setCombinedDeleteVisible(false);
+  }, []);
+
+  const handleToggleSelectMode = useCallback(() => {
+    resetSelectionExtras();
     toggleSelectMode();
-  }, [toggleSelectMode]);
+  }, [resetSelectionExtras, toggleSelectMode]);
 
   const handleExitSelectMode = useCallback(() => {
-    setSelectedCollectionIds(new Set());
-    setCollectionDeleteVisible(false);
-    setCombinedDeleteVisible(false);
+    resetSelectionExtras();
     exitSelectMode();
-  }, [exitSelectMode]);
+  }, [resetSelectionExtras, exitSelectMode]);
 
   const selectedCollections = useMemo(
     () => collections.filter(col => selectedCollectionIds.has(col.id)),
@@ -101,11 +103,11 @@ export default function ListsScreenBase({
     });
   }, []);
 
-  const performCollectionDelete = useCallback(
-    async (deleteMode: 'move' | 'cascade') => {
+  const runCollectionDelete = useCallback(
+    async (deleteMode: 'move' | 'cascade', closeModal: () => void, errorLabel: string) => {
       const ids = [...selectedCollectionIds];
       const listIds = [...selectedIds];
-      setCollectionDeleteVisible(false);
+      closeModal();
       try {
         await collectionRepo.deleteMany(ids, deleteMode);
         if (listIds.length > 0) {
@@ -115,32 +117,13 @@ export default function ListsScreenBase({
         await refresh();
         exitSelectMode();
       } catch (error) {
-        console.error('Failed to delete selected collections:', error);
+        console.error(errorLabel, error);
         setSelectedCollectionIds(new Set());
         exitSelectMode();
       }
     },
     [selectedCollectionIds, selectedIds, refresh, exitSelectMode]
   );
-
-  const confirmCombinedDelete = useCallback(async () => {
-    const ids = [...selectedCollectionIds];
-    const listIds = [...selectedIds];
-    setCombinedDeleteVisible(false);
-    try {
-      await collectionRepo.deleteMany(ids, 'cascade');
-      if (listIds.length > 0) {
-        await listRepo.deleteMany(listIds);
-      }
-      setSelectedCollectionIds(new Set());
-      await refresh();
-      exitSelectMode();
-    } catch (error) {
-      console.error('Failed to delete selection:', error);
-      setSelectedCollectionIds(new Set());
-      exitSelectMode();
-    }
-  }, [selectedCollectionIds, selectedIds, refresh, exitSelectMode]);
 
   const hasData =
     mode === 'collections'
@@ -198,8 +181,8 @@ export default function ListsScreenBase({
         visible={collectionDeleteVisible}
         collections={selectedCollections}
         standaloneListCount={selectedIds.size}
-        onMove={() => void performCollectionDelete('move')}
-        onDelete={() => void performCollectionDelete('cascade')}
+        onMove={() => void runCollectionDelete('move', () => setCollectionDeleteVisible(false), 'Failed to delete selected collections:')}
+        onDelete={() => void runCollectionDelete('cascade', () => setCollectionDeleteVisible(false), 'Failed to delete selected collections:')}
         onCancel={() => setCollectionDeleteVisible(false)}
       />
 
@@ -210,7 +193,7 @@ export default function ListsScreenBase({
         cancelLabel={labels.common_cancel}
         confirmLabel={labels.select_delete}
         onCancel={() => setCombinedDeleteVisible(false)}
-        onConfirm={() => void confirmCombinedDelete()}
+        onConfirm={() => void runCollectionDelete('cascade', () => setCombinedDeleteVisible(false), 'Failed to delete selection:')}
         destructive
       />
     </>
