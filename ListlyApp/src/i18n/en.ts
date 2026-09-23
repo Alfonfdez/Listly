@@ -58,6 +58,7 @@ export const en = {
   home_empty_all: 'No collections or lists yet',
   home_empty_all_hint: 'Tap + to create your first collection or list',
   home_no_results: 'No results found',
+  home_drop_hint: 'Drop to move the list into this collection',
   item_add_placeholder: 'Add an item...',
   item_search_placeholder: 'Search items...',
   item_add: 'Add',

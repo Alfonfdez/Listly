@@ -1,8 +1,8 @@
-import { useCallback, useMemo, useState, type ReactNode } from 'react';
+import { useCallback, useMemo, useRef, useState, type ReactNode } from 'react';
 import { ActivityIndicator, ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
-import Sortable, { type SortableGridRenderItem } from 'react-native-sortables';
+import Sortable, { type DragStartParams, type SortableGridRenderItem } from 'react-native-sortables';
 import { useApp } from '../context/AppContext';
 import { useConfig } from '../context/ConfigContext';
 import { collectionRepository as collectionRepo, listRepository as listRepo } from '../database';
@@ -120,6 +120,15 @@ export default function ListsView({
   const { display: displayLists, onDragEnd: handleDragEnd } = useDragOrder(
     filteredLists,
     useCallback((ids: number[]) => {
+      if (zoneDropHandledRef.current) {
+        zoneDropHandledRef.current = false;
+        if (pendingMoveRef.current === null) void refresh();
+        return;
+      }
+      if (hoverCollectionIdRef.current !== null) {
+        void refresh();
+        return;
+      }
       void listRepo.reorder(ids);
       void refresh();
     }, [refresh])
@@ -155,6 +164,56 @@ export default function ListsView({
     [selectMode, onToggleCollection, navigation]
   );
 
+  const [hoverCollectionId, setHoverCollectionId] = useState<number | null>(null);
+  const hoverCollectionIdRef = useRef<number | null>(null);
+  const draggingListRef = useRef<number | null>(null);
+  const zoneDropHandledRef = useRef(false);
+  const pendingMoveRef = useRef<Promise<void> | null>(null);
+
+  const handleListsDragStart = useCallback((params: DragStartParams) => {
+    draggingListRef.current = Number(params.key);
+    setHoverCollectionId(null);
+    hoverCollectionIdRef.current = null;
+  }, []);
+
+  const handleCollectionsDragStart = useCallback(() => {
+    draggingListRef.current = null;
+    setHoverCollectionId(null);
+    hoverCollectionIdRef.current = null;
+  }, []);
+
+  const handleZoneEnter = useCallback(
+    (collectionId: number) => {
+      if (draggingListRef.current === null) return;
+      setHoverCollectionId(collectionId);
+      hoverCollectionIdRef.current = collectionId;
+    },
+    []
+  );
+
+  const handleZoneLeave = useCallback(() => {
+    setHoverCollectionId(null);
+    hoverCollectionIdRef.current = null;
+  }, []);
+
+  const handleZoneDrop = useCallback(
+    (collectionId: number) => {
+      setHoverCollectionId(null);
+      hoverCollectionIdRef.current = null;
+      const listId = draggingListRef.current;
+      if (listId === null) return;
+      draggingListRef.current = null;
+      zoneDropHandledRef.current = true;
+      const move = listRepo.moveToCollection(listId, collectionId);
+      pendingMoveRef.current = move;
+      void move.then(() => {
+        pendingMoveRef.current = null;
+        void refresh();
+      });
+    },
+    [refresh]
+  );
+
   const renderItem = useCallback<SortableGridRenderItem<ListWithCounts>>(
     ({ item }) => {
       const collection =
@@ -184,23 +243,41 @@ export default function ListsView({
 
   const renderCollection = useCallback<SortableGridRenderItem<CollectionWithCounts>>(
     ({ item }) => (
-      isCollectionsGrid ? (
-        <CollectionCard
-          collection={item}
-          selectMode={selectMode}
-          selected={selectedCollectionIds.has(item.id)}
-          onPress={() => handleCollectionPress(item)}
-        />
-      ) : (
-        <CollectionRow
-          collection={item}
-          selectMode={selectMode}
-          selected={selectedCollectionIds.has(item.id)}
-          onPress={() => handleCollectionPress(item)}
-        />
-      )
+      <Sortable.BaseZone
+        minActivationDistance={8}
+        onItemEnter={() => handleZoneEnter(item.id)}
+        onItemLeave={handleZoneLeave}
+        onItemDrop={() => handleZoneDrop(item.id)}
+      >
+        {isCollectionsGrid ? (
+          <CollectionCard
+            collection={item}
+            selectMode={selectMode}
+            selected={selectedCollectionIds.has(item.id)}
+            onPress={() => handleCollectionPress(item)}
+            dropTarget={hoverCollectionId === item.id}
+          />
+        ) : (
+          <CollectionRow
+            collection={item}
+            selectMode={selectMode}
+            selected={selectedCollectionIds.has(item.id)}
+            onPress={() => handleCollectionPress(item)}
+            dropTarget={hoverCollectionId === item.id}
+          />
+        )}
+      </Sortable.BaseZone>
     ),
-    [isCollectionsGrid, selectMode, selectedCollectionIds, handleCollectionPress]
+    [
+      isCollectionsGrid,
+      selectMode,
+      selectedCollectionIds,
+      handleCollectionPress,
+      handleZoneEnter,
+      handleZoneLeave,
+      handleZoneDrop,
+      hoverCollectionId,
+    ]
   );
 
   if (loading) {
@@ -252,7 +329,7 @@ export default function ListsView({
     return <EmptyState icon="list-outline" message={labels.home_empty} hint={labels.home_empty_hint} />;
   };
 
-  const sortEnabled = !selectMode && !searching && displayLists.length > 1;
+  const sortEnabled = !selectMode && !searching && displayLists.length > (inHome ? 0 : 1);
 
   return (
     <ScreenShell>
@@ -268,54 +345,58 @@ export default function ListsView({
           />
         ) : null}
 
-        {hasContent ? (
-          <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-            {inHome && displayCollections.length > 0 && (
-              <View style={styles.sectionTitleRow}>
-                <Ionicons name="albums-outline" size={14} color={c.textSecondary} />
-                <Text style={[styles.sectionTitle, { color: c.textSecondary, fontSize: fs(12) }]}>
-                  {labels.collection_section_title}
-                </Text>
-              </View>
-            )}
-            {showCollectionsSection && (
-              <Sortable.Grid
-                key={isCollectionsGrid ? `collections-${columns}` : 'collections-list'}
-                data={displayCollections}
-                renderItem={renderCollection}
-                keyExtractor={item => String(item.id)}
-                columns={isCollectionsGrid ? columns : 1}
-                sortEnabled={!selectMode && !searching && displayCollections.length > 1}
-                columnGap={isCollectionsGrid ? GRID_GAP : 0}
-                rowGap={isCollectionsGrid ? GRID_GAP : 10}
-                onDragEnd={handleCollectionsDragEnd}
-              />
-            )}
-            {inHome && displayLists.length > 0 && (
-              <View style={styles.sectionTitleRow}>
-                <Ionicons name="list-outline" size={14} color={c.textSecondary} />
-                <Text style={[styles.sectionTitle, { color: c.textSecondary, fontSize: fs(12) }]}>
-                  {labels.home_section_lists}
-                </Text>
-              </View>
-            )}
-            {showListsSection && (
-              <Sortable.Grid
-                key={isGrid ? `grid-${columns}` : 'list'}
-                data={displayLists}
-                renderItem={renderItem}
-                keyExtractor={item => String(item.id)}
-                columns={isGrid ? columns : 1}
-                sortEnabled={sortEnabled}
-                columnGap={isGrid ? GRID_GAP : 0}
-                rowGap={isGrid ? GRID_GAP : 10}
-                onDragEnd={handleDragEnd}
-              />
-            )}
-          </ScrollView>
-        ) : (
-          renderEmpty()
-        )}
+        <Sortable.MultiZoneProvider>
+          {hasContent ? (
+            <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+              {inHome && displayCollections.length > 0 && (
+                <View style={styles.sectionTitleRow}>
+                  <Ionicons name="albums-outline" size={14} color={c.textSecondary} />
+                  <Text style={[styles.sectionTitle, { color: c.textSecondary, fontSize: fs(12) }]}>
+                    {labels.collection_section_title}
+                  </Text>
+                </View>
+              )}
+              {showCollectionsSection && (
+                <Sortable.Grid
+                  key={isCollectionsGrid ? `collections-${columns}` : 'collections-list'}
+                  data={displayCollections}
+                  renderItem={renderCollection}
+                  keyExtractor={item => String(item.id)}
+                  columns={isCollectionsGrid ? columns : 1}
+                  sortEnabled={!selectMode && !searching && displayCollections.length > 1}
+                  columnGap={isCollectionsGrid ? GRID_GAP : 0}
+                  rowGap={isCollectionsGrid ? GRID_GAP : 10}
+                  onDragEnd={handleCollectionsDragEnd}
+                  onDragStart={handleCollectionsDragStart}
+                />
+              )}
+              {inHome && displayLists.length > 0 && (
+                <View style={styles.sectionTitleRow}>
+                  <Ionicons name="list-outline" size={14} color={c.textSecondary} />
+                  <Text style={[styles.sectionTitle, { color: c.textSecondary, fontSize: fs(12) }]}>
+                    {labels.home_section_lists}
+                  </Text>
+                </View>
+              )}
+              {showListsSection && (
+                <Sortable.Grid
+                  key={isGrid ? `grid-${columns}` : 'list'}
+                  data={displayLists}
+                  renderItem={renderItem}
+                  keyExtractor={item => String(item.id)}
+                  columns={isGrid ? columns : 1}
+                  sortEnabled={sortEnabled}
+                  columnGap={isGrid ? GRID_GAP : 0}
+                  rowGap={isGrid ? GRID_GAP : 10}
+                  onDragEnd={handleDragEnd}
+                  onDragStart={handleListsDragStart}
+                />
+              )}
+            </ScrollView>
+          ) : (
+            renderEmpty()
+          )}
+        </Sortable.MultiZoneProvider>
 
         {!selectMode ? (
           <Fab

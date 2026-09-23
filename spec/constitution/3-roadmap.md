@@ -181,6 +181,16 @@ Copy a list's contents to the clipboard from the list detail screen:
 - Clipboard via `expo-clipboard` (`setStringAsync`); transient checkmark + "Copied" feedback.
 - Spec: spec/features/017-copy-list/.
 
+## 018-drag-list-into-collection
+Status: done.
+
+Drag a standalone list onto a collection on Home to group it:
+- `listRepo.moveToCollection(listId, collectionId)` appends the list at the collection's end (`MAX(position) + 1`) in a transaction.
+- The collections grid renders each card/row inside `Sortable.BaseZone` under a `Sortable.MultiZoneProvider`; while a list is dragged over a collection it shows an accent highlight (`dropTarget`) + `home_drop_hint` accessibility hint.
+- Zones ignore collection drags (collections-grid `onDragStart` clears the dragging-list ref); the drop skips the grid's reorder for that drag.
+- On Home the lists grid enables dragging with ≥ 1 list (other screens keep the `> 1` reorder guard), so a lone list can be dragged into a collection.
+- Spec: spec/features/018-drag-list-into-collection/.
+
 ## Future scope (not scheduled)
 - Tags, due dates, subtasks, recurring items.
 - List templates and sharing.

@@ -70,6 +70,18 @@ export const listRepo = {
     });
   },
 
+  async moveToCollection(listId: number, collectionId: number): Promise<void> {
+    await withTransaction(async db => {
+      const maxRow = await db
+        .select({ m: sql<number>`COALESCE(MAX(${lists.position}), -1) + 1` })
+        .from(lists)
+        .where(eq(lists.collection_id, collectionId))
+        .get();
+      const position = maxRow?.m ?? 0;
+      await db.update(lists).set({ collection_id: collectionId, position }).where(eq(lists.id, listId)).run();
+    });
+  },
+
   async update(id: number, data: Partial<Omit<NewList, 'collection_id'>>): Promise<void> {
     const db = await getDrizzle();
     const set: Partial<typeof lists.$inferInsert> = {};

@@ -17,9 +17,10 @@ interface Props {
   selectMode: boolean;
   selected: boolean;
   onPress: () => void;
+  dropTarget?: boolean;
 }
 
-function CollectionRowInner({ collection, selectMode, selected, onPress }: Props) {
+function CollectionRowInner({ collection, selectMode, selected, onPress, dropTarget = false }: Props) {
   const { activeColors: c } = useConfig();
   const fs = useFontSize();
   const labels = useLabels();
@@ -31,11 +32,13 @@ function CollectionRowInner({ collection, selectMode, selected, onPress }: Props
         { backgroundColor: withAlpha(collection.color, ALPHA_TINT) },
         selectMode && selected && { borderColor: c.primary },
         selectMode && !selected && { borderColor: c.border },
+        dropTarget && { borderColor: c.primary, backgroundColor: withAlpha(c.primary, ALPHA_TINT) },
       ]}
       onPress={onPress}
       accessibilityRole={selectMode ? 'checkbox' : undefined}
       accessibilityState={selectMode ? { checked: selected } : undefined}
       accessibilityLabel={selected ? `${collection.name}, ${labels.select_selected(1)}` : collection.name}
+      accessibilityHint={dropTarget ? labels.home_drop_hint : undefined}
     >
       <View style={[styles.accentBar, { backgroundColor: collection.color }]} />
       <View style={styles.badgeWrap}>
