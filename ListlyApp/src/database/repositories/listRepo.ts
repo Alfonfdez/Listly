@@ -1,4 +1,4 @@
-import { and, eq, inArray, ne, sql, type SQL } from 'drizzle-orm';
+import { and, eq, ne, sql, type SQL } from 'drizzle-orm';
 import { getDrizzle, withTransaction } from '../drizzle/engine';
 import { items, lists } from '../drizzle/schema';
 import { runResultOf } from '../drizzle/proxy';
@@ -6,18 +6,7 @@ import type { List, ListWithCounts } from '../types';
 import { listSchema } from '../schemas';
 import { parseRowOrNull, parseRows } from '../validate';
 import { dbTimestamp } from '../../utils/formatters';
-import { deleteItemPhotos, parseItemPhotos } from '../../utils/itemPhotos';
-
-async function deletePhotosOfItems(listIds: number[]): Promise<void> {
-  const db = await getDrizzle();
-  const rows = await db
-    .select({ pictures: items.pictures })
-    .from(items)
-    .where(inArray(items.list_id, listIds))
-    .all();
-  const uris = rows.flatMap(row => parseItemPhotos(row.pictures));
-  await deleteItemPhotos(uris);
-}
+import { countsSelection, deletePhotosOfLists, nextPositionSql } from './shared';
 
 export type NewList = Omit<List, 'id' | 'created_at' | 'position' | 'collection_id'> & {
   collection_id?: number | null;
@@ -40,7 +29,7 @@ export const listRepo = {
     const db = await getDrizzle();
     const collectionId = data.collection_id ?? null;
     const maxRow = await db
-      .select({ m: sql<number>`COALESCE(MAX(${lists.position}), -1) + 1` })
+      .select({ m: nextPositionSql(lists.position) })
       .from(lists)
       .where(
         collectionId !== null
@@ -73,7 +62,7 @@ export const listRepo = {
   async moveToCollection(listId: number, collectionId: number): Promise<void> {
     await withTransaction(async db => {
       const maxRow = await db
-        .select({ m: sql<number>`COALESCE(MAX(${lists.position}), -1) + 1` })
+        .select({ m: nextPositionSql(lists.position) })
         .from(lists)
         .where(eq(lists.collection_id, collectionId))
         .get();
@@ -85,7 +74,7 @@ export const listRepo = {
   async removeFromCollection(listId: number): Promise<void> {
     await withTransaction(async db => {
       const maxRow = await db
-        .select({ m: sql<number>`COALESCE(MAX(${lists.position}), -1) + 1` })
+        .select({ m: nextPositionSql(lists.position) })
         .from(lists)
         .where(sql`${lists.collection_id} IS NULL`)
         .get();
@@ -107,7 +96,7 @@ export const listRepo = {
   async delete(id: number): Promise<void> {
     const db = await getDrizzle();
     await db.delete(lists).where(eq(lists.id, id)).run();
-    await deletePhotosOfItems([id]);
+    await deletePhotosOfLists([id]);
   },
 
   async deleteMany(ids: number[]): Promise<void> {
@@ -117,7 +106,7 @@ export const listRepo = {
         await db.delete(lists).where(eq(lists.id, id)).run();
       }
     });
-    await deletePhotosOfItems(ids);
+    await deletePhotosOfLists(ids);
   },
 
   async withCounts(): Promise<ListWithCounts[]> {
@@ -131,8 +120,7 @@ export const listRepo = {
         created_at: lists.created_at,
         position: lists.position,
         collection_id: lists.collection_id,
-        total: sql<number>`COUNT(${items.id})`,
-        completed: sql<number>`COALESCE(SUM(CASE WHEN ${items.checked} = 1 THEN 1 ELSE 0 END), 0)`,
+        ...countsSelection,
       })
       .from(lists)
       .leftJoin(items, eq(items.list_id, lists.id))

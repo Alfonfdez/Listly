@@ -31,28 +31,12 @@ export const DB_KEY_MAP: Record<string, keyof Config> = {
   edit_show_photos: 'editShowPhotos',
 };
 
-type ConfigValueKind = 'string' | 'boolean';
-
-const CONFIG_VALUE_KINDS: Record<keyof Config, ConfigValueKind> = {
-  theme: 'string',
-  language: 'string',
-  textSize: 'string',
-  homeCollectionsLayout: 'string',
-  homeListsLayout: 'string',
-  collectionsLayout: 'string',
-  listsLayout: 'string',
-  showNotes: 'boolean',
-  showPhotos: 'boolean',
-  editShowNotes: 'boolean',
-  editShowPhotos: 'boolean',
-};
-
 const DB_KEY_OF: Record<string, string> = Object.fromEntries(
   Object.entries(DB_KEY_MAP).map(([dbKey, configKey]) => [configKey, dbKey])
 );
 
 export function decodeConfigValue(key: keyof Config, raw: string): unknown {
-  if (CONFIG_VALUE_KINDS[key] === 'boolean') return raw === 'true' || raw === '1';
+  if (typeof DEFAULT_CONFIG[key] === 'boolean') return raw === 'true' || raw === '1';
   return raw;
 }
 
