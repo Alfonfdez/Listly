@@ -1,7 +1,5 @@
 import { DB_FILE_KEY, type DatabaseStorage } from '../sqliteWeb';
-
-const DATABASE_NAME = 'Listly.db';
-const STORE_NAME = 'sqlite';
+import { DATABASE_NAME, DB_STORE_NAME } from '../constants';
 
 interface OpenHandle {
   db: IDBDatabase | null;
@@ -18,8 +16,8 @@ function openDatabase(): Promise<IDBDatabase | null> {
       const request = indexedDB.open(DATABASE_NAME, 1);
       request.onupgradeneeded = () => {
         const db = request.result;
-        if (!db.objectStoreNames.contains(STORE_NAME)) {
-          db.createObjectStore(STORE_NAME);
+        if (!db.objectStoreNames.contains(DB_STORE_NAME)) {
+          db.createObjectStore(DB_STORE_NAME);
         }
       };
       request.onsuccess = () => {
@@ -39,7 +37,7 @@ function openDatabase(): Promise<IDBDatabase | null> {
 function objectStore(mode: IDBTransactionMode): Promise<IDBObjectStore | null> {
   return openDatabase().then((db) => {
     if (!db) return null;
-    return db.transaction(STORE_NAME, mode).objectStore(STORE_NAME);
+    return db.transaction(DB_STORE_NAME, mode).objectStore(DB_STORE_NAME);
   });
 }
 

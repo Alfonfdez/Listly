@@ -27,6 +27,22 @@ export const LIST_LAYOUTS = {
 
 export type ListLayout = keyof typeof LIST_LAYOUTS;
 
+export const LIST_VIEW_MODES = {
+  home: 'home',
+  lists: 'lists',
+  collections: 'collections',
+  collection: 'collection',
+} as const;
+
+export type ListViewMode = keyof typeof LIST_VIEW_MODES;
+
+export const COLLECTION_DELETE_MODES = {
+  move: 'move',
+  cascade: 'cascade',
+} as const;
+
+export type CollectionDeleteMode = keyof typeof COLLECTION_DELETE_MODES;
+
 export const FACTORY_RESET_CONFIRMATION = 'DELETE';
 
 export const DEBOUNCE_MS = 300;

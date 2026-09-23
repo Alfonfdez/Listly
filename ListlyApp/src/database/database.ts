@@ -2,8 +2,8 @@ import type { DatabaseHandle } from './types';
 import { openEngine } from './engine';
 import { createSchema } from './migrations/001_initial';
 import { deleteItemPhotos, parseItemPhotos } from '../utils/itemPhotos';
+import { DATABASE_NAME } from './constants';
 
-const DATABASE_NAME = 'Listly.db';
 export const SCHEMA_VERSION = 5;
 
 let dbPromise: Promise<DatabaseHandle> | null = null;

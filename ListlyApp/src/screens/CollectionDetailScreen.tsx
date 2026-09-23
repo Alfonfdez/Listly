@@ -5,7 +5,7 @@ import { useConfig } from '../context/ConfigContext';
 import { useLabels } from '../hooks/useLabels';
 import { useSelectMode } from '../hooks/useSelectMode';
 import { listRepository as listRepo } from '../database';
-import type { IconName, NavigationProp, RootStackParamList } from '../constants/types';
+import { LIST_VIEW_MODES, type IconName, type NavigationProp, type RootStackParamList } from '../constants/types';
 import ScreenShell from '../components/ScreenShell';
 import NotFoundScreen from '../components/NotFoundScreen';
 import DetailHeader from '../components/DetailHeader';
@@ -97,7 +97,7 @@ export default function CollectionDetailScreen() {
   return (
     <ScreenShell>
       <ListsView
-        mode="collection"
+        mode={LIST_VIEW_MODES.collection}
         variant={config.collectionDetailLayout}
         collectionsVariant="grid"
         collectionId={collectionId}

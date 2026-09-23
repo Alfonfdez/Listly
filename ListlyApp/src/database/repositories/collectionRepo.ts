@@ -6,6 +6,7 @@ import type { Collection, CollectionWithCounts } from '../types';
 import { collectionSchema } from '../schemas';
 import { parseRowOrNull, parseRows } from '../validate';
 import { dbTimestamp } from '../../utils/formatters';
+import { COLLECTION_DELETE_MODES, type CollectionDeleteMode } from '../../constants/types';
 import { countsSelection, deletePhotosOfLists, nextPositionSql, reorderPositions } from './shared';
 
 export type NewCollection = Omit<Collection, 'id' | 'created_at' | 'position'>;
@@ -58,8 +59,8 @@ export const collectionRepo = {
     await db.update(collections).set(set).where(eq(collections.id, id)).run();
   },
 
-  async delete(id: number, mode: 'move' | 'cascade'): Promise<void> {
-    if (mode === 'move') {
+  async delete(id: number, mode: CollectionDeleteMode): Promise<void> {
+    if (mode === COLLECTION_DELETE_MODES.move) {
       await withTransaction(async db => {
         await db.update(lists).set({ collection_id: null }).where(eq(lists.collection_id, id)).run();
         await db.delete(collections).where(eq(collections.id, id)).run();
@@ -78,9 +79,9 @@ export const collectionRepo = {
     await deletePhotosOfLists(listIds);
   },
 
-  async deleteMany(ids: number[], mode: 'move' | 'cascade' = 'cascade'): Promise<void> {
+  async deleteMany(ids: number[], mode: CollectionDeleteMode = COLLECTION_DELETE_MODES.cascade): Promise<void> {
     if (ids.length === 0) return;
-    if (mode === 'move') {
+    if (mode === COLLECTION_DELETE_MODES.move) {
       await withTransaction(async tx => {
         await tx.update(lists).set({ collection_id: null }).where(inArray(lists.collection_id, ids)).run();
         await tx.delete(collections).where(inArray(collections.id, ids)).run();

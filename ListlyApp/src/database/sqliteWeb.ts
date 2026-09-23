@@ -1,8 +1,9 @@
 import initSqlJs from 'sql.js';
 import type { Database, SqlJsStatic } from 'sql.js';
 import type { DatabaseBindValue, DatabaseHandle, DatabaseRunResult } from './types';
+import { DB_STORE_NAME } from './constants';
 
-export const DB_FILE_KEY = 'sqlite';
+export const DB_FILE_KEY = DB_STORE_NAME;
 
 export interface DatabaseStorage {
   get(): Promise<Uint8Array | null>;

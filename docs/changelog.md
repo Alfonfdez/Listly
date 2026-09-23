@@ -430,3 +430,13 @@ pm run test:all green.
 - `ListsView` passes `reserveCollectionLine={mode === 'lists'}`.
 - `PersonalizationScreen`: 16px spacer between the *Collections* and *Lists* rows of the *Home screen* section, so the *Lists* title is no longer tight under the toggle.
 - `npm run test:all` green (44 files, 333 tests); verified on web at 375px (both Lists cards h=147; 16px Home-row gap).
+
+[2026-09-23] ~ | Refactor: group identifier literals into constants (Tier 1)
+- `constants/types.ts`: added `LIST_VIEW_MODES` (+ `ListViewMode`) and `COLLECTION_DELETE_MODES` (+ `CollectionDeleteMode`); `LIST_LAYOUTS` reused for the raw `'grid'`/`'list'` literals.
+- Replaced the raw list-view mode literals in `ListsView` / `ListsScreenBase` / `HomeScreen` / `CollectionsScreen` / `CollectionDetailScreen` (and the `'move'`/`'cascade'` literals in `collectionRepo` / `EditCollectionScreen`).
+- New `constants/text.ts` (`NBSP`) for the `ListCard` filler; new `database/constants.ts` (`DATABASE_NAME`, `DB_STORE_NAME`) removing the duplicated `'Listly.db'` and `'sqlite'` literals (`database.ts`, `sqliteWeb.ts`, `storage/indexedDb.ts`).
+- Pure refactor; `npm run test:all` green (44 files, 333 tests).
+
+[2026-09-23] ~ | Fix: hide ListCard reserved collection line on native
+- In `ListCard`, the reserved collection slot (standalone lists on the Lists screen grid) is now hidden with `opacity: 0` on the row instead of `color: 'transparent'` on the icon/text, which was not reliably invisible on Android. `color` falls back to `c.textSecondary`; the row still occupies its line so card heights stay uniform.
+- Web behavior is unchanged (already invisible); `npm run test:all` green (44 files, 333 tests).
