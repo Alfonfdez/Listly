@@ -372,3 +372,10 @@ pm run test:all green.
 - New constants: `ALPHA_SUBTLE`, `HIT_SLOP`, `HIT_SLOP_SMALL`, `FAB_BOTTOM_OFFSET`, `ZONE_MIN_ACTIVATION_DISTANCE` (componentStyles.ts) and `COPY_FEEDBACK_MS`, `PHOTO_QUALITY` (constants/types.ts); replaced the `1500` copy timeout, `quality: 0.7`, `minActivationDistance={8}`, duplicated FAB `bottom: 56`, `0.08` alpha, and `hitSlop={8|4}` literals.
 - Replaced remaining `'transparent'` literals with the existing `TRANSPARENT` token (ListCard/ListRow/CollectionCard/CollectionRow/ModalFooter/SelectionCheck/SelectorInline/OptionPickerModal/ListsView).
 - Behavior-preserving; `npm run test:all` green (41 files, 319 tests).
+
+[2026-09-23] ~ | Refactor: screen/component de-duplication (Phase 4)
+- New `src/components/NotFoundScreen.tsx` (shared missing-entity guard) replacing the identical block in `ListDetailScreen`, `CollectionDetailScreen`, `EditListScreen`, `EditCollectionScreen`.
+- New `src/components/DetailHeader.tsx` (icon badge + name + progress + edit pencil, optional `trailing` slot and progress bar) adopted by both detail screens; `ListDetailScreen` passes its copy-actions as `trailing` + `progressPercent`.
+- `ListsScreenBase.tsx`: extracted `resetSelectionExtras()` (toggle/exit select) and merged `performCollectionDelete` / `confirmCombinedDelete` into one `runCollectionDelete(mode, closeModal, errorLabel)`.
+- `ListsView.tsx`: extracted `performZoneDrop(action)` shared by the collection-hover drop and the remove-from-collection drop.
+- Behavior-preserving; `npm run test:all` green (41 files, 319 tests).

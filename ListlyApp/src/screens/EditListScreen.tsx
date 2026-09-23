@@ -1,13 +1,11 @@
 import { useCallback, useState } from 'react';
-import { StyleSheet } from 'react-native';
 import { useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
 import { useApp } from '../context/AppContext';
 import { useLabels } from '../hooks/useLabels';
 import type { IconName, NavigationProp, RootStackParamList } from '../constants/types';
-import { ICONS } from '../constants/icons';
 import { listRepository as listRepo } from '../database';
 import ScreenShell from '../components/ScreenShell';
-import EmptyState from '../components/EmptyState';
+import NotFoundScreen from '../components/NotFoundScreen';
 import ListForm from '../components/ListForm';
 import ConfirmModal from '../components/ConfirmModal';
 
@@ -42,7 +40,7 @@ export default function EditListScreen() {
   }, [listId, refresh, navigation]);
 
   if (!list) {
-    return <ScreenShell style={styles.center}><EmptyState icon={ICONS.notFound} message={labels.home_empty} /></ScreenShell>;
+    return <NotFoundScreen />;
   }
 
   return (
@@ -71,9 +69,3 @@ export default function EditListScreen() {
     </ScreenShell>
   );
 }
-
-const styles = StyleSheet.create({
-  center: {
-    justifyContent: 'center',
-  },
-});
