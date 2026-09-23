@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
 import { useApp } from '../context/AppContext';
+import { useConfig } from '../context/ConfigContext';
 import { useLabels } from '../hooks/useLabels';
 import { useSelectMode } from '../hooks/useSelectMode';
 import { listRepository as listRepo } from '../database';
@@ -18,6 +19,7 @@ export default function CollectionDetailScreen() {
   const { collectionId } = route.params;
 
   const { collections, listsByCollectionId, refresh } = useApp();
+  const { config } = useConfig();
   const labels = useLabels();
 
   const collection = useMemo(() => collections.find(col => col.id === collectionId), [collections, collectionId]);
@@ -96,7 +98,7 @@ export default function CollectionDetailScreen() {
     <ScreenShell>
       <ListsView
         mode="collection"
-        variant="grid"
+        variant={config.collectionDetailLayout}
         collectionsVariant="grid"
         collectionId={collectionId}
         header={header}

@@ -32,7 +32,7 @@ Listly 1.0 screens. Each maps to a feature spec (`spec/features/<NNN>-…/`) wit
 
 ## 5. Collection detail (016-collections, 019-remove-list-from-collection)
 - Header block: tinted badge, colored name, N/total, edit pencil.
-- Member lists grid with search, select-mode bulk delete, reorder, and empty state; FAB adds a list into the collection.
+- Member lists (grid cards or full-width rows, per the *Collection detail* layout setting) with search, select-mode bulk delete, reorder, and empty state; FAB adds a list into the collection.
 - Dragging a member up to a "Remove from collection" target that appears at the bottom of the screen (above the FAB) takes the list out of the collection and makes it standalone; the target is highlighted while hovered, and members stay draggable even with a single member.
 - Delete lives on Edit Collection (pencil → Edit Collection → Delete): empty → single confirm; non-empty → move-lists-to-Lists or delete-lists-too.
 
@@ -45,7 +45,7 @@ Listly 1.0 screens. Each maps to a feature spec (`spec/features/<NNN>-…/`) wit
 - Create collection (FAB / Add chooser); Edit collection (pencil on collection detail) with an outlined-red *Delete collection* button above Save.
 
 ## 8. Settings (005, 015)
-- Hub with four rows: Appearance (theme, text size), Regional (language), Personalization (Home/Lists/Collections layouts + item/edit visibility), Data (export/import backup, delete all lists, factory reset).
+- Hub with four rows: Appearance (theme, text size), Regional (language), Personalization (Home/Lists/Collections/Collection detail layouts + item/edit visibility), Data (export/import backup, delete all lists, factory reset).
 
 ## Navigation map
 ```

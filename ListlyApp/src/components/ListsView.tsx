@@ -181,6 +181,7 @@ export default function ListsView({
           selectMode={selectMode}
           selected={selectedIds.has(item.id)}
           onPress={() => handleTilePress(item)}
+          reserveCollectionLine={mode === 'lists'}
         />
       ) : (
         <ListRow

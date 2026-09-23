@@ -1,4 +1,4 @@
-import { ScrollView, Text, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useConfig } from '../../context/ConfigContext';
 import { useFontSize } from '../../hooks/useFontSize';
 import { useLabels } from '../../hooks/useLabels';
@@ -31,6 +31,7 @@ export default function PersonalizationScreen() {
             selected={config.homeCollectionsLayout}
             onSelect={homeCollectionsLayout => void updateConfig({ homeCollectionsLayout })}
           />
+          <View style={styles.homeRowSpacer} />
           <SettingsSelectRow
             label={labels.home_section_lists}
             options={layoutOptions}
@@ -45,6 +46,15 @@ export default function PersonalizationScreen() {
             options={layoutOptions}
             selected={config.collectionsLayout}
             onSelect={collectionsLayout => void updateConfig({ collectionsLayout })}
+          />
+        </SettingsSection>
+
+        <SettingsSection title={labels.settings_collection_detail_screen}>
+          <SettingsSelectRow
+            label={labels.settings_list_layout}
+            options={layoutOptions}
+            selected={config.collectionDetailLayout}
+            onSelect={collectionDetailLayout => void updateConfig({ collectionDetailLayout })}
           />
         </SettingsSection>
 
@@ -104,3 +114,7 @@ export default function PersonalizationScreen() {
     </ScreenShell>
   );
 }
+
+const styles = StyleSheet.create({
+  homeRowSpacer: { height: 16 },
+});

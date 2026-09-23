@@ -65,6 +65,7 @@ describe('db drift', () => {
     const { THEMES } = await import('../../src/constants/types');
 
     expect(Object.keys(DB_KEY_MAP).sort()).toEqual([
+      'collection_detail_layout',
       'collections_layout',
       'edit_show_notes',
       'edit_show_photos',

@@ -56,6 +56,7 @@ describe('schemas', () => {
           homeCollectionsLayout: LIST_LAYOUTS.list,
           homeListsLayout: LIST_LAYOUTS.grid,
           collectionsLayout: LIST_LAYOUTS.list,
+          collectionDetailLayout: LIST_LAYOUTS.list,
           listsLayout: LIST_LAYOUTS.grid,
           showNotes: false,
           showPhotos: false,
@@ -69,6 +70,7 @@ describe('schemas', () => {
         homeCollectionsLayout: LIST_LAYOUTS.list,
         homeListsLayout: LIST_LAYOUTS.grid,
         collectionsLayout: LIST_LAYOUTS.list,
+        collectionDetailLayout: LIST_LAYOUTS.list,
         listsLayout: LIST_LAYOUTS.grid,
         showNotes: false,
         showPhotos: false,
@@ -88,6 +90,7 @@ describe('schemas', () => {
       expect(() => configSchema.parse({ ...DEFAULT_CONFIG, homeCollectionsLayout: 'columns' })).toThrow();
       expect(() => configSchema.parse({ ...DEFAULT_CONFIG, homeListsLayout: 'columns' })).toThrow();
       expect(() => configSchema.parse({ ...DEFAULT_CONFIG, collectionsLayout: 'columns' })).toThrow();
+      expect(() => configSchema.parse({ ...DEFAULT_CONFIG, collectionDetailLayout: 'columns' })).toThrow();
       expect(() => configSchema.parse({ ...DEFAULT_CONFIG, listsLayout: 'columns' })).toThrow();
     });
 

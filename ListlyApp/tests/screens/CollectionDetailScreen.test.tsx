@@ -9,7 +9,8 @@ import {
   setCollections,
   setListsByCollectionId,
 } from '../helpers/appStub';
-import { resetStub } from '../helpers/configStub';
+import { resetStub, setConfig } from '../helpers/configStub';
+import { lastGrid } from '../mocks/react-native-sortables';
 import type { CollectionWithCounts, ListWithCounts } from '../../src/database/types';
 
 vi.mock('expo-sqlite', () => ({ openDatabaseSync: vi.fn() }));
@@ -123,6 +124,23 @@ describe('CollectionDetailScreen', () => {
     const calls = nav.setOptions.mock.calls;
     const lastSetOptions = calls[calls.length - 1]?.[0];
     expect(lastSetOptions?.headerRight).toBeUndefined();
+  });
+
+  it('renders member lists as a single-column list when the collection detail layout is list', async () => {
+    setConfig({ collectionDetailLayout: 'list' });
+    await render(<CollectionDetailScreen />);
+    expect(lastGrid()?.columns).toBe(1);
+  });
+
+  it('renders member lists as a single-column list when the collection detail layout is list', async () => {
+    setConfig({ collectionDetailLayout: 'list' });
+    await render(<CollectionDetailScreen />);
+    expect(lastGrid()?.columns).toBe(1);
+  });
+
+  it('renders member lists as a multi-column grid by default', async () => {
+    await render(<CollectionDetailScreen />);
+    expect(lastGrid()?.columns).toBeGreaterThan(1);
   });
 });
 

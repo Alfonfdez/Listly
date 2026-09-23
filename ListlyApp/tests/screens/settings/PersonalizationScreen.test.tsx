@@ -6,10 +6,11 @@ import { getConfigStub, resetStub } from '../../helpers/configStub';
 describe('PersonalizationScreen', () => {
   beforeEach(() => resetStub());
 
-  it('renders home, collections and lists sections with nested optional fields', async () => {
+  it('renders home, collections, collection detail and lists sections with nested optional fields', async () => {
     const view = await render(<PersonalizationScreen />);
     expect(view.getByText('Home screen')).toBeTruthy();
     expect(view.getByText('Collections screen')).toBeTruthy();
+    expect(view.getByText('Collection detail')).toBeTruthy();
     expect(view.getByText('Lists screen')).toBeTruthy();
     expect(view.getByText('Item display')).toBeTruthy();
     expect(view.getByText('Edit item')).toBeTruthy();
@@ -34,8 +35,11 @@ describe('PersonalizationScreen', () => {
     await user.press(listOptions[2]!);
     expect(updateConfig).toHaveBeenCalledWith({ collectionsLayout: 'list' });
 
+    await user.press(listOptions[3]!);
+    expect(updateConfig).toHaveBeenCalledWith({ collectionDetailLayout: 'list' });
+
     const gridOptions = view.getAllByLabelText('Grid');
-    await user.press(gridOptions[3]!);
+    await user.press(gridOptions[4]!);
     expect(updateConfig).toHaveBeenCalledWith({ listsLayout: 'grid' });
   });
 

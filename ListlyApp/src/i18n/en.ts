@@ -128,6 +128,7 @@ export const en = {
   settings_home_screen: 'Home screen',
   settings_lists_screen: 'Lists screen',
   settings_collections_screen: 'Collections screen',
+  settings_collection_detail_screen: 'Collection detail',
   settings_list_layout: 'Layout',
   layout_grid: 'Grid',
   layout_list: 'List',

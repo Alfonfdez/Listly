@@ -20,9 +20,10 @@ interface Props {
   selectMode: boolean;
   selected: boolean;
   onPress: () => void;
+  reserveCollectionLine?: boolean;
 }
 
-function ListCardInner({ list, collection, selectMode, selected, onPress }: Props) {
+function ListCardInner({ list, collection, selectMode, selected, onPress, reserveCollectionLine = false }: Props) {
   const { activeColors: c } = useConfig();
   const fs = useFontSize();
   const labels = useLabels();
@@ -46,11 +47,14 @@ function ListCardInner({ list, collection, selectMode, selected, onPress }: Prop
       <Text style={[styles.name, { color: c.text, fontSize: fs(14) }]} numberOfLines={1}>
         {list.name}
       </Text>
-      {collection && !selectMode ? (
+      {(collection || reserveCollectionLine) && !selectMode ? (
         <View style={styles.collectionRow}>
-          <Ionicons name={ICONS.collection} size={12} color={collection.color} />
-          <Text style={[styles.collectionName, { color: collection.color, fontSize: fs(12) }]} numberOfLines={1}>
-            {collection.name}
+          <Ionicons name={ICONS.collection} size={12} color={collection?.color ?? TRANSPARENT} />
+          <Text
+            style={[styles.collectionName, { color: collection?.color ?? TRANSPARENT, fontSize: fs(12) }]}
+            numberOfLines={1}
+          >
+            {collection?.name ?? '\u00A0'}
           </Text>
         </View>
       ) : null}

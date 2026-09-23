@@ -45,6 +45,7 @@ export const configSchema = z.object({
   homeCollectionsLayout: layoutSchema,
   homeListsLayout: layoutSchema,
   collectionsLayout: layoutSchema,
+  collectionDetailLayout: layoutSchema,
   listsLayout: layoutSchema,
   showNotes: z.boolean(),
   showPhotos: z.boolean(),
