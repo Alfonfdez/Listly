@@ -8,7 +8,8 @@ import { useConfig } from '../context/ConfigContext';
 import { useSelectMode } from '../hooks/useSelectMode';
 import { useLabels } from '../hooks/useLabels';
 import { toggleInSet } from '../utils/set';
-import ListsView, { type ListViewMode } from '../components/ListsView';
+import { LIST_VIEW_MODES, LIST_LAYOUTS, COLLECTION_DELETE_MODES, type ListViewMode, type CollectionDeleteMode } from '../constants/types';
+import ListsView from '../components/ListsView';
 import SelectSearchHeader from '../components/SelectSearchHeader';
 import CollectionDeleteModal from '../components/CollectionDeleteModal';
 import ConfirmModal from '../components/ConfirmModal';
@@ -21,7 +22,7 @@ type LayoutKey = keyof Pick<
 export default function ListsScreenBase({
   listsLayoutKey,
   collectionsLayoutKey,
-  mode = 'lists',
+  mode = LIST_VIEW_MODES.lists,
 }: {
   listsLayoutKey: LayoutKey;
   collectionsLayoutKey?: LayoutKey;
@@ -101,7 +102,7 @@ export default function ListsScreenBase({
   }, []);
 
   const runCollectionDelete = useCallback(
-    async (deleteMode: 'move' | 'cascade', closeModal: () => void, scope: ErrorScope) => {
+    async (deleteMode: CollectionDeleteMode, closeModal: () => void, scope: ErrorScope) => {
       const ids = [...selectedCollectionIds];
       const listIds = [...selectedIds];
       closeModal();
@@ -123,9 +124,9 @@ export default function ListsScreenBase({
   );
 
   const hasData =
-    mode === 'collections'
+    mode === LIST_VIEW_MODES.collections
       ? collections.length > 0
-      : lists.length > 0 || (mode === 'home' && collections.length > 0);
+      : lists.length > 0 || (mode === LIST_VIEW_MODES.home && collections.length > 0);
 
   useEffect(() => {
     navigation.setOptions({
@@ -156,7 +157,7 @@ export default function ListsScreenBase({
       <ListsView
         mode={mode}
         variant={config[listsLayoutKey]}
-        collectionsVariant={collectionsLayoutKey ? config[collectionsLayoutKey] : 'grid'}
+        collectionsVariant={collectionsLayoutKey ? config[collectionsLayoutKey] : LIST_LAYOUTS.grid}
         searchActive={searchActive && !selectMode}
         query={query}
         onQueryChange={setQuery}
@@ -178,8 +179,8 @@ export default function ListsScreenBase({
         visible={collectionDeleteVisible}
         collections={selectedCollections}
         standaloneListCount={selectedIds.size}
-        onMove={() => void runCollectionDelete('move', () => setCollectionDeleteVisible(false), ERROR_SCOPE.deleteSelectedCollections)}
-        onDelete={() => void runCollectionDelete('cascade', () => setCollectionDeleteVisible(false), ERROR_SCOPE.deleteSelectedCollections)}
+        onMove={() => void runCollectionDelete(COLLECTION_DELETE_MODES.move, () => setCollectionDeleteVisible(false), ERROR_SCOPE.deleteSelectedCollections)}
+        onDelete={() => void runCollectionDelete(COLLECTION_DELETE_MODES.cascade, () => setCollectionDeleteVisible(false), ERROR_SCOPE.deleteSelectedCollections)}
         onCancel={() => setCollectionDeleteVisible(false)}
       />
 
@@ -190,7 +191,7 @@ export default function ListsScreenBase({
         cancelLabel={labels.common_cancel}
         confirmLabel={labels.select_delete}
         onCancel={() => setCombinedDeleteVisible(false)}
-        onConfirm={() => void runCollectionDelete('cascade', () => setCombinedDeleteVisible(false), ERROR_SCOPE.deleteSelection)}
+        onConfirm={() => void runCollectionDelete(COLLECTION_DELETE_MODES.cascade, () => setCombinedDeleteVisible(false), ERROR_SCOPE.deleteSelection)}
         destructive
       />
     </>

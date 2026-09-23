@@ -6,6 +6,7 @@ import { useFontSize } from '../hooks/useFontSize';
 import { useLabels } from '../hooks/useLabels';
 import { CARD_BORDER_RADIUS, ALPHA_TINT } from './componentStyles';
 import { TRANSPARENT } from '../constants/themes';
+import { NBSP } from '../constants/text';
 import { ICONS } from '../constants/icons';
 import { withAlpha } from '../utils/color';
 import SortablePressable from './SortablePressable';
@@ -48,13 +49,13 @@ function ListCardInner({ list, collection, selectMode, selected, onPress, reserv
         {list.name}
       </Text>
       {(collection || reserveCollectionLine) && !selectMode ? (
-        <View style={styles.collectionRow}>
-          <Ionicons name={ICONS.collection} size={12} color={collection?.color ?? TRANSPARENT} />
+        <View style={[styles.collectionRow, !collection && styles.collectionRowHidden]}>
+          <Ionicons name={ICONS.collection} size={12} color={collection?.color ?? c.textSecondary} />
           <Text
-            style={[styles.collectionName, { color: collection?.color ?? TRANSPARENT, fontSize: fs(12) }]}
+            style={[styles.collectionName, { color: collection?.color ?? c.textSecondary, fontSize: fs(12) }]}
             numberOfLines={1}
           >
-            {collection?.name ?? '\u00A0'}
+            {collection?.name ?? NBSP}
           </Text>
         </View>
       ) : null}
@@ -94,6 +95,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
+  },
+  collectionRowHidden: {
+    opacity: 0,
   },
   collectionName: {
     fontWeight: '500',

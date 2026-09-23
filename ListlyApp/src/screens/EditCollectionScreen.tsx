@@ -2,7 +2,7 @@ import { useCallback, useMemo, useState } from 'react';
 import { useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
 import { useApp } from '../context/AppContext';
 import { useLabels } from '../hooks/useLabels';
-import type { IconName, NavigationProp, RootStackParamList } from '../constants/types';
+import { COLLECTION_DELETE_MODES, type CollectionDeleteMode, type IconName, type NavigationProp, type RootStackParamList } from '../constants/types';
 import { collectionRepository as collectionRepo } from '../database';
 import { logError, ERROR_SCOPE } from '../utils/errors';
 import ScreenShell from '../components/ScreenShell';
@@ -36,7 +36,7 @@ export default function EditCollectionScreen() {
   );
 
   const performDelete = useCallback(
-    async (mode: 'move' | 'cascade') => {
+    async (mode: CollectionDeleteMode) => {
       try {
         await collectionRepo.delete(collectionId, mode);
         await refresh();
@@ -71,8 +71,8 @@ export default function EditCollectionScreen() {
       <CollectionDeleteModal
         visible={collectionDeleteVisible}
         collections={[collection]}
-        onMove={() => void performDelete('move')}
-        onDelete={() => void performDelete('cascade')}
+        onMove={() => void performDelete(COLLECTION_DELETE_MODES.move)}
+        onDelete={() => void performDelete(COLLECTION_DELETE_MODES.cascade)}
         onCancel={() => setCollectionDeleteVisible(false)}
       />
 
@@ -83,7 +83,7 @@ export default function EditCollectionScreen() {
         cancelLabel={labels.common_cancel}
         confirmLabel={labels.collection_delete_label}
         onCancel={() => setDeleteConfirmVisible(false)}
-        onConfirm={() => void performDelete('cascade')}
+        onConfirm={() => void performDelete(COLLECTION_DELETE_MODES.cascade)}
         destructive
       />
     </ScreenShell>
