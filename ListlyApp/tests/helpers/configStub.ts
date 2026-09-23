@@ -11,6 +11,7 @@ const configTemplate: Config = {
   homeCollectionsLayout: 'grid',
   homeListsLayout: 'grid',
   collectionsLayout: 'grid',
+  collectionDetailLayout: 'grid',
   listsLayout: 'list',
   showNotes: true,
   showPhotos: true,

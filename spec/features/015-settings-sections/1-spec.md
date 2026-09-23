@@ -31,7 +31,9 @@
 - Flags are emoji on native and the `react-native-svg` fallback on web (Windows browsers cannot render flag emoji).
 
 ### 5. Personalization screen
-- *Home screen* card: Layout selector bound to `homeLayout`.
+- *Home screen* card: Layout selectors for Collections (`homeCollectionsLayout`) and Lists (`homeListsLayout`).
+- *Collections screen* section: a Layout selector bound to `collectionsLayout`.
+- *Collection detail* section (directly under *Collections screen*): a Layout selector bound to `collectionDetailLayout` (grid/list) for the lists inside a collection.
 - *Lists screen* header (no outer card) followed by three separate surface cards with no divider lines — *Layout* (bound to `listsLayout`), *Item display* and *Edit item* — each of the latter two with the subtitle *Optional fields* and Notes / Photos checkboxes. The *Item display* / *Edit item* titles share the *Layout* label's font size and style (`fs(15)`, weight 600).
 - The Item display checkboxes are bound to `showNotes` / `showPhotos`; the Edit item checkboxes to `editShowNotes` / `editShowPhotos`.
 
@@ -42,6 +44,7 @@
 
 ### 7. Personalization effects
 - `HomeScreen` renders `ListsScreenBase` with `homeLayout`; `ListsScreen` uses `listsLayout`.
+- `CollectionDetailScreen` passes `collectionDetailLayout` to its `ListsView` variant (grid cards or full-width rows).
 - `ItemRow` hides the note/photo UI when `showNotes` / `showPhotos` are off; `ItemFormModal` hides its note/photo fields when `editShowNotes` / `editShowPhotos` are off.
 
 ### 8. Components

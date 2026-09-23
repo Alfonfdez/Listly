@@ -416,3 +416,17 @@ pm run test:all green.
 - Error scopes are grouped in a typed `ERROR_SCOPE` map (`src/utils/errors.ts`); `logError`/`runSafely` only accept these values.
 - Docs: `spec/constitution/5-validations.md` (Zod lenient + new "Error handling" section).
 - Tests: `validate.test.ts`, `errors.test.ts`, `ErrorBoundary.test.tsx`; `npm run test:all` green (44 files, 330 tests).
+
+[2026-09-23] + | Collection detail layout setting
+- New config key `collectionDetailLayout` (`grid` default / `list`), DB key `collection_detail_layout`; added to `configSchema`, `DEFAULT_CONFIG` and `DB_KEY_MAP`.
+- `PersonalizationScreen`: new *Collection detail* section under *Collections screen* with the shared Layout Grid/List selector.
+- `CollectionDetailScreen`: passes `config.collectionDetailLayout` as the `ListsView` `variant` (replacing the fixed `grid`).
+- i18n en/es: `settings_collection_detail_screen`.
+- Tests: `PersonalizationScreen` (new section + key), `CollectionDetailScreen` (list → single column, grid default → multi-column), `schemas`/`dbDrift`/config stub updated.
+- Docs: `6-screens.md` and the `015-settings-sections` spec; `npm run test:all` green (44 files, 333 tests).
+
+[2026-09-23] ~ | Polish: uniform ListCard height + Personalization spacing
+- `ListCard` gains `reserveCollectionLine`; on the Lists screen grid every card keeps the tallest (icon + name + collection + progress) height, so standalone and collection lists match. Home / Collection-detail cards are unchanged.
+- `ListsView` passes `reserveCollectionLine={mode === 'lists'}`.
+- `PersonalizationScreen`: 16px spacer between the *Collections* and *Lists* rows of the *Home screen* section, so the *Lists* title is no longer tight under the toggle.
+- `npm run test:all` green (44 files, 333 tests); verified on web at 375px (both Lists cards h=147; 16px Home-row gap).
