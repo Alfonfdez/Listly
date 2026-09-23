@@ -4,6 +4,7 @@ import { useApp } from '../context/AppContext';
 import { useLabels } from '../hooks/useLabels';
 import type { IconName, NavigationProp, RootStackParamList } from '../constants/types';
 import { listRepository as listRepo } from '../database';
+import { logError, ERROR_SCOPE } from '../utils/errors';
 import ScreenShell from '../components/ScreenShell';
 import NotFoundScreen from '../components/NotFoundScreen';
 import ListForm from '../components/ListForm';
@@ -34,7 +35,7 @@ export default function EditListScreen() {
       await refresh();
       navigation.popToTop();
     } catch (error) {
-      console.error('Failed to delete list:', error);
+      logError(ERROR_SCOPE.deleteList, error);
       setDeleteVisible(false);
     }
   }, [listId, refresh, navigation]);

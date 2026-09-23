@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { collectionRepository as collectionRepo, listRepository as listRepo } from '../database';
+import { logError, ERROR_SCOPE, type ErrorScope } from '../utils/errors';
 import type { Config } from '../database/types';
 import { useApp } from '../context/AppContext';
 import { useConfig } from '../context/ConfigContext';
@@ -100,7 +101,7 @@ export default function ListsScreenBase({
   }, []);
 
   const runCollectionDelete = useCallback(
-    async (deleteMode: 'move' | 'cascade', closeModal: () => void, errorLabel: string) => {
+    async (deleteMode: 'move' | 'cascade', closeModal: () => void, scope: ErrorScope) => {
       const ids = [...selectedCollectionIds];
       const listIds = [...selectedIds];
       closeModal();
@@ -113,7 +114,7 @@ export default function ListsScreenBase({
         await refresh();
         exitSelectMode();
       } catch (error) {
-        console.error(errorLabel, error);
+        logError(scope, error);
         setSelectedCollectionIds(new Set());
         exitSelectMode();
       }
@@ -177,8 +178,8 @@ export default function ListsScreenBase({
         visible={collectionDeleteVisible}
         collections={selectedCollections}
         standaloneListCount={selectedIds.size}
-        onMove={() => void runCollectionDelete('move', () => setCollectionDeleteVisible(false), 'Failed to delete selected collections:')}
-        onDelete={() => void runCollectionDelete('cascade', () => setCollectionDeleteVisible(false), 'Failed to delete selected collections:')}
+        onMove={() => void runCollectionDelete('move', () => setCollectionDeleteVisible(false), ERROR_SCOPE.deleteSelectedCollections)}
+        onDelete={() => void runCollectionDelete('cascade', () => setCollectionDeleteVisible(false), ERROR_SCOPE.deleteSelectedCollections)}
         onCancel={() => setCollectionDeleteVisible(false)}
       />
 
@@ -189,7 +190,7 @@ export default function ListsScreenBase({
         cancelLabel={labels.common_cancel}
         confirmLabel={labels.select_delete}
         onCancel={() => setCombinedDeleteVisible(false)}
-        onConfirm={() => void runCollectionDelete('cascade', () => setCombinedDeleteVisible(false), 'Failed to delete selection:')}
+        onConfirm={() => void runCollectionDelete('cascade', () => setCombinedDeleteVisible(false), ERROR_SCOPE.deleteSelection)}
         destructive
       />
     </>

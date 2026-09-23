@@ -5,6 +5,7 @@ import {
   itemRepository as itemRepo,
   collectionRepository as collectionRepo,
 } from '../database';
+import { logError, ERROR_SCOPE } from '../utils/errors';
 
 interface AppContextType {
   lists: ListWithCounts[];
@@ -84,7 +85,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         setBaseLists(data.baseLists);
         setItemsByListId(data.itemsByListId);
       } catch (error) {
-        console.error('Failed to load lists:', error);
+        logError(ERROR_SCOPE.loadLists, error);
       } finally {
         if (active) setLoading(false);
       }
@@ -102,7 +103,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       setBaseLists(data.baseLists);
       setItemsByListId(data.itemsByListId);
     } catch (error) {
-      console.error('Failed to refresh lists:', error);
+      logError(ERROR_SCOPE.refreshLists, error);
     }
   }, []);
 

@@ -4,6 +4,7 @@ import { useApp } from '../context/AppContext';
 import { useLabels } from '../hooks/useLabels';
 import type { IconName, NavigationProp, RootStackParamList } from '../constants/types';
 import { collectionRepository as collectionRepo } from '../database';
+import { logError, ERROR_SCOPE } from '../utils/errors';
 import ScreenShell from '../components/ScreenShell';
 import NotFoundScreen from '../components/NotFoundScreen';
 import CollectionForm from '../components/CollectionForm';
@@ -41,7 +42,7 @@ export default function EditCollectionScreen() {
         await refresh();
         navigation.popToTop();
       } catch (error) {
-        console.error('Failed to delete collection:', error);
+        logError(ERROR_SCOPE.deleteCollection, error);
       } finally {
         setCollectionDeleteVisible(false);
         setDeleteConfirmVisible(false);
