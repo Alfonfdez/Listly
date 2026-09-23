@@ -10,6 +10,7 @@ interface GridProps {
   columnGap?: number;
   rowGap?: number;
   onDragEnd?: (params: unknown) => void;
+  onDragStart?: (params: unknown) => void;
   children?: ReactNode;
 }
 
@@ -42,13 +43,29 @@ const Touchable = ({ onTap, children, ...viewProps }: TouchableProps) =>
 
 const PassThrough = ({ children }: { children?: ReactNode }) => children as ReactNode;
 
+interface ZoneHandlersProps {
+  minActivationDistance?: number;
+  onItemEnter?: () => void;
+  onItemLeave?: () => void;
+  onItemDrop?: () => void;
+  children?: ReactNode;
+  [key: string]: unknown;
+}
+
+let lastZoneHandlerProps: ZoneHandlersProps[] = [];
+
+const BaseZone = (props: ZoneHandlersProps) => {
+  lastZoneHandlerProps.push(props);
+  return React.createElement(Fragment, null, props.children);
+};
+
 const HOLLOW_COMPONENTS: Record<string, ElementType> = {
   Flex: PassThrough,
   Handle: PassThrough,
   Layer: PassThrough,
   PortalProvider: PassThrough,
   MultiZoneProvider: PassThrough,
-  BaseZone: PassThrough,
+  BaseZone,
 };
 
 const Sortable = { Grid, Touchable, ...HOLLOW_COMPONENTS };
@@ -59,6 +76,18 @@ export function lastGrid() {
 
 export function fireGridDragEnd(params: unknown) {
   lastGridProps?.onDragEnd?.(params);
+}
+
+export function fireGridDragStart(params: unknown) {
+  lastGridProps?.onDragStart?.(params);
+}
+
+export function getZoneHandlers() {
+  return lastZoneHandlerProps;
+}
+
+export function resetZoneHandlers() {
+  lastZoneHandlerProps = [];
 }
 
 export default Sortable;

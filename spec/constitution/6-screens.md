@@ -2,10 +2,11 @@
 
 Listly 1.0 screens. Each maps to a feature spec (`spec/features/<NNN>-…/`) with functional requirements, plan, and tasks.
 
-## 1. Home (001-home-screen, 016-collections)
+## 1. Home (001-home-screen, 016-collections, 018-drag-list-into-collection)
 - Header with hamburger menu (Drawer) + "Listly" title.
 - Search toggle in the header to filter lists and items.
 - *Collections* section (tiles) above the *Lists* section; each tile shows icon + name + color + N/total progress.
+- Drag a standalone list onto a collection to move it into that collection (drops at the collection's end; the target is highlighted while hovering). Home lists stay draggable with ≥ 1 list so a lone list can be dropped into a collection.
 - Floating "+" FAB → Add chooser (Add collection / Add list).
 - Empty state when there are no collections and no lists.
 - Tapping a list → List detail; tapping a collection → Collection detail.

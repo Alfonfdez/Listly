@@ -338,3 +338,23 @@ pm run test:all green.
 - `ListRow` and `ListCard` gained an optional `collection` prop: when a list belongs to a collection, a small `albums-outline` icon + the collection name render under the list name in the collection's color (hidden in select mode); standalone lists show no hint.
 - Tests: `ListsView` (collection-list shows its collection, standalone doesn't) + `ListCard` (hint shows / hides in select mode). Suite baseline: 40 files, 301 tests, `npm run test:all` green.
 - Docs: `016-collections` 1-spec (section 11 + acceptance criterion), `6-screens.md` (Lists screen), roadmap 016 bullet.
+
+[2026-09-22] + | Drag a list into a collection on Home (feature 018)
+- `listRepo.moveToCollection(listId, collectionId)` — transactional append-at-end (`COALESCE(MAX(position), -1) + 1` among the target collection's members, then `UPDATE lists SET collection_id, position`).
+- `ListsView` (home mode) wraps the content in `Sortable.MultiZoneProvider`, each collection card/row in `Sortable.BaseZone` (`minActivationDistance={8}`), and tracks the dragged list (`draggingListRef` set on the lists-grid `onDragStart`, cleared by a collections-grid `onDragStart` so collection reorders never drop lists). Enter → `hoverCollectionId` (highlight); leave → clear; drop → `moveToCollection` + `refresh()`, with `zoneDropHandledRef` making the grid skip its `reorder` for that drag. Skills note: the ref is intentionally not cleared on list `onDragEnd` because the zone's drop can land after it.
+- `CollectionCard` / `CollectionRow` gain a `dropTarget` prop (accent `c.primary` border + primary tint) + `accessibilityHint`; i18n `home_drop_hint` (en/es).
+- Tests: `tests/database/listRepo.test.ts` (append at end, empty collection, between collections) + 4 `ListsView` drop-wiring tests (grid + list layouts: highlight on enter, clear on leave/drop, no highlight without a list drag, `moveToCollection(1, 10)` + reorder skipped), `tests/mocks/react-native-sortables.tsx` captures `BaseZone` handlers + grid `onDragStart`. Suite baseline: 41 files, 308 tests, `npm run test:all` green.
+- Docs: new `spec/features/018-drag-list-into-collection/` (1-spec with 8 acceptance criteria, 2-plan, 3-tasks), roadmap `## 018-drag-list-into-collection` (in progress), `6-screens.md` Home bullet.
+
+[2026-09-23] ~ | Fix web drop for feature 018 (transactions + refresh ordering)
+- engine.ts withTransaction now serializes through a module-level promise chain (	ransactionChain): on web the grid's eorder and the zone's moveToCollection could run concurrently, nesting BEGIN and crashing sql.js with `cannot start a transaction within a transaction`.
+- ListsView drop handler now awaits moveToCollection before refreshing (pendingMoveRef), so the view no longer re-queries the pre-commit DB; handleDragEnd skips the grid reorder while a collection zone is hovered (hoverCollectionIdRef) or a drop move is pending.
+- Tests: added the concurrency regression test to listRepo.test.ts (fails pre-fix with the exact browser error, passes post-fix). Suite baseline: 41 files, 309 tests, 
+pm run test:all green.
+- Verified on web at 375px (Playwright, CDP touch): dragged Groceries / Todos / Workout onto the Shopping collection (grid card + row layouts) � highlight appears while hovering (accent border + tint) and clears after; each drop removes the list from Home and appends it last in Shopping; reordering collections swaps positions without dropping lists (zone fires with a null dragging ref, no moveToCollection); 0 console errors.
+- Docs: 018 1-spec acceptance criteria flipped to [x], roadmap ## 018-drag-list-into-collection (done).
+
+[2026-09-23] ~ | Drag a single list on Home (feature 018 follow-up)
+- On Home the lists grid now enables dragging with >= 1 list (sortEnabled = !selectMode && !searching && displayLists.length > (inHome ? 0 : 1)), so a lone list can be dragged and dropped into a collection. Other screens keep the `> 1` reorder guard.
+- Tests: added to `ListsView.test.tsx` -- a single Home list is draggable and can be dropped into a collection (`moveToCollection`, reorder skipped), and a single list outside Home keeps sorting disabled.
+- Docs: `018-drag-list-into-collection` 1-spec requirement + new acceptance criterion, roadmap 018 bullet, `6-screens.md` Home line.

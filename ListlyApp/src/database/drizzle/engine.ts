@@ -6,6 +6,7 @@ import * as schema from './schema';
 type DrizzleDb = ReturnType<typeof drizzle>;
 
 let drizzleDb: DrizzleDb | null = null;
+let transactionChain: Promise<unknown> = Promise.resolve();
 
 export async function getDrizzle(): Promise<DrizzleDb> {
   if (!drizzleDb) {
@@ -15,11 +16,18 @@ export async function getDrizzle(): Promise<DrizzleDb> {
 }
 
 export async function withTransaction<T>(task: (db: DrizzleDb) => Promise<T>): Promise<T> {
-  const handle = await getDatabase();
   let result!: T;
-  await handle.withTransactionAsync(async () => {
+  const run = transactionChain.then(async () => {
+    const handle = await getDatabase();
     const db = await getDrizzle();
-    result = await task(db);
+    await handle.withTransactionAsync(async () => {
+      result = await task(db);
+    });
   });
+  transactionChain = run.then(
+    () => undefined,
+    () => undefined
+  );
+  await run;
   return result;
 }

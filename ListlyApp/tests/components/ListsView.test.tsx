@@ -1,9 +1,11 @@
 import { describe, expect, it, beforeEach, afterEach, vi } from 'vitest';
-import { render, fireEvent, waitFor } from '@testing-library/react-native';
+import { render, fireEvent, waitFor, act } from '@testing-library/react-native';
 import type { ReactNode } from 'react';
 import ListsView, { type ListsViewVariant, type ListViewMode } from '../../src/components/ListsView';
 import { buildAppMock, setItemsByListId, setLists, setBaseLists, setCollections, resetAppStub } from '../helpers/appStub';
 import { resetStub } from '../helpers/configStub';
+import { getZoneHandlers, resetZoneHandlers, fireGridDragEnd, fireGridDragStart, lastGrid } from '../mocks/react-native-sortables';
+import { listRepository, collectionRepository } from '../../src/database';
 import type { CollectionWithCounts, Item, ListWithCounts } from '../../src/database/types';
 
 vi.mock('expo-sqlite', () => ({ openDatabaseSync: vi.fn() }));
@@ -14,7 +16,7 @@ vi.mock('../../src/context/AppContext', () => ({
 }));
 
 vi.mock('../../src/database', () => ({
-  listRepository: { deleteMany: vi.fn(async () => {}), reorder: vi.fn(async () => {}) },
+  listRepository: { deleteMany: vi.fn(async () => {}), reorder: vi.fn(async () => {}), moveToCollection: vi.fn(async () => {}) },
   itemRepository: {},
   collectionRepository: { deleteMany: vi.fn(async () => {}), reorder: vi.fn(async () => {}) },
 }));
@@ -84,6 +86,12 @@ describe('ListsView', () => {
   beforeEach(() => {
     resetStub();
     resetAppStub();
+    resetZoneHandlers();
+    vi.mocked(listRepository.moveToCollection).mockClear();
+    vi.mocked(listRepository.reorder).mockClear();
+    vi.mocked(listRepository.deleteMany).mockClear();
+    vi.mocked(collectionRepository.reorder).mockClear();
+    vi.mocked(collectionRepository.deleteMany).mockClear();
     nav.navigate.mockClear();
     setLists(LISTS);
     setBaseLists(LISTS);
@@ -290,5 +298,90 @@ const onToggleItem = vi.fn();
     const view = await renderView({ mode: 'lists', variant: 'list' });
     expect(await view.findByText('Groceries')).toBeTruthy();
     expect(view.getByText('Shopping')).toBeTruthy();
+  });
+
+  it('highlights a collection card when a list is dragged over it', async () => {
+    resetZoneHandlers();
+    setCollections(COLLECTIONS);
+    const view = await renderView();
+    await view.findByText('Shopping');
+    expect(view.queryByHintText('Drop to move the list into this collection')).toBeNull();
+    await act(async () => {
+      fireGridDragStart({ key: '1', fromIndex: 0, indexToKey: ['1', '2'], keyToIndex: {} });
+      getZoneHandlers()[0].onItemEnter?.();
+    });
+    expect(view.getByHintText('Drop to move the list into this collection')).toBeTruthy();
+    await act(async () => {
+      getZoneHandlers()[0].onItemLeave?.();
+    });
+    expect(view.queryByHintText('Drop to move the list into this collection')).toBeNull();
+  });
+
+  it('highlights a collection row (list layout) while dragging a list', async () => {
+    resetZoneHandlers();
+    setCollections(COLLECTIONS);
+    const view = await renderView({ collectionsVariant: 'list' });
+    await view.findByText('Shopping');
+    await act(async () => {
+      fireGridDragStart({ key: '1', fromIndex: 0, indexToKey: ['1', '2'], keyToIndex: {} });
+      getZoneHandlers()[0].onItemEnter?.();
+    });
+    expect(view.getByHintText('Drop to move the list into this collection')).toBeTruthy();
+    await act(async () => {
+      getZoneHandlers()[0].onItemDrop?.();
+    });
+    expect(view.queryByHintText('Drop to move the list into this collection')).toBeNull();
+  });
+
+  it('does not highlight zones when no list drag is active', async () => {
+    resetZoneHandlers();
+    setCollections(COLLECTIONS);
+    const view = await renderView();
+    await view.findByText('Shopping');
+    await act(async () => {
+      getZoneHandlers()[0].onItemEnter?.();
+    });
+    expect(view.queryByHintText('Drop to move the list into this collection')).toBeNull();
+  });
+
+  it('moves the dragged list into the collection on drop and skips reorder', async () => {
+    resetZoneHandlers();
+    setCollections(COLLECTIONS);
+    const view = await renderView();
+    await view.findByText('Shopping');
+    await act(async () => {
+      fireGridDragStart({ key: '1', fromIndex: 0, indexToKey: ['1', '2'], keyToIndex: {} });
+      getZoneHandlers()[0].onItemEnter?.();
+      getZoneHandlers()[0].onItemDrop?.();
+    });
+    expect(listRepository.moveToCollection).toHaveBeenCalledWith(1, 10);
+    expect(listRepository.reorder).not.toHaveBeenCalled();
+    expect(collectionRepository.reorder).not.toHaveBeenCalled();
+    fireGridDragEnd({ key: '1', data: [{ ...LISTS[0] }, { ...LISTS[1] }] });
+    expect(listRepository.reorder).not.toHaveBeenCalled();
+  });
+
+  it('enables dragging a single list on Home so it can be dropped into a collection', async () => {
+    resetZoneHandlers();
+    setCollections(COLLECTIONS);
+    setBaseLists([LISTS[0]]);
+    const view = await renderView();
+    await view.findByText('Groceries');
+    expect(lastGrid()?.sortEnabled).toBe(true);
+    await act(async () => {
+      fireGridDragStart({ key: '1', fromIndex: 0, indexToKey: ['1'], keyToIndex: {} });
+      getZoneHandlers()[0].onItemEnter?.();
+      getZoneHandlers()[0].onItemDrop?.();
+    });
+    expect(listRepository.moveToCollection).toHaveBeenCalledWith(1, 10);
+    expect(listRepository.reorder).not.toHaveBeenCalled();
+  });
+
+  it('keeps the >1 guard for a single list outside Home', async () => {
+    setLists([LISTS[0]]);
+    setBaseLists([LISTS[0]]);
+    const view = await renderView({ mode: 'lists' });
+    await view.findByText('Groceries');
+    expect(lastGrid()?.sortEnabled).toBe(false);
   });
 });
