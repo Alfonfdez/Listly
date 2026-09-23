@@ -1,12 +1,10 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import * as Clipboard from 'expo-clipboard';
 import Sortable, { type SortableGridRenderItem } from 'react-native-sortables';
 import { useFocusEffect, useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
 import {
-  MAX_ITEM_NAME_LENGTH,
-  MAX_ITEM_NOTE_LENGTH,
   COPY_FEEDBACK_MS,
   type IconName,
   type NavigationProp,
@@ -20,11 +18,11 @@ import { useFontSize } from '../hooks/useFontSize';
 import { useSelectMode } from '../hooks/useSelectMode';
 import { useDragOrder } from '../hooks/useDragOrder';
 import { useLabels } from '../hooks/useLabels';
-import { validateItemName, uniqueNormalizedNames, type ItemNameError } from '../utils/validation';
+import { uniqueNormalizedNames } from '../utils/validation';
 import { filterItemsByQuery } from '../utils/search';
 import { buildListCopyText } from '../utils/copyList';
 import { parseItemPhotos, serializeItemPhotos } from '../utils/itemPhotos';
-import { BUTTON_BORDER_RADIUS, PRESSED_OPACITY, HIT_SLOP } from '../components/componentStyles';
+import { HIT_SLOP } from '../components/componentStyles';
 import ScreenShell from '../components/ScreenShell';
 import EmptyState from '../components/EmptyState';
 import NotFoundScreen from '../components/NotFoundScreen';
@@ -32,12 +30,10 @@ import DetailHeader from '../components/DetailHeader';
 import SearchBar from '../components/SearchBar';
 import ItemRow from '../components/ItemRow';
 import ItemFormModal from '../components/ItemFormModal';
-import PhotoSection from '../components/PhotoSection';
-import CharCounter from '../components/CharCounter';
+import AddItemBar from '../components/AddItemBar';
 import SelectionActionBar from '../components/SelectionActionBar';
 import ConfirmModal from '../components/ConfirmModal';
 import SelectSearchHeader from '../components/SelectSearchHeader';
-import { useItemPhotos } from '../hooks/useItemPhotos';
 
 export default function ListDetailScreen() {
   const route = useRoute<RouteProp<RootStackParamList, 'ListDetail'>>();
@@ -52,22 +48,11 @@ export default function ListDetailScreen() {
   const list = useMemo(() => lists.find(l => l.id === listId), [lists, listId]);
   const items = useMemo(() => itemsByListId.get(listId) ?? [], [itemsByListId, listId]);
 
-  const [newName, setNewName] = useState('');
-  const [newNote, setNewNote] = useState('');
-  const [noteExpanded, setNoteExpanded] = useState(false);
-  const [addError, setAddError] = useState<ItemNameError | null>(null);
   const [editing, setEditing] = useState<Item | null>(null);
   const [searchActive, setSearchActive] = useState(false);
   const [query, setQuery] = useState('');
   const [copiedAction, setCopiedAction] = useState<'all' | 'names' | null>(null);
   const copyTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const {
-    photos: newPhotos,
-    setPhotos: setNewPhotos,
-    handleTakePhoto,
-    handlePickFromGallery,
-    handleRemovePhoto,
-  } = useItemPhotos();
 
   const {
     selectMode,
@@ -186,32 +171,6 @@ export default function ListDetailScreen() {
     return <NotFoundScreen />;
   }
 
-  const submitAdd = async () => {
-    const err = validateItemName(newName, existingNames);
-    if (err) {
-      setAddError(err);
-      return;
-    }
-    try {
-      await itemRepo.create({
-        list_id: listId,
-        name: newName.trim(),
-        note: newNote.trim() || null,
-        pictures: serializeItemPhotos(newPhotos),
-        checked: 0,
-        position: maxPosition,
-      });
-      setNewName('');
-      setNewNote('');
-      setNewPhotos([]);
-      setNoteExpanded(false);
-      setAddError(null);
-    } catch (error) {
-      console.error('Failed to add item:', error);
-    }
-    void refresh();
-  };
-
   const saveEdit = async (name: string, note: string | null, photos: string[]) => {
     if (!editing) return;
     try {
@@ -318,83 +277,12 @@ export default function ListDetailScreen() {
       </ScrollView>
 
       {!selectMode ? (
-        <View style={styles.addRow}>
-          {addError ? (
-            <Text style={[styles.errorText, { color: c.red, fontSize: fs(12) }]}>{labels[addError]}</Text>
-          ) : null}
-          <View style={styles.inputRow}>
-            <View style={styles.nameColumn}>
-              <TextInput
-                value={newName}
-                onChangeText={value => {
-                  setNewName(value);
-                  setAddError(null);
-                }}
-                maxLength={MAX_ITEM_NAME_LENGTH}
-                placeholder={labels.item_add_placeholder}
-                placeholderTextColor={c.textSecondary}
-                returnKeyType="done"
-                onSubmitEditing={() => void submitAdd()}
-                style={[
-                  styles.input,
-                  { backgroundColor: c.surface, borderColor: c.border, color: c.text, fontSize: fs(15) },
-                ]}
-                accessibilityLabel={labels.item_add_placeholder}
-              />
-              <CharCounter current={newName.length} max={MAX_ITEM_NAME_LENGTH} />
-            </View>
-            <TouchableOpacity
-              onPress={() => setNoteExpanded(prev => !prev)}
-              style={[styles.noteToggle, { backgroundColor: c.surface, borderColor: c.border }]}
-              accessibilityRole="button"
-              accessibilityLabel={labels.item_add_note_toggle}
-            >
-              <Ionicons
-                name="chevron-down"
-                size={18}
-                color={c.textSecondary}
-                style={noteExpanded ? styles.chevronOpen : undefined}
-              />
-            </TouchableOpacity>
-            <Pressable
-              style={({ pressed }) => [styles.addButton, { backgroundColor: c.primary }, pressed && styles.pressed]}
-              onPress={() => void submitAdd()}
-              accessibilityRole="button"
-              accessibilityLabel={labels.item_add}
-            >
-              <Ionicons name="add" size={20} color={c.background} />
-              <Text style={[styles.addButtonText, { color: c.background, fontSize: fs(15) }]}>{labels.item_add}</Text>
-            </Pressable>
-          </View>
-          {noteExpanded ? (
-            <>
-              <TextInput
-                value={newNote}
-                onChangeText={setNewNote}
-                maxLength={MAX_ITEM_NOTE_LENGTH}
-                placeholder={labels.item_note_label}
-                placeholderTextColor={c.textSecondary}
-                multiline
-                textAlignVertical="top"
-                style={[
-                  styles.input,
-                  styles.noteInput,
-                  { backgroundColor: c.surface, borderColor: c.border, color: c.text, fontSize: fs(15) },
-                ]}
-                accessibilityLabel={labels.item_note_label}
-              />
-              <CharCounter current={newNote.length} max={MAX_ITEM_NOTE_LENGTH} />
-            </>
-          ) : null}
-          {noteExpanded ? (
-            <PhotoSection
-              photos={newPhotos}
-              onTakePhoto={() => void handleTakePhoto()}
-              onPickFromGallery={() => void handlePickFromGallery()}
-              onRemovePhoto={uri => void handleRemovePhoto(uri)}
-            />
-          ) : null}
-        </View>
+        <AddItemBar
+          listId={listId}
+          existingNames={existingNames}
+          position={maxPosition}
+          onAdded={refresh}
+        />
       ) : (
         <SelectionActionBar
           selectedCount={selectedIds.size}
@@ -435,8 +323,6 @@ export default function ListDetailScreen() {
   );
 }
 
-const ADD_ROW_HEIGHT = 40;
-
 const styles = StyleSheet.create({
   listContent: {
     flexGrow: 1,
@@ -454,59 +340,5 @@ const styles = StyleSheet.create({
   },
   copiedLabel: {
     fontWeight: '600',
-  },
-  addRow: {
-    paddingHorizontal: 12,
-    paddingTop: 8,
-    paddingBottom: 12,
-    gap: 4,
-  },
-  inputRow: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    gap: 8,
-  },
-  nameColumn: {
-    flex: 1,
-  },
-  input: {
-    height: ADD_ROW_HEIGHT,
-    borderWidth: 1,
-    borderRadius: BUTTON_BORDER_RADIUS,
-    paddingHorizontal: 12,
-    textAlignVertical: 'center',
-  },
-  noteToggle: {
-    height: ADD_ROW_HEIGHT,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 1,
-    borderRadius: BUTTON_BORDER_RADIUS,
-    paddingHorizontal: 10,
-  },
-  chevronOpen: {
-    transform: [{ rotate: '180deg' }],
-  },
-  noteInput: {
-    minHeight: 64,
-    paddingTop: 10,
-  },
-  addButton: {
-    height: ADD_ROW_HEIGHT,
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    gap: 4,
-    borderRadius: BUTTON_BORDER_RADIUS,
-    paddingHorizontal: 14,
-  },
-  addButtonText: {
-    fontWeight: '600',
-  },
-  errorText: {
-    paddingHorizontal: 4,
-  },
-  pressed: {
-    opacity: PRESSED_OPACITY,
   },
 });

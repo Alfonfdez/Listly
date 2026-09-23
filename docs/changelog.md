@@ -401,3 +401,8 @@ pm run test:all green.
 - New `src/components/SectionTitle.tsx`: the shared section icon + upper-case label row.
 - `ListsView.tsx` now delegates to those (571 -> 399 lines); `ListViewMode` / `ListsViewVariant` still exported from it.
 - Behavior-preserving; `npm run test:all` green (41 files, 319 tests).
+
+[2026-09-23] ~ | Refactor: extract AddItemBar from ListDetailScreen
+- New `src/components/AddItemBar.tsx` (props `listId`, `existingNames`, `position`, `onAdded`): owns the add-item state, `useItemPhotos`, validation, `itemRepo.create` + reset, and the add row / expandable note / `PhotoSection` markup + styles.
+- `ListDetailScreen.tsx` now renders `<AddItemBar />` in place of the inline block and drops the moved state/handler/styles/imports (512 -> 318 lines).
+- Behavior-preserving; `npm run test:all` green (41 files, 319 tests).
