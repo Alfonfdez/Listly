@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Pressable, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { itemRepository as itemRepo } from '../database';
+import { logError, ERROR_SCOPE } from '../utils/errors';
 import { useConfig } from '../context/ConfigContext';
 import { useFontSize } from '../hooks/useFontSize';
 import { useLabels } from '../hooks/useLabels';
@@ -52,7 +53,7 @@ export default function AddItemBar({ listId, existingNames, position, onAdded }:
       setNoteExpanded(false);
       setError(null);
     } catch (err) {
-      console.error('Failed to add item:', err);
+      logError(ERROR_SCOPE.addItem, err);
     }
     await onAdded();
   };

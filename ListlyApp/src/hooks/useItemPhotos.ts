@@ -4,6 +4,7 @@ import { isWeb } from '../utils/platform';
 import { PHOTO_QUALITY } from '../constants/types';
 import { deleteItemPhotos, itemPhotoFileName } from '../utils/itemPhotos';
 import { File, Paths } from '../utils/fileIo';
+import { logError, ERROR_SCOPE } from '../utils/errors';
 
 function readAsDataUrl(blob: Blob): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -37,7 +38,7 @@ export function useItemPhotos(initialPhotos: string[] = []) {
       const uri = isWeb ? await webPhotoUri(asset) : await copyPhotoToStorage(asset.uri);
       setPhotos(prev => [...prev, uri]);
     } catch (err) {
-      console.error('Failed to add photo:', err);
+      logError(ERROR_SCOPE.addPhoto, err);
     }
   }, []);
 

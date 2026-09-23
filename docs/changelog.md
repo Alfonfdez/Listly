@@ -406,3 +406,13 @@ pm run test:all green.
 - New `src/components/AddItemBar.tsx` (props `listId`, `existingNames`, `position`, `onAdded`): owns the add-item state, `useItemPhotos`, validation, `itemRepo.create` + reset, and the add row / expandable note / `PhotoSection` markup + styles.
 - `ListDetailScreen.tsx` now renders `<AddItemBar />` in place of the inline block and drops the moved state/handler/styles/imports (512 -> 318 lines).
 - Behavior-preserving; `npm run test:all` green (41 files, 319 tests).
+
+[2026-09-23] + | Error handling: error boundary, toast feedback, lenient read parsing
+- New `src/utils/errors.ts` (`logError`, `runSafely`, `subscribeToErrors`): central error logging + an error-event publisher.
+- New `src/components/ErrorBoundary.tsx` (+ themed fallback with a Try again button) mounted in `App.tsx` around `AppShell`; new `src/context/ToastContext.tsx` + `src/components/Toast.tsx` render a transient toast whenever `logError` fires.
+- Wired `logError`/`runSafely` through the catch sites (`AppContext`, `ConfigContext`, `EditListScreen`, `EditCollectionScreen`, `AddItemBar`, `ListDetailScreen`, `ListsScreenBase`, `useSelectMode`, `useItemPhotos`, `useCollectionDropZones`, `ListsView`); fixed `performZoneDrop`'s unhandled rejection (now clears `pendingMoveRef` and reports). `DataScreen` inline status and infra paths stay console-only.
+- `src/database/validate.ts`: `parseRows` / `parseRowOrNull` are now lenient (skip + `console.warn` an invalid row instead of throwing).
+- i18n en/es: `error_generic`, `error_boundary_title`, `error_boundary_message`, `error_boundary_retry`.
+- Error scopes are grouped in a typed `ERROR_SCOPE` map (`src/utils/errors.ts`); `logError`/`runSafely` only accept these values.
+- Docs: `spec/constitution/5-validations.md` (Zod lenient + new "Error handling" section).
+- Tests: `validate.test.ts`, `errors.test.ts`, `ErrorBoundary.test.tsx`; `npm run test:all` green (44 files, 330 tests).

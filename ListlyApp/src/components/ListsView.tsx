@@ -5,6 +5,7 @@ import Sortable, { type SortableGridRenderItem } from 'react-native-sortables';
 import { useApp } from '../context/AppContext';
 import { useConfig } from '../context/ConfigContext';
 import { collectionRepository as collectionRepo } from '../database';
+import { runSafely, ERROR_SCOPE } from '../utils/errors';
 import type { CollectionWithCounts, ListWithCounts } from '../database/types';
 import { useLabels } from '../hooks/useLabels';
 import { useDragOrder } from '../hooks/useDragOrder';
@@ -140,7 +141,7 @@ export default function ListsView({
   const { display: displayCollections, onDragEnd: handleCollectionsDragEnd } = useDragOrder(
     filteredCollections,
     useCallback((ids: number[]) => {
-      void collectionRepo.reorder(ids);
+      runSafely(collectionRepo.reorder(ids), ERROR_SCOPE.reorderCollections);
       void refresh();
     }, [refresh])
   );

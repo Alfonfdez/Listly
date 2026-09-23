@@ -6,6 +6,7 @@ import { setLanguage } from '../i18n';
 import { DEFAULT_CONFIG } from '../database/configDefaults';
 import { configRepository as configRepo } from '../database';
 import type { Config } from '../database/types';
+import { logError, ERROR_SCOPE } from '../utils/errors';
 
 interface ConfigContextType {
   config: Config;
@@ -54,7 +55,7 @@ export function ConfigProvider({ children }: { children: ReactNode }) {
         if (!active) return;
         applyConfig(loaded);
       } catch (error) {
-        console.error('Failed to load config:', error);
+        logError(ERROR_SCOPE.loadConfig, error);
       } finally {
         if (active) setLoading(false);
       }
@@ -83,7 +84,7 @@ export function ConfigProvider({ children }: { children: ReactNode }) {
     try {
       await configRepo.save(partial);
     } catch (error) {
-      console.error('Failed to save config:', error);
+      logError(ERROR_SCOPE.saveConfig, error);
       applyConfig(previous);
     }
   }, [applyConfig]);
@@ -92,7 +93,7 @@ export function ConfigProvider({ children }: { children: ReactNode }) {
     try {
       applyConfig(await configRepo.get());
     } catch (error) {
-      console.error('Failed to reload config:', error);
+      logError(ERROR_SCOPE.reloadConfig, error);
     }
   }, [applyConfig]);
 

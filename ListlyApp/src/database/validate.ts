@@ -1,15 +1,21 @@
 import type { z } from 'zod';
 
-function parseRow<T>(schema: z.ZodType<T>, table: string, row: unknown): T {
+function parseRow<T>(schema: z.ZodType<T>, table: string, row: unknown): T | null {
   const result = schema.safeParse(row);
   if (!result.success) {
-    throw new Error(`Data validation failed for ${table}: ${result.error.message}`);
+    console.warn(`Skipping invalid ${table} row: ${result.error.message}`);
+    return null;
   }
   return result.data;
 }
 
 export function parseRows<T>(schema: z.ZodType<T>, table: string, rows: unknown[]): T[] {
-  return rows.map(row => parseRow(schema, table, row));
+  const parsed: T[] = [];
+  for (const row of rows) {
+    const value = parseRow(schema, table, row);
+    if (value !== null) parsed.push(value);
+  }
+  return parsed;
 }
 
 export function parseRowOrNull<T>(schema: z.ZodType<T>, table: string, row: unknown): T | null {

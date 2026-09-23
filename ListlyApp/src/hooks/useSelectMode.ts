@@ -1,5 +1,6 @@
 import { useState, useCallback } from 'react';
 import { toggleInSet } from '../utils/set';
+import { logError, ERROR_SCOPE } from '../utils/errors';
 
 interface Options {
   deleteMany: (ids: number[]) => Promise<void>;
@@ -36,7 +37,7 @@ export function useSelectMode({ deleteMany, afterDelete }: Options) {
       exitSelectMode();
       await afterDelete?.();
     } catch (error) {
-      console.error('Failed to delete selected items:', error);
+      logError(ERROR_SCOPE.deleteSelectedItems, error);
       exitSelectMode();
     }
   }, [selectedIds, deleteMany, afterDelete, exitSelectMode]);

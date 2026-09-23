@@ -12,6 +12,7 @@ import {
 } from '../constants/types';
 import type { Item } from '../database/types';
 import { itemRepository as itemRepo } from '../database';
+import { logError, runSafely, ERROR_SCOPE } from '../utils/errors';
 import { useApp } from '../context/AppContext';
 import { useConfig } from '../context/ConfigContext';
 import { useFontSize } from '../hooks/useFontSize';
@@ -117,7 +118,7 @@ export default function ListDetailScreen() {
   const { display: displayItems, onDragEnd: handleDragEnd } = useDragOrder(
     filteredItems,
     useCallback((ids: number[]) => {
-      void itemRepo.reorder(listId, ids);
+      runSafely(itemRepo.reorder(listId, ids), ERROR_SCOPE.reorderItems);
       void refresh();
     }, [listId, refresh])
   );
@@ -135,7 +136,7 @@ export default function ListDetailScreen() {
       try {
         await itemRepo.toggle(item.id);
       } catch (error) {
-        console.error('Failed to toggle item:', error);
+        logError(ERROR_SCOPE.toggleItem, error);
       }
       void refresh();
     },
@@ -177,7 +178,7 @@ export default function ListDetailScreen() {
       await itemRepo.update(editing.id, { name, note, pictures: serializeItemPhotos(photos) });
       setEditing(null);
     } catch (error) {
-      console.error('Failed to update item:', error);
+      logError(ERROR_SCOPE.updateItem, error);
     }
     void refresh();
   };
@@ -188,7 +189,7 @@ export default function ListDetailScreen() {
       await itemRepo.delete(editing.id);
       setEditing(null);
     } catch (error) {
-      console.error('Failed to delete item:', error);
+      logError(ERROR_SCOPE.deleteItem, error);
     }
     void refresh();
   };
