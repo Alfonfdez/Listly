@@ -6,6 +6,7 @@ import { useApp } from '../context/AppContext';
 import { useConfig } from '../context/ConfigContext';
 import { useSelectMode } from '../hooks/useSelectMode';
 import { useLabels } from '../hooks/useLabels';
+import { toggleInSet } from '../utils/set';
 import ListsView, { type ListViewMode } from '../components/ListsView';
 import SelectSearchHeader from '../components/SelectSearchHeader';
 import CollectionDeleteModal from '../components/CollectionDeleteModal';
@@ -95,12 +96,7 @@ export default function ListsScreenBase({
   }, [selectedCollectionIds.size, selectedCollectionsHaveLists, openDeleteConfirm]);
 
   const toggleCollection = useCallback((id: number) => {
-    setSelectedCollectionIds(prev => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
-      return next;
-    });
+    setSelectedCollectionIds(prev => toggleInSet(prev, id));
   }, []);
 
   const runCollectionDelete = useCallback(

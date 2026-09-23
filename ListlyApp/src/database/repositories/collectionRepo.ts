@@ -6,7 +6,7 @@ import type { Collection, CollectionWithCounts } from '../types';
 import { collectionSchema } from '../schemas';
 import { parseRowOrNull, parseRows } from '../validate';
 import { dbTimestamp } from '../../utils/formatters';
-import { countsSelection, deletePhotosOfLists, nextPositionSql } from './shared';
+import { countsSelection, deletePhotosOfLists, nextPositionSql, reorderPositions } from './shared';
 
 export type NewCollection = Omit<Collection, 'id' | 'created_at' | 'position'>;
 
@@ -43,11 +43,9 @@ export const collectionRepo = {
   },
 
   async reorder(orderedIds: number[]): Promise<void> {
-    await withTransaction(async db => {
-      for (let i = 0; i < orderedIds.length; i++) {
-        await db.update(collections).set({ position: i }).where(eq(collections.id, orderedIds[i])).run();
-      }
-    });
+    await reorderPositions(orderedIds, (db, id, i) =>
+      db.update(collections).set({ position: i }).where(eq(collections.id, id)).run()
+    );
   },
 
   async update(id: number, data: Partial<Omit<NewCollection, 'id' | 'created_at'>>): Promise<void> {

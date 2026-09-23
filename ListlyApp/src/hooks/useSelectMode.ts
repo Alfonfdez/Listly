@@ -1,4 +1,5 @@
 import { useState, useCallback } from 'react';
+import { toggleInSet } from '../utils/set';
 
 interface Options {
   deleteMany: (ids: number[]) => Promise<void>;
@@ -18,12 +19,7 @@ export function useSelectMode({ deleteMany, afterDelete }: Options) {
   }, []);
 
   const toggleItem = useCallback((id: number) => {
-    setSelectedIds(prev => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
-      return next;
-    });
+    setSelectedIds(prev => toggleInSet(prev, id));
   }, []);
 
   const exitSelectMode = useCallback(() => {

@@ -124,23 +124,17 @@ function CustomDrawerContent(props: DrawerContentComponentProps) {
   );
 }
 
-function HomeNavCapture() {
-  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
-  useEffect(() => { _stackNav = navigation; }, [navigation]);
-  return <HomeScreen />;
+function createNavCapture(Screen: ComponentType) {
+  return function NavCapture() {
+    const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+    useEffect(() => { _stackNav = navigation; }, [navigation]);
+    return <Screen />;
+  };
 }
 
-function ListsNavCapture() {
-  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
-  useEffect(() => { _stackNav = navigation; }, [navigation]);
-  return <ListsScreen />;
-}
-
-function CollectionsNavCapture() {
-  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
-  useEffect(() => { _stackNav = navigation; }, [navigation]);
-  return <CollectionsScreen />;
-}
+const HomeNavCapture = createNavCapture(HomeScreen);
+const ListsNavCapture = createNavCapture(ListsScreen);
+const CollectionsNavCapture = createNavCapture(CollectionsScreen);
 
 const HomeStack = memo(function HomeStack() {
   const { activeColors: c } = useConfig();
