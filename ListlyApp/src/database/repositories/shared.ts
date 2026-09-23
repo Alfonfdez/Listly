@@ -1,5 +1,5 @@
 import { inArray, sql, type AnyColumn, type SQL } from 'drizzle-orm';
-import { getDrizzle } from '../drizzle/engine';
+import { getDrizzle, withTransaction, type DrizzleDb } from '../drizzle/engine';
 import { items } from '../drizzle/schema';
 import { deleteItemPhotos, parseItemPhotos } from '../../utils/itemPhotos';
 
@@ -10,6 +10,17 @@ export const countsSelection = {
 
 export function nextPositionSql(positionColumn: AnyColumn): SQL<number> {
   return sql<number>`COALESCE(MAX(${positionColumn}), -1) + 1`;
+}
+
+export async function reorderPositions(
+  orderedIds: number[],
+  updateOne: (db: DrizzleDb, id: number, index: number) => Promise<unknown>
+): Promise<void> {
+  await withTransaction(async db => {
+    for (let i = 0; i < orderedIds.length; i++) {
+      await updateOne(db, orderedIds[i], i);
+    }
+  });
 }
 
 export async function deletePhotosOfItems(rows: { pictures: string | null }[]): Promise<void> {

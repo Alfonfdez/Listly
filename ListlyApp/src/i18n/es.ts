@@ -5,7 +5,6 @@ export const es: Translations = {
   common_cancel: 'Cancelar',
   common_close: 'Cerrar',
   common_select: 'Seleccionar',
-  coming_soon: 'Próximamente',
   nav_home: 'Inicio',
   nav_lists: 'Listas',
   nav_collections: 'Colecciones',

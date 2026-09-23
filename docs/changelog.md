@@ -387,3 +387,10 @@ pm run test:all green.
 - `validation.ts`: single `validateName(value, maxLength, isDuplicate)` core behind `validateItemName` / `validateListName` / `validateCollectionName` (public APIs unchanged).
 - `useItemPhotos.ts`: extracted `addAsset(asset)` shared by the camera and gallery pickers.
 - Behavior-preserving; `npm run test:all` green (41 files, 319 tests).
+
+[2026-09-23] ~ | Refactor: dead-code removal + small de-dup bundle
+- Deleted the unused `src/components/ComingSoon.tsx` and its `coming_soon` i18n key (en/es).
+- `AppNavigator.tsx`: replaced `HomeNavCapture` / `ListsNavCapture` / `CollectionsNavCapture` with a single `createNavCapture(Screen)` factory.
+- `repositories/shared.ts`: added `reorderPositions(orderedIds, updateOne)`; exported `DrizzleDb` from `drizzle/engine.ts`; `listRepo` / `collectionRepo` / `itemRepo` reorder methods now use it (itemRepo keeps its `list_id` guard).
+- New `src/utils/set.ts` (`toggleInSet`); used by `useSelectMode.toggleItem` and `ListsScreenBase.toggleCollection`.
+- Behavior-preserving; `npm run test:all` green (41 files, 319 tests).

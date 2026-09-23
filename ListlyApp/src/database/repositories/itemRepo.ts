@@ -6,7 +6,7 @@ import type { Item } from '../types';
 import { itemSchema } from '../schemas';
 import { parseRowOrNull, parseRows } from '../validate';
 import { dbTimestamp } from '../../utils/formatters';
-import { deletePhotosOfItems } from './shared';
+import { deletePhotosOfItems, reorderPositions } from './shared';
 
 export const itemRepo = {
   async listAll(): Promise<Item[]> {
@@ -49,15 +49,9 @@ export const itemRepo = {
   },
 
   async reorder(listId: number, orderedIds: number[]): Promise<void> {
-    await withTransaction(async db => {
-      for (let i = 0; i < orderedIds.length; i++) {
-        await db
-          .update(items)
-          .set({ position: i })
-          .where(and(eq(items.id, orderedIds[i]), eq(items.list_id, listId)))
-          .run();
-      }
-    });
+    await reorderPositions(orderedIds, (db, id, i) =>
+      db.update(items).set({ position: i }).where(and(eq(items.id, id), eq(items.list_id, listId))).run()
+    );
   },
 
   async update(id: number, data: Partial<Omit<Item, 'id' | 'created_at'>>): Promise<void> {

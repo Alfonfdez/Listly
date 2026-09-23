@@ -3,7 +3,6 @@ export const en = {
   common_cancel: 'Cancel',
   common_close: 'Close',
   common_select: 'Select',
-  coming_soon: 'Coming soon',
   nav_home: 'Home',
   nav_lists: 'Lists',
   nav_collections: 'Collections',
