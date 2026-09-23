@@ -2,7 +2,7 @@ import { describe, expect, it, beforeEach, afterEach, vi } from 'vitest';
 import { render, fireEvent, waitFor, act } from '@testing-library/react-native';
 import type { ReactNode } from 'react';
 import ListsView, { type ListsViewVariant, type ListViewMode } from '../../src/components/ListsView';
-import { buildAppMock, setItemsByListId, setLists, setBaseLists, setCollections, resetAppStub } from '../helpers/appStub';
+import { buildAppMock, setItemsByListId, setLists, setBaseLists, setCollections, setListsByCollectionId, resetAppStub } from '../helpers/appStub';
 import { resetStub } from '../helpers/configStub';
 import { getZoneHandlers, resetZoneHandlers, fireGridDragEnd, fireGridDragStart, lastGrid } from '../mocks/react-native-sortables';
 import { listRepository, collectionRepository } from '../../src/database';
@@ -16,7 +16,7 @@ vi.mock('../../src/context/AppContext', () => ({
 }));
 
 vi.mock('../../src/database', () => ({
-  listRepository: { deleteMany: vi.fn(async () => {}), reorder: vi.fn(async () => {}), moveToCollection: vi.fn(async () => {}) },
+  listRepository: { deleteMany: vi.fn(async () => {}), reorder: vi.fn(async () => {}), moveToCollection: vi.fn(async () => {}), removeFromCollection: vi.fn(async () => {}) },
   itemRepository: {},
   collectionRepository: { deleteMany: vi.fn(async () => {}), reorder: vi.fn(async () => {}) },
 }));
@@ -46,6 +46,7 @@ interface Overrides {
   variant?: ListsViewVariant;
   collectionsVariant?: ListsViewVariant;
   mode?: ListViewMode;
+  collectionId?: number;
   searchActive?: boolean;
   query?: string;
   selectMode?: boolean;
@@ -59,6 +60,7 @@ function renderView(overrides: Overrides = {}) {
     variant: overrides.variant ?? 'grid',
     collectionsVariant: overrides.collectionsVariant ?? 'grid',
     mode: overrides.mode ?? 'home',
+    collectionId: overrides.collectionId,
     searchActive: overrides.searchActive ?? false,
     query: overrides.query ?? '',
     onQueryChange: vi.fn(),
@@ -88,6 +90,7 @@ describe('ListsView', () => {
     resetAppStub();
     resetZoneHandlers();
     vi.mocked(listRepository.moveToCollection).mockClear();
+    vi.mocked(listRepository.removeFromCollection).mockClear();
     vi.mocked(listRepository.reorder).mockClear();
     vi.mocked(listRepository.deleteMany).mockClear();
     vi.mocked(collectionRepository.reorder).mockClear();
@@ -383,5 +386,61 @@ const onToggleItem = vi.fn();
     const view = await renderView({ mode: 'lists' });
     await view.findByText('Groceries');
     expect(lastGrid()?.sortEnabled).toBe(false);
+  });
+
+  it('enables dragging a single member list in collection detail so it can be removed', async () => {
+    setListsByCollectionId(new Map([[10, [LISTS[0]]]]));
+    const view = await renderView({ mode: 'collection', collectionId: 10 });
+    await view.findByText('Groceries');
+    expect(lastGrid()?.sortEnabled).toBe(true);
+  });
+
+  it('shows the remove target in collection detail only while a member drag is active', async () => {
+    resetZoneHandlers();
+    setListsByCollectionId(new Map([[10, LISTS]]));
+    const view = await renderView({ mode: 'collection', collectionId: 10 });
+    await view.findByText('Groceries');
+    expect(view.queryByHintText('Drop to remove this list from the collection')).toBeNull();
+    await act(async () => {
+      fireGridDragStart({ key: '1', fromIndex: 0, indexToKey: ['1', '2'], keyToIndex: {} });
+    });
+    expect(getZoneHandlers()[0].onItemDrop).toBeDefined();
+    await act(async () => {
+      getZoneHandlers()[0].onItemEnter?.();
+    });
+    expect(view.getByHintText('Drop to remove this list from the collection')).toBeTruthy();
+  });
+
+  it('does not render the remove target outside collection detail', async () => {
+    resetZoneHandlers();
+    const view = await renderView();
+    await view.findByText('Groceries');
+    expect(view.queryByHintText('Drop to remove this list from the collection')).toBeNull();
+  });
+
+  it('removes the dropped list from the collection on the footer target and skips reorder', async () => {
+    resetZoneHandlers();
+    setListsByCollectionId(new Map([[10, LISTS]]));
+    const view = await renderView({ mode: 'collection', collectionId: 10 });
+    await view.findByText('Groceries');
+    await act(async () => {
+      fireGridDragStart({ key: '1', fromIndex: 0, indexToKey: ['1', '2'], keyToIndex: {} });
+      getZoneHandlers()[0].onItemEnter?.();
+      getZoneHandlers()[0].onItemDrop?.();
+    });
+    expect(listRepository.removeFromCollection).toHaveBeenCalledWith(1);
+    expect(listRepository.reorder).not.toHaveBeenCalled();
+    expect(view.queryByHintText('Drop to remove this list from the collection')).toBeNull();
+    fireGridDragEnd({ key: '1', data: [{ ...LISTS[0] }, { ...LISTS[1] }] });
+    expect(listRepository.reorder).not.toHaveBeenCalled();
+  });
+
+  it('still reorders members in collection detail when released outside the target', async () => {
+    setListsByCollectionId(new Map([[10, LISTS]]));
+    const view = await renderView({ mode: 'collection', collectionId: 10 });
+    await view.findByText('Groceries');
+    fireGridDragEnd({ key: '2', data: [{ ...LISTS[1] }, { ...LISTS[0] }] });
+    expect(listRepository.removeFromCollection).not.toHaveBeenCalled();
+    expect(listRepository.reorder).toHaveBeenCalledWith([2, 1]);
   });
 });

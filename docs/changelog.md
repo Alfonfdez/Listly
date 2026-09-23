@@ -347,14 +347,21 @@ pm run test:all green.
 - Docs: new `spec/features/018-drag-list-into-collection/` (1-spec with 8 acceptance criteria, 2-plan, 3-tasks), roadmap `## 018-drag-list-into-collection` (in progress), `6-screens.md` Home bullet.
 
 [2026-09-23] ~ | Fix web drop for feature 018 (transactions + refresh ordering)
-- engine.ts withTransaction now serializes through a module-level promise chain (	ransactionChain): on web the grid's eorder and the zone's moveToCollection could run concurrently, nesting BEGIN and crashing sql.js with `cannot start a transaction within a transaction`.
+- engine.ts withTransaction now serializes through a module-level promise chain (transactionChain): on web the grid's reorder and the zone's moveToCollection could run concurrently, nesting BEGIN and crashing sql.js with `cannot start a transaction within a transaction`.
 - ListsView drop handler now awaits moveToCollection before refreshing (pendingMoveRef), so the view no longer re-queries the pre-commit DB; handleDragEnd skips the grid reorder while a collection zone is hovered (hoverCollectionIdRef) or a drop move is pending.
-- Tests: added the concurrency regression test to listRepo.test.ts (fails pre-fix with the exact browser error, passes post-fix). Suite baseline: 41 files, 309 tests, 
-pm run test:all green.
-- Verified on web at 375px (Playwright, CDP touch): dragged Groceries / Todos / Workout onto the Shopping collection (grid card + row layouts) — highlight appears while hovering (accent border + tint) and clears after; each drop removes the list from Home and appends it last in Shopping; reordering collections swaps positions without dropping lists (zone fires with a null dragging ref, no moveToCollection); 0 console errors.
+- Tests: added the concurrency regression test to listRepo.test.ts (fails pre-fix with the exact browser error, passes post-fix). Suite baseline: 41 files, 309 tests, npm run test:all green.
+- Verified on web at 375px (Playwright, CDP touch): dragged Groceries / Todos / Workout onto the Shopping collection (grid card + row layouts) â€” highlight appears while hovering (accent border + tint) and clears after; each drop removes the list from Home and appends it last in Shopping; reordering collections swaps positions without dropping lists (zone fires with a null dragging ref, no moveToCollection); 0 console errors.
 - Docs: 018 1-spec acceptance criteria flipped to [x], roadmap ## 018-drag-list-into-collection (done).
 
 [2026-09-23] ~ | Drag a single list on Home (feature 018 follow-up)
 - On Home the lists grid now enables dragging with >= 1 list (sortEnabled = !selectMode && !searching && displayLists.length > (inHome ? 0 : 1)), so a lone list can be dragged and dropped into a collection. Other screens keep the `> 1` reorder guard.
 - Tests: added to `ListsView.test.tsx` -- a single Home list is draggable and can be dropped into a collection (`moveToCollection`, reorder skipped), and a single list outside Home keeps sorting disabled.
 - Docs: `018-drag-list-into-collection` 1-spec requirement + new acceptance criterion, roadmap 018 bullet, `6-screens.md` Home line.
+
+[2026-09-23] + | Drag a list out of a collection (feature 019)
+- New `listRepo.removeFromCollection(listId)`: in a transaction sets `collection_id = NULL` and appends the list at the end of the standalone lists (`MAX(position) + 1` among rows with no collection).
+- Collection detail (`ListsView` in collection mode): while a member list is dragged, a `Remove from collection` pill (icon + label) appears above the FAB, wrapped in a `Sortable.BaseZone` inside the existing `MultiZoneProvider`; it highlights while hovered and hides on leave/drop. Dropping on it calls `removeFromCollection` + refresh and skips the grid reorder (same `zoneDropHandledRef` / `pendingMoveRef` wiring as 018). Releasing elsewhere keeps reordering within the collection.
+- The members grid now enables dragging with >= 1 list on Collection detail (like Home), so a lone member can be dragged out.
+- i18n en/es: `collection_remove_label`, `collection_remove_hint`.
+- Tests: `listRepo` (append-at-end, lone member, existing standalones) and `ListsView` (lone-member draggable, target revealed only during a member drag, drop removes + skips reorder, target absent outside collection mode, reorder intact when released elsewhere).
+- Docs: new `019-remove-list-from-collection` spec, roadmap entry, `6-screens.md` Collection detail bullet.
