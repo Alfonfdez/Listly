@@ -24,7 +24,7 @@ Listly 1.0 screens. Each maps to a feature spec (`spec/features/<NNN>-…/`) wit
 ## 4. List detail (003-list-detail-screen, 008, 011, 012, 013, 017)
 - Header block: list icon/name/color + N/total progress + edit pencil.
 - Copy buttons (names / names+notes) in the header when items exist, writing to the clipboard.
-- Item list: checkbox toggle, name (strikethrough when checked), note preview, photo thumbnails.
+- Item list: checkbox toggle, name (faded secondary color + faint green row wash when checked, no strikethrough), circular edit button, note preview, photo thumbnails.
 - Inline add bar with a details area (note + photos); edit/delete via modal.
 - Search/select toggles in the header (when items exist); long-press drag-reorders items.
 - Empty state when the list has no items.

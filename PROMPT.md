@@ -12,6 +12,6 @@ This is the Listly project — a React Native/Expo local-first list manager with
 8. After code changes, run `npm run test:all` from `ListlyApp/` (typecheck + lint + unit tests) and follow the harness rules in `docs/harnesses.md`.
 9. Any code update must be documented in `docs/changelog.md`.
 10. When asked for a commit message **or a branch name alone**, follow the workflow in `docs/git-commands.md` (run `git status` + `git diff --stat`, then generate a conventional commit + branch name). Never run `git commit`/`push`/`pull`/`fetch`/`checkout` — the developer performs all git write operations.
-11. Spec docs: a code change updates only `spec/features/<NNN>/1-spec.md` + `spec/constitution/3-roadmap.md` and flips acceptance criteria `[ ]` → `[x]` after verification. Never edit `2-plan.md` or `3-tasks.md` for feature updates.
+11. Spec docs: a code change updates only `spec/features/<NNN>/1-spec.md` + `spec/constitution/3-roadmap.md` and flips acceptance criteria `[ ]` → `[x]` after verification. Never edit `2-plan.md` or `3-tasks.md` for feature updates. New feature folders must seed all three docs (`1-spec.md`, `2-plan.md`, `3-tasks.md`) at creation.
 12. After web verification, close the browser and terminate the Expo dev server on port 8081 (see `docs/harnesses.md`). The host is Windows/PowerShell — no ripgrep in the shell; use the grep/glob/read tools.
 13. Always consult the developer before adding, modifying, or deleting code. Wait for verification.
