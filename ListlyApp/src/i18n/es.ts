@@ -89,6 +89,12 @@ export const es: Translations = {
   item_photos_remove_confirm: '¿Eliminar esta foto?',
   item_photos_remove_message: 'La foto se eliminará permanentemente.',
   item_add_note_toggle: 'Alternar detalles',
+  item_complete_all: 'Completar todo',
+  item_uncomplete_all: 'Desmarcar todo',
+  item_clear_completed: 'Borrar completados',
+  item_clear_completed_confirm: (count: number) =>
+    count === 1 ? '¿Eliminar 1 elemento completado?' : `¿Eliminar ${count} elementos completados?`,
+  item_clear_completed_message: 'Los elementos completados se eliminarán permanentemente.',
   create_list_title: 'Crear lista',
   edit_list_title: 'Editar lista',
   list_edit_label: 'Editar lista',

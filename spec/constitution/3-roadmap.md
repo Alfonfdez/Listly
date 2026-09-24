@@ -200,6 +200,30 @@ Drag a member list out of a collection on Collection detail to make it standalon
 - The members grid enables dragging with ≥ 1 list on Collection detail (like Home), so a lone member can be dragged out.
 - Spec: spec/features/019-remove-list-from-collection/.
 
+## 020-complete-all-and-clear-completed
+Status: done.
+
+Batch actions for a list's items, from a toolbar under the List detail header:
+- A bounded-chip toolbar (Complete all / Uncomplete all / Clear completed) shows when the list has items and no search or select mode is active; each button is disabled when its action is a no-op.
+- `itemRepo.setAllChecked(listId, checked)` checks/unchecks every item of one list (Complete all / Uncomplete all); `itemRepo.deleteCompleted(listId)` transactionally deletes the checked items (cleaning up their photos) after a destructive confirmation dialog that displays the count.
+- Spec: spec/features/020-complete-all-and-clear-completed/.
+
+## 021-pin-favorites
+Status: not started.
+
+Pin/favorite lists and collections (star) so they stay on top:
+- Planned: pin via the select-mode action bar (star action), star indicator on cards/rows, pinned-first ordering (`pinned DESC, position`).
+- Planned schema (shared migration SCHEMA_VERSION 6): `lists.pinned`, `collections.pinned`.
+- Spec: (not seeded yet).
+
+## 022-item-sorting
+Status: not started.
+
+Per-list sort toggle on List detail (Manual → Name → Created) with a direction arrow, kept in local state (not a settings option):
+- Planned: pure `itemSort.ts` comparator; non-manual modes disable drag-reorder and render the sorted list.
+- Planned schema (shared migration SCHEMA_VERSION 6): `items.updated_at` tracked for future use.
+- Spec: (not seeded yet).
+
 ## Future scope (not scheduled)
 - Tags, due dates, subtasks, recurring items.
 - List templates and sharing.

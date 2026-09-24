@@ -23,6 +23,8 @@ const { itemRepositoryMock, listRepositoryMock, selectMocks, nav, photoMocks, cl
     deleteMany: vi.fn(),
     toggle: vi.fn(),
     reorder: vi.fn(),
+    setAllChecked: vi.fn(),
+    deleteCompleted: vi.fn(),
   },
   listRepositoryMock: {
     delete: vi.fn(),
@@ -124,11 +126,15 @@ describe('ListDetailScreen', () => {
     itemRepositoryMock.delete.mockReset();
     itemRepositoryMock.deleteMany.mockReset();
     itemRepositoryMock.toggle.mockReset();
+    itemRepositoryMock.setAllChecked.mockReset();
+    itemRepositoryMock.deleteCompleted.mockReset();
     itemRepositoryMock.create.mockResolvedValue({});
     itemRepositoryMock.update.mockResolvedValue(undefined);
     itemRepositoryMock.delete.mockResolvedValue(undefined);
     itemRepositoryMock.deleteMany.mockResolvedValue(undefined);
     itemRepositoryMock.toggle.mockResolvedValue(undefined);
+    itemRepositoryMock.setAllChecked.mockResolvedValue(undefined);
+    itemRepositoryMock.deleteCompleted.mockResolvedValue(undefined);
     listRepositoryMock.delete.mockReset();
     listRepositoryMock.delete.mockResolvedValue(undefined);
     selectMocks.toggleSelectMode.mockReset();
@@ -389,6 +395,93 @@ describe('ListDetailScreen', () => {
     expect(await view.findByText('No items yet')).toBeTruthy();
     expect(view.getByText('Type below to add your first item')).toBeTruthy();
     expect(view.getByText('0/0')).toBeTruthy();
+  });
+
+  it('shows complete all, uncomplete all and clear completed buttons when the list has items', async () => {
+    const view = await render(<ListDetailScreen />);
+    await view.findByText('Milk');
+    expect(view.getByLabelText('Complete all')).toBeTruthy();
+    expect(view.getByLabelText('Uncomplete all')).toBeTruthy();
+    expect(view.getByLabelText('Clear completed')).toBeTruthy();
+  });
+
+  it('hides the batch toolbar when the list has no items', async () => {
+    setItemsByListId(new Map([[1, []]]));
+    const view = await render(<ListDetailScreen />);
+    await view.findByText('No items yet');
+    expect(view.queryByLabelText('Complete all')).toBeNull();
+    expect(view.queryByLabelText('Uncomplete all')).toBeNull();
+    expect(view.queryByLabelText('Clear completed')).toBeNull();
+  });
+
+  it('hides the batch toolbar while searching', async () => {
+    const view = await render(<ListDetailScreen />);
+    await view.findByText('Milk');
+    expect(view.getByLabelText('Complete all')).toBeTruthy();
+
+    const opts = lastHeaderRight() as { headerRight?: () => ReactElement } | undefined;
+    const headerTree = await render(opts!.headerRight!());
+    fireEvent.press(headerTree.getByLabelText('Search'));
+    await view.findByPlaceholderText('Search items...', {}, { timeout: 2000 });
+    expect(view.queryByLabelText('Complete all')).toBeNull();
+    expect(view.queryByLabelText('Uncomplete all')).toBeNull();
+  });
+
+  it('ignores complete all when every item is already completed', async () => {
+    setItemsByListId(new Map([[1, [ITEMS[0], { ...ITEMS[1], checked: 1 }]]]));
+    const user = userEvent.setup();
+    const view = await render(<ListDetailScreen />);
+    await view.findByText('Milk');
+    await user.press(view.getByLabelText('Complete all'));
+    expect(itemRepositoryMock.setAllChecked).not.toHaveBeenCalled();
+  });
+
+  it('checks every item when complete all is pressed', async () => {
+    const user = userEvent.setup();
+    const view = await render(<ListDetailScreen />);
+    await view.findByText('Milk');
+    await user.press(view.getByLabelText('Complete all'));
+    await waitFor(() => expect(itemRepositoryMock.setAllChecked).toHaveBeenCalledWith(1, true));
+  });
+
+  it('unchecks every item when uncomplete all is pressed', async () => {
+    const user = userEvent.setup();
+    const view = await render(<ListDetailScreen />);
+    await view.findByText('Milk');
+    await user.press(view.getByLabelText('Uncomplete all'));
+    await waitFor(() => expect(itemRepositoryMock.setAllChecked).toHaveBeenCalledWith(1, false));
+  });
+
+  it('ignores uncomplete all when nothing is checked', async () => {
+    setItemsByListId(new Map([[1, [{ ...ITEMS[0], checked: 0 }, ITEMS[1]]]]));
+    const user = userEvent.setup();
+    const view = await render(<ListDetailScreen />);
+    await view.findByText('Milk');
+    await user.press(view.getByLabelText('Uncomplete all'));
+    expect(itemRepositoryMock.setAllChecked).not.toHaveBeenCalled();
+  });
+
+  it('ignores clear completed when nothing is completed', async () => {
+    setItemsByListId(new Map([[1, [{ ...ITEMS[0], checked: 0 }, ITEMS[1]]]]));
+    const user = userEvent.setup();
+    const view = await render(<ListDetailScreen />);
+    await view.findByText('Milk');
+    await user.press(view.getByLabelText('Clear completed'));
+    expect(view.queryByText(/completed item/)).toBeNull();
+    expect(itemRepositoryMock.deleteCompleted).not.toHaveBeenCalled();
+  });
+
+  it('clears completed items only after confirmation', async () => {
+    const user = userEvent.setup();
+    const view = await render(<ListDetailScreen />);
+    await view.findByText('Milk');
+    await user.press(view.getByLabelText('Clear completed'));
+
+    expect(await view.findByText('Delete 1 completed item?')).toBeTruthy();
+    expect(itemRepositoryMock.deleteCompleted).not.toHaveBeenCalled();
+
+    await user.press(view.getByLabelText('Delete'));
+    await waitFor(() => expect(itemRepositoryMock.deleteCompleted).toHaveBeenCalledWith(1));
   });
 
   it('registers a select toggle in the header and exits select mode on press', async () => {
