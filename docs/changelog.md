@@ -450,3 +450,10 @@ pm run test:all green.
 - Done items no longer use a strikethrough; the name stays `textSecondary` and the row gets a faint green wash (`withAlpha(c.green, ALPHA_SUBTLE)`).
 - The edit pencil is now a circular button (30x30, primary-tinted) with the `create-outline` icon in `c.primary`.
 - Tests: `ItemRow` (no strike-through, green wash, note preview only) and `ListDetailScreen` (note preview assertion) updated; docs `003-list-detail-screen` spec. `npm run test:all` green (44 files, 333 tests).
+
+[2026-09-24] ~ | Docs: 019 retro plan/tasks, verification record, doc audit
+- Retro-created `spec/features/019-remove-list-from-collection/2-plan.md` and `3-tasks.md` (all `[x]`), grounded in the shipped code (`listRepo.removeFromCollection`, `RemoveFromCollectionTarget`, `useCollectionDropZones`, `ListsView` collection-mode wiring, `sortEnabled >= 1`); the folder now has the full three-document set.
+- `6-screens.md`: List detail bullet updated — done items use the faded secondary-color name + faint green row wash (no strikethrough) and a circular edit button.
+- `docs/harnesses.md` "Current suite baseline" refreshed: 33 files / 252 tests → 44 files / 333 tests, enumerating the added suites (utils `errors`/`copyList`; components `TypeBadge`/`ErrorBoundary`; screens `HomeSelectionFlow`/`CollectionsScreen`/`CollectionDetailScreen`/`EditCollectionScreen`; database `validate`/`listRepo`/`collectionRepo`) and the corrected `ItemRow` description.
+- `AGENTS.md` + `PROMPT.md`: new feature folders must seed all three docs (`1-spec.md`, `2-plan.md`, `3-tasks.md`) at creation.
+- Verified on web at 375px (Playwright, CDP touch) for 019: while dragging a member the "Remove from collection" pill appears (idle opacity 0 → drag opacity 1) above the FAB and highlights on hover (primary border `rgb(8,145,178)` + tint); dropping removes the list and appends it as the last standalone on Home (Milk → Standalone, Milk); a single-member collection can be emptied to the "No lists yet" empty state; releasing a member elsewhere still reorders (Eggs↔Bread swap persisted across reload); the target is absent on Home/Lists/Collections/Settings; 0 console errors.

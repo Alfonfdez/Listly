@@ -60,7 +60,7 @@ npx expo lint
 - Changes to `src/utils/` or `src/database/` logic must include or update tests.
 - A feature's "verification" task is done only via the `verification-loop` skill: run `test:all`, boot `npx expo start --web`, then check the spec's acceptance criteria in a real browser (viewport 375px for mobile criteria).
 - Criteria that cannot be checked on web (e.g. camera capture) are reported as "not checkable on web", never marked done.
-- Spec-docs convention: a code change updates only `spec/features/<NNN>/1-spec.md` (requirement bullets) + `spec/constitution/3-roadmap.md` (entry + Status), and flips the feature's acceptance criteria `[ ]` → `[x]` after verification. Never edit `2-plan.md` or `3-tasks.md` for feature updates.
+- Spec-docs convention: a code change updates only `spec/features/<NNN>/1-spec.md` (requirement bullets) + `spec/constitution/3-roadmap.md` (entry + Status), and flips the feature's acceptance criteria `[ ]` → `[x]` after verification. Never edit `2-plan.md` or `3-tasks.md` for feature updates. New feature folders must seed all three docs (`1-spec.md`, `2-plan.md`, `3-tasks.md`) at creation.
 
 ## DATABASE
 - One `DatabaseHandle` interface on all platforms (`src/database/types.ts`); `engine.ts` (native) / `engine.web.ts` (web) select the engine.
