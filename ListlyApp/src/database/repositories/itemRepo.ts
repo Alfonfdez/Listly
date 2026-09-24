@@ -93,6 +93,30 @@ export const itemRepo = {
       .run();
   },
 
+  async setAllChecked(listId: number, checked: boolean): Promise<void> {
+    const db = await getDrizzle();
+    await db
+      .update(items)
+      .set({ checked: checked ? 1 : 0 })
+      .where(eq(items.list_id, listId))
+      .run();
+  },
+
+  async deleteCompleted(listId: number): Promise<void> {
+    await withTransaction(async db => {
+      const rows = await db
+        .select({ pictures: items.pictures })
+        .from(items)
+        .where(and(eq(items.list_id, listId), eq(items.checked, 1)))
+        .all();
+      await db
+        .delete(items)
+        .where(and(eq(items.list_id, listId), eq(items.checked, 1)))
+        .run();
+      await deletePhotosOfItems(rows);
+    });
+  },
+
   async existsByName(listId: number, name: string, excludeId?: number): Promise<boolean> {
     const db = await getDrizzle();
     const conditions: SQL[] = [eq(items.list_id, listId), sql`LOWER(${items.name}) = LOWER(${name})`];

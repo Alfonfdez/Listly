@@ -18,6 +18,9 @@ export const ERROR_SCOPE = {
   deleteSelectedItems: 'delete selected items',
   deleteSelectedCollections: 'delete selected collections',
   deleteSelection: 'delete selection',
+  completeAllItems: 'complete all items',
+  clearCompletedItems: 'clear completed items',
+  uncompleteAllItems: 'uncomplete all items',
 } as const;
 
 export type ErrorScope = (typeof ERROR_SCOPE)[keyof typeof ERROR_SCOPE];

@@ -53,6 +53,7 @@ export default function ListDetailScreen() {
   const [searchActive, setSearchActive] = useState(false);
   const [query, setQuery] = useState('');
   const [copiedAction, setCopiedAction] = useState<'all' | 'names' | null>(null);
+  const [clearCompletedVisible, setClearCompletedVisible] = useState(false);
   const copyTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const {
@@ -168,6 +169,34 @@ export default function ListDetailScreen() {
     [list, items]
   );
 
+  const completeAll = useCallback(async () => {
+    try {
+      await itemRepo.setAllChecked(listId, true);
+    } catch (error) {
+      logError(ERROR_SCOPE.completeAllItems, error);
+    }
+    void refresh();
+  }, [listId, refresh]);
+
+  const uncompleteAll = useCallback(async () => {
+    try {
+      await itemRepo.setAllChecked(listId, false);
+    } catch (error) {
+      logError(ERROR_SCOPE.uncompleteAllItems, error);
+    }
+    void refresh();
+  }, [listId, refresh]);
+
+  const clearCompleted = useCallback(async () => {
+    setClearCompletedVisible(false);
+    try {
+      await itemRepo.deleteCompleted(listId);
+    } catch (error) {
+      logError(ERROR_SCOPE.clearCompletedItems, error);
+    }
+    void refresh();
+  }, [listId, refresh]);
+
   if (!list) {
     return <NotFoundScreen />;
   }
@@ -258,6 +287,46 @@ export default function ListDetailScreen() {
           />
         ) : null}
         {header}
+        {items.length > 0 && !selectMode && !searchActive ? (
+          <View style={styles.batchRow}>
+            <TouchableOpacity
+              onPress={() => void completeAll()}
+              disabled={done === total}
+              style={[styles.batchButton, { borderColor: c.border }]}
+              accessibilityRole="button"
+              accessibilityLabel={labels.item_complete_all}
+            >
+              <Ionicons name="checkmark-done-outline" size={16} color={done === total ? c.textSecondary : c.primary} />
+              <Text style={[styles.batchText, { color: done === total ? c.textSecondary : c.primary, fontSize: fs(13) }]}>
+                {labels.item_complete_all}
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => void uncompleteAll()}
+              disabled={done === 0}
+              style={[styles.batchButton, { borderColor: c.border }]}
+              accessibilityRole="button"
+              accessibilityLabel={labels.item_uncomplete_all}
+            >
+              <Ionicons name="square-outline" size={16} color={done === 0 ? c.textSecondary : list.color} />
+              <Text style={[styles.batchText, { color: done === 0 ? c.textSecondary : list.color, fontSize: fs(13) }]}>
+                {labels.item_uncomplete_all}
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => setClearCompletedVisible(true)}
+              disabled={done === 0}
+              style={[styles.batchButton, { borderColor: c.border }]}
+              accessibilityRole="button"
+              accessibilityLabel={labels.item_clear_completed}
+            >
+              <Ionicons name="close-circle-outline" size={16} color={done === 0 ? c.textSecondary : c.red} />
+              <Text style={[styles.batchText, { color: done === 0 ? c.textSecondary : c.red, fontSize: fs(13) }]}>
+                {labels.item_clear_completed}
+              </Text>
+            </TouchableOpacity>
+          </View>
+        ) : null}
         {displayItems.length === 0 ? (
           noResults ? (
             <EmptyState icon="search-outline" message={labels.home_no_results} />
@@ -320,6 +389,17 @@ export default function ListDetailScreen() {
         onConfirm={confirmDelete}
         destructive
       />
+
+      <ConfirmModal
+        visible={clearCompletedVisible}
+        title={labels.item_clear_completed_confirm(done)}
+        message={labels.item_clear_completed_message}
+        cancelLabel={labels.common_cancel}
+        confirmLabel={labels.item_delete}
+        onCancel={() => setClearCompletedVisible(false)}
+        onConfirm={() => void clearCompleted()}
+        destructive
+      />
     </ScreenShell>
   );
 }
@@ -340,6 +420,25 @@ const styles = StyleSheet.create({
     padding: 4,
   },
   copiedLabel: {
+    fontWeight: '600',
+  },
+  batchRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+    marginBottom: 12,
+    paddingHorizontal: 4,
+  },
+  batchButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    borderWidth: 1,
+    borderRadius: 999,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+  },
+  batchText: {
     fontWeight: '600',
   },
 });
