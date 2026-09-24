@@ -3,6 +3,9 @@ import { render, fireEvent } from '@testing-library/react-native';
 import { userEvent } from '@testing-library/react-native';
 import ItemRow from '../../src/components/ItemRow';
 import { resetStub, setConfig } from '../helpers/configStub';
+import { ALPHA_SUBTLE } from '../../src/components/componentStyles';
+import { darkColors } from '../../src/constants/themes';
+import { withAlpha } from '../../src/utils/color';
 import type { Item } from '../../src/database/types';
 
 function makeItem(overrides: Partial<Item> = {}): Item {
@@ -44,25 +47,25 @@ describe('ItemRow', () => {
     expect(view.getAllByLabelText('Photos')).toHaveLength(2);
   });
 
-  it('uses a filled checkmark and strike-through for checked items', async () => {
+  it('uses a filled checkmark and a green wash (no strike-through) for checked items', async () => {
     const item = makeItem({ checked: 1 });
     const view = await render(<ItemRow item={item} {...defaults} onToggle={() => {}} onEdit={() => {}} />);
     expect(view.getByText('checkmark-circle')).toBeTruthy();
 
     const name = view.getByText('Milk');
-    const styles = flattenStyle(name.props.style);
-    expect(styles.textDecorationLine).toBe('line-through');
+    expect(flattenStyle(name.props.style).textDecorationLine).toBeUndefined();
+
+    const row = view.getByRole('checkbox');
+    expect(flattenStyle(row.props.style).backgroundColor).toBe(withAlpha(darkColors.green, ALPHA_SUBTLE));
   });
 
-  it('shows a note indicator only when a note is set', async () => {
+  it('shows the note preview only when a note is set', async () => {
     const noNote = await render(<ItemRow item={makeItem()} {...defaults} onToggle={() => {}} onEdit={() => {}} />);
-    expect(noNote.queryByText('document-text-outline')).toBeNull();
     expect(noNote.queryByText('medium roast')).toBeNull();
 
     const withNote = await render(
       <ItemRow item={makeItem({ note: 'medium roast' })} {...defaults} onToggle={() => {}} onEdit={() => {}} />
     );
-    expect(withNote.getByText('document-text-outline')).toBeTruthy();
     expect(withNote.getByText('medium roast')).toBeTruthy();
   });
 
@@ -122,7 +125,6 @@ describe('ItemRow', () => {
     const view = await render(
       <ItemRow item={makeItem({ note: 'medium roast' })} {...defaults} onToggle={() => {}} onEdit={() => {}} />
     );
-    expect(view.queryByText('document-text-outline')).toBeNull();
     expect(view.queryByText('medium roast')).toBeNull();
   });
 

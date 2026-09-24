@@ -4,9 +4,10 @@ import { Ionicons } from '@expo/vector-icons';
 import { useConfig } from '../context/ConfigContext';
 import { useFontSize } from '../hooks/useFontSize';
 import { useLabels } from '../hooks/useLabels';
-import { BUTTON_BORDER_RADIUS, ALPHA_SELECTED, PRESSED_OPACITY, HIT_SLOP, HIT_SLOP_SMALL } from './componentStyles';
+import { BUTTON_BORDER_RADIUS, ALPHA_SELECTED, ALPHA_SUBTLE, PRESSED_OPACITY, HIT_SLOP, HIT_SLOP_SMALL } from './componentStyles';
 import type { Item } from '../database/types';
 import { MAX_ITEM_PICTURES } from '../constants/types';
+import { ICONS } from '../constants/icons';
 import { parseItemPhotos } from '../utils/itemPhotos';
 import { withAlpha } from '../utils/color';
 import SortablePressable from './SortablePressable';
@@ -48,7 +49,7 @@ function ItemRowInner({ item, selectMode, selected, onToggle, onEdit }: Props) {
     <SortablePressable
       style={[
         styles.row,
-        { backgroundColor: c.surface },
+        { backgroundColor: isDone && !selectMode ? withAlpha(c.green, ALPHA_SUBTLE) : c.surface },
         selectMode && selected && { backgroundColor: withAlpha(c.primary, ALPHA_SELECTED) },
       ]}
       onPress={onToggle}
@@ -66,26 +67,22 @@ function ItemRowInner({ item, selectMode, selected, onToggle, onEdit }: Props) {
               {
                 color: isDone ? c.textSecondary : c.text,
                 fontSize: fs(16),
-                textDecorationLine: isDone && !selectMode ? 'line-through' : 'none',
               },
             ]}
             numberOfLines={1}
           >
             {item.name}
           </Text>
-          {showNote ? (
-            <Ionicons name="document-text-outline" size={16} color={c.textSecondary} />
-          ) : null}
           {!selectMode ? (
             <SortablePressable
-              style={styles.editButton}
+              style={[styles.editButton, { backgroundColor: withAlpha(c.primary, ALPHA_SELECTED) }]}
               onPress={onEdit}
               activeOpacity={PRESSED_OPACITY}
               accessibilityRole="button"
               accessibilityLabel={labels.item_edit_title}
               hitSlop={HIT_SLOP}
             >
-              <Ionicons name="pencil-outline" size={18} color={c.textSecondary} />
+              <Ionicons name={ICONS.edit} size={16} color={c.primary} />
             </SortablePressable>
           ) : null}
         </View>
@@ -174,7 +171,11 @@ const styles = StyleSheet.create({
     lineHeight: 18,
   },
   editButton: {
-    padding: 4,
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   thumbRow: {
     flexDirection: 'row',

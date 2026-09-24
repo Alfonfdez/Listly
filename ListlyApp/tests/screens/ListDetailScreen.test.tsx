@@ -153,7 +153,7 @@ describe('ListDetailScreen', () => {
     const view = await render(<ListDetailScreen />);
     expect(await view.findByText('Milk')).toBeTruthy();
     expect(view.getByText('Eggs')).toBeTruthy();
-    expect(view.getByText('document-text-outline')).toBeTruthy();
+    expect(view.getByText('free-range')).toBeTruthy();
   });
 
   it('toggles an item via the repository on row press', async () => {
