@@ -13,7 +13,7 @@
 
 ### 2. Item list
 - Items ordered by `position`.
-- Each row: checkbox (Ionicons circle → checkmark-circle when done), item name (strikethrough + secondary color when `checked = 1`), and a small note indicator when the item has a `note`.
+- Each row: checkbox (Ionicons circle → checkmark-circle when done), item name (secondary color + a faint green row tint when `checked = 1`; no strikethrough), a tappable note preview when the item has a `note`, and a circular edit button.
 - Tapping a row toggles the item (check/uncheck) via `itemRepo.toggle`; progress updates on refresh.
 
 ### 3. Add item
@@ -25,7 +25,7 @@
   - Duplicate name within the same list rejected (case-insensitive). The check runs against the list's items already loaded in memory — no extra round-trip required.
 
 ### 4. Edit / delete
-- Tapping the item name (or a "more" affordance) opens the item form modal (`item_edit_title`) with name + note fields.
+- Tapping the row's circular edit button opens the item form modal (`item_edit_title`) with name + note fields.
 - Save applies `itemRepo.update` with the same validations as add.
 - The modal shows a Delete action (`item_delete`) that asks for confirmation (`item_confirm_delete`) before `itemRepo.delete`.
 
@@ -50,7 +50,7 @@
 ## Acceptance criteria
 
 - [x] Opening a list from Home shows its icon, name, color, and "N/total" progress.
-- [x] Item rows show a checkbox, the name (strikethrough when done), and a note indicator when a note is set.
+- [x] Item rows show a checkbox, the name (secondary color + faint green tint when done, no strikethrough), a tappable note preview, and a circular edit button.
 - [x] Tapping a row toggles the item and updates the progress bar.
 - [x] Typing in the add input creates the item at the end of the list; empty and duplicate names are rejected with a message.
 - [x] Editing an item updates its name and note; deleting removes it after confirmation.
