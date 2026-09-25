@@ -3,6 +3,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useConfig } from '../context/ConfigContext';
 import { useFontSize } from '../hooks/useFontSize';
 import { BUTTON_BORDER_RADIUS, DISABLED_OPACITY } from './componentStyles';
+import type { IconName } from '../constants/types';
 
 interface Props {
   selectedCount: number;
@@ -13,6 +14,10 @@ interface Props {
   onCancel: () => void;
   deleteAccessibilityLabel?: string;
   cancelAccessibilityLabel?: string;
+  onPin?: () => void;
+  pinLabel?: string;
+  pinIcon?: IconName;
+  pinAccessibilityLabel?: string;
 }
 
 export default function SelectionActionBar({
@@ -24,6 +29,10 @@ export default function SelectionActionBar({
   onCancel,
   deleteAccessibilityLabel,
   cancelAccessibilityLabel,
+  onPin,
+  pinLabel,
+  pinIcon = 'star',
+  pinAccessibilityLabel,
 }: Props) {
   const { activeColors: c } = useConfig();
   const fs = useFontSize();
@@ -33,6 +42,21 @@ export default function SelectionActionBar({
     <View style={[styles.bar, { backgroundColor: c.surface, borderTopColor: c.border }]}>
       <Text style={[styles.count, { color: c.text, fontSize: fs(14) }]}>{countLabel}</Text>
       <View style={styles.actions}>
+        {onPin ? (
+          <TouchableOpacity
+            onPress={onPin}
+            disabled={disabled}
+            style={[styles.button, { borderColor: c.border }, disabled && styles.disabled]}
+            accessibilityRole="button"
+            accessibilityState={{ disabled }}
+            accessibilityLabel={pinAccessibilityLabel ?? pinLabel}
+          >
+            <Ionicons name={pinIcon} size={20} color={disabled ? c.textSecondary : c.star} />
+            <Text style={[styles.buttonText, { color: disabled ? c.textSecondary : c.text, fontSize: fs(14) }]}>
+              {pinLabel}
+            </Text>
+          </TouchableOpacity>
+        ) : null}
         <TouchableOpacity
           onPress={onCancel}
           style={[styles.button, { borderColor: c.border }]}
@@ -82,6 +106,8 @@ const styles = StyleSheet.create({
   },
   actions: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'flex-end',
     gap: 8,
   },
   button: {

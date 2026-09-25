@@ -180,4 +180,7 @@ export const es: Translations = {
   select_delete_items_confirm: (n: number) => `¿Eliminar ${n} elemento${n === 1 ? '' : 's'}?`,
   select_delete_lists_message: 'Las listas seleccionadas y sus elementos se eliminarán permanentemente.',
   select_delete_items_message: 'Los elementos seleccionados se eliminarán permanentemente.',
+  select_pin: 'Fijar',
+  select_unpin: 'Desfijar',
+  home_pinned: 'Destacado',
 };

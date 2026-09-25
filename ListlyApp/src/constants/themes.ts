@@ -11,6 +11,7 @@ export interface ColorPalette {
   accent: string;
   green: string;
   red: string;
+  star: string;
   border: string;
 }
 
@@ -23,6 +24,7 @@ export const darkColors: ColorPalette = {
   accent: '#A78BFA',
   green: '#34D399',
   red: '#F87171',
+  star: '#F9A825',
   border: '#334155',
 };
 
@@ -35,5 +37,6 @@ export const lightColors: ColorPalette = {
   accent: '#7C3AED',
   green: '#059669',
   red: '#DC2626',
+  star: '#F59E0B',
   border: '#E2E8F0',
 };

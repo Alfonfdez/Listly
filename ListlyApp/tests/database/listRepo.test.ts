@@ -148,3 +148,59 @@ it('appends the removed list after existing standalone lists', async () => {
     expect((await b.lists.get(a2.id))?.position).toBe(1);
   });
 });
+
+describe('listRepo.setPinned and ordering', () => {
+  let b: Backend;
+
+  beforeAll(async () => {
+    await initSqlJsOnce();
+  });
+
+  beforeEach(async () => {
+    b = await createBackend();
+  });
+
+  it('create returns pinned 0', async () => {
+    const list = await b.lists.create({ name: 'New', color: '#22D3EE', icon: 'cart-outline' });
+    expect(list.pinned).toBe(0);
+  });
+
+  it('setPinned marks a list and list()/withCounts() order pinned first preserving positions', async () => {
+    const a = await b.lists.create({ name: 'A', color: '#22D3EE', icon: 'cart-outline' });
+    const pinned = await b.lists.create({ name: 'B', color: '#34D399', icon: 'gift-outline' });
+    const c = await b.lists.create({ name: 'C', color: '#F87171', icon: 'rocket-outline' });
+
+    await b.lists.setPinned(pinned.id, true);
+
+    expect((await b.lists.get(pinned.id))?.pinned).toBe(1);
+    expect((await b.lists.list()).map(l => l.name)).toEqual(['B', 'A', 'C']);
+    expect((await b.lists.withCounts()).map(l => l.name)).toEqual(['B', 'A', 'C']);
+  });
+
+  it('setPinned(false) restores position order', async () => {
+    const a = await b.lists.create({ name: 'A', color: '#22D3EE', icon: 'cart-outline' });
+    const pinned = await b.lists.create({ name: 'B', color: '#34D399', icon: 'gift-outline' });
+    const c = await b.lists.create({ name: 'C', color: '#F87171', icon: 'rocket-outline' });
+
+    await b.lists.setPinned(pinned.id, true);
+    await b.lists.setPinned(pinned.id, false);
+
+    expect((await b.lists.get(pinned.id))?.pinned).toBe(0);
+    expect((await b.lists.list()).map(l => l.name)).toEqual(['A', 'B', 'C']);
+  });
+
+  it('moveToCollection and removeFromCollection keep the pinned flag', async () => {
+    const { a, free } = await seedTwoCollections(b);
+    await b.lists.setPinned(free.id, true);
+
+    await b.lists.moveToCollection(free.id, a.id);
+    const moved = await b.lists.get(free.id);
+    expect(moved?.collection_id).toBe(a.id);
+    expect(moved?.pinned).toBe(1);
+
+    await b.lists.removeFromCollection(free.id);
+    const restored = await b.lists.get(free.id);
+    expect(restored?.collection_id).toBeNull();
+    expect(restored?.pinned).toBe(1);
+  });
+});

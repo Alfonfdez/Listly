@@ -114,4 +114,33 @@ describe('collectionRepo', () => {
     expect(await b.collections.get(free.id)).toBeNull();
     expect(await b.items.get(item.id)).not.toBeNull();
   });
+
+  it('create returns pinned 0', async () => {
+    const collection = await b.collections.create({ name: 'New', color: '#A855F7', icon: 'folder-outline' });
+    expect(collection.pinned).toBe(0);
+  });
+
+  it('setPinned marks a collection and list()/withCounts() order pinned first preserving positions', async () => {
+    const one = await b.collections.create({ name: 'One', color: '#A855F7', icon: 'folder-outline' });
+    const pinned = await b.collections.create({ name: 'Two', color: '#34D399', icon: 'gift-outline' });
+    const three = await b.collections.create({ name: 'Three', color: '#F87171', icon: 'star-outline' });
+
+    await b.collections.setPinned(pinned.id, true);
+
+    expect((await b.collections.get(pinned.id))?.pinned).toBe(1);
+    expect((await b.collections.list()).map(c => c.name)).toEqual(['Two', 'One', 'Three']);
+    expect((await b.collections.withCounts()).map(c => c.name)).toEqual(['Two', 'One', 'Three']);
+  });
+
+  it('setPinned(false) restores position order', async () => {
+    const one = await b.collections.create({ name: 'One', color: '#A855F7', icon: 'folder-outline' });
+    const pinned = await b.collections.create({ name: 'Two', color: '#34D399', icon: 'gift-outline' });
+    const three = await b.collections.create({ name: 'Three', color: '#F87171', icon: 'star-outline' });
+
+    await b.collections.setPinned(pinned.id, true);
+    await b.collections.setPinned(pinned.id, false);
+
+    expect((await b.collections.get(pinned.id))?.pinned).toBe(0);
+    expect((await b.collections.list()).map(c => c.name)).toEqual(['One', 'Two', 'Three']);
+  });
 });

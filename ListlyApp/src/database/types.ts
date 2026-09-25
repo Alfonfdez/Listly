@@ -14,6 +14,7 @@ export interface ListWithCounts {
   icon: string;
   created_at: string;
   position: number;
+  pinned: 0 | 1;
   collection_id: number | null;
   total: number;
   completed: number;
@@ -26,6 +27,7 @@ export interface CollectionWithCounts {
   icon: string;
   created_at: string;
   position: number;
+  pinned: 0 | 1;
   total: number;
   completed: number;
 }

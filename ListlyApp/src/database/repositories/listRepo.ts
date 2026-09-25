@@ -1,4 +1,4 @@
-import { and, eq, ne, sql, type SQL } from 'drizzle-orm';
+import { and, desc, eq, ne, sql, type SQL } from 'drizzle-orm';
 import { getDrizzle, withTransaction } from '../drizzle/engine';
 import { items, lists } from '../drizzle/schema';
 import { runResultOf } from '../drizzle/proxy';
@@ -8,14 +8,14 @@ import { parseRowOrNull, parseRows } from '../validate';
 import { dbTimestamp } from '../../utils/formatters';
 import { countsSelection, deletePhotosOfLists, nextPositionSql, reorderPositions } from './shared';
 
-export type NewList = Omit<List, 'id' | 'created_at' | 'position' | 'collection_id'> & {
+export type NewList = Omit<List, 'id' | 'created_at' | 'position' | 'pinned' | 'collection_id'> & {
   collection_id?: number | null;
 };
 
 export const listRepo = {
   async list(): Promise<List[]> {
     const db = await getDrizzle();
-    const rows = await db.select().from(lists).orderBy(lists.position, lists.id).all();
+    const rows = await db.select().from(lists).orderBy(desc(lists.pinned), lists.position, lists.id).all();
     return parseRows(listSchema, 'lists', rows);
   },
 
@@ -48,13 +48,18 @@ export const listRepo = {
         position,
       })
       .run();
-    return { ...data, collection_id: collectionId, id: runResultOf(result).lastInsertRowId, created_at: dbTimestamp(), position };
+    return { ...data, collection_id: collectionId, id: runResultOf(result).lastInsertRowId, created_at: dbTimestamp(), position, pinned: 0 };
   },
 
   async reorder(orderedIds: number[]): Promise<void> {
     await reorderPositions(orderedIds, (db, id, i) =>
       db.update(lists).set({ position: i }).where(eq(lists.id, id)).run()
     );
+  },
+
+  async setPinned(id: number, pinned: boolean): Promise<void> {
+    const db = await getDrizzle();
+    await db.update(lists).set({ pinned: pinned ? 1 : 0 }).where(eq(lists.id, id)).run();
   },
 
   async moveToCollection(listId: number, collectionId: number): Promise<void> {
@@ -117,13 +122,14 @@ export const listRepo = {
         icon: lists.icon,
         created_at: lists.created_at,
         position: lists.position,
+        pinned: lists.pinned,
         collection_id: lists.collection_id,
         ...countsSelection,
       })
       .from(lists)
       .leftJoin(items, eq(items.list_id, lists.id))
       .groupBy(lists.id)
-      .orderBy(lists.position, lists.id)
+      .orderBy(desc(lists.pinned), lists.position, lists.id)
       .all();
   },
 

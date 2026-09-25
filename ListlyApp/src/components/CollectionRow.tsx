@@ -50,9 +50,14 @@ function CollectionRowInner({ collection, selectMode, selected, onPress, dropTar
           <SelectionCheck selected={selected} style={styles.check} unselectedBackground={c.surface} />
         ) : null}
       </View>
-      <Text style={[styles.name, { color: c.text, fontSize: fs(15) }]} numberOfLines={1}>
-        {collection.name}
-      </Text>
+      <View style={styles.nameRow}>
+        <Text style={[styles.name, { color: c.text, fontSize: fs(15) }]} numberOfLines={1}>
+          {collection.name}
+        </Text>
+        {collection.pinned === 1 && !selectMode ? (
+          <Ionicons name="star" size={13} color={c.star} accessibilityLabel={labels.home_pinned} />
+        ) : null}
+      </View>
       <Text style={[styles.progress, { color: c.textSecondary, fontSize: fs(13) }]}>
         {labels.home_progress(collection.completed, collection.total)}
       </Text>
@@ -102,6 +107,14 @@ const styles = StyleSheet.create({
   name: {
     flex: 1,
     fontWeight: '600',
+    flexShrink: 1,
+  },
+  nameRow: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    alignSelf: 'stretch',
   },
   progress: {
     fontWeight: '500',

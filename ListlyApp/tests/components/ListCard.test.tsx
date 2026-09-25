@@ -12,6 +12,7 @@ const LIST: ListWithCounts = {
   collection_id: null,
   created_at: 'x',
   position: 0,
+  pinned: 0,
   total: 5,
   completed: 2,
 };
@@ -87,5 +88,25 @@ describe('ListCard', () => {
 
     const card = view.getByText('Groceries').parent?.parent;
     expect(card).toBeTruthy();
+  });
+
+  it('shows a star indicator when the list is pinned', async () => {
+    const view = await render(
+      <ListCard list={{ ...LIST, pinned: 1 }} selectMode={false} selected={false} onPress={() => {}} />
+    );
+
+    expect(view.getByLabelText('Pinned')).toBeTruthy();
+  });
+
+  it('hides the star indicator when the list is not pinned or in select mode', async () => {
+    const unpinned = await render(
+      <ListCard list={LIST} selectMode={false} selected={false} onPress={() => {}} />
+    );
+    expect(unpinned.queryByLabelText('Pinned')).toBeNull();
+
+    const selecting = await render(
+      <ListCard list={{ ...LIST, pinned: 1 }} selectMode selected={false} onPress={() => {}} />
+    );
+    expect(selecting.queryByLabelText('Pinned')).toBeNull();
   });
 });

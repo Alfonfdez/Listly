@@ -21,6 +21,8 @@ export const ERROR_SCOPE = {
   completeAllItems: 'complete all items',
   clearCompletedItems: 'clear completed items',
   uncompleteAllItems: 'uncomplete all items',
+  pinLists: 'pin lists and collections',
+  unpinLists: 'unpin lists and collections',
 } as const;
 
 export type ErrorScope = (typeof ERROR_SCOPE)[keyof typeof ERROR_SCOPE];

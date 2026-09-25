@@ -22,6 +22,7 @@ const LIST_ROW = {
   collection_id: null,
   created_at: '2026-01-01 00:00:00',
   position: 0,
+  pinned: 0 as const,
 };
 
 const ITEM_ROW = {
@@ -41,7 +42,7 @@ function makeSnapshot(overrides: Partial<BackupSnapshot> = {}): BackupSnapshot {
     kind: 'backup',
     formatVersion: BACKUP_FORMAT_VERSION,
     exportedAt: '2026-01-01T00:00:00.000Z',
-    schema: 5,
+    schema: 6,
     data: {
       collections: [],
       lists: [LIST_ROW],
@@ -116,7 +117,7 @@ describe('backup service', () => {
     expect(snapshot.app).toBe('Listly');
     expect(snapshot.kind).toBe('backup');
     expect(snapshot.formatVersion).toBe(BACKUP_FORMAT_VERSION);
-    expect(snapshot.schema).toBe(5);
+    expect(snapshot.schema).toBe(6);
     expect(snapshot.data.lists).toHaveLength(1);
     expect(snapshot.data.items).toHaveLength(1);
 
@@ -133,6 +134,64 @@ describe('backup service', () => {
     const config = await configRepo.get();
     expect(config.theme).toBe('dark');
     expect(config.showNotes).toBe(false);
+  });
+
+  it('preserves pinned flags through export and import', async () => {
+    const { listRepo } = await import('../../src/database/repositories/listRepo');
+    const { collectionRepo } = await import('../../src/database/repositories/collectionRepo');
+    const { exportBackup, importBackup } = await import('../../src/database/backupService');
+
+    const list = await listRepo.create({ name: 'Groceries', color: '#22D3EE', icon: 'cart-outline' });
+    await listRepo.setPinned(list.id, true);
+    const collection = await collectionRepo.create({ name: 'Shopping', color: '#A855F7', icon: 'folder-outline' });
+    await collectionRepo.setPinned(collection.id, true);
+
+    const json = await exportBackup();
+    const snapshot = JSON.parse(json) as BackupSnapshot;
+    expect(snapshot.data.lists[0].pinned).toBe(1);
+    expect(snapshot.data.collections[0].pinned).toBe(1);
+
+    await listRepo.setPinned(list.id, false);
+
+    await importBackup(json);
+
+    expect((await listRepo.list())[0]?.pinned).toBe(1);
+    expect((await collectionRepo.list())[0]?.pinned).toBe(1);
+  });
+
+  it('imports a legacy backup without pinned rows as unpinned', async () => {
+    const { listRepo } = await import('../../src/database/repositories/listRepo');
+    const { importBackup } = await import('../../src/database/backupService');
+
+    const legacy = {
+      app: 'Listly',
+      kind: 'backup',
+      formatVersion: BACKUP_FORMAT_VERSION,
+      exportedAt: '2026-01-01T00:00:00.000Z',
+      schema: 5,
+      data: {
+        collections: [],
+        lists: [
+          {
+            id: 1,
+            name: 'Groceries',
+            color: '#22D3EE',
+            icon: 'cart-outline',
+            collection_id: null,
+            created_at: '2026-01-01 00:00:00',
+            position: 0,
+          },
+        ],
+        items: [],
+        config: [],
+      },
+    } as never;
+
+    await importBackup(JSON.stringify(legacy));
+
+    const lists = await listRepo.list();
+    expect(lists.map(l => l.name)).toEqual(['Groceries']);
+    expect(lists[0]?.pinned).toBe(0);
   });
 
   it('rejects a backup from a newer schema version', async () => {

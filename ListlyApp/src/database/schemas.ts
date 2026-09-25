@@ -15,6 +15,7 @@ export const listSchema = z.object({
   icon: z.string(),
   created_at: z.string(),
   position: z.number().int(),
+  pinned: z.union([z.literal(0), z.literal(1)]),
   collection_id: z.number().int().nullable(),
 });
 
@@ -25,6 +26,7 @@ export const collectionSchema = z.object({
   icon: z.string(),
   created_at: z.string(),
   position: z.number().int(),
+  pinned: z.union([z.literal(0), z.literal(1)]),
 });
 
 export const itemSchema = z.object({

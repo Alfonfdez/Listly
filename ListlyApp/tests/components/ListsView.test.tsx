@@ -1,5 +1,5 @@
 import { describe, expect, it, beforeEach, afterEach, vi } from 'vitest';
-import { render, fireEvent, waitFor, act } from '@testing-library/react-native';
+import { render, fireEvent, waitFor, act, within } from '@testing-library/react-native';
 import type { ReactNode } from 'react';
 import ListsView, { type ListsViewVariant, type ListViewMode } from '../../src/components/ListsView';
 import { buildAppMock, setItemsByListId, setLists, setBaseLists, setCollections, setListsByCollectionId, resetAppStub } from '../helpers/appStub';
@@ -16,9 +16,9 @@ vi.mock('../../src/context/AppContext', () => ({
 }));
 
 vi.mock('../../src/database', () => ({
-  listRepository: { deleteMany: vi.fn(async () => {}), reorder: vi.fn(async () => {}), moveToCollection: vi.fn(async () => {}), removeFromCollection: vi.fn(async () => {}) },
+  listRepository: { deleteMany: vi.fn(async () => {}), reorder: vi.fn(async () => {}), moveToCollection: vi.fn(async () => {}), removeFromCollection: vi.fn(async () => {}), setPinned: vi.fn(async () => {}) },
   itemRepository: {},
-  collectionRepository: { deleteMany: vi.fn(async () => {}), reorder: vi.fn(async () => {}) },
+  collectionRepository: { deleteMany: vi.fn(async () => {}), reorder: vi.fn(async () => {}), setPinned: vi.fn(async () => {}) },
 }));
 
 const nav = { navigate: vi.fn() };
@@ -34,8 +34,8 @@ vi.mock('@react-navigation/native', async () => {
 });
 
 const LISTS: ListWithCounts[] = [
-  { id: 1, name: 'Groceries', color: '#22D3EE', icon: 'cart-outline', collection_id: null, created_at: 'x', position: 0, total: 5, completed: 2 },
-  { id: 2, name: 'Work Tasks', color: '#34D399', icon: 'briefcase-outline', collection_id: null, created_at: 'x', position: 1, total: 2, completed: 0 },
+  { id: 1, name: 'Groceries', color: '#22D3EE', icon: 'cart-outline', collection_id: null, created_at: 'x', position: 0, pinned: 0, total: 5, completed: 2 },
+  { id: 2, name: 'Work Tasks', color: '#34D399', icon: 'briefcase-outline', collection_id: null, created_at: 'x', position: 1, pinned: 0, total: 2, completed: 0 },
 ];
 
 function items(names: string[]): Item[] {
@@ -81,7 +81,7 @@ function renderView(overrides: Overrides = {}) {
 }
 
 const COLLECTIONS: CollectionWithCounts[] = [
-  { id: 10, name: 'Shopping', color: '#A78BFA', icon: 'cart-outline', created_at: 'x', position: 0, total: 5, completed: 2 },
+  { id: 10, name: 'Shopping', color: '#A78BFA', icon: 'cart-outline', created_at: 'x', position: 0, pinned: 0, total: 5, completed: 2 },
 ];
 
 describe('ListsView', () => {
@@ -95,6 +95,8 @@ describe('ListsView', () => {
     vi.mocked(listRepository.deleteMany).mockClear();
     vi.mocked(collectionRepository.reorder).mockClear();
     vi.mocked(collectionRepository.deleteMany).mockClear();
+    vi.mocked(listRepository.setPinned).mockClear();
+    vi.mocked(collectionRepository.setPinned).mockClear();
     nav.navigate.mockClear();
     setLists(LISTS);
     setBaseLists(LISTS);
@@ -285,10 +287,10 @@ const onToggleItem = vi.fn();
 
   it('shows the containing collection name under a collection list (lists mode)', async () => {
     setLists([
-      { id: 1, name: 'Groceries', color: '#22D3EE', icon: 'cart-outline', collection_id: 10, created_at: 'x', position: 0, total: 5, completed: 2 },
-      { id: 2, name: 'Work Tasks', color: '#34D399', icon: 'briefcase-outline', collection_id: null, created_at: 'x', position: 1, total: 2, completed: 0 },
+      { id: 1, name: 'Groceries', color: '#22D3EE', icon: 'cart-outline', collection_id: 10, created_at: 'x', position: 0, pinned: 0, total: 5, completed: 2 },
+      { id: 2, name: 'Work Tasks', color: '#34D399', icon: 'briefcase-outline', collection_id: null, created_at: 'x', position: 1, pinned: 0, total: 2, completed: 0 },
     ]);
-    setCollections([{ id: 10, name: 'Shopping', color: '#A855F7', icon: 'folder-outline', created_at: 'x', position: 0, total: 3, completed: 1 }]);
+    setCollections([{ id: 10, name: 'Shopping', color: '#A855F7', icon: 'folder-outline', created_at: 'x', position: 0, pinned: 0, total: 3, completed: 1 }]);
     const view = await renderView({ mode: 'lists' });
     expect(await view.findByText('Groceries')).toBeTruthy();
     expect(view.getByText('Work Tasks')).toBeTruthy();
@@ -296,8 +298,8 @@ const onToggleItem = vi.fn();
   });
 
   it('shows the containing collection name under a list row (lists mode, list layout)', async () => {
-    setLists([{ id: 1, name: 'Groceries', color: '#22D3EE', icon: 'cart-outline', collection_id: 10, created_at: 'x', position: 0, total: 5, completed: 2 }]);
-    setCollections([{ id: 10, name: 'Shopping', color: '#A855F7', icon: 'folder-outline', created_at: 'x', position: 0, total: 3, completed: 1 }]);
+    setLists([{ id: 1, name: 'Groceries', color: '#22D3EE', icon: 'cart-outline', collection_id: 10, created_at: 'x', position: 0, pinned: 0, total: 5, completed: 2 }]);
+    setCollections([{ id: 10, name: 'Shopping', color: '#A855F7', icon: 'folder-outline', created_at: 'x', position: 0, pinned: 0, total: 3, completed: 1 }]);
     const view = await renderView({ mode: 'lists', variant: 'list' });
     expect(await view.findByText('Groceries')).toBeTruthy();
     expect(view.getByText('Shopping')).toBeTruthy();
@@ -442,5 +444,36 @@ const onToggleItem = vi.fn();
     fireGridDragEnd({ key: '2', data: [{ ...LISTS[1] }, { ...LISTS[0] }] });
     expect(listRepository.removeFromCollection).not.toHaveBeenCalled();
     expect(listRepository.reorder).toHaveBeenCalledWith([2, 1]);
+  });
+
+  it('pins the selected lists when Pin is pressed in select mode', async () => {
+    const view = await renderView({ selectMode: true, selectedIds: new Set([1]) });
+    await view.findByText('Groceries');
+    const pin = view.getByLabelText('Pin');
+    expect(within(pin).getByText('star')).toBeTruthy();
+    expect(within(pin).queryByText('star-outline')).toBeNull();
+    fireEvent.press(pin);
+    expect(listRepository.setPinned).toHaveBeenCalledWith(1, true);
+  });
+
+  it('shows Unpin and unpins when every selected item is already pinned', async () => {
+    setLists([{ ...LISTS[0], pinned: 1 }, { ...LISTS[1], pinned: 1 }]);
+    const view = await renderView({ selectMode: true, selectedIds: new Set([1]) });
+    await view.findByText('Groceries');
+    const unpin = view.getByLabelText('Unpin');
+    expect(within(unpin).getByText('star-outline')).toBeTruthy();
+    expect(within(unpin).queryByText('star')).toBeNull();
+    fireEvent.press(unpin);
+    expect(listRepository.setPinned).toHaveBeenCalledWith(1, false);
+  });
+
+  it('pins a selected collection when Pin is pressed', async () => {
+    setCollections(COLLECTIONS);
+    const view = await renderView({ selectMode: true, selectedCollectionIds: new Set([10]) });
+    await view.findByText('Shopping');
+    const pin = view.getByLabelText('Pin');
+    expect(within(pin).getByText('star')).toBeTruthy();
+    fireEvent.press(pin);
+    expect(collectionRepository.setPinned).toHaveBeenCalledWith(10, true);
   });
 });
