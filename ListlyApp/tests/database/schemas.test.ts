@@ -29,7 +29,7 @@ describe('schemas', () => {
   });
 
   describe('itemSchema', () => {
-    const VALID_ITEM = { id: 10, list_id: 1, name: 'Milk', checked: 0, note: null, position: 0, created_at: '2026-09-05 08:00:00', pictures: null };
+    const VALID_ITEM = { id: 10, list_id: 1, name: 'Milk', checked: 0, note: null, position: 0, created_at: '2026-09-05 08:00:00', updated_at: '2026-09-05 08:00:00', pictures: null };
 
     it('accepts a fully valid row', () => {
       expect(itemSchema.parse(VALID_ITEM)).toEqual(VALID_ITEM);
@@ -44,6 +44,11 @@ describe('schemas', () => {
     it('rejects non-integer list_id or missing required fields', () => {
       expect(() => itemSchema.parse({ ...VALID_ITEM, list_id: 1.5 })).toThrow();
       expect(() => itemSchema.parse({ ...VALID_ITEM, name: undefined })).toThrow();
+    });
+
+    it('rejects a missing updated_at', () => {
+      const { updated_at: _removed, ...withoutUpdatedAt } = VALID_ITEM;
+      expect(() => itemSchema.parse(withoutUpdatedAt)).toThrow();
     });
   });
 

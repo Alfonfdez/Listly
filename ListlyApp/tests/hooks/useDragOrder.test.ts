@@ -4,7 +4,7 @@ import { useDragOrder } from '../../src/hooks/useDragOrder';
 import type { Item } from '../../src/database/types';
 
 function item(id: number): Item {
-  return { id, list_id: 1, name: `Item ${id}`, checked: 0, note: null, position: id, created_at: 'x', pictures: null };
+  return { id, list_id: 1, name: `Item ${id}`, checked: 0, note: null, position: id, created_at: 'x', updated_at: 'x', pictures: null };
 }
 
 function dragParams(data: Item[]) {

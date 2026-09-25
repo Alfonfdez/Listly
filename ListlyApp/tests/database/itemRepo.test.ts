@@ -1,6 +1,7 @@
 import { beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { DatabaseHandle } from '../../src/database/types';
 import { initSqlJsOnce, openDatabaseSync, resetMockDatabase } from './sqliteMock';
+import { dbTimestamp } from '../../src/utils/formatters';
 import type { collectionRepo } from '../../src/database/repositories/collectionRepo';
 import type { listRepo } from '../../src/database/repositories/listRepo';
 import type { itemRepo } from '../../src/database/repositories/itemRepo';
@@ -42,6 +43,48 @@ async function seedTwoLists(b: Backend) {
   const ba1 = await b.items.create({ list_id: b2.id, name: 'ba1', checked: 0, note: null, position: 0, pictures: null });
   return { a, b2, a1, a2, a3, ba1 };
 }
+
+describe('itemRepo.updated_at', () => {
+  let b: Backend;
+
+  beforeAll(async () => {
+    await initSqlJsOnce();
+  });
+
+  beforeEach(async () => {
+    b = await createBackend();
+  });
+
+  it('stamps updated_at on create', async () => {
+    const list = await b.lists.create({ name: 'A', color: '#22D3EE', icon: 'cart-outline', collection_id: null });
+    const item = await b.items.create({ list_id: list.id, name: 'x', checked: 0, note: null, position: 0, pictures: null });
+    expect(item.updated_at).toBe(dbTimestamp());
+  });
+
+  it('stamps updated_at on update, toggle, reorder and setAllChecked without touching created_at', async () => {
+    const list = await b.lists.create({ name: 'A', color: '#22D3EE', icon: 'cart-outline', collection_id: null });
+    const a1 = await b.items.create({ list_id: list.id, name: 'a1', checked: 0, note: null, position: 0, pictures: null });
+    const a2 = await b.items.create({ list_id: list.id, name: 'a2', checked: 0, note: null, position: 1, pictures: null });
+
+    const db = openDatabaseSync('Listly.db') as unknown as DatabaseHandle;
+    await db.runAsync("UPDATE items SET created_at = '2020-01-01 00:00:00' WHERE id = ?", a1.id);
+
+    await b.items.update(a1.id, { name: 'renamed' });
+    await b.items.toggle(a1.id);
+    await b.items.reorder(list.id, [a2.id, a1.id]);
+    await b.items.setAllChecked(list.id, true);
+
+    const items = await b.items.listByList(list.id);
+    const first = items.find(i => i.id === a1.id);
+    const second = items.find(i => i.id === a2.id);
+    expect(first).toBeDefined();
+    expect(second).toBeDefined();
+    expect(first!.updated_at).toBe(dbTimestamp());
+    expect(second!.updated_at).toBe(dbTimestamp());
+    expect(first!.created_at).toBe('2020-01-01 00:00:00');
+    expect(second!.created_at).toBe(dbTimestamp());
+  });
+});
 
 describe('itemRepo.setAllChecked', () => {
   let b: Backend;

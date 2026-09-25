@@ -11,6 +11,7 @@ function item({ id, ...rest }: Partial<Item> & { id: number }): Item {
     note: null,
     position: 0,
     created_at: 'x',
+    updated_at: 'x',
     pictures: null,
     ...rest,
   };

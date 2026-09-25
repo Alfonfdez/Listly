@@ -95,6 +95,12 @@ export const es: Translations = {
   item_clear_completed_confirm: (count: number) =>
     count === 1 ? '¿Eliminar 1 elemento completado?' : `¿Eliminar ${count} elementos completados?`,
   item_clear_completed_message: 'Los elementos completados se eliminarán permanentemente.',
+  item_sort: 'Ordenar elementos',
+  item_sort_manual: 'Manual',
+  item_sort_name: 'Nombre',
+  item_sort_created: 'Creado',
+  item_sort_asc: 'Ascendente',
+  item_sort_desc: 'Descendente',
   create_list_title: 'Crear lista',
   edit_list_title: 'Editar lista',
   list_edit_label: 'Editar lista',

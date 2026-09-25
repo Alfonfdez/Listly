@@ -33,6 +33,7 @@ const ITEM_ROW = {
   note: null,
   position: 0,
   created_at: '2026-01-01 00:00:00',
+  updated_at: '2026-01-01 00:00:00',
   pictures: null,
 };
 
@@ -42,7 +43,7 @@ function makeSnapshot(overrides: Partial<BackupSnapshot> = {}): BackupSnapshot {
     kind: 'backup',
     formatVersion: BACKUP_FORMAT_VERSION,
     exportedAt: '2026-01-01T00:00:00.000Z',
-    schema: 6,
+    schema: 7,
     data: {
       collections: [],
       lists: [LIST_ROW],
@@ -117,7 +118,7 @@ describe('backup service', () => {
     expect(snapshot.app).toBe('Listly');
     expect(snapshot.kind).toBe('backup');
     expect(snapshot.formatVersion).toBe(BACKUP_FORMAT_VERSION);
-    expect(snapshot.schema).toBe(6);
+    expect(snapshot.schema).toBe(7);
     expect(snapshot.data.lists).toHaveLength(1);
     expect(snapshot.data.items).toHaveLength(1);
 
@@ -192,6 +193,56 @@ describe('backup service', () => {
     const lists = await listRepo.list();
     expect(lists.map(l => l.name)).toEqual(['Groceries']);
     expect(lists[0]?.pinned).toBe(0);
+  });
+
+  it('imports a legacy backup without updated_at defaulting to created_at', async () => {
+    const { listRepo } = await import('../../src/database/repositories/listRepo');
+    const { itemRepo } = await import('../../src/database/repositories/itemRepo');
+    const { importBackup } = await import('../../src/database/backupService');
+
+    const legacy = {
+      app: 'Listly',
+      kind: 'backup',
+      formatVersion: BACKUP_FORMAT_VERSION,
+      exportedAt: '2026-01-01T00:00:00.000Z',
+      schema: 6,
+      data: {
+        collections: [],
+        lists: [
+          {
+            id: 1,
+            name: 'Groceries',
+            color: '#22D3EE',
+            icon: 'cart-outline',
+            collection_id: null,
+            created_at: '2026-01-01 00:00:00',
+            position: 0,
+            pinned: 0,
+          },
+        ],
+        items: [
+          {
+            id: 1,
+            list_id: 1,
+            name: 'Milk',
+            checked: 0,
+            note: null,
+            position: 0,
+            created_at: '2026-05-05 05:05:05',
+            pictures: null,
+          },
+        ],
+        config: [],
+      },
+    } as never;
+
+    await importBackup(JSON.stringify(legacy));
+
+    const list = (await listRepo.list())[0];
+    expect(list).toBeDefined();
+    const items = await itemRepo.listByList(list!.id);
+    expect(items).toHaveLength(1);
+    expect(items[0]?.updated_at).toBe('2026-05-05 05:05:05');
   });
 
   it('rejects a backup from a newer schema version', async () => {

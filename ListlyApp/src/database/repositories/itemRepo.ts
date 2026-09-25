@@ -32,7 +32,7 @@ export const itemRepo = {
     return parseRowOrNull(itemSchema, 'items', row);
   },
 
-  async create(data: Omit<Item, 'id' | 'created_at'>): Promise<Item> {
+  async create(data: Omit<Item, 'id' | 'created_at' | 'updated_at'>): Promise<Item> {
     const db = await getDrizzle();
     const result = await db
       .insert(items)
@@ -45,12 +45,21 @@ export const itemRepo = {
         position: data.position ?? 0,
       })
       .run();
-    return { ...data, id: runResultOf(result).lastInsertRowId, created_at: dbTimestamp() };
+    return {
+      ...data,
+      id: runResultOf(result).lastInsertRowId,
+      created_at: dbTimestamp(),
+      updated_at: dbTimestamp(),
+    };
   },
 
   async reorder(listId: number, orderedIds: number[]): Promise<void> {
     await reorderPositions(orderedIds, (db, id, i) =>
-      db.update(items).set({ position: i }).where(and(eq(items.id, id), eq(items.list_id, listId))).run()
+      db
+        .update(items)
+        .set({ position: i, updated_at: dbTimestamp() })
+        .where(and(eq(items.id, id), eq(items.list_id, listId)))
+        .run()
     );
   },
 
@@ -63,7 +72,7 @@ export const itemRepo = {
     if (data.pictures !== undefined) set.pictures = data.pictures;
     if (data.position !== undefined) set.position = data.position;
     if (Object.keys(set).length === 0) return;
-    await db.update(items).set(set).where(eq(items.id, id)).run();
+    await db.update(items).set({ ...set, updated_at: dbTimestamp() }).where(eq(items.id, id)).run();
   },
 
   async delete(id: number): Promise<void> {
@@ -88,7 +97,7 @@ export const itemRepo = {
     if (!row) return;
     await db
       .update(items)
-      .set({ checked: row.checked === 1 ? 0 : 1 })
+      .set({ checked: row.checked === 1 ? 0 : 1, updated_at: dbTimestamp() })
       .where(eq(items.id, id))
       .run();
   },
@@ -97,7 +106,7 @@ export const itemRepo = {
     const db = await getDrizzle();
     await db
       .update(items)
-      .set({ checked: checked ? 1 : 0 })
+      .set({ checked: checked ? 1 : 0, updated_at: dbTimestamp() })
       .where(eq(items.list_id, listId))
       .run();
   },

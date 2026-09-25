@@ -21,6 +21,15 @@ import { useDragOrder } from '../hooks/useDragOrder';
 import { useLabels } from '../hooks/useLabels';
 import { uniqueNormalizedNames } from '../utils/validation';
 import { filterItemsByQuery } from '../utils/search';
+import {
+  DEFAULT_ITEM_SORT,
+  itemSortValue,
+  parseItemSortValue,
+  sortItems,
+  type ItemSort,
+  type ItemSortValue,
+  type SortDirection,
+} from '../utils/itemSort';
 import { buildListCopyText } from '../utils/copyList';
 import { parseItemPhotos, serializeItemPhotos } from '../utils/itemPhotos';
 import { HIT_SLOP } from '../components/componentStyles';
@@ -35,6 +44,8 @@ import AddItemBar from '../components/AddItemBar';
 import SelectionActionBar from '../components/SelectionActionBar';
 import ConfirmModal from '../components/ConfirmModal';
 import SelectSearchHeader from '../components/SelectSearchHeader';
+import OptionPickerModal from '../components/settings/OptionPickerModal';
+import type { Option } from '../components/settings/SelectorInline';
 
 export default function ListDetailScreen() {
   const route = useRoute<RouteProp<RootStackParamList, 'ListDetail'>>();
@@ -55,6 +66,8 @@ export default function ListDetailScreen() {
   const [copiedAction, setCopiedAction] = useState<'all' | 'names' | null>(null);
   const [clearCompletedVisible, setClearCompletedVisible] = useState(false);
   const copyTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [sort, setSort] = useState<ItemSort>(DEFAULT_ITEM_SORT);
+  const [sortModalVisible, setSortModalVisible] = useState(false);
 
   const {
     selectMode,
@@ -116,13 +129,36 @@ export default function ListDetailScreen() {
   const maxPosition = useMemo(() => items.reduce((max, i) => Math.max(max, i.position), -1) + 1, [items]);
   const filteredItems = useMemo(() => filterItemsByQuery(items, query), [items, query]);
 
-  const { display: displayItems, onDragEnd: handleDragEnd } = useDragOrder(
+  const { display: dragItems, onDragEnd: handleDragEnd } = useDragOrder(
     filteredItems,
     useCallback((ids: number[]) => {
       runSafely(itemRepo.reorder(listId, ids), ERROR_SCOPE.reorderItems);
       void refresh();
     }, [listId, refresh])
   );
+  const sortActive = sort.key !== 'manual';
+  const displayItems = useMemo(
+    () => (sortActive ? sortItems(filteredItems, sort) : dragItems),
+    [sortActive, sort, filteredItems, dragItems]
+  );
+  const sortOptions = useMemo<Option<ItemSortValue>[]>(() => {
+    const directionIcon = (direction: SortDirection) => (
+      <Ionicons name={direction === 'asc' ? 'arrow-up' : 'arrow-down'} size={16} color={c.primary} />
+    );
+    const modeIcon = (name: IconName) => <Ionicons name={name} size={16} color={c.primary} />;
+    return [
+      { value: 'manual', label: labels.item_sort_manual, icon: modeIcon('swap-vertical') },
+      { value: 'name-asc', label: `${labels.item_sort_name} ${labels.item_sort_asc}`, icon: directionIcon('asc') },
+      { value: 'name-desc', label: `${labels.item_sort_name} ${labels.item_sort_desc}`, icon: directionIcon('desc') },
+      { value: 'created-asc', label: `${labels.item_sort_created} ${labels.item_sort_asc}`, icon: directionIcon('asc') },
+      { value: 'created-desc', label: `${labels.item_sort_created} ${labels.item_sort_desc}`, icon: directionIcon('desc') },
+    ];
+  }, [c, labels]);
+  const sortModeLabel =
+    sort.key === 'manual' ? labels.item_sort_manual : sort.key === 'name' ? labels.item_sort_name : labels.item_sort_created;
+  const sortLabel = sortActive
+    ? `${labels.item_sort}: ${sortModeLabel} ${sort.direction === 'asc' ? labels.item_sort_asc : labels.item_sort_desc}`
+    : `${labels.item_sort}: ${labels.item_sort_manual}`;
   const editingExclusiveNames = useMemo(
     () => (editing ? uniqueNormalizedNames(items.filter(i => i.id !== editing.id).map(i => i.name)) : new Set<string>()),
     [items, editing]
@@ -288,7 +324,29 @@ export default function ListDetailScreen() {
         ) : null}
         {header}
         {items.length > 0 && !selectMode && !searchActive ? (
-          <View style={styles.batchRow}>
+          <>
+            <View style={styles.sortRow}>
+              <TouchableOpacity
+                onPress={() => setSortModalVisible(true)}
+                style={[styles.sortButton, { borderColor: sortActive ? c.primary : c.border }]}
+                accessibilityRole="button"
+                accessibilityLabel={sortLabel}
+              >
+                <Ionicons name="swap-vertical" size={16} color={sortActive ? c.primary : c.textSecondary} />
+                <Text style={[styles.batchText, { color: sortActive ? c.primary : c.text, fontSize: fs(13) }]}>
+                  {sortModeLabel}
+                </Text>
+                {sortActive ? (
+                  <Ionicons
+                    name={sort.direction === 'asc' ? 'arrow-up' : 'arrow-down'}
+                    size={14}
+                    color={c.primary}
+                  />
+                ) : null}
+                <Ionicons name="chevron-down" size={14} color={c.textSecondary} />
+              </TouchableOpacity>
+            </View>
+            <View style={styles.batchRow}>
             <TouchableOpacity
               onPress={() => void completeAll()}
               disabled={done === total}
@@ -325,7 +383,8 @@ export default function ListDetailScreen() {
                 {labels.item_clear_completed}
               </Text>
             </TouchableOpacity>
-          </View>
+            </View>
+          </>
         ) : null}
         {displayItems.length === 0 ? (
           noResults ? (
@@ -339,7 +398,7 @@ export default function ListDetailScreen() {
             keyExtractor={item => String(item.id)}
             renderItem={renderItem}
             columns={1}
-            sortEnabled={!selectMode && query === '' && items.length > 1}
+            sortEnabled={!selectMode && query === '' && items.length > 1 && !sortActive}
             rowGap={8}
             onDragEnd={handleDragEnd}
           />
@@ -400,6 +459,17 @@ export default function ListDetailScreen() {
         onConfirm={() => void clearCompleted()}
         destructive
       />
+
+      <OptionPickerModal
+        visible={sortModalVisible}
+        title={labels.item_sort}
+        options={sortOptions}
+        selected={itemSortValue(sort)}
+        cancelLabel={labels.common_cancel}
+        confirmLabel={labels.common_select}
+        onSelect={value => setSort(parseItemSortValue(value))}
+        onClose={() => setSortModalVisible(false)}
+      />
     </ScreenShell>
   );
 }
@@ -428,6 +498,20 @@ const styles = StyleSheet.create({
     gap: 8,
     marginBottom: 12,
     paddingHorizontal: 4,
+  },
+  sortRow: {
+    flexDirection: 'row',
+    marginBottom: 8,
+    paddingHorizontal: 4,
+  },
+  sortButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    borderWidth: 1,
+    borderRadius: 999,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
   },
   batchButton: {
     flexDirection: 'row',

@@ -50,7 +50,7 @@ const LISTS: ListWithCounts[] = [
 ];
 
 function items(names: string[]): Item[] {
-  return names.map((name, i) => ({ id: i + 1, list_id: 1, name, checked: 0, note: null, position: i, created_at: 'x', pictures: null }));
+  return names.map((name, i) => ({ id: i + 1, list_id: 1, name, checked: 0, note: null, position: i, created_at: 'x', updated_at: 'x', pictures: null }));
 }
 
 const nav = { navigate: vi.fn(), setOptions: vi.fn() };
