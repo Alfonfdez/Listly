@@ -4,8 +4,8 @@ import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import Sortable, { type SortableGridRenderItem } from 'react-native-sortables';
 import { useApp } from '../context/AppContext';
 import { useConfig } from '../context/ConfigContext';
-import { collectionRepository as collectionRepo } from '../database';
-import { runSafely, ERROR_SCOPE } from '../utils/errors';
+import { listRepository as listRepo, collectionRepository as collectionRepo } from '../database';
+import { runSafely, logError, ERROR_SCOPE } from '../utils/errors';
 import type { CollectionWithCounts, ListWithCounts } from '../database/types';
 import { useLabels } from '../hooks/useLabels';
 import { useDragOrder } from '../hooks/useDragOrder';
@@ -167,6 +167,44 @@ export default function ListsView({
     },
     [selectMode, onToggleCollection, navigation]
   );
+
+  const selectedListItems = useMemo(
+    () => lists.filter(l => selectedIds.has(l.id)),
+    [lists, selectedIds]
+  );
+
+  const selectedCollectionItems = useMemo(
+    () => collections.filter(col => selectedCollectionIds.has(col.id)),
+    [collections, selectedCollectionIds]
+  );
+
+  const hasPinSelection = selectedListItems.length + selectedCollectionItems.length > 0;
+  const allSelectedPinned = useMemo(
+    () =>
+      hasPinSelection &&
+      selectedListItems.every(l => l.pinned === 1) &&
+      selectedCollectionItems.every(col => col.pinned === 1),
+    [hasPinSelection, selectedListItems, selectedCollectionItems]
+  );
+
+  const handlePinPress = useCallback(() => {
+    if (!hasPinSelection) return;
+    const nextPinned = !allSelectedPinned;
+    const scope = allSelectedPinned ? ERROR_SCOPE.unpinLists : ERROR_SCOPE.pinLists;
+    void (async () => {
+      try {
+        for (const l of selectedListItems) {
+          await listRepo.setPinned(l.id, nextPinned);
+        }
+        for (const col of selectedCollectionItems) {
+          await collectionRepo.setPinned(col.id, nextPinned);
+        }
+        await refresh();
+      } catch (error) {
+        logError(scope, error);
+      }
+    })();
+  }, [hasPinSelection, allSelectedPinned, selectedListItems, selectedCollectionItems, refresh]);
 
   const renderItem = useCallback<SortableGridRenderItem<ListWithCounts>>(
     ({ item }) => {
@@ -380,6 +418,10 @@ export default function ListsView({
             onCancel={onExitSelectMode}
             deleteAccessibilityLabel={labels.select_delete}
             cancelAccessibilityLabel={labels.select_exit_mode}
+            onPin={handlePinPress}
+            pinLabel={allSelectedPinned ? labels.select_unpin : labels.select_pin}
+            pinIcon={allSelectedPinned ? 'star-outline' : 'star'}
+            pinAccessibilityLabel={allSelectedPinned ? labels.select_unpin : labels.select_pin}
           />
         )}
       </View>

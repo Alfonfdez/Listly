@@ -15,9 +15,13 @@ const configRowSchema = z.object({
   value: z.string(),
 });
 
-const backupCollectionSchema = collectionSchema;
+const backupPinnedSchema = z.union([z.literal(0), z.literal(1)]).default(0);
+const backupCollectionSchema = collectionSchema.extend({ pinned: backupPinnedSchema });
 const backupListSchema = listSchema
-  .extend({ collection_id: z.number().int().nullable().optional() })
+  .extend({
+    collection_id: z.number().int().nullable().optional(),
+    pinned: backupPinnedSchema,
+  })
   .transform(value => ({ ...value, collection_id: value.collection_id ?? null }));
 
 const snapshotSchema = z.object({
@@ -93,25 +97,27 @@ export async function applyBackup(db: DatabaseHandle, snapshot: BackupSnapshot):
 
     for (const collection of snapshot.data.collections ?? []) {
       await db.runAsync(
-        'INSERT INTO collections (id, name, color, icon, created_at, position) VALUES (?, ?, ?, ?, ?, ?)',
+        'INSERT INTO collections (id, name, color, icon, created_at, position, pinned) VALUES (?, ?, ?, ?, ?, ?, ?)',
         collection.id,
         collection.name,
         collection.color,
         collection.icon,
         collection.created_at,
-        collection.position
+        collection.position,
+        collection.pinned
       );
     }
 
     for (const list of snapshot.data.lists) {
       await db.runAsync(
-        'INSERT INTO lists (id, name, color, icon, created_at, position, collection_id) VALUES (?, ?, ?, ?, ?, ?, ?)',
+        'INSERT INTO lists (id, name, color, icon, created_at, position, pinned, collection_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
         list.id,
         list.name,
         list.color,
         list.icon,
         list.created_at,
         list.position,
+        list.pinned,
         list.collection_id
       );
     }

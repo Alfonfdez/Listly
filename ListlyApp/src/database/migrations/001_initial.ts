@@ -8,7 +8,8 @@ export async function createSchema(db: DatabaseHandle): Promise<void> {
       color TEXT NOT NULL,
       icon TEXT NOT NULL,
       created_at TEXT NOT NULL DEFAULT (datetime('now', 'localtime')),
-      position INTEGER NOT NULL DEFAULT 0
+      position INTEGER NOT NULL DEFAULT 0,
+      pinned INTEGER NOT NULL DEFAULT 0
     );
 
     CREATE TABLE IF NOT EXISTS lists (
@@ -18,6 +19,7 @@ export async function createSchema(db: DatabaseHandle): Promise<void> {
       icon TEXT NOT NULL,
       created_at TEXT NOT NULL DEFAULT (datetime('now', 'localtime')),
       position INTEGER NOT NULL DEFAULT 0,
+      pinned INTEGER NOT NULL DEFAULT 0,
       collection_id INTEGER,
       FOREIGN KEY (collection_id) REFERENCES collections(id)
     );

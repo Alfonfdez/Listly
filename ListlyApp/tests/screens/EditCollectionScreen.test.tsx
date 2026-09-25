@@ -62,12 +62,13 @@ const COLLECTION: CollectionWithCounts = {
   icon: 'folder-outline',
   created_at: 'x',
   position: 0,
+  pinned: 0,
   total: 5,
   completed: 2,
 };
 
 const LISTS: ListWithCounts[] = [
-  { id: 1, name: 'Groceries', color: '#22D3EE', icon: 'cart-outline', collection_id: 10, created_at: 'x', position: 0, total: 3, completed: 1 },
+  { id: 1, name: 'Groceries', color: '#22D3EE', icon: 'cart-outline', collection_id: 10, created_at: 'x', position: 0, pinned: 0, total: 3, completed: 1 },
 ];
 
 describe('EditCollectionScreen', () => {

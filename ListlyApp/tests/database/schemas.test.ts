@@ -4,7 +4,7 @@ import { DEFAULT_CONFIG, sanitizeConfig } from '../../src/database/configDefault
 import { LANGUAGES } from '../../src/constants/languages';
 import { LIST_LAYOUTS, TEXT_SIZES, THEMES } from '../../src/constants/types';
 
-const VALID_LIST = { id: 1, name: 'Work Tasks', color: '#22D3EE', icon: 'briefcase-outline', created_at: '2026-09-05 08:00:00', position: 0, collection_id: null };
+const VALID_LIST = { id: 1, name: 'Work Tasks', color: '#22D3EE', icon: 'briefcase-outline', created_at: '2026-09-05 08:00:00', position: 0, collection_id: null, pinned: 0 };
 
 describe('schemas', () => {
   describe('listSchema', () => {
@@ -20,6 +20,11 @@ describe('schemas', () => {
     it('rejects a missing required field', () => {
       expect(() => listSchema.parse({ ...VALID_LIST, name: undefined })).toThrow();
       expect(() => listSchema.parse({ ...VALID_LIST, color: undefined })).toThrow();
+    });
+
+    it('rejects pinned values outside 0/1', () => {
+      expect(() => listSchema.parse({ ...VALID_LIST, pinned: 2 })).toThrow();
+      expect(() => listSchema.parse({ ...VALID_LIST, pinned: -1 })).toThrow();
     });
   });
 

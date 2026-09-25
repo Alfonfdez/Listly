@@ -23,21 +23,23 @@ vi.mock('../../src/database', () => ({
   collectionRepository: {
     deleteMany: dbMocks.deleteManyCollections,
     reorder: vi.fn(),
+    setPinned: vi.fn(async () => {}),
   },
   listRepository: {
     deleteMany: dbMocks.deleteManyLists,
     reorder: vi.fn(),
+    setPinned: vi.fn(async () => {}),
   },
   itemRepository: {},
 }));
 
 const LISTS: ListWithCounts[] = [
-  { id: 1, name: 'Groceries', color: '#22D3EE', icon: 'cart-outline', collection_id: null, created_at: 'x', position: 0, total: 5, completed: 2 },
-  { id: 2, name: 'Work Tasks', color: '#34D399', icon: 'briefcase-outline', collection_id: null, created_at: 'x', position: 1, total: 2, completed: 0 },
+  { id: 1, name: 'Groceries', color: '#22D3EE', icon: 'cart-outline', collection_id: null, created_at: 'x', position: 0, pinned: 0, total: 5, completed: 2 },
+  { id: 2, name: 'Work Tasks', color: '#34D399', icon: 'briefcase-outline', collection_id: null, created_at: 'x', position: 1, pinned: 0, total: 2, completed: 0 },
 ];
 
 const COLLECTIONS: CollectionWithCounts[] = [
-  { id: 10, name: 'Shopping', color: '#A855F7', icon: 'folder-outline', created_at: 'x', position: 0, total: 3, completed: 1 },
+  { id: 10, name: 'Shopping', color: '#A855F7', icon: 'folder-outline', created_at: 'x', position: 0, pinned: 0, total: 3, completed: 1 },
 ];
 
 const MEMBER_LIST: ListWithCounts = {
@@ -48,6 +50,7 @@ const MEMBER_LIST: ListWithCounts = {
   collection_id: 10,
   created_at: 'x',
   position: 0,
+  pinned: 0,
   total: 0,
   completed: 0,
 };

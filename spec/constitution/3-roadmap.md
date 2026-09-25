@@ -209,19 +209,20 @@ Batch actions for a list's items, from a toolbar under the List detail header:
 - Spec: spec/features/020-complete-all-and-clear-completed/.
 
 ## 021-pin-favorites
-Status: not started.
+Status: done.
 
 Pin/favorite lists and collections (star) so they stay on top:
-- Planned: pin via the select-mode action bar (star action), star indicator on cards/rows, pinned-first ordering (`pinned DESC, position`).
-- Planned schema (shared migration SCHEMA_VERSION 6): `lists.pinned`, `collections.pinned`.
-- Spec: (not seeded yet).
+- The select-mode action bar gains a star action on Home, Lists, Collections, and Collection detail: **Pin** (`star`) pins every selected list/collection, **Unpin** (`star-outline`) appears when all selected items are already pinned and restores their order; the button is disabled at 0 selected (the icon depicts the result of pressing the button). Runs under `ERROR_SCOPE.pinLists`/`unpinLists`.
+- Pinned lists and collections float to the top of their sections (`pinned DESC, position` ordering via `listRepo.setPinned`/`collectionRepo.setPinned`) and show an amber `star` indicator (theme token `c.star`, a11y `home_pinned`) next to the name on grid cards and rows, hidden in select mode.
+- Schema: `lists.pinned`, `collections.pinned` (`SCHEMA_VERSION 6`); backup includes the flags and old schema-5 backups import with everything unpinned.
+- Spec: spec/features/021-pin-favorites/.
 
 ## 022-item-sorting
 Status: not started.
 
 Per-list sort toggle on List detail (Manual → Name → Created) with a direction arrow, kept in local state (not a settings option):
 - Planned: pure `itemSort.ts` comparator; non-manual modes disable drag-reorder and render the sorted list.
-- Planned schema (shared migration SCHEMA_VERSION 6): `items.updated_at` tracked for future use.
+- Planned schema (shared migration SCHEMA_VERSION 7): `items.updated_at` tracked for future use (deferred from 021).
 - Spec: (not seeded yet).
 
 ## Future scope (not scheduled)

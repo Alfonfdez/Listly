@@ -49,9 +49,14 @@ function ListRowInner({ list, collection, selectMode, selected, onPress }: Props
         ) : null}
       </View>
       <View style={styles.nameColumn}>
-        <Text style={[styles.name, { color: c.text, fontSize: fs(15) }]} numberOfLines={1}>
-          {list.name}
-        </Text>
+        <View style={styles.nameRow}>
+          <Text style={[styles.name, { color: c.text, fontSize: fs(15) }]} numberOfLines={1}>
+            {list.name}
+          </Text>
+          {list.pinned === 1 && !selectMode ? (
+            <Ionicons name="star" size={13} color={c.star} accessibilityLabel={labels.home_pinned} />
+          ) : null}
+        </View>
         {collection && !selectMode ? (
           <View style={styles.collectionRow}>
             <Ionicons name={ICONS.collection} size={12} color={collection.color} />
@@ -101,9 +106,15 @@ const styles = StyleSheet.create({
   },
   name: {
     fontWeight: '600',
+    flexShrink: 1,
   },
   nameColumn: {
     flex: 1,
+  },
+  nameRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
   },
   collectionRow: {
     flexDirection: 'row',

@@ -177,6 +177,9 @@ export const en = {
   select_delete_items_confirm: (n: number) => `Delete ${n} item${n === 1 ? '' : 's'}?`,
   select_delete_lists_message: 'The selected lists and their items will be permanently deleted.',
   select_delete_items_message: 'The selected items will be permanently deleted.',
+  select_pin: 'Pin',
+  select_unpin: 'Unpin',
+  home_pinned: 'Pinned',
 };
 
 export type Translations = typeof en;

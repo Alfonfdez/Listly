@@ -62,6 +62,7 @@ const LIST: ListWithCounts = {
   collection_id: null,
   created_at: 'x',
   position: 0,
+  pinned: 0,
   total: 5,
   completed: 2,
 };
@@ -74,6 +75,7 @@ const OTHER: ListWithCounts = {
   collection_id: null,
   created_at: 'x',
   position: 1,
+  pinned: 0,
   total: 2,
   completed: 0,
 };

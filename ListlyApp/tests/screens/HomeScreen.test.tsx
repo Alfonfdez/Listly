@@ -17,10 +17,12 @@ vi.mock('../../src/context/AppContext', () => ({
 vi.mock('../../src/database', () => ({
   listRepository: {
     deleteMany: vi.fn(async () => {}),
+    setPinned: vi.fn(async () => {}),
   },
   itemRepository: {},
   collectionRepository: {
     deleteMany: vi.fn(async () => {}),
+    setPinned: vi.fn(async () => {}),
   },
 }));
 
@@ -43,8 +45,8 @@ vi.mock('../../src/hooks/useSelectMode', () => ({
 }));
 
 const LISTS: ListWithCounts[] = [
-  { id: 1, name: 'Groceries', color: '#22D3EE', icon: 'cart-outline', collection_id: null, created_at: 'x', position: 0, total: 5, completed: 2 },
-  { id: 2, name: 'Work Tasks', color: '#34D399', icon: 'briefcase-outline', collection_id: null, created_at: 'x', position: 1, total: 2, completed: 0 },
+  { id: 1, name: 'Groceries', color: '#22D3EE', icon: 'cart-outline', collection_id: null, created_at: 'x', position: 0, pinned: 0, total: 5, completed: 2 },
+  { id: 2, name: 'Work Tasks', color: '#34D399', icon: 'briefcase-outline', collection_id: null, created_at: 'x', position: 1, pinned: 0, total: 2, completed: 0 },
 ];
 
 function items(names: string[]): Item[] {

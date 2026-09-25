@@ -1,4 +1,4 @@
-import { and, eq, inArray, ne, sql, type SQL } from 'drizzle-orm';
+import { and, desc, eq, inArray, ne, sql, type SQL } from 'drizzle-orm';
 import { getDrizzle, withTransaction } from '../drizzle/engine';
 import { collections, items, lists } from '../drizzle/schema';
 import { runResultOf } from '../drizzle/proxy';
@@ -9,12 +9,12 @@ import { dbTimestamp } from '../../utils/formatters';
 import { COLLECTION_DELETE_MODES, type CollectionDeleteMode } from '../../constants/types';
 import { countsSelection, deletePhotosOfLists, nextPositionSql, reorderPositions } from './shared';
 
-export type NewCollection = Omit<Collection, 'id' | 'created_at' | 'position'>;
+export type NewCollection = Omit<Collection, 'id' | 'created_at' | 'position' | 'pinned'>;
 
 export const collectionRepo = {
   async list(): Promise<Collection[]> {
     const db = await getDrizzle();
-    const rows = await db.select().from(collections).orderBy(collections.position, collections.id).all();
+    const rows = await db.select().from(collections).orderBy(desc(collections.pinned), collections.position, collections.id).all();
     return parseRows(collectionSchema, 'collections', rows);
   },
 
@@ -40,13 +40,18 @@ export const collectionRepo = {
         position,
       })
       .run();
-    return { ...data, id: runResultOf(result).lastInsertRowId, created_at: dbTimestamp(), position };
+    return { ...data, id: runResultOf(result).lastInsertRowId, created_at: dbTimestamp(), position, pinned: 0 };
   },
 
   async reorder(orderedIds: number[]): Promise<void> {
     await reorderPositions(orderedIds, (db, id, i) =>
       db.update(collections).set({ position: i }).where(eq(collections.id, id)).run()
     );
+  },
+
+  async setPinned(id: number, pinned: boolean): Promise<void> {
+    const db = await getDrizzle();
+    await db.update(collections).set({ pinned: pinned ? 1 : 0 }).where(eq(collections.id, id)).run();
   },
 
   async update(id: number, data: Partial<Omit<NewCollection, 'id' | 'created_at'>>): Promise<void> {
@@ -110,13 +115,14 @@ export const collectionRepo = {
         icon: collections.icon,
         created_at: collections.created_at,
         position: collections.position,
+        pinned: collections.pinned,
         ...countsSelection,
       })
       .from(collections)
       .leftJoin(lists, eq(lists.collection_id, collections.id))
       .leftJoin(items, eq(items.list_id, lists.id))
       .groupBy(collections.id)
-      .orderBy(collections.position, collections.id)
+      .orderBy(desc(collections.pinned), collections.position, collections.id)
       .all();
   },
 

@@ -45,9 +45,14 @@ function ListCardInner({ list, collection, selectMode, selected, onPress, reserv
       {selectMode ? <SelectionCheck selected={selected} style={styles.check} iconSize={14} /> : null}
       {!selectMode ? <TypeBadge type="list" style={styles.typeBadge} /> : null}
       <Ionicons name={list.icon as IconName} size={28} color={list.color} />
-      <Text style={[styles.name, { color: c.text, fontSize: fs(14) }]} numberOfLines={1}>
-        {list.name}
-      </Text>
+      <View style={styles.nameRow}>
+        <Text style={[styles.name, { color: c.text, fontSize: fs(14) }]} numberOfLines={1}>
+          {list.name}
+        </Text>
+        {list.pinned === 1 && !selectMode ? (
+          <Ionicons name="star" size={14} color={c.star} accessibilityLabel={labels.home_pinned} />
+        ) : null}
+      </View>
       {(collection || reserveCollectionLine) && !selectMode ? (
         <View style={[styles.collectionRow, !collection && styles.collectionRowHidden]}>
           <Ionicons name={ICONS.collection} size={12} color={collection?.color ?? c.textSecondary} />
@@ -90,6 +95,13 @@ const styles = StyleSheet.create({
   },
   name: {
     fontWeight: '600',
+    flexShrink: 1,
+  },
+  nameRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    alignSelf: 'stretch',
   },
   collectionRow: {
     flexDirection: 'row',

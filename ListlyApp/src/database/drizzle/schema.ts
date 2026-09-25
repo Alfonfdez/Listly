@@ -8,6 +8,7 @@ export const collections = sqliteTable('collections', {
   icon: text('icon').notNull(),
   created_at: text('created_at').notNull().default(sql`(datetime('now', 'localtime'))`),
   position: integer('position').notNull().default(0),
+  pinned: integer('pinned').notNull().default(0).$type<0 | 1>(),
 });
 
 export const lists = sqliteTable('lists', {
@@ -17,6 +18,7 @@ export const lists = sqliteTable('lists', {
   icon: text('icon').notNull(),
   created_at: text('created_at').notNull().default(sql`(datetime('now', 'localtime'))`),
   position: integer('position').notNull().default(0),
+  pinned: integer('pinned').notNull().default(0).$type<0 | 1>(),
   collection_id: integer('collection_id').references(() => collections.id),
 });
 
