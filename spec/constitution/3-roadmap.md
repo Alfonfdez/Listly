@@ -227,6 +227,32 @@ Per-list sort toggle on List detail (Manual → Name → Created) with a directi
 - i18n en/es keys `item_sort*`. Verified on web at 375px (all sort modes, search retention, drag persistence, reset-to-Manual, Spanish labels).
 - Spec: spec/features/022-item-sorting/.
 
+## 023-copy-lists
+Status: pending.
+
+Copy a list's data into the app (beyond the feature-017 clipboard copy):
+- *Duplicate list*: Edit List gains a *Duplicate list* button opening the create flow pre-filled as an editable draft (`"<Name> copy"`, same icon/color); Save creates the list and copies its items in one transaction.
+- *Copy items into another list*: a third compact header action on List detail (hidden when empty) opens a shared `ListPickerModal` (excludes the current list) and appends a full-fidelity copy of the items (name, note, checked, pictures; fresh timestamps; photos shared by reference; duplicates allowed).
+- Repo: `itemRepo.duplicateItems(sourceListId, targetListId)` + a transactional duplicate-list path; no schema change (`SCHEMA_VERSION` 7).
+- Spec: spec/features/023-copy-lists/.
+
+## 024-move-list-between-collections
+Status: pending.
+
+Assign / move a list between collections (and back to standalone) from Edit List, complementing drag-in/drag-out:
+- A *Collection* selector row opens a `CollectionPickerModal` (all collections + *Standalone / No collection*, current selection checked); the move applies on Save via `listRepo.moveToCollection` / `listRepo.removeFromCollection` (append at destination's end, parity with drag) only when the selection changed.
+- No schema or repo change (`SCHEMA_VERSION` 7).
+- Spec: spec/features/024-move-list-between-collections/.
+
+## 025-merge-lists
+Status: pending.
+
+Merge one list into another:
+- A *Merge into…* action on the source list detail (visible when the list has items) opens `ListPickerModal` (excludes self), then a destructive confirmation ("Merge N items into <Target> and delete <Source>?").
+- `itemRepo.mergeInto(sourceId, targetId)` transactionally appends a full-fidelity copy of the source's items to the target, deletes the source (with photo cleanup), and rolls back on failure; after merging the app navigates to the target with a toast.
+- No schema change (`SCHEMA_VERSION` 7).
+- Spec: spec/features/025-merge-lists/.
+
 ## Future scope (not scheduled)
 - Tags, due dates, subtasks, recurring items.
 - List templates and sharing.
