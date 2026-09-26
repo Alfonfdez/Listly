@@ -114,8 +114,8 @@ const LIST: ListWithCounts = {
 };
 
 const ITEMS: Item[] = [
-  { id: 1, list_id: 1, name: 'Milk', checked: 1, note: null, position: 0, created_at: 'x', pictures: null },
-  { id: 2, list_id: 1, name: 'Eggs', checked: 0, note: 'free-range', position: 1, created_at: 'x', pictures: null },
+  { id: 1, list_id: 1, name: 'Milk', checked: 1, note: null, position: 0, created_at: 'x', updated_at: 'x', pictures: null },
+  { id: 2, list_id: 1, name: 'Eggs', checked: 0, note: 'free-range', position: 1, created_at: 'x', updated_at: 'x', pictures: null },
 ];
 
 describe('ListDetailScreen', () => {
@@ -589,6 +589,113 @@ it('disables reordering while searching', async () => {
     });
     await waitFor(() => expect(view.getByPlaceholderText('Search items...').props.value).toBe('Milk'));
     expect(lastGrid()?.sortEnabled).toBe(false);
+  });
+
+  it('shows the sort control when the list has items and hides it when empty', async () => {
+    const view = await render(<ListDetailScreen />);
+    await view.findByText('Milk');
+    expect(view.getByLabelText('Sort items: Manual')).toBeTruthy();
+
+    setItemsByListId(new Map([[1, []]]));
+    const empty = await render(<ListDetailScreen />);
+    await empty.findByText('No items yet');
+    expect(empty.queryByLabelText(/Sort items/)).toBeNull();
+  });
+
+  it('hides the sort control while searching', async () => {
+    const view = await render(<ListDetailScreen />);
+    await view.findByText('Milk');
+    expect(view.getByLabelText('Sort items: Manual')).toBeTruthy();
+
+    const opts = lastHeaderRight() as { headerRight?: () => ReactElement } | undefined;
+    const headerTree = await render(opts!.headerRight!());
+    fireEvent.press(headerTree.getByLabelText('Search'));
+    await view.findByPlaceholderText('Search items...', {}, { timeout: 2000 });
+    expect(view.queryByLabelText(/Sort items/)).toBeNull();
+  });
+
+  it('sorts items by name ascending from the picker and disables drag', async () => {
+    const user = userEvent.setup();
+    const view = await render(<ListDetailScreen />);
+    await view.findByText('Milk');
+    expect(lastGrid()?.data?.map(i => (i as Item).name)).toEqual(['Milk', 'Eggs']);
+
+    await user.press(view.getByLabelText('Sort items: Manual'));
+    await user.press(await view.findByLabelText('Name Ascending'));
+    await user.press(await view.findByLabelText('Select'));
+
+    await waitFor(() =>
+      expect(view.getAllByText(/^(Milk|Eggs)$/).map(n => n.props.children as string)).toEqual(['Eggs', 'Milk'])
+    );
+    expect(view.getByLabelText('Sort items: Name Ascending')).toBeTruthy();
+  });
+
+  it('sorts items by created descending from the picker', async () => {
+    const orderedItems: Item[] = [
+      { ...ITEMS[0], name: 'Old', created_at: '2020-01-01 00:00:00' },
+      { ...ITEMS[1], name: 'New', created_at: '2026-01-01 00:00:00' },
+    ];
+    setItemsByListId(new Map([[1, orderedItems]]));
+    const user = userEvent.setup();
+    const view = await render(<ListDetailScreen />);
+    await view.findByText('Old');
+
+    await user.press(view.getByLabelText('Sort items: Manual'));
+    await user.press(await view.findByLabelText('Created Descending'));
+    await user.press(await view.findByLabelText('Select'));
+
+    await waitFor(() => expect(view.getByLabelText('Sort items: Created Descending')).toBeTruthy());
+    await waitFor(() =>
+      expect(view.getAllByText(/^(Old|New)$/).map(n => n.props.children as string)).toEqual(['New', 'Old'])
+    );
+  });
+
+  it('restores manual order and drag after picking Manual', async () => {
+    const user = userEvent.setup();
+    const view = await render(<ListDetailScreen />);
+    await view.findByText('Milk');
+
+    await user.press(view.getByLabelText('Sort items: Manual'));
+    await user.press(await view.findByLabelText('Name Ascending'));
+    await user.press(await view.findByLabelText('Select'));
+    await waitFor(() =>
+      expect(view.getAllByText(/^(Milk|Eggs)$/).map(n => n.props.children as string)).toEqual(['Eggs', 'Milk'])
+    );
+
+    await user.press(view.getByLabelText('Sort items: Name Ascending'));
+    await user.press(await view.findByLabelText('Manual'));
+    await user.press(await view.findByLabelText('Select'));
+
+    await waitFor(() =>
+      expect(view.getAllByText(/^(Milk|Eggs)$/).map(n => n.props.children as string)).toEqual(['Milk', 'Eggs'])
+    );
+    expect(view.getByLabelText('Sort items: Manual')).toBeTruthy();
+  });
+
+  it('keeps an active sort applied to search results', async () => {
+    const orderedItems: Item[] = [
+      { ...ITEMS[0], name: 'Old', created_at: '2020-01-01 00:00:00' },
+      { ...ITEMS[1], name: 'New', created_at: '2026-01-01 00:00:00' },
+    ];
+    setItemsByListId(new Map([[1, orderedItems]]));
+    const user = userEvent.setup();
+    const view = await render(<ListDetailScreen />);
+    await view.findByText('Old');
+
+    await user.press(view.getByLabelText('Sort items: Manual'));
+    await user.press(await view.findByLabelText('Created Descending'));
+    await user.press(await view.findByLabelText('Select'));
+    await waitFor(() => expect(view.getByLabelText('Sort items: Created Descending')).toBeTruthy());
+
+    const opts = lastHeaderRight() as { headerRight?: () => ReactElement } | undefined;
+    const headerTree = await render(opts!.headerRight!());
+    fireEvent.press(headerTree.getByLabelText('Search'));
+    const searchInput = await view.findByPlaceholderText('Search items...', {}, { timeout: 2000 });
+    await act(async () => {
+      searchInput.props.onChangeText('New');
+    });
+    await waitFor(() => expect(view.getAllByText(/^(Old|New)$/).map(n => n.props.children as string)).toEqual(['New']));
+    expect(view.queryByLabelText(/Sort items/)).toBeNull();
   });
 });
 

@@ -37,6 +37,7 @@ export const itemSchema = z.object({
   note: z.string().nullable(),
   position: z.number().int(),
   created_at: z.string(),
+  updated_at: z.string(),
   pictures: z.string().nullable(),
 });
 

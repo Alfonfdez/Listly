@@ -1,4 +1,4 @@
-import React, { Fragment, type ElementType, type ReactNode } from 'react';
+import React, { Fragment, useLayoutEffect, type ElementType, type ReactNode } from 'react';
 import { Pressable, View } from 'react-native';
 
 interface GridProps {
@@ -18,7 +18,9 @@ let lastGridProps: GridProps | null = null;
 
 const Grid = (props: GridProps) => {
   const { data = [], renderItem, keyExtractor, children = null } = props;
-  lastGridProps = props;
+  useLayoutEffect(() => {
+    lastGridProps = props;
+  });
   return renderItem
     ? React.createElement(
         Fragment,
@@ -55,8 +57,10 @@ interface ZoneHandlersProps {
 let lastZoneHandlerProps: ZoneHandlersProps[] = [];
 
 const BaseZone = (props: ZoneHandlersProps) => {
-  lastZoneHandlerProps.push(props);
   const { children, onItemEnter, onItemLeave, onItemDrop, minActivationDistance, ...viewProps } = props;
+  useLayoutEffect(() => {
+    lastZoneHandlerProps.push(props);
+  });
   void onItemEnter;
   void onItemLeave;
   void onItemDrop;

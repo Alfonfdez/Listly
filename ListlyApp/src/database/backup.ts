@@ -24,6 +24,11 @@ const backupListSchema = listSchema
   })
   .transform(value => ({ ...value, collection_id: value.collection_id ?? null }));
 
+const backupItemSchema = itemSchema.extend({ updated_at: z.string().optional() }).transform(value => ({
+  ...value,
+  updated_at: value.updated_at ?? value.created_at,
+}));
+
 const snapshotSchema = z.object({
   app: z.literal('Listly'),
   kind: z.literal('backup'),
@@ -33,7 +38,7 @@ const snapshotSchema = z.object({
   data: z.object({
     collections: z.array(backupCollectionSchema).optional().default([]),
     lists: z.array(backupListSchema),
-    items: z.array(itemSchema),
+    items: z.array(backupItemSchema),
     config: z.array(configRowSchema),
   }),
 });
@@ -124,7 +129,7 @@ export async function applyBackup(db: DatabaseHandle, snapshot: BackupSnapshot):
 
     for (const item of snapshot.data.items) {
       await db.runAsync(
-        'INSERT INTO items (id, list_id, name, checked, note, position, created_at, pictures) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+        'INSERT INTO items (id, list_id, name, checked, note, position, created_at, updated_at, pictures) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
         item.id,
         item.list_id,
         item.name,
@@ -132,6 +137,7 @@ export async function applyBackup(db: DatabaseHandle, snapshot: BackupSnapshot):
         item.note,
         item.position,
         item.created_at,
+        item.updated_at,
         item.pictures
       );
     }

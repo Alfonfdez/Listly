@@ -9,7 +9,7 @@ const LISTS: ListWithCounts[] = [
 ];
 
 function item(name: string): Item {
-  return { id: 0, list_id: 0, name, checked: 0, note: null, position: 0, created_at: 'x', pictures: null };
+  return { id: 0, list_id: 0, name, checked: 0, note: null, position: 0, created_at: 'x', updated_at: 'x', pictures: null };
 }
 
 const ITEMS: Map<number, Item[]> = new Map([

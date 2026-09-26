@@ -1,7 +1,7 @@
 import type { Config, Item, List, ListWithCounts } from '../../src/database/types';
 
 export type NewList = Omit<List, 'id' | 'created_at' | 'position' | 'pinned'>;
-export type NewItem = Omit<Item, 'id' | 'created_at'>;
+export type NewItem = Omit<Item, 'id' | 'created_at' | 'updated_at'>;
 export type UpdateList = Partial<Omit<List, 'id' | 'created_at'>>;
 export type UpdateItem = Partial<Omit<Item, 'id' | 'created_at'>>;
 

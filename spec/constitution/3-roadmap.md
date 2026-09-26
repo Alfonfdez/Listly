@@ -218,12 +218,14 @@ Pin/favorite lists and collections (star) so they stay on top:
 - Spec: spec/features/021-pin-favorites/.
 
 ## 022-item-sorting
-Status: not started.
+Status: done.
 
 Per-list sort toggle on List detail (Manual → Name → Created) with a direction arrow, kept in local state (not a settings option):
-- Planned: pure `itemSort.ts` comparator; non-manual modes disable drag-reorder and render the sorted list.
-- Planned schema (shared migration SCHEMA_VERSION 7): `items.updated_at` tracked for future use (deferred from 021).
-- Spec: (not seeded yet).
+- A bounded pill (`swap-vertical` + mode label + direction arrow + `chevron-down`) in its own row above the batch toolbar opens the shared `OptionPickerModal` with five one-tap options (Manual, Name asc/desc, Created asc/desc); the pill is primary-tinted and drag-reorder is disabled in non-manual modes.
+- Pure `src/utils/itemSort.ts` (`sortItems` stable, case-insensitive numeric-aware `localeCompare` for name, lexicographic for `created_at`); search keeps the active sort applied to filtered results; the choice resets to Manual on re-entry.
+- Schema `SCHEMA_VERSION 7`: `items.updated_at` added to DDL/Drizzle/Zod, stamped on create/update/toggle/setAllChecked/reorder; backup round-trips it and leniently defaults it to `created_at` for schema-6 imports.
+- i18n en/es keys `item_sort*`. Verified on web at 375px (all sort modes, search retention, drag persistence, reset-to-Manual, Spanish labels).
+- Spec: spec/features/022-item-sorting/.
 
 ## Future scope (not scheduled)
 - Tags, due dates, subtasks, recurring items.
