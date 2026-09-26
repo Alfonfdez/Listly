@@ -2,11 +2,12 @@ import { describe, expect, it, beforeEach, vi } from 'vitest';
 import { render, userEvent, waitFor } from '@testing-library/react-native';
 import type { ReactNode } from 'react';
 import CreateListScreen from '../../src/screens/CreateListScreen';
-import { buildAppMock, resetAppStub } from '../helpers/appStub';
+import { buildAppMock, resetAppStub, setLists } from '../helpers/appStub';
 import { resetStub } from '../helpers/configStub';
 import { LIST_ICONS } from '../../src/constants/listIcons';
 import { QUICK_COLORS } from '../../src/constants/listColors';
 import { MAX_LIST_NAME_LENGTH } from '../../src/constants/types';
+import type { ListWithCounts } from '../../src/database/types';
 
 interface PickerProps {
   value?: string;
@@ -35,6 +36,7 @@ const { listRepositoryMock } = vi.hoisted(() => ({
   listRepositoryMock: {
     existsByName: vi.fn(),
     create: vi.fn(),
+    duplicate: vi.fn(),
   },
 }));
 
@@ -47,22 +49,39 @@ vi.mock('../../src/context/AppContext', () => ({
   AppProvider: ({ children }: { children: ReactNode }) => children as ReactNode,
 }));
 
-const nav = { goBack: vi.fn() };
+const nav = { goBack: vi.fn(), replace: vi.fn() };
+const routeParams = {} as Record<string, unknown>;
 
 vi.mock('@react-navigation/native', () => ({
   useNavigation: () => nav,
-  useRoute: () => ({ params: { collectionId: undefined } }),
+  useRoute: () => ({ params: routeParams }),
 }));
 
 const DEBOUNCE_WAIT = 350;
+
+const SOURCE: ListWithCounts = {
+  id: 1,
+  name: 'Groceries',
+  color: '#22D3EE',
+  icon: 'cart-outline',
+  collection_id: null,
+  created_at: 'x',
+  position: 0,
+  pinned: 0,
+  total: 3,
+  completed: 1,
+};
 
 describe('CreateListScreen', () => {
   beforeEach(() => {
     resetStub();
     resetAppStub();
+    Object.keys(routeParams).forEach(key => delete routeParams[key]);
     nav.goBack.mockClear();
+    nav.replace.mockClear();
     listRepositoryMock.existsByName.mockReset();
     listRepositoryMock.create.mockReset();
+    listRepositoryMock.duplicate.mockReset();
     listRepositoryMock.existsByName.mockResolvedValue(false);
     listRepositoryMock.create.mockResolvedValue({
       id: 7,
@@ -71,6 +90,15 @@ describe('CreateListScreen', () => {
       icon: LIST_ICONS[0],
       created_at: 'x',
       position: 6,
+    });
+    listRepositoryMock.duplicate.mockResolvedValue({
+      id: 9,
+      name: 'Groceries copy',
+      color: '#22D3EE',
+      icon: 'cart-outline',
+      collection_id: null,
+      created_at: 'x',
+      position: 1,
     });
   });
 
@@ -171,5 +199,70 @@ describe('CreateListScreen', () => {
     await user.press(view.getByLabelText('Cancel'));
     expect(view.queryByLabelText('#123456')).toBeNull();
     expect(view.getByLabelText(QUICK_COLORS[0]).props.accessibilityState.selected).toBe(true);
+  });
+
+  it('prefills the form from the source list in duplicate mode', async () => {
+    routeParams.duplicateFromListId = 1;
+    setLists([SOURCE]);
+    const view = await render(<CreateListScreen />);
+    expect(view.getByLabelText('Name').props.value).toBe('Groceries copy');
+    expect(view.getByLabelText('cart-outline').props.accessibilityState.selected).toBe(true);
+    expect(view.getByLabelText('#22D3EE').props.accessibilityState.selected).toBe(true);
+  });
+
+  it('duplicates the source list with the pre-filled details on Save, then opens it', async () => {
+    const user = userEvent.setup();
+    routeParams.duplicateFromListId = 1;
+    setLists([SOURCE]);
+    const view = await render(<CreateListScreen />);
+    await new Promise(resolve => setTimeout(resolve, DEBOUNCE_WAIT));
+    await user.press(view.getByLabelText('Create'));
+
+    await waitFor(() =>
+      expect(listRepositoryMock.duplicate).toHaveBeenCalledWith(1, {
+        name: 'Groceries copy',
+        color: '#22D3EE',
+        icon: 'cart-outline',
+        collection_id: null,
+      })
+    );
+    expect(nav.replace).toHaveBeenCalledWith('ListDetail', { listId: 9 });
+  });
+
+  it('duplicates a collection list keeping its collection', async () => {
+    const user = userEvent.setup();
+    routeParams.duplicateFromListId = 1;
+    setLists([{ ...SOURCE, collection_id: 5 }]);
+    const view = await render(<CreateListScreen />);
+    await new Promise(resolve => setTimeout(resolve, DEBOUNCE_WAIT));
+    await user.press(view.getByLabelText('Create'));
+
+    await waitFor(() =>
+      expect(listRepositoryMock.duplicate).toHaveBeenCalledWith(1, {
+        name: 'Groceries copy',
+        color: '#22D3EE',
+        icon: 'cart-outline',
+        collection_id: 5,
+      })
+    );
+  });
+
+  it('without duplicateFromListId it uses the normal create flow', async () => {
+    const user = userEvent.setup();
+    setLists([{ ...SOURCE, collection_id: 5 }]);
+    const view = await render(<CreateListScreen />);
+    await user.type(view.getByLabelText('Name'), 'Weekend');
+    await new Promise(resolve => setTimeout(resolve, DEBOUNCE_WAIT));
+    await user.press(view.getByLabelText('Create'));
+
+    await waitFor(() =>
+      expect(listRepositoryMock.create).toHaveBeenCalledWith({
+        name: 'Weekend',
+        color: QUICK_COLORS[0],
+        icon: LIST_ICONS[0],
+      })
+    );
+    expect(listRepositoryMock.duplicate).not.toHaveBeenCalled();
+    expect(nav.goBack).toHaveBeenCalled();
   });
 });

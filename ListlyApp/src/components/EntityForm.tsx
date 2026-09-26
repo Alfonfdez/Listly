@@ -32,6 +32,8 @@ interface Props<TError extends StringTranslationKey> {
   existsByName: (name: string, excludeId?: number) => Promise<boolean>;
   deleteLabel?: string;
   onDelete?: () => void;
+  middleLabel?: string;
+  onMiddle?: () => void;
   onSubmit: (data: { name: string; icon: IconName; color: string }) => Promise<void>;
 }
 
@@ -50,6 +52,8 @@ export default function EntityForm<TError extends StringTranslationKey>({
   existsByName,
   deleteLabel,
   onDelete,
+  middleLabel,
+  onMiddle,
   onSubmit,
 }: Props<TError>) {
   const { activeColors: c } = useConfig();
@@ -159,6 +163,23 @@ export default function EntityForm<TError extends StringTranslationKey>({
         </Pressable>
       ) : null}
 
+      {middleLabel && onMiddle ? (
+        <Pressable
+          onPress={onMiddle}
+          style={({ pressed }) => [
+            styles.middleButton,
+            { borderColor: c.primary, marginTop: deleteLabel && onDelete ? 16 : 28 },
+            pressed && styles.pressed,
+          ]}
+          accessibilityRole="button"
+          accessibilityLabel={middleLabel}
+        >
+          <Text style={[styles.middleButtonText, { color: c.primary, fontSize: fs(15) }]}>
+            {middleLabel}
+          </Text>
+        </Pressable>
+      ) : null}
+
       <Pressable
         style={({ pressed }) => [
           styles.createButton,
@@ -202,6 +223,15 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   deleteButtonText: {
+    fontWeight: '600',
+  },
+  middleButton: {
+    borderRadius: BUTTON_BORDER_RADIUS,
+    borderWidth: 1,
+    paddingVertical: 12,
+    alignItems: 'center',
+  },
+  middleButtonText: {
     fontWeight: '600',
   },
   createButtonText: {

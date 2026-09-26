@@ -228,11 +228,11 @@ Per-list sort toggle on List detail (Manual → Name → Created) with a directi
 - Spec: spec/features/022-item-sorting/.
 
 ## 023-copy-lists
-Status: pending.
+Status: done.
 
 Copy a list's data into the app (beyond the feature-017 clipboard copy):
 - *Duplicate list*: Edit List gains a *Duplicate list* button opening the create flow pre-filled as an editable draft (`"<Name> copy"`, same icon/color); Save creates the list and copies its items in one transaction.
-- *Copy items into another list*: a third compact header action on List detail (hidden when empty) opens a shared `ListPickerModal` (excludes the current list) and appends a full-fidelity copy of the items (name, note, checked, pictures; fresh timestamps; photos shared by reference; duplicates allowed).
+- *Copy items into another list*: a third compact header action on List detail (hidden when empty) opens a shared `ListPickerModal` (excludes the current list) and appends a full-fidelity copy of the items (name, note, checked, pictures; fresh timestamps; photos shared by reference; same-name items already in the target are skipped — case-insensitive dedupe, target items never modified, positions stay contiguous).
 - Repo: `itemRepo.duplicateItems(sourceListId, targetListId)` + a transactional duplicate-list path; no schema change (`SCHEMA_VERSION` 7).
 - Spec: spec/features/023-copy-lists/.
 
@@ -249,7 +249,7 @@ Status: pending.
 
 Merge one list into another:
 - A *Merge into…* action on the source list detail (visible when the list has items) opens `ListPickerModal` (excludes self), then a destructive confirmation ("Merge N items into <Target> and delete <Source>?").
-- `itemRepo.mergeInto(sourceId, targetId)` transactionally appends a full-fidelity copy of the source's items to the target, deletes the source (with photo cleanup), and rolls back on failure; after merging the app navigates to the target with a toast.
+- `itemRepo.mergeInto(sourceId, targetId)` transactionally appends a full-fidelity copy of the source's items to the target (same case-insensitive name-dedupe rule as 023: same-name items already in the target are skipped and the target item is never modified), deletes the source (with photo cleanup), and rolls back on failure; after merging the app navigates to the target with a toast.
 - No schema change (`SCHEMA_VERSION` 7).
 - Spec: spec/features/025-merge-lists/.
 

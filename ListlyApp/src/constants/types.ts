@@ -60,7 +60,7 @@ export type RootStackParamList = {
   Lists: undefined;
   Collections: undefined;
   ListDetail: { listId: number };
-  CreateList: { collectionId?: number } | undefined;
+  CreateList: { collectionId?: number; duplicateFromListId?: number } | undefined;
   EditList: { listId: number };
   CollectionDetail: { collectionId: number };
   CreateCollection: undefined;

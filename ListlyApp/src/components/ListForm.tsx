@@ -14,6 +14,8 @@ interface Props {
   initialCollectionId?: number | null;
   deleteLabel?: string;
   onDelete?: () => void;
+  middleLabel?: string;
+  onMiddle?: () => void;
   onSubmit: (data: {
     name: string;
     icon: IconName;
@@ -31,6 +33,8 @@ export default function ListForm({
   initialCollectionId,
   deleteLabel,
   onDelete,
+  middleLabel,
+  onMiddle,
   onSubmit,
 }: Props) {
   const labels = useLabels();
@@ -57,6 +61,8 @@ export default function ListForm({
       existsByName={listRepo.existsByName}
       deleteLabel={deleteLabel}
       onDelete={onDelete}
+      middleLabel={middleLabel}
+      onMiddle={onMiddle}
       onSubmit={submit}
     />
   );

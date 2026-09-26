@@ -3,6 +3,7 @@ import type { DatabaseHandle } from '../../src/database/types';
 import { initSqlJsOnce, openDatabaseSync, resetMockDatabase } from './sqliteMock';
 import type { collectionRepo } from '../../src/database/repositories/collectionRepo';
 import type { listRepo } from '../../src/database/repositories/listRepo';
+import type { itemRepo } from '../../src/database/repositories/itemRepo';
 
 vi.mock('expo-sqlite', async () => {
   const mod = await import('./sqliteMock');
@@ -14,6 +15,7 @@ await import('expo-sqlite');
 type Backend = {
   collections: typeof collectionRepo;
   lists: typeof listRepo;
+  items: typeof itemRepo;
 };
 
 async function createBackend(): Promise<Backend> {
@@ -29,7 +31,8 @@ async function createBackend(): Promise<Backend> {
 
   const { collectionRepo: collections } = await import('../../src/database/repositories/collectionRepo');
   const { listRepo: lists } = await import('../../src/database/repositories/listRepo');
-  return { collections, lists };
+  const { itemRepo: items } = await import('../../src/database/repositories/itemRepo');
+  return { collections, lists, items };
 }
 
 async function seedTwoCollections(b: Backend) {
@@ -202,5 +205,63 @@ describe('listRepo.setPinned and ordering', () => {
     const restored = await b.lists.get(free.id);
     expect(restored?.collection_id).toBeNull();
     expect(restored?.pinned).toBe(1);
+  });
+});
+
+describe('listRepo.duplicate', () => {
+  let b: Backend;
+
+  beforeAll(async () => {
+    await initSqlJsOnce();
+  });
+
+  beforeEach(async () => {
+    b = await createBackend();
+  });
+
+  it('creates the copy list at the end of its section and copies the items', async () => {
+    const source = await b.lists.create({ name: 'A', color: '#22D3EE', icon: 'cart-outline', collection_id: null });
+    const other = await b.lists.create({ name: 'Other', color: '#34D399', icon: 'gift-outline', collection_id: null });
+    await b.items.create({ list_id: source.id, name: 'a1', checked: 1, note: 'n1', position: 0, pictures: '["p1.jpg"]' });
+    await b.items.create({ list_id: source.id, name: 'a2', checked: 0, note: null, position: 1, pictures: null });
+
+    const copy = await b.lists.duplicate(source.id, {
+      name: 'A copy',
+      color: '#22D3EE',
+      icon: 'cart-outline',
+      collection_id: null,
+    });
+
+    expect(copy.id).not.toBe(source.id);
+    expect(copy.name).toBe('A copy');
+    expect(copy.position).toBe(2);
+    expect(copy.pinned).toBe(0);
+    expect(copy.collection_id).toBeNull();
+
+    const copies = await b.items.listByList(copy.id);
+    expect(copies.map(i => i.name)).toEqual(['a1', 'a2']);
+    expect(copies.map(i => i.position)).toEqual([0, 1]);
+    expect(copies[0].checked).toBe(1);
+    expect(copies[0].note).toBe('n1');
+    expect(copies[0].pictures).toBe('["p1.jpg"]');
+
+    const sourceItems = await b.items.listByList(source.id);
+    expect(sourceItems.map(i => i.name)).toEqual(['a1', 'a2']);
+  });
+
+  it('places the duplicated list inside the same collection after existing members', async () => {
+    const { a, a1, a2 } = await seedTwoCollections(b);
+
+    const copy = await b.lists.duplicate(a1.id, {
+      name: 'A1 copy',
+      color: a1.color,
+      icon: a1.icon,
+      collection_id: a.id,
+    });
+
+    expect(copy.collection_id).toBe(a.id);
+    expect(copy.position).toBe(2);
+    expect((await b.lists.get(a1.id))?.position).toBe(0);
+    expect((await b.lists.get(a2.id))?.position).toBe(1);
   });
 });

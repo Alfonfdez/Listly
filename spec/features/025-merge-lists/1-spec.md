@@ -15,6 +15,7 @@
 
 ### 2. Merge semantics
 - The source's items are appended at the end of the target in source `position` order, with full fidelity: `name`, `note`, `checked` state, and `pictures` (photo blobs shared, not re-imported).
+- The merge applies the same name-dedupe rule as 023: a source item whose name (case-insensitive) already exists in the target is skipped, and the target's matching item is never modified. Consequence for merge: note/photos carried only by a skipped source item are lost with the source's deletion.
 - The source list is then deleted inside the same transaction (including its item rows and photo cleanup).
 - Cancelling the confirmation or the picker changes nothing.
 

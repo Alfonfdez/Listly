@@ -1,7 +1,9 @@
 import type { Item } from '../database/types';
+import { MAX_LIST_NAME_LENGTH } from '../constants/types';
 
 const CHECKED_MARK = '✅';
 const NOTE_SEPARATOR = ' — ';
+const COPY_SUFFIX = ' copy';
 
 function sortByPosition(items: Item[]): Item[] {
   return [...items].sort((a, b) => a.position - b.position);
@@ -17,4 +19,11 @@ export function buildListCopyText(listName: string, items: Item[], withNotes: bo
     lines.push(line);
   }
   return lines.join('\n');
+}
+
+export function makeListCopyName(name: string, maxLength: number = MAX_LIST_NAME_LENGTH): string {
+  const trimmed = name.trim();
+  const suffix = COPY_SUFFIX;
+  if (trimmed.length + suffix.length <= maxLength) return `${trimmed}${suffix}`;
+  return `${trimmed.slice(0, maxLength - suffix.length).trimEnd()}${suffix}`;
 }

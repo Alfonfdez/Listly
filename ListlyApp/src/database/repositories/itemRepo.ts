@@ -6,7 +6,7 @@ import type { Item } from '../types';
 import { itemSchema } from '../schemas';
 import { parseRowOrNull, parseRows } from '../validate';
 import { dbTimestamp } from '../../utils/formatters';
-import { deletePhotosOfItems, reorderPositions } from './shared';
+import { deletePhotosOfItems, reorderPositions, copyItemsInto } from './shared';
 
 export const itemRepo = {
   async listAll(): Promise<Item[]> {
@@ -123,6 +123,12 @@ export const itemRepo = {
         .where(and(eq(items.list_id, listId), eq(items.checked, 1)))
         .run();
       await deletePhotosOfItems(rows);
+    });
+  },
+
+  async duplicateItems(sourceListId: number, targetListId: number): Promise<void> {
+    await withTransaction(async db => {
+      await copyItemsInto(db, sourceListId, targetListId);
     });
   },
 
