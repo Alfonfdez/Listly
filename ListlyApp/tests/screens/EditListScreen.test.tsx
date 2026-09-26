@@ -47,7 +47,7 @@ vi.mock('../../src/context/AppContext', () => ({
   AppProvider: ({ children }: { children: ReactNode }) => children as ReactNode,
 }));
 
-const nav = { goBack: vi.fn(), popToTop: vi.fn() };
+const nav = { goBack: vi.fn(), popToTop: vi.fn(), navigate: vi.fn() };
 
 vi.mock('@react-navigation/native', () => ({
   useRoute: () => ({ params: { listId: 1 } }),
@@ -88,6 +88,7 @@ describe('EditListScreen', () => {
     resetAppStub();
     nav.goBack.mockClear();
     nav.popToTop.mockClear();
+    nav.navigate.mockClear();
     listRepositoryMock.existsByName.mockReset();
     listRepositoryMock.update.mockReset();
     listRepositoryMock.delete.mockReset();
@@ -181,5 +182,12 @@ describe('EditListScreen', () => {
     await user.press(buttons[buttons.length - 1]);
     await waitFor(() => expect(listRepositoryMock.delete).toHaveBeenCalledWith(1));
     expect(nav.popToTop).toHaveBeenCalled();
+  });
+
+  it('opens a duplicate draft of the current list', async () => {
+    const user = userEvent.setup();
+    const view = await render(<EditListScreen />);
+    await user.press(view.getByLabelText('Duplicate list'));
+    expect(nav.navigate).toHaveBeenCalledWith('CreateList', { duplicateFromListId: 1 });
   });
 });

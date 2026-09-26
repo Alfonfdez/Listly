@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { buildListCopyText } from '../../src/utils/copyList';
+import { buildListCopyText, makeListCopyName } from '../../src/utils/copyList';
+import { MAX_LIST_NAME_LENGTH } from '../../src/constants/types';
 import type { Item } from '../../src/database/types';
 
 function item({ id, ...rest }: Partial<Item> & { id: number }): Item {
@@ -48,5 +49,18 @@ describe('buildListCopyText', () => {
 
   it('returns just the list name when there are no items', () => {
     expect(buildListCopyText('Groceries', [], true)).toBe('Groceries');
+  });
+});
+
+describe('makeListCopyName', () => {
+  it('appends " copy" to the trimmed name', () => {
+    expect(makeListCopyName('Groceries')).toBe('Groceries copy');
+    expect(makeListCopyName('  Groceries  ')).toBe('Groceries copy');
+  });
+
+  it('clamps long names so the " copy" suffix survives', () => {
+    const long = 'z'.repeat(MAX_LIST_NAME_LENGTH);
+    expect(makeListCopyName(long)).toBe(`${'z'.repeat(MAX_LIST_NAME_LENGTH - 5)} copy`);
+    expect(makeListCopyName(long).length).toBe(MAX_LIST_NAME_LENGTH);
   });
 });

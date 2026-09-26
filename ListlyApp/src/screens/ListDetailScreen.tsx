@@ -10,7 +10,7 @@ import {
   type NavigationProp,
   type RootStackParamList,
 } from '../constants/types';
-import type { Item } from '../database/types';
+import type { Item, ListWithCounts } from '../database/types';
 import { itemRepository as itemRepo } from '../database';
 import { logError, runSafely, ERROR_SCOPE } from '../utils/errors';
 import { useApp } from '../context/AppContext';
@@ -45,6 +45,7 @@ import SelectionActionBar from '../components/SelectionActionBar';
 import ConfirmModal from '../components/ConfirmModal';
 import SelectSearchHeader from '../components/SelectSearchHeader';
 import OptionPickerModal from '../components/settings/OptionPickerModal';
+import ListPickerModal from '../components/ListPickerModal';
 import type { Option } from '../components/settings/SelectorInline';
 
 export default function ListDetailScreen() {
@@ -63,7 +64,9 @@ export default function ListDetailScreen() {
   const [editing, setEditing] = useState<Item | null>(null);
   const [searchActive, setSearchActive] = useState(false);
   const [query, setQuery] = useState('');
-  const [copiedAction, setCopiedAction] = useState<'all' | 'names' | null>(null);
+  const [copiedAction, setCopiedAction] = useState<'all' | 'names' | 'to-list' | null>(null);
+  const [copiedToName, setCopiedToName] = useState<string | null>(null);
+  const [copyPickerVisible, setCopyPickerVisible] = useState(false);
   const [clearCompletedVisible, setClearCompletedVisible] = useState(false);
   const copyTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [sort, setSort] = useState<ItemSort>(DEFAULT_ITEM_SORT);
@@ -205,6 +208,16 @@ export default function ListDetailScreen() {
     [list, items]
   );
 
+  const copyToList = useCallback((target: ListWithCounts) => {
+    if (!list) return;
+    runSafely(itemRepo.duplicateItems(list.id, target.id), ERROR_SCOPE.copyItemsToList);
+    setCopiedAction('to-list');
+    setCopiedToName(target.name);
+    if (copyTimeout.current) clearTimeout(copyTimeout.current);
+    copyTimeout.current = setTimeout(() => setCopiedAction(null), COPY_FEEDBACK_MS);
+    void refresh();
+  }, [list, refresh]);
+
   const completeAll = useCallback(async () => {
     try {
       await itemRepo.setAllChecked(listId, true);
@@ -297,9 +310,27 @@ export default function ListDetailScreen() {
                 color={copiedAction === 'all' ? c.green : list.color}
               />
             </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => setCopyPickerVisible(true)}
+              style={styles.copyButton}
+              accessibilityRole="button"
+              accessibilityLabel={labels.list_copy_to}
+              accessibilityHint={labels.list_picker_hint}
+              hitSlop={HIT_SLOP}
+            >
+              <Ionicons
+                name={copiedAction === 'to-list' ? 'checkmark' : 'git-branch-outline'}
+                size={20}
+                color={copiedAction === 'to-list' ? c.green : list.color}
+              />
+            </TouchableOpacity>
             {copiedAction ? (
               <Text style={[styles.copiedLabel, { color: c.green, fontSize: fs(12) }]}>
-                {copiedAction === 'all' ? labels.list_copied_notes : labels.list_copied_names}
+                {copiedAction === 'to-list' && copiedToName
+                  ? labels.list_copied_to(copiedToName)
+                  : copiedAction === 'all'
+                    ? labels.list_copied_notes
+                    : labels.list_copied_names}
               </Text>
             ) : null}
           </View>
@@ -469,6 +500,16 @@ export default function ListDetailScreen() {
         confirmLabel={labels.common_select}
         onSelect={value => setSort(parseItemSortValue(value))}
         onClose={() => setSortModalVisible(false)}
+      />
+
+      <ListPickerModal
+        visible={copyPickerVisible}
+        title={labels.list_picker_title}
+        options={lists}
+        excludeListId={listId}
+        cancelLabel={labels.common_cancel}
+        onSelect={copyToList}
+        onClose={() => setCopyPickerVisible(false)}
       />
     </ScreenShell>
   );

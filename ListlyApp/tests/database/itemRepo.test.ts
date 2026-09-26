@@ -156,3 +156,115 @@ describe('itemRepo.deleteCompleted', () => {
     expect(itemsA.map(i => i.id)).toEqual([a1.id, a2.id, a3.id]);
   });
 });
+
+describe('itemRepo.duplicateItems', () => {
+  let b: Backend;
+
+  beforeAll(async () => {
+    await initSqlJsOnce();
+  });
+
+  beforeEach(async () => {
+    b = await createBackend();
+  });
+
+  it('appends full-fidelity copies to the target in source position order', async () => {
+    const a = await b.lists.create({ name: 'A', color: '#22D3EE', icon: 'cart-outline', collection_id: null });
+    const target = await b.lists.create({ name: 'B', color: '#34D399', icon: 'gift-outline', collection_id: null });
+    const existing = await b.items.create({
+      list_id: target.id,
+      name: 'existing',
+      checked: 1,
+      note: 'keep',
+      position: 0,
+      pictures: '["photo-existing.jpg"]',
+    });
+    await b.items.create({ list_id: a.id, name: 'a1', checked: 1, note: 'note-1', position: 0, pictures: '["p1.jpg"]' });
+    await b.items.create({ list_id: a.id, name: 'a2', checked: 0, note: null, position: 1, pictures: null });
+    await b.items.create({ list_id: a.id, name: 'a3', checked: 0, note: 'note-3', position: 2, pictures: null });
+
+    await b.items.duplicateItems(a.id, target.id);
+
+    const copies = await b.items.listByList(target.id);
+    expect(copies.map(i => i.name)).toEqual(['existing', 'a1', 'a2', 'a3']);
+    expect(copies.map(i => i.position)).toEqual([0, 1, 2, 3]);
+    expect(copies.slice(1).map(i => i.checked)).toEqual([1, 0, 0]);
+    expect(copies.slice(1).map(i => i.note)).toEqual(['note-1', null, 'note-3']);
+    expect(copies[1].pictures).toBe('["p1.jpg"]');
+    expect(copies[1].created_at).toBe(dbTimestamp());
+    expect(copies[1].updated_at).toBe(dbTimestamp());
+    expect(copies.map(i => i.id)).not.toContain(0);
+  });
+
+  it('leaves the source list untouched', async () => {
+    const { a, a1, a2, a3, b2 } = await seedTwoLists(b);
+
+    await b.items.duplicateItems(a.id, b2.id);
+
+    const source = await b.items.listByList(a.id);
+    expect(source.map(i => i.id)).toEqual([a1.id, a2.id, a3.id]);
+  });
+
+  it('copies into an empty target starting at position 0', async () => {
+    const a = await b.lists.create({ name: 'A', color: '#22D3EE', icon: 'cart-outline', collection_id: null });
+    const empty = await b.lists.create({ name: 'Empty', color: '#34D399', icon: 'gift-outline', collection_id: null });
+    await b.items.create({ list_id: a.id, name: 'a1', checked: 1, note: null, position: 0, pictures: null });
+    await b.items.create({ list_id: a.id, name: 'a2', checked: 0, note: null, position: 1, pictures: null });
+
+    await b.items.duplicateItems(a.id, empty.id);
+
+    const copies = await b.items.listByList(empty.id);
+    expect(copies.map(i => i.name)).toEqual(['a1', 'a2']);
+    expect(copies.map(i => i.position)).toEqual([0, 1]);
+  });
+
+  it('skips source items whose name already exists in the target (case-insensitive)', async () => {
+    const a = await b.lists.create({ name: 'A', color: '#22D3EE', icon: 'cart-outline', collection_id: null });
+    const target = await b.lists.create({ name: 'B', color: '#34D399', icon: 'gift-outline', collection_id: null });
+    const existing = await b.items.create({
+      list_id: target.id,
+      name: 'A1',
+      checked: 1,
+      note: 'own-note',
+      position: 0,
+      pictures: '["own.jpg"]',
+    });
+    await b.items.create({ list_id: a.id, name: 'a1', checked: 0, note: 'source-note', position: 0, pictures: '["p1.jpg"]' });
+    await b.items.create({ list_id: a.id, name: 'a2', checked: 0, note: null, position: 1, pictures: null });
+    await b.items.create({ list_id: a.id, name: 'a3', checked: 0, note: 'note-3', position: 2, pictures: null });
+
+    await b.items.duplicateItems(a.id, target.id);
+
+    const copies = await b.items.listByList(target.id);
+    expect(copies.map(i => i.name)).toEqual(['A1', 'a2', 'a3']);
+    expect(copies.map(i => i.position)).toEqual([0, 1, 2]);
+    const original = copies.find(i => i.id === existing.id);
+    expect(original).toMatchObject({ checked: 1, note: 'own-note', pictures: '["own.jpg"]' });
+    expect(copies.slice(1).map(i => i.note)).toEqual([null, 'note-3']);
+    const source = await b.items.listByList(a.id);
+    expect(source.map(i => i.name)).toEqual(['a1', 'a2', 'a3']);
+  });
+
+  it('does not duplicate repeats inside the source batch', async () => {
+    const a = await b.lists.create({ name: 'A', color: '#22D3EE', icon: 'cart-outline', collection_id: null });
+    const target = await b.lists.create({ name: 'B', color: '#34D399', icon: 'gift-outline', collection_id: null });
+    await b.items.create({ list_id: a.id, name: 'dup', checked: 0, note: null, position: 0, pictures: null });
+    await b.items.create({ list_id: a.id, name: 'dup', checked: 0, note: null, position: 1, pictures: null });
+    await b.items.create({ list_id: a.id, name: 'a2', checked: 0, note: null, position: 2, pictures: null });
+
+    await b.items.duplicateItems(a.id, target.id);
+
+    const copies = await b.items.listByList(target.id);
+    expect(copies.map(i => i.name)).toEqual(['dup', 'a2']);
+    expect(copies.map(i => i.position)).toEqual([0, 1]);
+  });
+
+  it('rolls back and rejects when the target list does not exist', async () => {
+    const { a, a1, a2, a3 } = await seedTwoLists(b);
+
+    await expect(b.items.duplicateItems(a.id, 99999)).rejects.toThrow();
+
+    const source = await b.items.listByList(a.id);
+    expect(source.map(i => i.id)).toEqual([a1.id, a2.id, a3.id]);
+  });
+});

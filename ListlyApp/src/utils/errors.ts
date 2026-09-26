@@ -23,6 +23,8 @@ export const ERROR_SCOPE = {
   uncompleteAllItems: 'uncomplete all items',
   pinLists: 'pin lists and collections',
   unpinLists: 'unpin lists and collections',
+  duplicateList: 'duplicate list',
+  copyItemsToList: 'copy items to another list',
 } as const;
 
 export type ErrorScope = (typeof ERROR_SCOPE)[keyof typeof ERROR_SCOPE];

@@ -25,6 +25,7 @@ const { itemRepositoryMock, listRepositoryMock, selectMocks, nav, photoMocks, cl
     reorder: vi.fn(),
     setAllChecked: vi.fn(),
     deleteCompleted: vi.fn(),
+    duplicateItems: vi.fn(),
   },
   listRepositoryMock: {
     delete: vi.fn(),
@@ -129,6 +130,7 @@ describe('ListDetailScreen', () => {
     itemRepositoryMock.toggle.mockReset();
     itemRepositoryMock.setAllChecked.mockReset();
     itemRepositoryMock.deleteCompleted.mockReset();
+    itemRepositoryMock.duplicateItems.mockReset();
     itemRepositoryMock.create.mockResolvedValue({});
     itemRepositoryMock.update.mockResolvedValue(undefined);
     itemRepositoryMock.delete.mockResolvedValue(undefined);
@@ -136,6 +138,7 @@ describe('ListDetailScreen', () => {
     itemRepositoryMock.toggle.mockResolvedValue(undefined);
     itemRepositoryMock.setAllChecked.mockResolvedValue(undefined);
     itemRepositoryMock.deleteCompleted.mockResolvedValue(undefined);
+    itemRepositoryMock.duplicateItems.mockResolvedValue(undefined);
     listRepositoryMock.delete.mockReset();
     listRepositoryMock.delete.mockResolvedValue(undefined);
     selectMocks.toggleSelectMode.mockReset();
@@ -519,6 +522,7 @@ describe('ListDetailScreen', () => {
     await view.findByText('No items yet');
     expect(view.queryByLabelText('Copy list')).toBeNull();
     expect(view.queryByLabelText('Copy list with notes')).toBeNull();
+    expect(view.queryByLabelText('Copy items to another list')).toBeNull();
   });
 
   it('copies item names without notes via the simple copy action', async () => {
@@ -555,6 +559,53 @@ describe('ListDetailScreen', () => {
     await view.findByText('Milk');
     await user.press(view.getByLabelText('Copy list with notes'));
     expect(await view.findByText('List + notes copied')).toBeTruthy();
+  });
+
+  it('opens the list picker excluding the current list when copy-to-list is pressed', async () => {
+    const user = userEvent.setup();
+    const other: ListWithCounts = {
+      id: 2,
+      name: 'Work Tasks',
+      color: '#34D399',
+      icon: 'briefcase-outline',
+      collection_id: null,
+      created_at: 'x',
+      position: 1,
+      pinned: 0,
+      total: 2,
+      completed: 0,
+    };
+    setLists([LIST, other]);
+    const view = await render(<ListDetailScreen />);
+    await view.findByText('Milk');
+    await user.press(view.getByLabelText('Copy items to another list'));
+
+    expect(await view.findByLabelText('Work Tasks')).toBeTruthy();
+    expect(view.queryByLabelText('Groceries')).toBeNull();
+  });
+
+  it('copies all items into a chosen list and confirms with a feedback label', async () => {
+    const user = userEvent.setup();
+    const other: ListWithCounts = {
+      id: 2,
+      name: 'Work Tasks',
+      color: '#34D399',
+      icon: 'briefcase-outline',
+      collection_id: null,
+      created_at: 'x',
+      position: 1,
+      pinned: 0,
+      total: 2,
+      completed: 0,
+    };
+    setLists([LIST, other]);
+    const view = await render(<ListDetailScreen />);
+    await view.findByText('Milk');
+    await user.press(view.getByLabelText('Copy items to another list'));
+
+    await user.press(await view.findByLabelText('Work Tasks'));
+    await waitFor(() => expect(itemRepositoryMock.duplicateItems).toHaveBeenCalledWith(1, 2));
+    expect(await view.findByText('Copied to Work Tasks')).toBeTruthy();
   });
 
   it('reorders items through the repository when the grid drag ends', async () => {

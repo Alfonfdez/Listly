@@ -54,6 +54,8 @@ export default function EditListScreen() {
         excludeId={list.id}
         deleteLabel={labels.list_delete_label}
         onDelete={() => setDeleteVisible(true)}
+        middleLabel={labels.list_duplicate}
+        onMiddle={() => navigation.navigate('CreateList', { duplicateFromListId: list.id })}
         onSubmit={update}
       />
 

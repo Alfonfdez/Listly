@@ -6,7 +6,7 @@ import type { List, ListWithCounts } from '../types';
 import { listSchema } from '../schemas';
 import { parseRowOrNull, parseRows } from '../validate';
 import { dbTimestamp } from '../../utils/formatters';
-import { countsSelection, deletePhotosOfLists, nextPositionSql, reorderPositions } from './shared';
+import { countsSelection, deletePhotosOfLists, nextPositionSql, reorderPositions, copyItemsInto } from './shared';
 
 export type NewList = Omit<List, 'id' | 'created_at' | 'position' | 'pinned' | 'collection_id'> & {
   collection_id?: number | null;
@@ -49,6 +49,45 @@ export const listRepo = {
       })
       .run();
     return { ...data, collection_id: collectionId, id: runResultOf(result).lastInsertRowId, created_at: dbTimestamp(), position, pinned: 0 };
+  },
+
+  async duplicate(
+    id: number,
+    data: { name: string; color: string; icon: string; collection_id?: number | null }
+  ): Promise<List> {
+    return await withTransaction(async db => {
+      const collectionId = data.collection_id ?? null;
+      const maxRow = await db
+        .select({ m: nextPositionSql(lists.position) })
+        .from(lists)
+        .where(
+          collectionId !== null
+            ? eq(lists.collection_id, collectionId)
+            : sql`${lists.collection_id} IS NULL`
+        )
+        .get();
+      const position = maxRow?.m ?? 0;
+      const created = await db
+        .insert(lists)
+        .values({
+          name: data.name,
+          color: data.color,
+          icon: data.icon,
+          collection_id: collectionId,
+          position,
+        })
+        .run();
+      const newId = runResultOf(created).lastInsertRowId;
+      await copyItemsInto(db, id, newId);
+      return {
+        ...data,
+        collection_id: collectionId,
+        id: newId,
+        created_at: dbTimestamp(),
+        position,
+        pinned: 0,
+      };
+    });
   },
 
   async reorder(orderedIds: number[]): Promise<void> {
