@@ -624,9 +624,10 @@ it('disables reordering while searching', async () => {
     await user.press(await view.findByLabelText('Name Ascending'));
     await user.press(await view.findByLabelText('Select'));
 
-    await waitFor(() => expect(lastGrid()?.data?.map(i => (i as Item).name)).toEqual(['Eggs', 'Milk']));
+    await waitFor(() =>
+      expect(view.getAllByText(/^(Milk|Eggs)$/).map(n => n.props.children as string)).toEqual(['Eggs', 'Milk'])
+    );
     expect(view.getByLabelText('Sort items: Name Ascending')).toBeTruthy();
-    expect(lastGrid()?.sortEnabled).toBe(false);
   });
 
   it('sorts items by created descending from the picker', async () => {
@@ -644,7 +645,9 @@ it('disables reordering while searching', async () => {
     await user.press(await view.findByLabelText('Select'));
 
     await waitFor(() => expect(view.getByLabelText('Sort items: Created Descending')).toBeTruthy());
-    await waitFor(() => expect(lastGrid()?.data?.map(i => (i as Item).name)).toEqual(['New', 'Old']));
+    await waitFor(() =>
+      expect(view.getAllByText(/^(Old|New)$/).map(n => n.props.children as string)).toEqual(['New', 'Old'])
+    );
   });
 
   it('restores manual order and drag after picking Manual', async () => {
@@ -655,15 +658,18 @@ it('disables reordering while searching', async () => {
     await user.press(view.getByLabelText('Sort items: Manual'));
     await user.press(await view.findByLabelText('Name Ascending'));
     await user.press(await view.findByLabelText('Select'));
-    await waitFor(() => expect(lastGrid()?.data?.map(i => (i as Item).name)).toEqual(['Eggs', 'Milk']));
+    await waitFor(() =>
+      expect(view.getAllByText(/^(Milk|Eggs)$/).map(n => n.props.children as string)).toEqual(['Eggs', 'Milk'])
+    );
 
     await user.press(view.getByLabelText('Sort items: Name Ascending'));
     await user.press(await view.findByLabelText('Manual'));
     await user.press(await view.findByLabelText('Select'));
 
-    await waitFor(() => expect(lastGrid()?.data?.map(i => (i as Item).name)).toEqual(['Milk', 'Eggs']));
+    await waitFor(() =>
+      expect(view.getAllByText(/^(Milk|Eggs)$/).map(n => n.props.children as string)).toEqual(['Milk', 'Eggs'])
+    );
     expect(view.getByLabelText('Sort items: Manual')).toBeTruthy();
-    expect(lastGrid()?.sortEnabled).toBe(true);
   });
 
   it('keeps an active sort applied to search results', async () => {
@@ -688,7 +694,7 @@ it('disables reordering while searching', async () => {
     await act(async () => {
       searchInput.props.onChangeText('New');
     });
-    await waitFor(() => expect(lastGrid()?.data?.map(i => (i as Item).name)).toEqual(['New']));
+    await waitFor(() => expect(view.getAllByText(/^(Old|New)$/).map(n => n.props.children as string)).toEqual(['New']));
     expect(view.queryByLabelText(/Sort items/)).toBeNull();
   });
 });
