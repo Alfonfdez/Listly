@@ -9,24 +9,40 @@ import ScreenShell from '../components/ScreenShell';
 import NotFoundScreen from '../components/NotFoundScreen';
 import ListForm from '../components/ListForm';
 import ConfirmModal from '../components/ConfirmModal';
+import CollectionSelectRow from '../components/CollectionSelectRow';
+import CollectionPickerModal from '../components/CollectionPickerModal';
 
 export default function EditListScreen() {
   const route = useRoute<RouteProp<RootStackParamList, 'EditList'>>();
   const navigation = useNavigation<NavigationProp<'EditList'>>();
   const { listId } = route.params;
-  const { lists, refresh } = useApp();
+  const { lists, collections, refresh } = useApp();
   const labels = useLabels();
   const [deleteVisible, setDeleteVisible] = useState(false);
+  const [pickerVisible, setPickerVisible] = useState(false);
 
   const list = lists.find(l => l.id === listId);
+  const initialCollectionId = list?.collection_id ?? null;
+  const [collectionId, setCollectionId] = useState<number | null>(() => initialCollectionId);
 
   const update = useCallback(
     async ({ name, icon, color }: { name: string; icon: IconName; color: string }) => {
-      await listRepo.update(listId, { name, icon, color });
-      await refresh();
-      navigation.goBack();
+      try {
+        await listRepo.update(listId, { name, icon, color });
+        if (collectionId !== initialCollectionId) {
+          if (collectionId === null) {
+            await listRepo.removeFromCollection(listId);
+          } else {
+            await listRepo.moveToCollection(listId, collectionId);
+          }
+        }
+        await refresh();
+        navigation.goBack();
+      } catch (error) {
+        logError(ERROR_SCOPE.moveList, error);
+      }
     },
-    [listId, refresh, navigation]
+    [listId, initialCollectionId, collectionId, refresh, navigation]
   );
 
   const remove = useCallback(async () => {
@@ -56,7 +72,26 @@ export default function EditListScreen() {
         onDelete={() => setDeleteVisible(true)}
         middleLabel={labels.list_duplicate}
         onMiddle={() => navigation.navigate('CreateList', { duplicateFromListId: list.id })}
+        fieldSlot={
+          <CollectionSelectRow
+            label={labels.list_collection_label}
+            noneLabel={labels.list_collection_none}
+            selectedCollection={collections.find(c => c.id === collectionId) ?? null}
+            onPress={() => setPickerVisible(true)}
+          />
+        }
         onSubmit={update}
+      />
+
+      <CollectionPickerModal
+        visible={pickerVisible}
+        title={labels.list_collection_picker_title}
+        options={collections}
+        selectedId={collectionId}
+        standaloneLabel={labels.list_collection_none}
+        cancelLabel={labels.common_cancel}
+        onSelect={setCollectionId}
+        onClose={() => setPickerVisible(false)}
       />
 
       <ConfirmModal

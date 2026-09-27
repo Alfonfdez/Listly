@@ -38,9 +38,9 @@
 
 ## Acceptance criteria
 
-- [ ] Edit List shows a *Collection* selector row that opens a picker with all collections and a *Standalone / No collection* option.
-- [ ] The current collection is highlighted as selected; moving to the same collection is a no-op.
-- [ ] Saving with a new collection calls `moveToCollection`; saving *Standalone* calls `removeFromCollection`.
-- [ ] The moved list appears at the end of its destination (parity with drag), and drag-in/drag-out still work.
-- [ ] New labels exist in en and es.
-- [ ] `npm run test:all` passes.
+- [x] Edit List shows a *Collection* selector row that opens a picker with all collections and a *Standalone / No collection* option.
+- [x] The current collection is highlighted as selected; moving to the same collection is a no-op.
+- [x] Saving with a new collection calls `moveToCollection`; saving *Standalone* calls `removeFromCollection`.
+- [x] The moved list appears at the end of its destination (parity with drag), and drag-in/drag-out still work.
+- [x] New labels exist in en and es.
+- [x] `npm run test:all` passes.

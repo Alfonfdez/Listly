@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, type ReactNode } from 'react';
 import { useLabels } from '../hooks/useLabels';
 import { MAX_LIST_NAME_LENGTH, type IconName } from '../constants/types';
 import { validateListName } from '../utils/validation';
@@ -16,6 +16,7 @@ interface Props {
   onDelete?: () => void;
   middleLabel?: string;
   onMiddle?: () => void;
+  fieldSlot?: ReactNode;
   onSubmit: (data: {
     name: string;
     icon: IconName;
@@ -35,6 +36,7 @@ export default function ListForm({
   onDelete,
   middleLabel,
   onMiddle,
+  fieldSlot,
   onSubmit,
 }: Props) {
   const labels = useLabels();
@@ -63,6 +65,7 @@ export default function ListForm({
       onDelete={onDelete}
       middleLabel={middleLabel}
       onMiddle={onMiddle}
+      fieldSlot={fieldSlot}
       onSubmit={submit}
     />
   );

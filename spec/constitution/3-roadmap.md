@@ -237,7 +237,7 @@ Copy a list's data into the app (beyond the feature-017 clipboard copy):
 - Spec: spec/features/023-copy-lists/.
 
 ## 024-move-list-between-collections
-Status: pending.
+Status: done.
 
 Assign / move a list between collections (and back to standalone) from Edit List, complementing drag-in/drag-out:
 - A *Collection* selector row opens a `CollectionPickerModal` (all collections + *Standalone / No collection*, current selection checked); the move applies on Save via `listRepo.moveToCollection` / `listRepo.removeFromCollection` (append at destination's end, parity with drag) only when the selection changed.
