@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, TextInput } from 'react-native';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { useConfig } from '../context/ConfigContext';
 import { useFontSize } from '../hooks/useFontSize';
 import { useLabels } from '../hooks/useLabels';
@@ -34,6 +34,7 @@ interface Props<TError extends StringTranslationKey> {
   onDelete?: () => void;
   middleLabel?: string;
   onMiddle?: () => void;
+  fieldSlot?: ReactNode;
   onSubmit: (data: { name: string; icon: IconName; color: string }) => Promise<void>;
 }
 
@@ -54,6 +55,7 @@ export default function EntityForm<TError extends StringTranslationKey>({
   onDelete,
   middleLabel,
   onMiddle,
+  fieldSlot,
   onSubmit,
 }: Props<TError>) {
   const { activeColors: c } = useConfig();
@@ -145,6 +147,8 @@ export default function EntityForm<TError extends StringTranslationKey>({
         onSelect={handleColorSelect}
         onClose={() => setPickerVisible(false)}
       />
+
+      {fieldSlot ? <View style={styles.field}>{fieldSlot}</View> : null}
 
       {deleteLabel && onDelete ? (
         <Pressable

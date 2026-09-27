@@ -2,9 +2,9 @@ import { describe, expect, it, beforeEach, vi } from 'vitest';
 import { render, userEvent, waitFor } from '@testing-library/react-native';
 import type { ReactNode } from 'react';
 import EditListScreen from '../../src/screens/EditListScreen';
-import { buildAppMock, resetAppStub, setLists } from '../helpers/appStub';
+import { buildAppMock, resetAppStub, setLists, setCollections } from '../helpers/appStub';
 import { resetStub } from '../helpers/configStub';
-import type { ListWithCounts } from '../../src/database/types';
+import type { CollectionWithCounts, ListWithCounts } from '../../src/database/types';
 import { MAX_LIST_NAME_LENGTH } from '../../src/constants/types';
 
 interface PickerProps {
@@ -35,6 +35,8 @@ const { listRepositoryMock } = vi.hoisted(() => ({
     existsByName: vi.fn(),
     update: vi.fn(),
     delete: vi.fn(),
+    moveToCollection: vi.fn(),
+    removeFromCollection: vi.fn(),
   },
 }));
 
@@ -80,6 +82,36 @@ const OTHER: ListWithCounts = {
   completed: 0,
 };
 
+const IN_COLLECTION: ListWithCounts = {
+  ...LIST,
+  name: 'Recipes',
+  collection_id: 7,
+};
+
+const KITCHEN: CollectionWithCounts = {
+  id: 7,
+  name: 'Kitchen',
+  color: '#F59E0B',
+  icon: 'restaurant-outline',
+  created_at: 'x',
+  position: 0,
+  pinned: 0,
+  total: 3,
+  completed: 1,
+};
+
+const GARDEN: CollectionWithCounts = {
+  id: 8,
+  name: 'Garden',
+  color: '#10B981',
+  icon: 'leaf-outline',
+  created_at: 'x',
+  position: 1,
+  pinned: 0,
+  total: 0,
+  completed: 0,
+};
+
 const DEBOUNCE_WAIT = 350;
 
 describe('EditListScreen', () => {
@@ -92,10 +124,15 @@ describe('EditListScreen', () => {
     listRepositoryMock.existsByName.mockReset();
     listRepositoryMock.update.mockReset();
     listRepositoryMock.delete.mockReset();
+    listRepositoryMock.moveToCollection.mockReset();
+    listRepositoryMock.removeFromCollection.mockReset();
     listRepositoryMock.existsByName.mockResolvedValue(false);
     listRepositoryMock.update.mockResolvedValue(undefined);
     listRepositoryMock.delete.mockResolvedValue(undefined);
+    listRepositoryMock.moveToCollection.mockResolvedValue(undefined);
+    listRepositoryMock.removeFromCollection.mockResolvedValue(undefined);
     setLists([LIST, OTHER]);
+    setCollections([KITCHEN, GARDEN]);
   });
 
   it('pre-fills the form with the list name, icon, and color', async () => {
@@ -189,5 +226,84 @@ describe('EditListScreen', () => {
     const view = await render(<EditListScreen />);
     await user.press(view.getByLabelText('Duplicate list'));
     expect(nav.navigate).toHaveBeenCalledWith('CreateList', { duplicateFromListId: 1 });
+  });
+
+  it('shows the current collection in the Collection row when set', async () => {
+    setLists([IN_COLLECTION]);
+    const view = await render(<EditListScreen />);
+    expect(view.getByLabelText('Collection: Kitchen')).toBeTruthy();
+  });
+
+  it('shows the standalone label in the Collection row when no collection is set', async () => {
+    const view = await render(<EditListScreen />);
+    expect(view.getByLabelText('Collection: Standalone / No collection')).toBeTruthy();
+  });
+
+  it('moves the list into a chosen collection on Save', async () => {
+    const user = userEvent.setup();
+    const view = await render(<EditListScreen />);
+    await user.press(view.getByLabelText('Collection: Standalone / No collection'));
+    await user.press(view.getByLabelText('Kitchen'));
+    await user.press(view.getByLabelText('Save'));
+
+    await waitFor(() =>
+      expect(listRepositoryMock.update).toHaveBeenCalledWith(1, {
+        name: 'Groceries',
+        color: '#22D3EE',
+        icon: 'cart-outline',
+      })
+    );
+    expect(listRepositoryMock.moveToCollection).toHaveBeenCalledWith(1, 7);
+    expect(listRepositoryMock.removeFromCollection).not.toHaveBeenCalled();
+    expect(nav.goBack).toHaveBeenCalled();
+  });
+
+  it('moves the list back to Standalone on Save', async () => {
+    setLists([IN_COLLECTION]);
+    const user = userEvent.setup();
+    const view = await render(<EditListScreen />);
+    await user.press(view.getByLabelText('Collection: Kitchen'));
+    await user.press(view.getByLabelText('Standalone / No collection'));
+    await user.press(view.getByLabelText('Save'));
+
+    await waitFor(() =>
+      expect(listRepositoryMock.removeFromCollection).toHaveBeenCalledWith(1)
+    );
+    expect(listRepositoryMock.moveToCollection).not.toHaveBeenCalled();
+    expect(nav.goBack).toHaveBeenCalled();
+  });
+
+  it('leaves an unchanged collection untouched on Save', async () => {
+    setLists([IN_COLLECTION]);
+    const user = userEvent.setup();
+    const view = await render(<EditListScreen />);
+    await user.press(view.getByLabelText('Collection: Kitchen'));
+    await user.press(view.getByLabelText('Cancel'));
+    await user.press(view.getByLabelText('Save'));
+
+    await waitFor(() =>
+      expect(listRepositoryMock.update).toHaveBeenCalledWith(1, {
+        name: 'Recipes',
+        color: '#22D3EE',
+        icon: 'cart-outline',
+      })
+    );
+    expect(listRepositoryMock.moveToCollection).not.toHaveBeenCalled();
+    expect(listRepositoryMock.removeFromCollection).not.toHaveBeenCalled();
+    expect(nav.goBack).toHaveBeenCalled();
+  });
+
+  it('keeps the screen when the collection move fails', async () => {
+    listRepositoryMock.moveToCollection.mockRejectedValueOnce(new Error('db error'));
+    const user = userEvent.setup();
+    const view = await render(<EditListScreen />);
+    await user.press(view.getByLabelText('Collection: Standalone / No collection'));
+    await user.press(view.getByLabelText('Kitchen'));
+    await user.press(view.getByLabelText('Save'));
+
+    await waitFor(() => expect(listRepositoryMock.moveToCollection).toHaveBeenCalledWith(1, 7));
+    await new Promise(resolve => setTimeout(resolve, 0));
+    expect(nav.goBack).not.toHaveBeenCalled();
+    expect(view.getByLabelText('Save')).toBeTruthy();
   });
 });
