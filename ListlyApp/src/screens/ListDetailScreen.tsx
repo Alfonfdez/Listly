@@ -1,17 +1,10 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import * as Clipboard from 'expo-clipboard';
 import Sortable, { type SortableGridRenderItem } from 'react-native-sortables';
 import { useFocusEffect, useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
-import {
-  COPY_FEEDBACK_MS,
-  MERGE_NOTICE,
-  type IconName,
-  type NavigationProp,
-  type RootStackParamList,
-} from '../constants/types';
-import type { Item, ListWithCounts } from '../database/types';
+import { type IconName, type NavigationProp, type RootStackParamList } from '../constants/types';
+import type { Item } from '../database/types';
 import { itemRepository as itemRepo } from '../database';
 import { logError, runSafelyAsync, ERROR_SCOPE } from '../utils/errors';
 import { useApp } from '../context/AppContext';
@@ -22,17 +15,7 @@ import { useDragOrder } from '../hooks/useDragOrder';
 import { useLabels } from '../hooks/useLabels';
 import { uniqueNormalizedNames } from '../utils/validation';
 import { filterItemsByQuery } from '../utils/search';
-import {
-  DEFAULT_ITEM_SORT,
-  itemSortValue,
-  parseItemSortValue,
-  sortItems,
-  type ItemSort,
-  type ItemSortValue,
-  type SortDirection,
-} from '../utils/itemSort';
-import { buildListCopyText } from '../utils/copyList';
-import { parseItemPhotos, serializeItemPhotos } from '../utils/itemPhotos';
+import { parseItemPhotos } from '../utils/itemPhotos';
 import { isOn } from '../utils/flags';
 import { HIT_SLOP } from '../components/componentStyles';
 import ScreenShell from '../components/ScreenShell';
@@ -46,9 +29,13 @@ import AddItemBar from '../components/AddItemBar';
 import SelectionActionBar from '../components/SelectionActionBar';
 import ConfirmModal from '../components/ConfirmModal';
 import { useSelectSearchHeader } from '../hooks/useSelectSearchHeader';
+import { useItemSort } from '../hooks/useItemSort';
+import { useClipboardCopy } from '../hooks/useClipboardCopy';
+import { useMergeFlow } from '../hooks/useMergeFlow';
+import { useItemEditing } from '../hooks/useItemEditing';
+import { useBatchItemActions } from '../hooks/useBatchItemActions';
 import OptionPickerModal from '../components/settings/OptionPickerModal';
 import ListPickerModal from '../components/ListPickerModal';
-import type { Option } from '../components/settings/SelectorInline';
 
 export default function ListDetailScreen() {
   const route = useRoute<RouteProp<RootStackParamList, 'ListDetail'>>();
@@ -63,20 +50,8 @@ export default function ListDetailScreen() {
   const list = useMemo(() => lists.find(l => l.id === listId), [lists, listId]);
   const items = useMemo(() => itemsByListId.get(listId) ?? [], [itemsByListId, listId]);
 
-  const [editing, setEditing] = useState<Item | null>(null);
   const [searchActive, setSearchActive] = useState(false);
   const [query, setQuery] = useState('');
-  const [copiedAction, setCopiedAction] = useState<'all' | 'names' | 'to-list' | null>(null);
-  const [copiedToName, setCopiedToName] = useState<string | null>(null);
-  const [copyPickerVisible, setCopyPickerVisible] = useState(false);
-  const [mergePickerVisible, setMergePickerVisible] = useState(false);
-  const [mergeTarget, setMergeTarget] = useState<ListWithCounts | null>(null);
-  const [mergeBusy, setMergeBusy] = useState(false);
-  const [mergeNoticeVisible, setMergeNoticeVisible] = useState(false);
-  const [clearCompletedVisible, setClearCompletedVisible] = useState(false);
-  const copyTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const [sort, setSort] = useState<ItemSort>(DEFAULT_ITEM_SORT);
-  const [sortModalVisible, setSortModalVisible] = useState(false);
 
   const {
     selectMode,
@@ -111,19 +86,6 @@ export default function ListDetailScreen() {
     onToggleSelect: toggleSelectMode,
   });
 
-  useEffect(() => {
-    if (notice !== MERGE_NOTICE) return;
-    setMergeNoticeVisible(true);
-    const timer = setTimeout(() => setMergeNoticeVisible(false), COPY_FEEDBACK_MS);
-    return () => clearTimeout(timer);
-  }, [notice]);
-
-  useEffect(() => {
-    return () => {
-      if (copyTimeout.current) clearTimeout(copyTimeout.current);
-    };
-  }, []);
-
   const existingNames = useMemo(() => uniqueNormalizedNames(items.map(i => i.name)), [items]);
   const maxPosition = useMemo(() => items.reduce((max, i) => Math.max(max, i.position), -1) + 1, [items]);
   const filteredItems = useMemo(() => filterItemsByQuery(items, query), [items, query]);
@@ -137,33 +99,52 @@ export default function ListDetailScreen() {
       })();
     }, [listId, refresh])
   );
-  const sortActive = sort.key !== 'manual';
-  const displayItems = useMemo(
-    () => (sortActive ? sortItems(filteredItems, sort) : dragItems),
-    [sortActive, sort, filteredItems, dragItems]
-  );
-  const sortOptions = useMemo<Option<ItemSortValue>[]>(() => {
-    const directionIcon = (direction: SortDirection) => (
-      <Ionicons name={direction === 'asc' ? 'arrow-up' : 'arrow-down'} size={16} color={c.primary} />
-    );
-    const modeIcon = (name: IconName) => <Ionicons name={name} size={16} color={c.primary} />;
-    return [
-      { value: 'manual', label: labels.item_sort_manual, icon: modeIcon('swap-vertical') },
-      { value: 'name-asc', label: `${labels.item_sort_name} ${labels.item_sort_asc}`, icon: directionIcon('asc') },
-      { value: 'name-desc', label: `${labels.item_sort_name} ${labels.item_sort_desc}`, icon: directionIcon('desc') },
-      { value: 'created-asc', label: `${labels.item_sort_created} ${labels.item_sort_asc}`, icon: directionIcon('asc') },
-      { value: 'created-desc', label: `${labels.item_sort_created} ${labels.item_sort_desc}`, icon: directionIcon('desc') },
-    ];
-  }, [c, labels]);
-  const sortModeLabel =
-    sort.key === 'manual' ? labels.item_sort_manual : sort.key === 'name' ? labels.item_sort_name : labels.item_sort_created;
-  const sortLabel = sortActive
-    ? `${labels.item_sort}: ${sortModeLabel} ${sort.direction === 'asc' ? labels.item_sort_asc : labels.item_sort_desc}`
-    : `${labels.item_sort}: ${labels.item_sort_manual}`;
-  const editingExclusiveNames = useMemo(
-    () => (editing ? uniqueNormalizedNames(items.filter(i => i.id !== editing.id).map(i => i.name)) : new Set<string>()),
-    [items, editing]
-  );
+
+  const {
+    sortValue,
+    sortDirection,
+    selectSort,
+    sortModalVisible,
+    openSortModal,
+    closeSortModal,
+    sortActive,
+    displayItems,
+    sortOptions,
+    sortModeLabel,
+    sortLabel,
+  } = useItemSort({ filteredItems, dragItems });
+
+  const {
+    copiedAction,
+    copiedToName,
+    copyPickerVisible,
+    openCopyPicker,
+    closeCopyPicker,
+    copyList,
+    copyToList,
+  } = useClipboardCopy({ list, items, refresh });
+
+  const {
+    mergePickerVisible,
+    openMergePicker,
+    closeMergePicker,
+    mergeTarget,
+    setMergeTarget,
+    mergeBusy,
+    mergeNoticeVisible,
+    doMerge,
+  } = useMergeFlow({ list, notice, refresh, navigation });
+
+  const { editing, setEditing, editingExclusiveNames, saveEdit, deleteItem } = useItemEditing({ items, refresh });
+
+  const {
+    clearCompletedVisible,
+    openClearCompleted,
+    closeClearCompleted,
+    completeAll,
+    uncompleteAll,
+    clearCompleted,
+  } = useBatchItemActions({ listId, refresh });
 
   const done = items.filter(i => isOn(i.checked)).length;
   const total = items.length;
@@ -191,101 +172,12 @@ export default function ListDetailScreen() {
         onEdit={() => setEditing(item)}
       />
     ),
-    [selectMode, selectedIds, toggleItem, toggle]
+    [selectMode, selectedIds, toggleItem, toggle, setEditing]
   );
-
-  const copyList = useCallback(
-    (withNotes: boolean) => {
-      if (!list) return;
-      const text = buildListCopyText(list.name, items, withNotes);
-      void Clipboard.setStringAsync(text).catch(error => logError(ERROR_SCOPE.copyToClipboard, error));
-      setCopiedAction(withNotes ? 'all' : 'names');
-      if (copyTimeout.current) clearTimeout(copyTimeout.current);
-      copyTimeout.current = setTimeout(() => setCopiedAction(null), COPY_FEEDBACK_MS);
-    },
-    [list, items]
-  );
-
-  const copyToList = useCallback((target: ListWithCounts) => {
-    if (!list) return;
-    setCopiedAction('to-list');
-    setCopiedToName(target.name);
-    if (copyTimeout.current) clearTimeout(copyTimeout.current);
-    copyTimeout.current = setTimeout(() => setCopiedAction(null), COPY_FEEDBACK_MS);
-    void (async () => {
-      await runSafelyAsync(itemRepo.duplicateItems(list.id, target.id), ERROR_SCOPE.copyItemsToList);
-      await refresh();
-    })();
-  }, [list, refresh]);
-
-  const doMerge = useCallback(async (target: ListWithCounts) => {
-    if (!list) return;
-    setMergeBusy(true);
-    try {
-      await itemRepo.mergeInto(list.id, target.id);
-      await refresh();
-      setMergeBusy(false);
-      setMergeTarget(null);
-      navigation.replace('ListDetail', { listId: target.id, notice: MERGE_NOTICE });
-    } catch (error) {
-      setMergeBusy(false);
-      logError(ERROR_SCOPE.mergeLists, error);
-    }
-  }, [list, refresh, navigation]);
-
-  const completeAll = useCallback(async () => {
-    try {
-      await itemRepo.setAllChecked(listId, true);
-    } catch (error) {
-      logError(ERROR_SCOPE.completeAllItems, error);
-    }
-    void refresh();
-  }, [listId, refresh]);
-
-  const uncompleteAll = useCallback(async () => {
-    try {
-      await itemRepo.setAllChecked(listId, false);
-    } catch (error) {
-      logError(ERROR_SCOPE.uncompleteAllItems, error);
-    }
-    void refresh();
-  }, [listId, refresh]);
-
-  const clearCompleted = useCallback(async () => {
-    setClearCompletedVisible(false);
-    try {
-      await itemRepo.deleteCompleted(listId);
-    } catch (error) {
-      logError(ERROR_SCOPE.clearCompletedItems, error);
-    }
-    void refresh();
-  }, [listId, refresh]);
 
   if (!list) {
     return <NotFoundScreen />;
   }
-
-  const saveEdit = async (name: string, note: string | null, photos: string[]) => {
-    if (!editing) return;
-    try {
-      await itemRepo.update(editing.id, { name, note, pictures: serializeItemPhotos(photos) });
-      setEditing(null);
-    } catch (error) {
-      logError(ERROR_SCOPE.updateItem, error);
-    }
-    void refresh();
-  };
-
-  const deleteItem = async () => {
-    if (!editing) return;
-    try {
-      await itemRepo.delete(editing.id);
-      setEditing(null);
-    } catch (error) {
-      logError(ERROR_SCOPE.deleteItem, error);
-    }
-    void refresh();
-  };
 
   const header = (
     <DetailHeader
@@ -326,7 +218,7 @@ export default function ListDetailScreen() {
               />
             </TouchableOpacity>
             <TouchableOpacity
-              onPress={() => setCopyPickerVisible(true)}
+              onPress={openCopyPicker}
               style={styles.copyButton}
               accessibilityRole="button"
               accessibilityLabel={labels.list_copy_to}
@@ -381,7 +273,7 @@ export default function ListDetailScreen() {
           <>
             <View style={styles.batchRow}>
               <TouchableOpacity
-                onPress={() => setSortModalVisible(true)}
+                onPress={openSortModal}
                 style={[styles.batchButton, { borderColor: sortActive ? c.primary : c.border }]}
                 accessibilityRole="button"
                 accessibilityLabel={sortLabel}
@@ -392,7 +284,7 @@ export default function ListDetailScreen() {
                 </Text>
                 {sortActive ? (
                   <Ionicons
-                    name={sort.direction === 'asc' ? 'arrow-up' : 'arrow-down'}
+                    name={sortDirection === 'asc' ? 'arrow-up' : 'arrow-down'}
                     size={14}
                     color={c.primary}
                   />
@@ -400,7 +292,7 @@ export default function ListDetailScreen() {
                 <Ionicons name="chevron-down" size={14} color={c.textSecondary} />
               </TouchableOpacity>
               <TouchableOpacity
-                onPress={() => setMergePickerVisible(true)}
+                onPress={openMergePicker}
                 style={[styles.batchButton, { borderColor: c.warning }]}
                 accessibilityRole="button"
                 accessibilityLabel={labels.list_merge_into}
@@ -437,7 +329,7 @@ export default function ListDetailScreen() {
                 </Text>
               </TouchableOpacity>
               <TouchableOpacity
-                onPress={() => setClearCompletedVisible(true)}
+                onPress={openClearCompleted}
                 disabled={done === 0}
                 style={[styles.batchButton, { borderColor: c.border }]}
                 accessibilityRole="button"
@@ -520,7 +412,7 @@ export default function ListDetailScreen() {
         message={labels.item_clear_completed_message}
         cancelLabel={labels.common_cancel}
         confirmLabel={labels.item_delete}
-        onCancel={() => setClearCompletedVisible(false)}
+        onCancel={closeClearCompleted}
         onConfirm={() => void clearCompleted()}
         destructive
       />
@@ -529,11 +421,11 @@ export default function ListDetailScreen() {
         visible={sortModalVisible}
         title={labels.item_sort}
         options={sortOptions}
-        selected={itemSortValue(sort)}
+        selected={sortValue}
         cancelLabel={labels.common_cancel}
         confirmLabel={labels.common_select}
-        onSelect={value => setSort(parseItemSortValue(value))}
-        onClose={() => setSortModalVisible(false)}
+        onSelect={selectSort}
+        onClose={closeSortModal}
       />
 
       <ListPickerModal
@@ -544,7 +436,7 @@ export default function ListDetailScreen() {
         excludeListId={listId}
         cancelLabel={labels.common_cancel}
         onSelect={copyToList}
-        onClose={() => setCopyPickerVisible(false)}
+        onClose={closeCopyPicker}
       />
 
       <ListPickerModal
@@ -555,7 +447,7 @@ export default function ListDetailScreen() {
         cancelLabel={labels.common_cancel}
         emptyLabel={labels.list_merge_empty}
         onSelect={setMergeTarget}
-        onClose={() => setMergePickerVisible(false)}
+        onClose={closeMergePicker}
       />
 
       <ConfirmModal

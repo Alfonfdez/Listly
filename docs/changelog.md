@@ -680,3 +680,15 @@ pm run test:all green.
 - Tests: new `tests/hooks/useSelectMode.test.ts` (7 cases: idle state, enter/exit select mode clears selection, item toggle, open/close delete confirm, confirmDelete calls `deleteMany` + exits + runs `afterDelete`, failure logs and still exits) and `tests/hooks/useCollectionDropZones.test.ts` (8 cases: reorder on plain drag end, `removeTargetActive` from `inCollectionDetail`, hover tracking only while dragging, zone drop → `moveToCollection` + refresh, remove-zone drop → `removeFromCollection`, handled-drop and hover-drag-end skip reorder, move failure logs). `npm run test:all` green (55 files, 469 tests); lint + typecheck clean.
 - i18n: removed the unused keys `collection_delete_title` and `list_picker_title` from `en.ts` and `es.ts` (no references in `src/`).
 - No production behavior change.
+
+[2026-09-28] ~ | ListlyApp [refactor: extract ListDetail flow hooks]
+- Split the state and flows of `ListDetailScreen` (625 -> 517 lines) into five focused hooks under `src/hooks/`, leaving the JSX in place:
+  - `useItemSort` — sort mode + modal state, `displayItems`, sort options/labels (uses the item-sort utils and theme icons).
+  - `useClipboardCopy` — clipboard copy (names / with notes), copy-to-list, transient feedback state and timeout cleanup.
+  - `useMergeFlow` — merge picker/target/busy state, the "Merged into" notice effect, and `doMerge` (navigates via `replace`).
+  - `useItemEditing` — edit form state, `editingExclusiveNames`, `saveEdit`, `deleteItem`.
+  - `useBatchItemActions` — Complete all / Uncomplete all / Clear completed and the clear-completed confirm visibility.
+- No behavior, props, or i18n changes; the screen keeps its render tree, `useSelectMode`, `useSelectSearchHeader`, drag ordering, and all modals.
+- `npm run test:all` green (55 files, 469 tests); lint + typecheck clean.
+- Verified on web at 375px (Spanish): sort modal, copy-names feedback, Complete all / Uncomplete all, merge picker, item edit modal, and select mode all work; 0 console errors.
+- No spec/roadmap change (pure refactor).
