@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { collectionRepository as collectionRepo, listRepository as listRepo } from '../database';
 import { logError, ERROR_SCOPE, type ErrorScope } from '../utils/errors';
@@ -6,11 +6,11 @@ import type { Config } from '../database/types';
 import { useApp } from '../context/AppContext';
 import { useConfig } from '../context/ConfigContext';
 import { useSelectMode } from '../hooks/useSelectMode';
+import { useSelectSearchHeader } from '../hooks/useSelectSearchHeader';
 import { useLabels } from '../hooks/useLabels';
 import { toggleInSet } from '../utils/set';
 import { LIST_VIEW_MODES, LIST_LAYOUTS, COLLECTION_DELETE_MODES, type ListViewMode, type CollectionDeleteMode } from '../constants/types';
 import ListsView from '../components/ListsView';
-import SelectSearchHeader from '../components/SelectSearchHeader';
 import CollectionDeleteModal from '../components/CollectionDeleteModal';
 import ConfirmModal from '../components/ConfirmModal';
 
@@ -52,12 +52,6 @@ export default function ListsScreenBase({
     deleteMany: (ids) => listRepo.deleteMany(ids as number[]),
     afterDelete: refresh,
   });
-
-  const toggleSearch = useCallback(() => {
-    if (selectMode) return;
-    setSearchActive(prev => !prev);
-    if (searchActive) setQuery('');
-  }, [searchActive, selectMode]);
 
   const resetSelectionExtras = useCallback(() => {
     setSelectedCollectionIds(new Set());
@@ -128,27 +122,16 @@ export default function ListsScreenBase({
       ? collections.length > 0
       : lists.length > 0 || (mode === LIST_VIEW_MODES.home && collections.length > 0);
 
-  useEffect(() => {
-    navigation.setOptions({
-      headerRight: hasData
-        ? () => (
-            <SelectSearchHeader
-              selectMode={selectMode}
-              showSelect={hasData}
-              searchActive={searchActive}
-              onToggleSelect={handleToggleSelectMode}
-              onToggleSearch={toggleSearch}
-            />
-          )
-        : undefined,
-    });
-  }, [navigation, toggleSearch, handleToggleSelectMode, searchActive, selectMode, hasData]);
-
-  useEffect(() => {
-    return () => {
-      navigation.setOptions({ headerRight: undefined });
-    };
-  }, [navigation]);
+  useSelectSearchHeader({
+    navigation,
+    searchActive,
+    onSearchClose: useCallback(() => { setQuery(''); setSearchActive(false); }, []),
+    onSearchToggle: useCallback(() => setSearchActive(true), []),
+    selectMode,
+    visible: hasData,
+    showSelect: hasData,
+    onToggleSelect: handleToggleSelectMode,
+  });
 
   const selectedCount = selectedIds.size + selectedCollectionIds.size;
 

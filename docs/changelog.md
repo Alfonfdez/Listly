@@ -657,3 +657,11 @@ pm run test:all green.
 - No public method signatures, SQL semantics, casing, or defaults changed. No schema/i18n/spec change.
 - `npm run test:all` green (53 files, 454 tests); lint + typecheck clean.
 - Verified on web at 375px (Spanish): creating a list appends it (position), and a duplicate list name is rejected (existsByName). 0 console errors.
+
+[2026-09-28] ~ | ListlyApp [refactor: shared select/search header hook]
+- New `src/hooks/useSelectSearchHeader.tsx`: centralizes the header wiring repeated across screens — the `toggleSearch` callback (guards on select mode, clears the query when closing) plus the `navigation.setOptions({ headerRight })` effect and its `headerRight: undefined` cleanup effect.
+- `ListDetailScreen`, `ListsScreenBase` and `CollectionDetailScreen` now call the hook instead of each declaring `toggleSearch`, the `setOptions` effect, and the cleanup effect (removed ~40 duplicated lines across the three screens). Each screen keeps its own `searchActive`/`query` state and passes its `visible`/`showSelect`/`showSearch` flags and select-toggle handler.
+- No behavior change: same guards, same query clearing, same header visibility conditions, same unmount cleanup. `SelectSearchHeader` unchanged.
+- `npm run test:all` green (53 files, 454 tests); lint + typecheck clean.
+- Verified on web at 375px (Spanish): Home / Lists / List detail headers show select + search only with data; opening and closing search works (query clears); entering/exiting select mode from the header works. 0 console errors.
+- No spec/roadmap change (pure refactor).

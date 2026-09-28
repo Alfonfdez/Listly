@@ -45,7 +45,7 @@ import ItemFormModal from '../components/ItemFormModal';
 import AddItemBar from '../components/AddItemBar';
 import SelectionActionBar from '../components/SelectionActionBar';
 import ConfirmModal from '../components/ConfirmModal';
-import SelectSearchHeader from '../components/SelectSearchHeader';
+import { useSelectSearchHeader } from '../hooks/useSelectSearchHeader';
 import OptionPickerModal from '../components/settings/OptionPickerModal';
 import ListPickerModal from '../components/ListPickerModal';
 import type { Option } from '../components/settings/SelectorInline';
@@ -99,34 +99,17 @@ export default function ListDetailScreen() {
     }, [refresh])
   );
 
-  const toggleSearch = useCallback(() => {
-    if (selectMode) return;
-    setSearchActive(prev => !prev);
-    if (searchActive) setQuery('');
-  }, [searchActive, selectMode]);
-
-  useEffect(() => {
-    navigation.setOptions({
-      headerRight: items.length > 0
-        ? () => (
-            <SelectSearchHeader
-              selectMode={selectMode}
-              showSelect={items.length > 0}
-              showSearch={items.length > 0}
-              searchActive={searchActive}
-              onToggleSelect={toggleSelectMode}
-              onToggleSearch={toggleSearch}
-            />
-          )
-        : undefined,
-    });
-  }, [navigation, selectMode, toggleSelectMode, searchActive, toggleSearch, items.length]);
-
-  useEffect(() => {
-    return () => {
-      navigation.setOptions({ headerRight: undefined });
-    };
-  }, [navigation]);
+  useSelectSearchHeader({
+    navigation,
+    searchActive,
+    onSearchClose: useCallback(() => { setQuery(''); setSearchActive(false); }, []),
+    onSearchToggle: useCallback(() => setSearchActive(true), []),
+    selectMode,
+    visible: items.length > 0,
+    showSelect: items.length > 0,
+    showSearch: items.length > 0,
+    onToggleSelect: toggleSelectMode,
+  });
 
   useEffect(() => {
     if (notice !== MERGE_NOTICE) return;
