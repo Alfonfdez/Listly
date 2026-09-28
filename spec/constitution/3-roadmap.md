@@ -102,6 +102,7 @@ Bulk select/delete + header search:
 - Bulk delete with confirmation dialog, transactional, refresh after.
 - Single list/item delete via long-press in select mode.
 - Search toggle moved from inline ListsView to `headerRight` in the navigator for Home and Lists.
+- The bottom action bar wraps its count/buttons (button group right-aligned) so no action is clipped on narrow screens (375px) with long labels (es) or scaled text.
 - Spec: spec/features/010-bulk-select-delete/.
 
 ## 011-item-pictures
@@ -214,6 +215,7 @@ Status: done.
 Pin/favorite lists and collections (star) so they stay on top:
 - The select-mode action bar gains a star action on Home, Lists, Collections, and Collection detail: **Pin** (`star`) pins every selected list/collection, **Unpin** (`star-outline`) appears when all selected items are already pinned and restores their order; the button is disabled at 0 selected (the icon depicts the result of pressing the button). Runs under `ERROR_SCOPE.pinLists`/`unpinLists`.
 - Pinned lists and collections float to the top of their sections (`pinned DESC, position` ordering via `listRepo.setPinned`/`collectionRepo.setPinned`) and show an amber `star` indicator (theme token `c.star`, a11y `home_pinned`) next to the name on grid cards and rows, hidden in select mode.
+- The action bar's star action wraps with the other buttons so it is never clipped on narrow screens (long es labels, scaled text).
 - Schema: `lists.pinned`, `collections.pinned` (`SCHEMA_VERSION 6`); backup includes the flags and old schema-5 backups import with everything unpinned.
 - Spec: spec/features/021-pin-favorites/.
 

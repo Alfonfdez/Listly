@@ -17,7 +17,7 @@
 - `moveToCollection` / `removeFromCollection` leave `pinned` untouched (a pinned member or standalone list keeps its star).
 
 ### 3. Pin action (select-mode action bar)
-- On Home, Lists, Collections, and Collection detail, the select-mode `SelectionActionBar` shows a star action between Cancel and Delete (rendered only when `onPin` is provided).
+- On Home, Lists, Collections, and Collection detail, the select-mode `SelectionActionBar` shows a star action between Cancel and Delete (rendered only when `onPin` is provided). The bar's count and buttons wrap within the bar so no action (including the star) is clipped on narrow screens with long labels (en/es) or scaled text.
 - Pressing it pins every selected list and collection; if all selected items are already pinned it unpins them all instead (single toggle). Both are no-ops when nothing is selected (button disabled at 0 selected).
 - The label/icon flip with the action intent: "Pin" + `star` when at least one selected item is unpinned, "Unpin" + `star-outline` when everything selected is pinned (the icon depicts the result of pressing the button).
 - Runs under `ERROR_SCOPE.pinLists` / `ERROR_SCOPE.unpinLists` and refreshes after applying.
@@ -51,4 +51,5 @@
 - [x] Collections pin together with lists on Home and Collections; lists pin on Lists and Collection detail.
 - [x] Backup/restore preserves the pinned flags; backups made before pinning (schema 5) import with everything unpinned.
 - [x] `select_pin`, `select_unpin`, `home_pinned` exist in en and es.
+- [x] The action-bar star action is never clipped: the bar wraps its buttons on narrow screens with long labels (es) and scaled text.
 - [x] `npm run test:all` passes.
