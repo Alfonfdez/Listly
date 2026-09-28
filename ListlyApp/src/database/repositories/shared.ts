@@ -43,7 +43,7 @@ export async function copyItemsInto(
   db: DrizzleDb,
   sourceListId: number,
   targetListId: number
-): Promise<void> {
+): Promise<number[]> {
   const sourceRows = await db
     .select()
     .from(items)
@@ -63,6 +63,7 @@ export async function copyItemsInto(
     .get();
   let position = baseRow?.m ?? 0;
   const stamp = dbTimestamp();
+  const copiedIds: number[] = [];
   for (const row of sourceRows) {
     const name = row.name.trim().toLowerCase();
     if (knownNames.has(name)) continue;
@@ -80,6 +81,8 @@ export async function copyItemsInto(
         updated_at: stamp,
       })
       .run();
+    copiedIds.push(row.id);
     position += 1;
   }
+  return copiedIds;
 }

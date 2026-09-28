@@ -245,11 +245,11 @@ Assign / move a list between collections (and back to standalone) from Edit List
 - Spec: spec/features/024-move-list-between-collections/.
 
 ## 025-merge-lists
-Status: pending.
+Status: done.
 
 Merge one list into another:
-- A *Merge into…* action on the source list detail (visible when the list has items) opens `ListPickerModal` (excludes self), then a destructive confirmation ("Merge N items into <Target> and delete <Source>?").
-- `itemRepo.mergeInto(sourceId, targetId)` transactionally appends a full-fidelity copy of the source's items to the target (same case-insensitive name-dedupe rule as 023: same-name items already in the target are skipped and the target item is never modified), deletes the source (with photo cleanup), and rolls back on failure; after merging the app navigates to the target with a toast.
+- A *Merge into…* action on the source list detail (visible when the list has items and inert during search/select) opens `ListPickerModal` (excludes self, empty hint when no other list), then a destructive confirmation ("Merge N items into <Target> and delete <Source>?").
+- `itemRepo.mergeInto(sourceId, targetId)` transactionally appends a full-fidelity copy of the source's items to the target (same case-insensitive name-dedupe rule as 023: same-name items already in the target are skipped and the target item is never modified), deletes the source (cleaning up only the dedupe-skipped items' photos), and rolls back on failure; after merging the app navigates via `navigation.replace` to the target with a "Merged into <Target>" toast.
 - No schema change (`SCHEMA_VERSION` 7).
 - Spec: spec/features/025-merge-lists/.
 

@@ -6,6 +6,7 @@ import Sortable, { type SortableGridRenderItem } from 'react-native-sortables';
 import { useFocusEffect, useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
 import {
   COPY_FEEDBACK_MS,
+  MERGE_NOTICE,
   type IconName,
   type NavigationProp,
   type RootStackParamList,
@@ -51,7 +52,7 @@ import type { Option } from '../components/settings/SelectorInline';
 export default function ListDetailScreen() {
   const route = useRoute<RouteProp<RootStackParamList, 'ListDetail'>>();
   const navigation = useNavigation<NavigationProp<'ListDetail'>>();
-  const { listId } = route.params;
+  const { listId, notice } = route.params;
 
   const { lists, itemsByListId, refresh } = useApp();
   const { activeColors: c } = useConfig();
@@ -67,6 +68,10 @@ export default function ListDetailScreen() {
   const [copiedAction, setCopiedAction] = useState<'all' | 'names' | 'to-list' | null>(null);
   const [copiedToName, setCopiedToName] = useState<string | null>(null);
   const [copyPickerVisible, setCopyPickerVisible] = useState(false);
+  const [mergePickerVisible, setMergePickerVisible] = useState(false);
+  const [mergeTarget, setMergeTarget] = useState<ListWithCounts | null>(null);
+  const [mergeBusy, setMergeBusy] = useState(false);
+  const [mergeNoticeVisible, setMergeNoticeVisible] = useState(false);
   const [clearCompletedVisible, setClearCompletedVisible] = useState(false);
   const copyTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [sort, setSort] = useState<ItemSort>(DEFAULT_ITEM_SORT);
@@ -121,6 +126,13 @@ export default function ListDetailScreen() {
       navigation.setOptions({ headerRight: undefined });
     };
   }, [navigation]);
+
+  useEffect(() => {
+    if (notice !== MERGE_NOTICE) return;
+    setMergeNoticeVisible(true);
+    const timer = setTimeout(() => setMergeNoticeVisible(false), COPY_FEEDBACK_MS);
+    return () => clearTimeout(timer);
+  }, [notice]);
 
   useEffect(() => {
     return () => {
@@ -217,6 +229,21 @@ export default function ListDetailScreen() {
     copyTimeout.current = setTimeout(() => setCopiedAction(null), COPY_FEEDBACK_MS);
     void refresh();
   }, [list, refresh]);
+
+  const doMerge = useCallback(async (target: ListWithCounts) => {
+    if (!list) return;
+    setMergeBusy(true);
+    try {
+      await itemRepo.mergeInto(list.id, target.id);
+      await refresh();
+      setMergeBusy(false);
+      setMergeTarget(null);
+      navigation.replace('ListDetail', { listId: target.id, notice: MERGE_NOTICE });
+    } catch (error) {
+      setMergeBusy(false);
+      logError(ERROR_SCOPE.mergeLists, error);
+    }
+  }, [list, refresh, navigation]);
 
   const completeAll = useCallback(async () => {
     try {
@@ -354,6 +381,14 @@ export default function ListDetailScreen() {
           />
         ) : null}
         {header}
+        {mergeNoticeVisible && list ? (
+          <Text
+            style={[styles.mergeNotice, { color: c.green, fontSize: fs(12) }]}
+            accessibilityLiveRegion="polite"
+          >
+            {labels.list_merged(list.name)}
+          </Text>
+        ) : null}
         {items.length > 0 && !selectMode && !searchActive ? (
           <>
             <View style={styles.sortRow}>
@@ -412,6 +447,17 @@ export default function ListDetailScreen() {
               <Ionicons name="close-circle-outline" size={16} color={done === 0 ? c.textSecondary : c.red} />
               <Text style={[styles.batchText, { color: done === 0 ? c.textSecondary : c.red, fontSize: fs(13) }]}>
                 {labels.item_clear_completed}
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => setMergePickerVisible(true)}
+              style={[styles.batchButton, { borderColor: c.border }]}
+              accessibilityRole="button"
+              accessibilityLabel={labels.list_merge_into}
+            >
+              <Ionicons name="git-merge-outline" size={16} color={c.primary} />
+              <Text style={[styles.batchText, { color: c.primary, fontSize: fs(13) }]}>
+                {labels.list_merge_into}
               </Text>
             </TouchableOpacity>
             </View>
@@ -511,6 +557,35 @@ export default function ListDetailScreen() {
         onSelect={copyToList}
         onClose={() => setCopyPickerVisible(false)}
       />
+
+      <ListPickerModal
+        visible={mergePickerVisible}
+        title={labels.list_merge_into}
+        options={lists}
+        excludeListId={listId}
+        cancelLabel={labels.common_cancel}
+        emptyLabel={labels.list_merge_empty}
+        onSelect={setMergeTarget}
+        onClose={() => setMergePickerVisible(false)}
+      />
+
+      <ConfirmModal
+        visible={mergeTarget !== null}
+        title={labels.list_merge_confirm_title}
+        message={
+          mergeTarget
+            ? labels.list_merge_confirm_message(items.length, mergeTarget.name, list?.name ?? '')
+            : undefined
+        }
+        cancelLabel={labels.common_cancel}
+        confirmLabel={labels.list_merge_confirm}
+        onCancel={() => setMergeTarget(null)}
+        onConfirm={() => {
+          if (mergeTarget) void doMerge(mergeTarget);
+        }}
+        destructive
+        confirmDisabled={mergeBusy}
+      />
     </ScreenShell>
   );
 }
@@ -532,6 +607,12 @@ const styles = StyleSheet.create({
   },
   copiedLabel: {
     fontWeight: '600',
+  },
+  mergeNotice: {
+    fontWeight: '600',
+    textAlign: 'center',
+    paddingVertical: 4,
+    marginBottom: 8,
   },
   batchRow: {
     flexDirection: 'row',

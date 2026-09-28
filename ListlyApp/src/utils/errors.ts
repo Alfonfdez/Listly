@@ -25,6 +25,7 @@ export const ERROR_SCOPE = {
   unpinLists: 'unpin lists and collections',
   duplicateList: 'duplicate list',
   copyItemsToList: 'copy items to another list',
+  mergeLists: 'merge lists',
 } as const;
 
 export type ErrorScope = (typeof ERROR_SCOPE)[keyof typeof ERROR_SCOPE];

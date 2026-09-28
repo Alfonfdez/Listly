@@ -25,7 +25,7 @@
 - The operation fails safely if either list no longer exists.
 
 ### 4. i18n and error handling
-- New keys in en/es: `list_merge_into`, `list_merge_confirm_title`, `list_merge_confirm_message`, `list_merged`.
+- New keys in en/es: `list_merge_into`, `list_merge_confirm`, `list_merge_confirm_title`, `list_merge_confirm_message`, `list_merged`, `list_merge_empty`.
 - The merge runs under a new `ERROR_SCOPE.mergeLists`; failures surface via the existing error path and leave both lists untouched (transaction).
 
 ---
@@ -40,12 +40,12 @@
 
 ## Acceptance criteria
 
-- [ ] List detail shows a *Merge into…* action only when the list has items.
-- [ ] The picker lists other lists, excludes the source, and lets the user pick a target.
-- [ ] The confirmation states the item count and the target name, with Cancel and Merge.
-- [ ] Confirming appends the source's items (name, note, checked, pictures) to the target in source order and deletes the source list in one transaction.
-- [ ] Photo blobs are shared, not re-imported; source item photos are cleaned up.
-- [ ] After merging, the app navigates to the target with a *Merged into <Target>* toast.
-- [ ] Cancelling the picker or confirmation changes nothing.
-- [ ] New labels exist in en and es.
-- [ ] `npm run test:all` passes.
+- [x] List detail shows a *Merge into…* action only when the list has items.
+- [x] The picker lists other lists, excludes the source, and lets the user pick a target.
+- [x] The confirmation states the item count and the target name, with Cancel and Merge.
+- [x] Confirming appends the source's items (name, note, checked, pictures) to the target in source order and deletes the source list in one transaction.
+- [x] Photo blobs are shared, not re-imported; only the photos of dedupe-skipped source items are cleaned up (merged items keep their shared photos).
+- [x] After merging, the app navigates to the target with a *Merged into <Target>* toast.
+- [x] Cancelling the picker or confirmation changes nothing.
+- [x] New labels exist in en and es.
+- [x] `npm run test:all` passes.

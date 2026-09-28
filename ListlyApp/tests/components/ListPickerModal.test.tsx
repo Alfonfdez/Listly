@@ -112,4 +112,22 @@ describe('ListPickerModal', () => {
     );
     expect(view.getByText('No other lists to copy into')).toBeTruthy();
   });
+
+  it('uses the emptyLabel prop when provided', async () => {
+    const onSelect = vi.fn();
+    const onClose = vi.fn();
+    const view = await render(
+      <ListPickerModal
+        visible
+        title="Merge into…"
+        options={[OTHER]}
+        excludeListId={2}
+        cancelLabel="Cancel"
+        emptyLabel="No other lists to merge into"
+        onSelect={onSelect}
+        onClose={onClose}
+      />
+    );
+    expect(view.getByText('No other lists to merge into')).toBeTruthy();
+  });
 });

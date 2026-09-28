@@ -49,6 +49,8 @@ export const DEBOUNCE_MS = 300;
 export const COPY_FEEDBACK_MS = 1500;
 export const PHOTO_QUALITY = 0.7;
 
+export const MERGE_NOTICE = 'merged' as const;
+
 export const MAX_LIST_NAME_LENGTH = 100;
 export const MAX_COLLECTION_NAME_LENGTH = 100;
 export const MAX_ITEM_NAME_LENGTH = 200;
@@ -59,7 +61,7 @@ export type RootStackParamList = {
   Home: undefined;
   Lists: undefined;
   Collections: undefined;
-  ListDetail: { listId: number };
+  ListDetail: { listId: number; notice?: typeof MERGE_NOTICE };
   CreateList: { collectionId?: number; duplicateFromListId?: number } | undefined;
   EditList: { listId: number };
   CollectionDetail: { collectionId: number };
