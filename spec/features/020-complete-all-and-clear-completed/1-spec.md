@@ -8,10 +8,10 @@
 ## Functional requirements
 
 ### 1. Batch toolbar (List detail only)
-- When the list has at least one item and neither select mode nor search is active, a row with three bounded chip buttons appears between the header and the items grid: **Complete all**, **Uncomplete all**, and **Clear completed**. The row wraps (`flexWrap`) so three chips fit narrow screens.
-- **Complete all** is disabled when every item is already checked; on press runs `itemRepo.setAllChecked(listId, true)` (checks every item of the list) and refreshes.
-- **Uncomplete all** is disabled when no item is checked; on press runs `itemRepo.setAllChecked(listId, false)` (unchecks every item of the list) and refreshes — an undo for an accidental Complete all.
-- **Clear completed** is disabled when no item is checked; on press opens a `ConfirmModal` titled `item_clear_completed_confirm(done)` ("Delete N completed item(s)?") with the `item_clear_completed_message` body and a destructive confirm button.
+- When the list has at least one item and neither select mode nor search is active, two rows of bounded chip buttons appear between the header and the items grid: the first row holds the item sort pill (feature 022) and *Merge into…* (feature 025, amber `warning` tint), and the second row holds **All**, **None**, and **Clear** (short visible labels; the full names *Complete all* / *Uncomplete all* / *Clear completed* are kept as accessibility labels). Each row wraps (`flexWrap`) so its chips fit narrow screens.
+- **All** is disabled when every item is already checked; on press runs `itemRepo.setAllChecked(listId, true)` (checks every item of the list) and refreshes.
+- **None** is disabled when no item is checked; on press runs `itemRepo.setAllChecked(listId, false)` (unchecks every item of the list) and refreshes — an undo for an accidental "All".
+- **Clear** is disabled when no item is checked; on press opens a `ConfirmModal` titled `item_clear_completed_confirm(done)` ("Delete N completed item(s)?") with the `item_clear_completed_message` body and a destructive confirm button.
 - Confirming runs `itemRepo.deleteCompleted(listId)` (deletes the checked items of the list only) and refreshes.
 - The toolbar is absent from the empty state, while searching, and while in select mode.
 
@@ -20,7 +20,7 @@
 - `itemRepo.deleteCompleted(listId)` — transactional: selects the checked items' `pictures`, deletes the checked rows of the target list only, then cleans up their photos via `deletePhotosOfItems` (same cleanup path as item delete, so `data:` URIs are skipped and `fileIo` failures are warnings, not errors).
 
 ### 3. i18n
-- New keys en/es: `item_complete_all`, `item_clear_completed`, `item_clear_completed_confirm(count)` (singular/plural aware), `item_clear_completed_message`.
+- New keys en/es: `item_complete_all` / `item_complete_all_a11y`, `item_uncomplete_all` / `item_uncomplete_all_a11y`, `item_clear_completed` / `item_clear_completed_a11y` (short visible label + full accessibility label), `item_clear_completed_confirm(count)` (singular/plural aware), `item_clear_completed_message`.
 
 ---
 
@@ -42,5 +42,7 @@
 - [x] **Clear completed** asks for confirmation showing the number of completed items, then deletes only those items.
 - [x] **Clear completed** is inert (disabled) when no item is checked.
 - [x] The toolbar is hidden when the list is empty, while searching, and in select mode.
-- [x] `item_complete_all`, `item_uncomplete_all`, `item_clear_completed`, `item_clear_completed_confirm`, `item_clear_completed_message` exist in en and es.
+- [x] The three bulk actions use short visible labels (All / None / Clear) with the full names as accessibility labels, on their own row below the sort + Merge row, both rows fitting at 375px in en/es.
+- [x] The toolbar shows two rows — Row 1 = sort + *Merge into…*, Row 2 = All / None / Clear — and the *Merge into…* pill uses the amber `warning` token (distinct from the primary-blue view actions).
+- [x] `item_complete_all`, `item_uncomplete_all`, `item_clear_completed` (+ `_a11y` variants), `item_clear_completed_confirm`, `item_clear_completed_message` exist in en and es.
 - [x] `npm run test:all` passes.

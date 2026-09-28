@@ -13,6 +13,8 @@ interface ColorPalette {
   accent: string;
   green: string;
   red: string;
+  star: string;
+  warning: string;
   border: string;
 }
 ```
@@ -29,6 +31,8 @@ interface ColorPalette {
 | `accent` | `#A78BFA` | Details, highlights, hover |
 | `green` | `#34D399` | Positive values, completed items |
 | `red` | `#F87171` | Negative values, errors, delete |
+| `star` | `#F9A825` | Pinned star indicator |
+| `warning` | `#F9A825` | Caution actions (e.g. Merge into…) |
 | `border` | `#334155` | Input borders, dividers |
 
 ### Light Palette
@@ -43,6 +47,8 @@ interface ColorPalette {
 | `accent` | `#7C3AED` | Details, highlights, hover |
 | `green` | `#059669` | Positive values, completed items |
 | `red` | `#DC2626` | Negative values, errors, delete |
+| `star` | `#F59E0B` | Pinned star indicator |
+| `warning` | `#F59E0B` | Caution actions (e.g. Merge into…) |
 | `border` | `#E2E8F0` | Input borders, dividers |
 
 ### Usage Rules

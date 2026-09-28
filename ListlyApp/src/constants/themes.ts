@@ -12,6 +12,7 @@ export interface ColorPalette {
   green: string;
   red: string;
   star: string;
+  warning: string;
   border: string;
 }
 
@@ -25,6 +26,7 @@ export const darkColors: ColorPalette = {
   green: '#34D399',
   red: '#F87171',
   star: '#F9A825',
+  warning: '#F9A825',
   border: '#334155',
 };
 
@@ -38,5 +40,6 @@ export const lightColors: ColorPalette = {
   green: '#059669',
   red: '#DC2626',
   star: '#F59E0B',
+  warning: '#F59E0B',
   border: '#E2E8F0',
 };

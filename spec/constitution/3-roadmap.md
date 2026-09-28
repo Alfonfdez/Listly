@@ -101,6 +101,7 @@ Bulk select/delete + header search:
 - Multi-select items (long-press to enter select mode) with the same pattern.
 - Bulk delete with confirmation dialog, transactional, refresh after.
 - Single list/item delete via long-press in select mode.
+- The item batch toolbar shows two rows: Row 1 = item sort pill (022) + *Merge into…* (025, amber `warning` tint); Row 2 = All / None / Clear (full names as a11y labels). Both rows fit at 375px in en/es.
 - Search toggle moved from inline ListsView to `headerRight` in the navigator for Home and Lists.
 - The bottom action bar wraps its count/buttons (button group right-aligned) so no action is clipped on narrow screens (375px) with long labels (es) or scaled text; button order is Delete → Pin → Cancel (destructive first, separated).
 - Spec: spec/features/010-bulk-select-delete/.
@@ -223,7 +224,7 @@ Pin/favorite lists and collections (star) so they stay on top:
 Status: done.
 
 Per-list sort toggle on List detail (Manual → Name → Created) with a direction arrow, kept in local state (not a settings option):
-- A bounded pill (`swap-vertical` + mode label + direction arrow + `chevron-down`) in its own row above the batch toolbar opens the shared `OptionPickerModal` with five one-tap options (Manual, Name asc/desc, Created asc/desc); the pill is primary-tinted and drag-reorder is disabled in non-manual modes.
+- A bounded pill (`swap-vertical` + mode label + direction arrow + `chevron-down`) is the first chip of the toolbar's first row (next to *Merge into…*), and opens the shared `OptionPickerModal` with five one-tap options (Manual, Name asc/desc, Created asc/desc); the pill is primary-tinted and drag-reorder is disabled in non-manual modes.
 - Pure `src/utils/itemSort.ts` (`sortItems` stable, case-insensitive numeric-aware `localeCompare` for name, lexicographic for `created_at`); search keeps the active sort applied to filtered results; the choice resets to Manual on re-entry.
 - Schema `SCHEMA_VERSION 7`: `items.updated_at` added to DDL/Drizzle/Zod, stamped on create/update/toggle/setAllChecked/reorder; backup round-trips it and leniently defaults it to `created_at` for schema-6 imports.
 - i18n en/es keys `item_sort*`. Verified on web at 375px (all sort modes, search retention, drag persistence, reset-to-Manual, Spanish labels).
@@ -250,7 +251,7 @@ Assign / move a list between collections (and back to standalone) from Edit List
 Status: done.
 
 Merge one list into another:
-- A *Merge into…* action on the source list detail (visible when the list has items and inert during search/select) opens `ListPickerModal` (excludes self, empty hint when no other list), then a destructive confirmation ("Merge N items into <Target> and delete <Source>?").
+- A *Merge into…* action on the source list detail (visible when the list has items and inert during search/select) sits on the toolbar's first row beside the sort pill, amber (`warning` token); it opens `ListPickerModal` (excludes self, empty hint when no other list), then a destructive confirmation ("Merge N items into <Target> and delete <Source>?").
 - `itemRepo.mergeInto(sourceId, targetId)` transactionally appends a full-fidelity copy of the source's items to the target (same case-insensitive name-dedupe rule as 023: same-name items already in the target are skipped and the target item is never modified), deletes the source (cleaning up only the dedupe-skipped items' photos), and rolls back on failure; after merging the app navigates via `navigation.replace` to the target with a "Merged into <Target>" toast.
 - No schema change (`SCHEMA_VERSION` 7).
 - Spec: spec/features/025-merge-lists/.
