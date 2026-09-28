@@ -546,3 +546,9 @@ pm run test:all green.
 - `npx expo install --fix`: `expo` `~57.0.24` -> `~57.0.25`, `expo-image-picker` `~57.0.19` -> `~57.0.20`, `expo-sharing` `~57.0.21` -> `~57.0.22` (SDK 57 patch releases; `package.json` + `package-lock.json` updated, 8 packages changed).
 - `npx expo install --check` reports "Dependencies are up to date".
 - `npm run test:all` green (51 files, 440 tests). Web smoke at 375px: app boots and Home renders with data, 0 console errors, no horizontal overflow. Expo Go / web, so no native rebuild needed.
+
+[2026-09-28] ~ | ListlyApp [021: pin star visible in select mode]
+- `ListCard` / `ListRow` / `CollectionCard` / `CollectionRow`: the amber `home_pinned` star now renders whenever `pinned === 1` (dropped the `&& !selectMode` gate), so pressing Pin/Unpin from the select-mode action bar shows/removes the star on the selected cards/rows immediately, without leaving select mode. Pinned items still float to the top on refresh (unchanged).
+- Tests: `ListCard.test.tsx` / `ListRow.test.tsx` / `CollectionCard.test.tsx` star assertions flipped from "hidden in select mode" to "kept visible in select mode". `npm run test:all` green (51 files, 440 tests).
+- Docs: 021 spec requirement + tests bullet + new acceptance criterion; roadmap 021 note.
+- Verified on web at 375px (Spanish + Large text): Home select mode with 1 collection + 1 list selected shows 0 stars before Pin; pressing "Fijar" shows 2 amber stars instantly (Col + Uno) and floats them to the top of their sections while the bar flips to "Desfijar"; pressing "Desfijar" removes both stars immediately; 0 console errors.

@@ -38,7 +38,7 @@ describe('ListRow', () => {
     expect(onPress).toHaveBeenCalled();
   });
 
-  it('shows a star indicator when pinned and hides it otherwise or in select mode', async () => {
+  it('shows a star indicator when pinned and hides it otherwise (kept visible in select mode)', async () => {
     const unpinned = await render(<ListRow list={LIST} selectMode={false} selected={false} onPress={() => {}} />);
     expect(unpinned.queryByLabelText('Pinned')).toBeNull();
 
@@ -46,6 +46,6 @@ describe('ListRow', () => {
     expect(pinned.getByLabelText('Pinned')).toBeTruthy();
 
     const selecting = await render(<ListRow list={{ ...LIST, pinned: 1 }} selectMode selected={false} onPress={() => {}} />);
-    expect(selecting.queryByLabelText('Pinned')).toBeNull();
+    expect(selecting.getByLabelText('Pinned')).toBeTruthy();
   });
 });

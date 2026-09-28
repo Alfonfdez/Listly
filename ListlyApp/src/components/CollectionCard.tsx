@@ -49,7 +49,7 @@ function CollectionCardInner({ collection, selectMode, selected, onPress, dropTa
         <Text style={[styles.name, { color: c.text, fontSize: fs(14) }]} numberOfLines={1}>
           {collection.name}
         </Text>
-        {collection.pinned === 1 && !selectMode ? (
+        {collection.pinned === 1 ? (
           <Ionicons name="star" size={14} color={c.star} accessibilityLabel={labels.home_pinned} />
         ) : null}
       </View>

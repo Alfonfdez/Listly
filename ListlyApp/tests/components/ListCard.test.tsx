@@ -98,7 +98,7 @@ describe('ListCard', () => {
     expect(view.getByLabelText('Pinned')).toBeTruthy();
   });
 
-  it('hides the star indicator when the list is not pinned or in select mode', async () => {
+  it('hides the star indicator when the list is not pinned and keeps it visible in select mode', async () => {
     const unpinned = await render(
       <ListCard list={LIST} selectMode={false} selected={false} onPress={() => {}} />
     );
@@ -107,6 +107,6 @@ describe('ListCard', () => {
     const selecting = await render(
       <ListCard list={{ ...LIST, pinned: 1 }} selectMode selected={false} onPress={() => {}} />
     );
-    expect(selecting.queryByLabelText('Pinned')).toBeNull();
+    expect(selecting.getByLabelText('Pinned')).toBeTruthy();
   });
 });
