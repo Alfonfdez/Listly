@@ -6,7 +6,7 @@ import type { Item } from '../types';
 import { itemSchema } from '../schemas';
 import { parseRowOrNull, parseRows } from '../validate';
 import { dbTimestamp } from '../../utils/formatters';
-import { deletePhotosOfItems, reorderPositions, copyItemsInto } from './shared';
+import { deletePhotosOfItems, countRows, reorderPositions, copyItemsInto } from './shared';
 
 export const itemRepo = {
   async listAll(): Promise<Item[]> {
@@ -152,11 +152,6 @@ export const itemRepo = {
     const db = await getDrizzle();
     const conditions: SQL[] = [eq(items.list_id, listId), sql`LOWER(${items.name}) = LOWER(${name})`];
     if (excludeId !== undefined) conditions.push(ne(items.id, excludeId));
-    const rows = await db
-      .select({ count: sql<number>`COUNT(*)` })
-      .from(items)
-      .where(and(...conditions))
-      .all();
-    return (rows[0]?.count ?? 0) > 0;
+    return (await countRows(db, items, conditions)) > 0;
   },
 };

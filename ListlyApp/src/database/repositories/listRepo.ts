@@ -1,4 +1,4 @@
-import { and, desc, eq, ne, sql, type SQL } from 'drizzle-orm';
+import { desc, eq, ne, sql, type SQL } from 'drizzle-orm';
 import { getDrizzle, withTransaction } from '../drizzle/engine';
 import { items, lists } from '../drizzle/schema';
 import { runResultOf } from '../drizzle/proxy';
@@ -6,7 +6,7 @@ import type { List, ListWithCounts } from '../types';
 import { listSchema } from '../schemas';
 import { parseRowOrNull, parseRows } from '../validate';
 import { dbTimestamp } from '../../utils/formatters';
-import { countsSelection, deletePhotosOfItems, picturesOfLists, nextPositionSql, reorderPositions, copyItemsInto } from './shared';
+import { countRows, countsSelection, deletePhotosOfItems, picturesOfLists, nextPosition, reorderPositions, copyItemsInto } from './shared';
 
 export type NewList = Omit<List, 'id' | 'created_at' | 'position' | 'pinned' | 'collection_id'> & {
   collection_id?: number | null;
@@ -28,16 +28,12 @@ export const listRepo = {
   async create(data: NewList): Promise<List> {
     const db = await getDrizzle();
     const collectionId = data.collection_id ?? null;
-    const maxRow = await db
-      .select({ m: nextPositionSql(lists.position) })
-      .from(lists)
-      .where(
-        collectionId !== null
-          ? eq(lists.collection_id, collectionId)
-          : sql`${lists.collection_id} IS NULL`
-      )
-      .get();
-    const position = maxRow?.m ?? 0;
+    const position = await nextPosition(
+      db,
+      lists,
+      lists.position,
+      collectionId !== null ? eq(lists.collection_id, collectionId) : sql`${lists.collection_id} IS NULL`
+    );
     const result = await db
       .insert(lists)
       .values({
@@ -57,16 +53,12 @@ export const listRepo = {
   ): Promise<List> {
     return await withTransaction(async db => {
       const collectionId = data.collection_id ?? null;
-      const maxRow = await db
-        .select({ m: nextPositionSql(lists.position) })
-        .from(lists)
-        .where(
-          collectionId !== null
-            ? eq(lists.collection_id, collectionId)
-            : sql`${lists.collection_id} IS NULL`
-        )
-        .get();
-      const position = maxRow?.m ?? 0;
+      const position = await nextPosition(
+        db,
+        lists,
+        lists.position,
+        collectionId !== null ? eq(lists.collection_id, collectionId) : sql`${lists.collection_id} IS NULL`
+      );
       const created = await db
         .insert(lists)
         .values({
@@ -103,24 +95,14 @@ export const listRepo = {
 
   async moveToCollection(listId: number, collectionId: number): Promise<void> {
     await withTransaction(async db => {
-      const maxRow = await db
-        .select({ m: nextPositionSql(lists.position) })
-        .from(lists)
-        .where(eq(lists.collection_id, collectionId))
-        .get();
-      const position = maxRow?.m ?? 0;
+      const position = await nextPosition(db, lists, lists.position, eq(lists.collection_id, collectionId));
       await db.update(lists).set({ collection_id: collectionId, position }).where(eq(lists.id, listId)).run();
     });
   },
 
   async removeFromCollection(listId: number): Promise<void> {
     await withTransaction(async db => {
-      const maxRow = await db
-        .select({ m: nextPositionSql(lists.position) })
-        .from(lists)
-        .where(sql`${lists.collection_id} IS NULL`)
-        .get();
-      const position = maxRow?.m ?? 0;
+      const position = await nextPosition(db, lists, lists.position, sql`${lists.collection_id} IS NULL`);
       await db.update(lists).set({ collection_id: null, position }).where(eq(lists.id, listId)).run();
     });
   },
@@ -181,11 +163,6 @@ export const listRepo = {
     const db = await getDrizzle();
     const conditions: SQL[] = [sql`LOWER(${lists.name}) = LOWER(${name})`];
     if (excludeId !== undefined) conditions.push(ne(lists.id, excludeId));
-    const rows = await db
-      .select({ count: sql<number>`COUNT(*)` })
-      .from(lists)
-      .where(and(...conditions))
-      .all();
-    return (rows[0]?.count ?? 0) > 0;
+    return (await countRows(db, lists, conditions)) > 0;
   },
 };
