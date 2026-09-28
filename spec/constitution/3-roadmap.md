@@ -102,7 +102,7 @@ Bulk select/delete + header search:
 - Bulk delete with confirmation dialog, transactional, refresh after.
 - Single list/item delete via long-press in select mode.
 - Search toggle moved from inline ListsView to `headerRight` in the navigator for Home and Lists.
-- The bottom action bar wraps its count/buttons (button group right-aligned) so no action is clipped on narrow screens (375px) with long labels (es) or scaled text.
+- The bottom action bar wraps its count/buttons (button group right-aligned) so no action is clipped on narrow screens (375px) with long labels (es) or scaled text; button order is Delete → Pin → Cancel (destructive first, separated).
 - Spec: spec/features/010-bulk-select-delete/.
 
 ## 011-item-pictures

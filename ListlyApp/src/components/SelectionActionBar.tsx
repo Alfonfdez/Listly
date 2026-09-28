@@ -42,6 +42,26 @@ export default function SelectionActionBar({
     <View style={[styles.bar, { backgroundColor: c.surface, borderTopColor: c.border }]}>
       <Text style={[styles.count, { color: c.text, fontSize: fs(14) }]}>{countLabel}</Text>
       <View style={styles.actions}>
+        <TouchableOpacity
+          onPress={onDelete}
+          disabled={disabled}
+          style={[
+            styles.button,
+            styles.deleteSpacing,
+            disabled
+              ? { borderColor: c.border }
+              : { backgroundColor: c.red, borderColor: c.red },
+            disabled && styles.disabled,
+          ]}
+          accessibilityRole="button"
+          accessibilityState={{ disabled }}
+          accessibilityLabel={deleteAccessibilityLabel ?? deleteLabel}
+        >
+          <Ionicons name="trash-outline" size={20} color={disabled ? c.textSecondary : c.background} />
+          <Text style={[styles.buttonText, { color: disabled ? c.textSecondary : c.background, fontSize: fs(14) }]}>
+            {deleteLabel}
+          </Text>
+        </TouchableOpacity>
         {onPin ? (
           <TouchableOpacity
             onPress={onPin}
@@ -65,25 +85,6 @@ export default function SelectionActionBar({
         >
           <Ionicons name="close-outline" size={20} color={c.textSecondary} />
           <Text style={[styles.buttonText, { color: c.text, fontSize: fs(14) }]}>{cancelLabel}</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          onPress={onDelete}
-          disabled={disabled}
-          style={[
-            styles.button,
-            disabled
-              ? { borderColor: c.border }
-              : { backgroundColor: c.red, borderColor: c.red },
-            disabled && styles.disabled,
-          ]}
-          accessibilityRole="button"
-          accessibilityState={{ disabled }}
-          accessibilityLabel={deleteAccessibilityLabel ?? deleteLabel}
-        >
-          <Ionicons name="trash-outline" size={20} color={disabled ? c.textSecondary : c.background} />
-          <Text style={[styles.buttonText, { color: disabled ? c.textSecondary : c.background, fontSize: fs(14) }]}>
-            {deleteLabel}
-          </Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -125,6 +126,9 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     fontWeight: '600',
+  },
+  deleteSpacing: {
+    marginRight: 8,
   },
   disabled: {
     opacity: DISABLED_OPACITY,
