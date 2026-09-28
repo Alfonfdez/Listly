@@ -1,6 +1,7 @@
 import { View } from 'react-native';
 import Svg, { Rect, Line } from 'react-native-svg';
 import { flagColors } from '../../constants/flagColors';
+import { WHITE } from '../../constants/themes';
 import { LANGUAGES, type LanguageId } from '../../constants/languages';
 
 interface Props {
@@ -16,12 +17,12 @@ function UKFlag({ size }: { size: number }) {
   return (
     <Svg width={w} height={h} viewBox={`0 0 ${w} ${h}`}>
       <Rect width={w} height={h} fill={flagColors.ukBlue} />
-      <Line x1={0} y1={0} x2={w} y2={h} stroke="#fff" strokeWidth={dw * 2.5} />
-      <Line x1={w} y1={0} x2={0} y2={h} stroke="#fff" strokeWidth={dw * 2.5} />
+      <Line x1={0} y1={0} x2={w} y2={h} stroke={WHITE} strokeWidth={dw * 2.5} />
+      <Line x1={w} y1={0} x2={0} y2={h} stroke={WHITE} strokeWidth={dw * 2.5} />
       <Line x1={0} y1={0} x2={w} y2={h} stroke={flagColors.ukRed} strokeWidth={dw} />
       <Line x1={w} y1={0} x2={0} y2={h} stroke={flagColors.ukRed} strokeWidth={dw} />
-      <Rect x={0} y={h / 2 - sw / 2} width={w} height={sw} fill="#fff" />
-      <Rect x={w / 2 - sw / 2} y={0} width={sw} height={h} fill="#fff" />
+      <Rect x={0} y={h / 2 - sw / 2} width={w} height={sw} fill={WHITE} />
+      <Rect x={w / 2 - sw / 2} y={0} width={sw} height={h} fill={WHITE} />
       <Rect x={0} y={h / 2 - sw / 3} width={w} height={sw * 0.66} fill={flagColors.ukRed} />
       <Rect x={w / 2 - sw / 3} y={0} width={sw * 0.66} height={h} fill={flagColors.ukRed} />
     </Svg>

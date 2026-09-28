@@ -665,3 +665,13 @@ pm run test:all green.
 - `npm run test:all` green (53 files, 454 tests); lint + typecheck clean.
 - Verified on web at 375px (Spanish): Home / Lists / List detail headers show select + search only with data; opening and closing search works (query clears); entering/exiting select mode from the header works. 0 console errors.
 - No spec/roadmap change (pure refactor).
+
+[2026-09-28] ~ | ListlyApp [polish: tokens, text scaling and a11y]
+- `utils/platform.ts`: removed the unused `isIOS` / `isAndroid` exports (only `isWeb` / `isNative` are used).
+- `components/settings/FlagIcon.web.tsx`: replaced the four hardcoded `#fff` flag strokes/fills with the `WHITE` theme constant.
+- Text scaling: the hardcoded `lineHeight` values that ignored the user's text-size preference are now scaled via `fs()` — `ItemRow` note preview (`fs(18)`), `NoteViewer` note text (`fs(22)`). (`AppearanceScreen`'s size-preview glyph keeps a fixed line height on purpose, since it is a non-scaling preview.)
+- Accessibility: added the missing `accessibilityRole="button"` to `Fab` and the `SearchBar` close button; added `accessibilityLabel` to the `PhotoSection` take-photo / gallery options.
+- `ColorGrid`: swatches now expose the `button` role and human-readable color names instead of raw hex. New i18n keys (en/es) `color_cyan/red/green/amber/pink/lime` + `color_custom`, mapped via `QUICK_COLOR_LABELS` in `constants/listColors.ts`; the custom swatch and the "+" use `color_custom` / `color_grid_more`.
+- Tests: `ColorGrid.test.tsx`, `CreateListScreen.test.tsx`, `EditListScreen.test.tsx` updated to query swatches by their new color-name labels. `npm run test:all` green (53 files, 454 tests); lint + typecheck clean.
+- Verified on web at 375px (Spanish): Create List shows the color swatches labeled Cian/Rojo/Verde/Ámbar/Rosa/Lima + "Más colores"; the FAB exposes `role="button"`; 0 console errors.
+- No spec/roadmap change (polish refactor).

@@ -85,6 +85,7 @@ export default function PhotoSection({ photos, onTakePhoto, onPickFromGallery, o
             style={({ pressed }) => [styles.modalOption, { backgroundColor: c.surface }, pressed && styles.pressed]}
             onPress={() => handleSourceOption(onTakePhoto)}
             accessibilityRole="button"
+            accessibilityLabel={labels.item_photos_take}
           >
             <Ionicons name="camera-outline" size={24} color={c.primary} />
             <Text style={[styles.modalOptionText, { color: c.text, fontSize: fs(15) }]}>
@@ -96,6 +97,7 @@ export default function PhotoSection({ photos, onTakePhoto, onPickFromGallery, o
           style={({ pressed }) => [styles.modalOption, { backgroundColor: c.surface }, pressed && styles.pressed]}
           onPress={() => handleSourceOption(onPickFromGallery)}
           accessibilityRole="button"
+          accessibilityLabel={labels.item_photos_gallery}
         >
           <Ionicons name="images-outline" size={24} color={c.primary} />
           <Text style={[styles.modalOptionText, { color: c.text, fontSize: fs(15) }]}>

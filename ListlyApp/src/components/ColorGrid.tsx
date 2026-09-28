@@ -1,7 +1,7 @@
 import { View, TouchableOpacity, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { WHITE, TRANSPARENT } from '../constants/themes';
-import { QUICK_COLORS } from '../constants/listColors';
+import { QUICK_COLORS, QUICK_COLOR_LABELS } from '../constants/listColors';
 import { useConfig } from '../context/ConfigContext';
 import { useLabels } from '../hooks/useLabels';
 
@@ -16,6 +16,12 @@ export default function ColorGrid({ selectedColor, customColor, onSelect, onOpen
   const { activeColors: c } = useConfig();
   const labels = useLabels();
 
+  const labelFor = (color: string): string => {
+    const key = QUICK_COLOR_LABELS[color];
+    const value = key ? labels[key] : undefined;
+    return typeof value === 'string' ? value : color;
+  };
+
   return (
     <View style={styles.row}>
       {QUICK_COLORS.map((color) => {
@@ -29,7 +35,8 @@ export default function ColorGrid({ selectedColor, customColor, onSelect, onOpen
               isSelected && { borderWidth: 3, borderColor: c.text },
             ]}
             onPress={() => onSelect(color)}
-            accessibilityLabel={color}
+            accessibilityRole="button"
+            accessibilityLabel={labelFor(color)}
             accessibilityState={{ selected: isSelected }}
           >
             {isSelected && (
@@ -46,7 +53,8 @@ export default function ColorGrid({ selectedColor, customColor, onSelect, onOpen
             selectedColor === customColor && { borderWidth: 3, borderColor: c.text },
           ]}
           onPress={() => onSelect(customColor)}
-          accessibilityLabel={customColor}
+          accessibilityRole="button"
+          accessibilityLabel={labels.color_custom}
           accessibilityState={{ selected: selectedColor === customColor }}
         >
           {selectedColor === customColor && (
@@ -57,6 +65,7 @@ export default function ColorGrid({ selectedColor, customColor, onSelect, onOpen
       <TouchableOpacity
         style={[styles.circle, { backgroundColor: c.textSecondary }]}
         onPress={onOpenPicker}
+        accessibilityRole="button"
         accessibilityLabel={labels.color_grid_more}
       >
         <Ionicons name="add" size={18} color={WHITE} />
