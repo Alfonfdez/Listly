@@ -1,18 +1,14 @@
 import { memo } from 'react';
-import { Text, View, StyleSheet } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import { useConfig } from '../context/ConfigContext';
-import { useFontSize } from '../hooks/useFontSize';
-import { useLabels } from '../hooks/useLabels';
+import { View, StyleSheet } from 'react-native';
 import { CARD_BORDER_RADIUS, ALPHA_TINT } from './componentStyles';
 import { TRANSPARENT } from '../constants/themes';
 import { withAlpha } from '../utils/color';
-import { isOn } from '../utils/flags';
-import SortablePressable from './SortablePressable';
 import SelectionCheck from './SelectionCheck';
 import TypeBadge from './TypeBadge';
+import { TileShell, TileName, TileProgress, TileIcon, tileStyles } from './Tile';
+import { useFontSize } from '../hooks/useFontSize';
+import { useLabels } from '../hooks/useLabels';
 import type { CollectionWithCounts } from '../database/types';
-import type { IconName } from '../constants/types';
 
 interface Props {
   collection: CollectionWithCounts;
@@ -23,41 +19,26 @@ interface Props {
 }
 
 function CollectionCardInner({ collection, selectMode, selected, onPress, dropTarget = false }: Props) {
-  const { activeColors: c } = useConfig();
   const fs = useFontSize();
   const labels = useLabels();
 
   return (
-    <SortablePressable
-      style={[
-        styles.card,
-        { backgroundColor: withAlpha(collection.color, ALPHA_TINT) },
-        selectMode && selected && { borderColor: c.primary },
-        selectMode && !selected && { borderColor: c.border },
-        dropTarget && { borderColor: c.primary, backgroundColor: withAlpha(c.primary, ALPHA_TINT) },
-      ]}
+    <TileShell
+      name={collection.name}
+      selectMode={selectMode}
+      selected={selected}
       onPress={onPress}
-      accessibilityRole={selectMode ? 'checkbox' : undefined}
-      accessibilityState={selectMode ? { checked: selected } : undefined}
-      accessibilityLabel={selected ? `${collection.name}, ${labels.select_selected(1)}` : collection.name}
+      dropTarget={dropTarget}
       accessibilityHint={dropTarget ? labels.home_drop_hint : undefined}
+      style={[styles.card, { backgroundColor: withAlpha(collection.color, ALPHA_TINT) }]}
     >
       <View style={[styles.accentBar, { backgroundColor: collection.color }]} />
-      {selectMode ? <SelectionCheck selected={selected} style={styles.check} iconSize={14} /> : null}
-      {!selectMode ? <TypeBadge type="collection" style={styles.typeBadge} /> : null}
-      <Ionicons name={collection.icon as IconName} size={28} color={collection.color} />
-      <View style={styles.nameRow}>
-        <Text style={[styles.name, { color: c.text, fontSize: fs(14) }]} numberOfLines={1}>
-          {collection.name}
-        </Text>
-        {isOn(collection.pinned) ? (
-          <Ionicons name="star" size={14} color={c.star} accessibilityLabel={labels.home_pinned} />
-        ) : null}
-      </View>
-      <Text style={[styles.progress, { color: c.textSecondary, fontSize: fs(12) }]}>
-        {labels.home_progress(collection.completed, collection.total)}
-      </Text>
-    </SortablePressable>
+      {selectMode ? <SelectionCheck selected={selected} style={tileStyles.check} iconSize={14} /> : null}
+      {!selectMode ? <TypeBadge type="collection" style={tileStyles.typeBadge} /> : null}
+      <TileIcon icon={collection.icon} color={collection.color} />
+      <TileName name={collection.name} pinned={collection.pinned} fontSize={fs(14)} />
+      <TileProgress completed={collection.completed} total={collection.total} fontSize={fs(12)} />
+    </TileShell>
   );
 }
 
@@ -80,28 +61,5 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     height: 3,
-  },
-  check: {
-    position: 'absolute',
-    top: 8,
-    right: 8,
-  },
-  typeBadge: {
-    position: 'absolute',
-    top: 8,
-    right: 8,
-  },
-  name: {
-    fontWeight: '600',
-    flexShrink: 1,
-  },
-  nameRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-    alignSelf: 'stretch',
-  },
-  progress: {
-    fontWeight: '500',
   },
 });

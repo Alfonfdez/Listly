@@ -626,3 +626,12 @@ pm run test:all green.
   - `screens/ListDetailScreen.tsx`: the clipboard write in `copyList` now `.catch(...)` -> `logError(ERROR_SCOPE.copyToClipboard, err)`.
   - `utils/errors.ts`: new `ERROR_SCOPE.removePhoto` and `ERROR_SCOPE.copyToClipboard`.
 - Tests: new `tests/hooks/useItemPhotos.test.ts` (camera permission rejection, gallery launch rejection, denied permission does not launch) — mocks `expo-image-picker` via `vi.hoisted`. `npm run test:all` green (53 files, 454 tests).
+
+[2026-09-28] ~ | ListlyApp [refactor: shared tile internals]
+- Extracted the duplicated internals of the four tile components (`ListCard`, `ListRow`, `CollectionCard`, `CollectionRow`) into a new `src/components/Tile.tsx`:
+  - `TileShell` — owns `SortablePressable` + the selection border styles, `accessibilityRole`/`accessibilityState`/`accessibilityLabel` (and optional `accessibilityHint`/`dropTarget`) so the a11y + selection wiring lives in one place.
+  - `TileName` (name + pinned star, parameterized font/star size), `TileCollection` (collection line with reserve), `TileProgress` (completed/total), `TileBadge` (circular icon badge), `TileIcon`, plus shared `tileStyles`.
+- The four components now compose these helpers and keep only their own layout container (card vs row padding/gap/radius, accent bar, `nameColumn` for the list row). No props, behavior, colors, or a11y labels changed.
+- `npm run test:all` green (53 files, 454 tests) with the existing tile/a11y/star/drop-hint tests unchanged. Lint + typecheck clean.
+- Verified on web at 375px (dark theme): Home grid tiles, Lists rows (icon badge, progress, type badge), and select mode (selection border + check overlay on the icon, pinned star, action bar) all render identically; 0 console errors.
+- No spec/roadmap change (pure refactor).
