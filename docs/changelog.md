@@ -646,3 +646,14 @@ pm run test:all green.
 - `npm run test:all` green (53 files, 454 tests); lint + typecheck clean.
 - Verified on web at 375px (dark theme, Spanish): copy-to-list picker (title + subtitle + icon badge row + chevron + single Cancel), sort option picker (radios + tinted selected label + Cancel/Seleccionar), collection picker (standalone row selected with tint + checkmark + Cancel). 0 console errors.
 - No spec/roadmap change (pure refactor).
+
+[2026-09-28] ~ | ListlyApp [refactor: shared repository helpers]
+- Added two helpers to `src/database/repositories/shared.ts`:
+  - `countRows(db, table, conditions)` — the `SELECT COUNT(*) ... WHERE and(...conditions)` used by every `existsByName`.
+  - `nextPosition(db, table, positionColumn, where?)` — the `COALESCE(MAX(position), -1) + 1` read (wraps the existing `nextPositionSql`).
+- Replaced the duplicated bodies:
+  - `existsByName` in `listRepo` / `collectionRepo` / `itemRepo` now build their `conditions` and delegate to `countRows`.
+  - The next-position block (previously repeated in `listRepo.create`, `listRepo.duplicate`, `listRepo.moveToCollection`, `listRepo.removeFromCollection`, `collectionRepo.create`, and `copyItemsInto`) now calls `nextPosition`.
+- No public method signatures, SQL semantics, casing, or defaults changed. No schema/i18n/spec change.
+- `npm run test:all` green (53 files, 454 tests); lint + typecheck clean.
+- Verified on web at 375px (Spanish): creating a list appends it (position), and a duplicate list name is rejected (existsByName). 0 console errors.

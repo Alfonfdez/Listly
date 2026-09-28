@@ -1,6 +1,6 @@
-import { eq, inArray, sql, type AnyColumn, type SQL } from 'drizzle-orm';
+import { and, eq, inArray, sql, type AnyColumn, type SQL } from 'drizzle-orm';
 import { withTransaction, type DrizzleDb } from '../drizzle/engine';
-import { items } from '../drizzle/schema';
+import { collections, items, lists } from '../drizzle/schema';
 import { deleteItemPhotos, duplicateItemPhotos, parseItemPhotos, serializeItemPhotos } from '../../utils/itemPhotos';
 import { dbTimestamp } from '../../utils/formatters';
 
@@ -11,6 +11,27 @@ export const countsSelection = {
 
 export function nextPositionSql(positionColumn: AnyColumn): SQL<number> {
   return sql<number>`COALESCE(MAX(${positionColumn}), -1) + 1`;
+}
+
+type RepoTable = typeof lists | typeof collections | typeof items;
+
+export async function countRows(db: DrizzleDb, table: RepoTable, conditions: SQL[]): Promise<number> {
+  const rows = await db
+    .select({ count: sql<number>`COUNT(*)` })
+    .from(table)
+    .where(and(...conditions))
+    .all();
+  return rows[0]?.count ?? 0;
+}
+
+export async function nextPosition(
+  db: DrizzleDb,
+  table: RepoTable,
+  positionColumn: AnyColumn,
+  where?: SQL
+): Promise<number> {
+  const row = await db.select({ m: nextPositionSql(positionColumn) }).from(table).where(where).get();
+  return row?.m ?? 0;
 }
 
 export async function reorderPositions(
@@ -57,12 +78,7 @@ export async function copyItemsInto(
     .where(eq(items.list_id, targetListId))
     .all();
   const knownNames = new Set(targetRows.map(row => row.name.trim().toLowerCase()));
-  const baseRow = await db
-    .select({ m: nextPositionSql(items.position) })
-    .from(items)
-    .where(eq(items.list_id, targetListId))
-    .get();
-  let position = baseRow?.m ?? 0;
+  let position = await nextPosition(db, items, items.position, eq(items.list_id, targetListId));
   const stamp = dbTimestamp();
   const copiedIds: number[] = [];
   for (const row of sourceRows) {

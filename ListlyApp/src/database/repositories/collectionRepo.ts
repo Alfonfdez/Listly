@@ -1,4 +1,4 @@
-import { and, desc, eq, inArray, ne, sql, type SQL } from 'drizzle-orm';
+import { desc, eq, inArray, ne, sql, type SQL } from 'drizzle-orm';
 import { getDrizzle, withTransaction } from '../drizzle/engine';
 import { collections, items, lists } from '../drizzle/schema';
 import { runResultOf } from '../drizzle/proxy';
@@ -7,7 +7,7 @@ import { collectionSchema } from '../schemas';
 import { parseRowOrNull, parseRows } from '../validate';
 import { dbTimestamp } from '../../utils/formatters';
 import { COLLECTION_DELETE_MODES, type CollectionDeleteMode } from '../../constants/types';
-import { countsSelection, deletePhotosOfItems, picturesOfLists, nextPositionSql, reorderPositions } from './shared';
+import { countRows, countsSelection, deletePhotosOfItems, picturesOfLists, nextPosition, reorderPositions } from './shared';
 
 export type NewCollection = Omit<Collection, 'id' | 'created_at' | 'position' | 'pinned'>;
 
@@ -26,11 +26,7 @@ export const collectionRepo = {
 
   async create(data: NewCollection): Promise<Collection> {
     const db = await getDrizzle();
-    const maxRow = await db
-      .select({ m: nextPositionSql(collections.position) })
-      .from(collections)
-      .get();
-    const position = maxRow?.m ?? 0;
+    const position = await nextPosition(db, collections, collections.position);
     const result = await db
       .insert(collections)
       .values({
@@ -134,11 +130,6 @@ export const collectionRepo = {
     const db = await getDrizzle();
     const conditions: SQL[] = [sql`LOWER(${collections.name}) = LOWER(${name})`];
     if (excludeId !== undefined) conditions.push(ne(collections.id, excludeId));
-    const rows = await db
-      .select({ count: sql<number>`COUNT(*)` })
-      .from(collections)
-      .where(and(...conditions))
-      .all();
-    return (rows[0]?.count ?? 0) > 0;
+    return (await countRows(db, collections, conditions)) > 0;
   },
 };
