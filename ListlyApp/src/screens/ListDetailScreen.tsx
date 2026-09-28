@@ -49,6 +49,7 @@ export default function ListDetailScreen() {
 
   const list = useMemo(() => lists.find(l => l.id === listId), [lists, listId]);
   const items = useMemo(() => itemsByListId.get(listId) ?? [], [itemsByListId, listId]);
+  const hasOtherLists = useMemo(() => lists.some(l => l.id !== listId), [lists, listId]);
 
   const [searchActive, setSearchActive] = useState(false);
   const [query, setQuery] = useState('');
@@ -217,20 +218,22 @@ export default function ListDetailScreen() {
                 color={copiedAction === 'all' ? c.green : list.color}
               />
             </TouchableOpacity>
-            <TouchableOpacity
-              onPress={openCopyPicker}
-              style={styles.copyButton}
-              accessibilityRole="button"
-              accessibilityLabel={labels.list_copy_to}
-              accessibilityHint={labels.list_picker_hint}
-              hitSlop={HIT_SLOP}
-            >
-              <Ionicons
-                name={copiedAction === 'to-list' ? 'checkmark' : 'duplicate-outline'}
-                size={20}
-                color={copiedAction === 'to-list' ? c.green : list.color}
-              />
-            </TouchableOpacity>
+            {hasOtherLists ? (
+              <TouchableOpacity
+                onPress={openCopyPicker}
+                style={styles.copyButton}
+                accessibilityRole="button"
+                accessibilityLabel={labels.list_copy_to}
+                accessibilityHint={labels.list_picker_hint}
+                hitSlop={HIT_SLOP}
+              >
+                <Ionicons
+                  name={copiedAction === 'to-list' ? 'checkmark' : 'duplicate-outline'}
+                  size={20}
+                  color={copiedAction === 'to-list' ? c.green : list.color}
+                />
+              </TouchableOpacity>
+            ) : null}
             {copiedAction ? (
               <Text style={[styles.copiedLabel, { color: c.green, fontSize: fs(12) }]}>
                 {copiedAction === 'to-list' && copiedToName
@@ -291,17 +294,19 @@ export default function ListDetailScreen() {
                 ) : null}
                 <Ionicons name="chevron-down" size={14} color={c.textSecondary} />
               </TouchableOpacity>
-              <TouchableOpacity
-                onPress={openMergePicker}
-                style={[styles.batchButton, { borderColor: c.warning }]}
-                accessibilityRole="button"
-                accessibilityLabel={labels.list_merge_into}
-              >
-                <Ionicons name="git-merge-outline" size={16} color={c.warning} />
-                <Text style={[styles.batchText, { color: c.warning, fontSize: fs(13) }]}>
-                  {labels.list_merge_into}
-                </Text>
-              </TouchableOpacity>
+              {hasOtherLists ? (
+                <TouchableOpacity
+                  onPress={openMergePicker}
+                  style={[styles.batchButton, { borderColor: c.warning }]}
+                  accessibilityRole="button"
+                  accessibilityLabel={labels.list_merge_into}
+                >
+                  <Ionicons name="git-merge-outline" size={16} color={c.warning} />
+                  <Text style={[styles.batchText, { color: c.warning, fontSize: fs(13) }]}>
+                    {labels.list_merge_into}
+                  </Text>
+                </TouchableOpacity>
+              ) : null}
             </View>
             <View style={styles.batchRow}>
               <TouchableOpacity

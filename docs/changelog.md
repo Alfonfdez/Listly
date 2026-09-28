@@ -692,3 +692,10 @@ pm run test:all green.
 - `npm run test:all` green (55 files, 469 tests); lint + typecheck clean.
 - Verified on web at 375px (Spanish): sort modal, copy-names feedback, Complete all / Uncomplete all, merge picker, item edit modal, and select mode all work; 0 console errors.
 - No spec/roadmap change (pure refactor).
+
+[2026-09-28] fix | ListlyApp [hide cross-list actions without a target]
+- Fix a dead-end: with a single list in the app, the *Copy items into another list* header icon and the *Merge into…* pill were shown but their pickers had nothing to select.
+  - `ListDetailScreen`: added `hasOtherLists = lists.some(l => l.id !== listId)`; the copy-to-list header icon and the *Merge into…* pill now render only when another list exists (clipboard *Copy* / *Copy with notes* stay). Derived from the global lists, so they reappear automatically once a second list is created (or the other is deleted).
+- Tests: `ListDetailScreen.test.tsx` updated the merge-visibility cases to provide a second list, plus new cases — hidden with one list (both actions), shown with two. `npm run test:all` green (55 files, 471 tests); lint + typecheck clean.
+- Docs: 023 §2 + criterion, 025 §1/§3 + criterion, roadmap 023/025 notes.
+- Verified on web at 375px (fresh IndexedDB): with a single list the copy-to-list icon and merge pill are absent (clipboard copy still present); after creating a second list both appear again. 0 console errors.
