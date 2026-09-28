@@ -1,18 +1,15 @@
 import { memo } from 'react';
-import { Text, View, StyleSheet } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { View, StyleSheet } from 'react-native';
+import { CARD_BORDER_RADIUS, ALPHA_TINT } from './componentStyles';
+import { TRANSPARENT } from '../constants/themes';
+import { withAlpha } from '../utils/color';
+import SelectionCheck from './SelectionCheck';
+import TypeBadge from './TypeBadge';
+import { TileShell, TileName, TileProgress, TileBadge, tileStyles, tileBadgeSize } from './Tile';
 import { useConfig } from '../context/ConfigContext';
 import { useFontSize } from '../hooks/useFontSize';
 import { useLabels } from '../hooks/useLabels';
-import { CARD_BORDER_RADIUS, ALPHA_TINT, ALPHA_BADGE } from './componentStyles';
-import { TRANSPARENT } from '../constants/themes';
-import { withAlpha } from '../utils/color';
-import { isOn } from '../utils/flags';
-import SortablePressable from './SortablePressable';
-import SelectionCheck from './SelectionCheck';
-import TypeBadge from './TypeBadge';
 import type { CollectionWithCounts } from '../database/types';
-import type { IconName } from '../constants/types';
 
 interface Props {
   collection: CollectionWithCounts;
@@ -28,46 +25,30 @@ function CollectionRowInner({ collection, selectMode, selected, onPress, dropTar
   const labels = useLabels();
 
   return (
-    <SortablePressable
-      style={[
-        styles.row,
-        { backgroundColor: withAlpha(collection.color, ALPHA_TINT) },
-        selectMode && selected && { borderColor: c.primary },
-        selectMode && !selected && { borderColor: c.border },
-        dropTarget && { borderColor: c.primary, backgroundColor: withAlpha(c.primary, ALPHA_TINT) },
-      ]}
+    <TileShell
+      name={collection.name}
+      selectMode={selectMode}
+      selected={selected}
       onPress={onPress}
-      accessibilityRole={selectMode ? 'checkbox' : undefined}
-      accessibilityState={selectMode ? { checked: selected } : undefined}
-      accessibilityLabel={selected ? `${collection.name}, ${labels.select_selected(1)}` : collection.name}
+      dropTarget={dropTarget}
       accessibilityHint={dropTarget ? labels.home_drop_hint : undefined}
+      style={[styles.row, { backgroundColor: withAlpha(collection.color, ALPHA_TINT) }]}
     >
       <View style={[styles.accentBar, { backgroundColor: collection.color }]} />
       <View style={styles.badgeWrap}>
-        <View style={[styles.badge, { backgroundColor: withAlpha(collection.color, ALPHA_BADGE) }]}>
-          <Ionicons name={collection.icon as IconName} size={22} color={collection.color} />
-        </View>
+        <TileBadge icon={collection.icon} color={collection.color} />
         {selectMode ? (
-          <SelectionCheck selected={selected} style={styles.check} unselectedBackground={c.surface} />
+          <SelectionCheck selected={selected} style={tileStyles.rowCheck} unselectedBackground={c.surface} />
         ) : null}
       </View>
-      <View style={styles.nameRow}>
-        <Text style={[styles.name, { color: c.text, fontSize: fs(15) }]} numberOfLines={1}>
-          {collection.name}
-        </Text>
-        {isOn(collection.pinned) ? (
-          <Ionicons name="star" size={13} color={c.star} accessibilityLabel={labels.home_pinned} />
-        ) : null}
-      </View>
-      <Text style={[styles.progress, { color: c.textSecondary, fontSize: fs(13) }]}>
-        {labels.home_progress(collection.completed, collection.total)}
-      </Text>
+      <TileName name={collection.name} pinned={collection.pinned} fontSize={fs(15)} starSize={13} style={styles.nameRow} />
+      <TileProgress completed={collection.completed} total={collection.total} fontSize={fs(13)} />
       {!selectMode ? <TypeBadge type="collection" /> : null}
-    </SortablePressable>
+    </TileShell>
   );
 }
 
-const BADGE_SIZE = 40;
+export default memo(CollectionRowInner);
 
 const styles = StyleSheet.create({
   row: {
@@ -89,37 +70,11 @@ const styles = StyleSheet.create({
     width: 4,
   },
   badgeWrap: {
-    width: BADGE_SIZE,
-    height: BADGE_SIZE,
+    width: tileBadgeSize,
+    height: tileBadgeSize,
     position: 'relative',
-  },
-  badge: {
-    width: BADGE_SIZE,
-    height: BADGE_SIZE,
-    borderRadius: BADGE_SIZE / 2,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  check: {
-    position: 'absolute',
-    top: -3,
-    right: -3,
-  },
-  name: {
-    flex: 1,
-    fontWeight: '600',
-    flexShrink: 1,
   },
   nameRow: {
     flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-    alignSelf: 'stretch',
-  },
-  progress: {
-    fontWeight: '500',
   },
 });
-
-export default memo(CollectionRowInner);
