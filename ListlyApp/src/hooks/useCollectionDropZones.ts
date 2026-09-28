@@ -1,7 +1,7 @@
 import { useCallback, useRef, useState } from 'react';
 import type { DragStartParams } from 'react-native-sortables';
 import { listRepository as listRepo } from '../database';
-import { logError, runSafely, ERROR_SCOPE } from '../utils/errors';
+import { logError, runSafelyAsync, ERROR_SCOPE } from '../utils/errors';
 
 interface Options {
   refresh: () => Promise<void>;
@@ -29,12 +29,13 @@ export function useCollectionDropZones({ refresh, inCollectionDetail }: Options)
         void refresh();
         return;
       }
-      runSafely(listRepo.reorder(ids), ERROR_SCOPE.reorderLists);
-      void refresh();
+      void (async () => {
+        await runSafelyAsync(listRepo.reorder(ids), ERROR_SCOPE.reorderLists);
+        await refresh();
+      })();
     },
     [refresh]
   );
-
   const handleListsDragStart = useCallback(
     (params: DragStartParams) => {
       draggingListRef.current = Number(params.key);

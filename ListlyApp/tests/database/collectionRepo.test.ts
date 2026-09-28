@@ -10,6 +10,11 @@ vi.mock('expo-sqlite', async () => {
   return { openDatabaseSync: mod.openDatabaseSync };
 });
 
+vi.mock('../../src/utils/itemPhotos', async () => {
+  const actual = await vi.importActual<typeof import('../../src/utils/itemPhotos')>('../../src/utils/itemPhotos');
+  return { ...actual, deleteItemPhotos: vi.fn(async () => {}) };
+});
+
 await import('expo-sqlite');
 
 type Backend = {
@@ -113,6 +118,34 @@ describe('collectionRepo', () => {
 
     expect(await b.collections.get(free.id)).toBeNull();
     expect(await b.items.get(item.id)).not.toBeNull();
+  });
+
+  it('deletes the photos of the member lists\' items when a collection is deleted (cascade)', async () => {
+    const deleteItemPhotos = (await import('../../src/utils/itemPhotos')).deleteItemPhotos as ReturnType<typeof vi.fn>;
+    deleteItemPhotos.mockClear();
+    const { collectionId, insideIds, freeId } = await seedCollection(b);
+    await b.items.create({ list_id: insideIds[0], name: 'i1', checked: 0, note: null, pictures: '["i1.jpg"]', position: 0 });
+    await b.items.create({ list_id: insideIds[1], name: 'i2', checked: 0, note: null, pictures: '["i2.jpg","i3.jpg"]', position: 0 });
+    await b.items.create({ list_id: freeId, name: 'free', checked: 0, note: null, pictures: '["free.jpg"]', position: 0 });
+
+    await b.collections.delete(collectionId, 'cascade');
+
+    expect(deleteItemPhotos).toHaveBeenCalledTimes(1);
+    const allDeleted = (deleteItemPhotos.mock.calls as string[][]).flat(2).sort();
+    expect(allDeleted).toEqual(['i1.jpg', 'i2.jpg', 'i3.jpg']);
+    expect(allDeleted).not.toContain('free.jpg');
+  });
+
+  it('deleteMany cascade deletes the photos of every member list\'s items', async () => {
+    const deleteItemPhotos = (await import('../../src/utils/itemPhotos')).deleteItemPhotos as ReturnType<typeof vi.fn>;
+    deleteItemPhotos.mockClear();
+    const { collectionId, insideIds } = await seedCollection(b);
+    await b.items.create({ list_id: insideIds[0], name: 'i1', checked: 0, note: null, pictures: '["x.jpg"]', position: 0 });
+
+    await b.collections.deleteMany([collectionId]);
+
+    expect(deleteItemPhotos).toHaveBeenCalledTimes(1);
+    expect((deleteItemPhotos.mock.calls as string[][]).flat(2)).toEqual(['x.jpg']);
   });
 
   it('create returns pinned 0', async () => {

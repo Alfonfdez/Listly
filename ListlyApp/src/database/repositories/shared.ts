@@ -1,7 +1,7 @@
 import { eq, inArray, sql, type AnyColumn, type SQL } from 'drizzle-orm';
-import { getDrizzle, withTransaction, type DrizzleDb } from '../drizzle/engine';
+import { withTransaction, type DrizzleDb } from '../drizzle/engine';
 import { items } from '../drizzle/schema';
-import { deleteItemPhotos, parseItemPhotos } from '../../utils/itemPhotos';
+import { deleteItemPhotos, duplicateItemPhotos, parseItemPhotos, serializeItemPhotos } from '../../utils/itemPhotos';
 import { dbTimestamp } from '../../utils/formatters';
 
 export const countsSelection = {
@@ -28,15 +28,16 @@ export async function deletePhotosOfItems(rows: { pictures: string | null }[]): 
   await deleteItemPhotos(rows.flatMap(row => parseItemPhotos(row.pictures)));
 }
 
-export async function deletePhotosOfLists(listIds: number[]): Promise<void> {
-  if (listIds.length === 0) return;
-  const db = await getDrizzle();
-  const rows = await db
+export async function picturesOfLists(
+  db: DrizzleDb,
+  listIds: number[]
+): Promise<{ pictures: string | null }[]> {
+  if (listIds.length === 0) return [];
+  return await db
     .select({ pictures: items.pictures })
     .from(items)
     .where(inArray(items.list_id, listIds))
     .all();
-  await deletePhotosOfItems(rows);
 }
 
 export async function copyItemsInto(
@@ -68,6 +69,7 @@ export async function copyItemsInto(
     const name = row.name.trim().toLowerCase();
     if (knownNames.has(name)) continue;
     knownNames.add(name);
+    const copiedPictures = await duplicateItemPictures(row.pictures);
     await db
       .insert(items)
       .values({
@@ -75,7 +77,7 @@ export async function copyItemsInto(
         name: row.name,
         checked: row.checked,
         note: row.note,
-        pictures: row.pictures,
+        pictures: copiedPictures,
         position,
         created_at: stamp,
         updated_at: stamp,
@@ -85,4 +87,10 @@ export async function copyItemsInto(
     position += 1;
   }
   return copiedIds;
+}
+
+async function duplicateItemPictures(pictures: string | null): Promise<string | null> {
+  const photos = parseItemPhotos(pictures);
+  if (photos.length === 0) return null;
+  return serializeItemPhotos(await duplicateItemPhotos(photos));
 }

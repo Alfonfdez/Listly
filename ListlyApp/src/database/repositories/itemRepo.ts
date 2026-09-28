@@ -137,15 +137,13 @@ export const itemRepo = {
       throw new Error('Cannot merge a list into itself');
     }
     await withTransaction(async db => {
-      const copiedIds = await copyItemsInto(db, sourceListId, targetListId);
-      const copiedSet = new Set(copiedIds);
+      await copyItemsInto(db, sourceListId, targetListId);
       const sourceRows = await db
-        .select({ id: items.id, pictures: items.pictures })
+        .select({ pictures: items.pictures })
         .from(items)
         .where(eq(items.list_id, sourceListId))
         .all();
-      const skipped = sourceRows.filter(row => !copiedSet.has(row.id));
-      await deletePhotosOfItems(skipped);
+      await deletePhotosOfItems(sourceRows);
       await db.delete(lists).where(eq(lists.id, sourceListId)).run();
     });
   },

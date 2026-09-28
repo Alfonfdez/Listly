@@ -1,12 +1,14 @@
 import { describe, expect, it, beforeEach, vi } from 'vitest';
-import { render } from '@testing-library/react-native';
+import { render, userEvent } from '@testing-library/react-native';
 import ItemFormModal from '../../src/components/ItemFormModal';
 import { resetStub, setConfig } from '../helpers/configStub';
+
+const setPhotosMock = vi.fn();
 
 vi.mock('../../src/hooks/useItemPhotos', () => ({
   useItemPhotos: () => ({
     photos: [],
-    setPhotos: vi.fn(),
+    setPhotos: setPhotosMock,
     handleTakePhoto: vi.fn(),
     handlePickFromGallery: vi.fn(),
     handleRemovePhoto: vi.fn(),
@@ -47,5 +49,20 @@ describe('ItemFormModal', () => {
     const view = await render(<ItemFormModal {...baseProps} />);
     expect(view.getByLabelText('Note')).toBeTruthy();
     expect(view.getByLabelText('Add photo')).toBeTruthy();
+  });
+
+  it('does not reset typed input when the parent re-renders while open', async () => {
+    setPhotosMock.mockClear();
+    const user = userEvent.setup();
+    const view = await render(<ItemFormModal {...baseProps} />);
+    const input = view.getByLabelText('Name');
+    await user.clear(input);
+    await user.type(input, 'Bread');
+
+    // Parent re-renders with a new initialPhotos array identity (same content).
+    view.rerender(<ItemFormModal {...baseProps} initialPhotos={[]} />);
+
+    expect(view.getByLabelText('Name').props.value).toBe('Bread');
+    expect(setPhotosMock).toHaveBeenCalledTimes(1);
   });
 });

@@ -2,8 +2,7 @@ import { useCallback, useState } from 'react';
 import * as ImagePicker from 'expo-image-picker';
 import { isWeb } from '../utils/platform';
 import { PHOTO_QUALITY } from '../constants/types';
-import { deleteItemPhotos, itemPhotoFileName } from '../utils/itemPhotos';
-import { File, Paths } from '../utils/fileIo';
+import { copyItemPhotoToStorage, deleteItemPhotos } from '../utils/itemPhotos';
 import { logError, ERROR_SCOPE } from '../utils/errors';
 
 function readAsDataUrl(blob: Blob): Promise<string> {
@@ -23,19 +22,12 @@ async function webPhotoUri(asset: ImagePicker.ImagePickerAsset): Promise<string>
   return readAsDataUrl(blob);
 }
 
-async function copyPhotoToStorage(src: string): Promise<string> {
-  const dest = Paths.document.uri + itemPhotoFileName();
-  const destFile = new File(dest);
-  await new File(src).copy(destFile, { overwrite: true });
-  return dest;
-}
-
 export function useItemPhotos(initialPhotos: string[] = []) {
   const [photos, setPhotos] = useState<string[]>(initialPhotos);
 
   const addAsset = useCallback(async (asset: ImagePicker.ImagePickerAsset) => {
     try {
-      const uri = isWeb ? await webPhotoUri(asset) : await copyPhotoToStorage(asset.uri);
+      const uri = isWeb ? await webPhotoUri(asset) : await copyItemPhotoToStorage(asset.uri);
       setPhotos(prev => [...prev, uri]);
     } catch (err) {
       logError(ERROR_SCOPE.addPhoto, err);
@@ -43,25 +35,37 @@ export function useItemPhotos(initialPhotos: string[] = []) {
   }, []);
 
   const handleTakePhoto = useCallback(async () => {
-    const { status } = await ImagePicker.requestCameraPermissionsAsync();
-    if (status !== 'granted') return;
-    const result = await ImagePicker.launchCameraAsync({ mediaTypes: ['images'], quality: PHOTO_QUALITY });
-    if (!result.canceled && result.assets[0]) {
-      await addAsset(result.assets[0]);
+    try {
+      const { status } = await ImagePicker.requestCameraPermissionsAsync();
+      if (status !== 'granted') return;
+      const result = await ImagePicker.launchCameraAsync({ mediaTypes: ['images'], quality: PHOTO_QUALITY });
+      if (!result.canceled && result.assets[0]) {
+        await addAsset(result.assets[0]);
+      }
+    } catch (err) {
+      logError(ERROR_SCOPE.addPhoto, err);
     }
   }, [addAsset]);
 
   const handlePickFromGallery = useCallback(async () => {
-    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (status !== 'granted') return;
-    const result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ['images'], quality: PHOTO_QUALITY });
-    if (!result.canceled && result.assets[0]) {
-      await addAsset(result.assets[0]);
+    try {
+      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (status !== 'granted') return;
+      const result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ['images'], quality: PHOTO_QUALITY });
+      if (!result.canceled && result.assets[0]) {
+        await addAsset(result.assets[0]);
+      }
+    } catch (err) {
+      logError(ERROR_SCOPE.addPhoto, err);
     }
   }, [addAsset]);
 
   const handleRemovePhoto = useCallback(async (uri: string) => {
-    await deleteItemPhotos([uri]);
+    try {
+      await deleteItemPhotos([uri]);
+    } catch (err) {
+      logError(ERROR_SCOPE.removePhoto, err);
+    }
     setPhotos(prev => prev.filter(p => p !== uri));
   }, []);
 

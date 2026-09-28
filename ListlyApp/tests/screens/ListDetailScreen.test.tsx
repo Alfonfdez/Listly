@@ -762,6 +762,25 @@ describe('ListDetailScreen', () => {
     await waitFor(() => expect(itemRepositoryMock.reorder).toHaveBeenCalledWith(1, [2, 1]));
   });
 
+  it('waits for the reorder write to settle before refreshing', async () => {
+    let resolveReorder: () => void = () => {};
+    itemRepositoryMock.reorder = vi.fn(
+      () => new Promise<void>(resolve => { resolveReorder = resolve; })
+    );
+    const view = await render(<ListDetailScreen />);
+    await view.findByText('Milk');
+    getAppStub().refresh.mockClear();
+
+    fireGridDragEnd({ data: [ITEMS[1], ITEMS[0]] });
+    await waitFor(() => expect(itemRepositoryMock.reorder).toHaveBeenCalled());
+
+    // The write has not resolved yet, so refresh must not have run.
+    expect(getAppStub().refresh).not.toHaveBeenCalled();
+
+    resolveReorder();
+    await waitFor(() => expect(getAppStub().refresh).toHaveBeenCalled());
+  });
+
   it('disables reordering when the list has a single item', async () => {
     setItemsByListId(new Map([[1, [ITEMS[0]]]]));
     const view = await render(<ListDetailScreen />);

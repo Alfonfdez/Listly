@@ -10,6 +10,15 @@ vi.mock('expo-sqlite', async () => {
   return { openDatabaseSync: mod.openDatabaseSync };
 });
 
+vi.mock('../../src/utils/itemPhotos', async () => {
+  const actual = await vi.importActual<typeof import('../../src/utils/itemPhotos')>('../../src/utils/itemPhotos');
+  return {
+    ...actual,
+    deleteItemPhotos: vi.fn(async () => {}),
+    duplicateItemPhotos: vi.fn(async (photos: string[]) => photos.map(p => `copy-of-${p}`)),
+  };
+});
+
 await import('expo-sqlite');
 
 type Backend = {
@@ -243,7 +252,7 @@ describe('listRepo.duplicate', () => {
     expect(copies.map(i => i.position)).toEqual([0, 1]);
     expect(copies[0].checked).toBe(1);
     expect(copies[0].note).toBe('n1');
-    expect(copies[0].pictures).toBe('["p1.jpg"]');
+    expect(copies[0].pictures).toBe('["copy-of-p1.jpg"]');
 
     const sourceItems = await b.items.listByList(source.id);
     expect(sourceItems.map(i => i.name)).toEqual(['a1', 'a2']);
@@ -263,5 +272,48 @@ describe('listRepo.duplicate', () => {
     expect(copy.position).toBe(2);
     expect((await b.lists.get(a1.id))?.position).toBe(0);
     expect((await b.lists.get(a2.id))?.position).toBe(1);
+  });
+});
+
+describe('listRepo delete photo cleanup', () => {
+  let b: Backend;
+
+  beforeAll(async () => {
+    await initSqlJsOnce();
+  });
+
+  beforeEach(async () => {
+    b = await createBackend();
+  });
+
+  it('deletes the photos of a list\'s items when the list is deleted', async () => {
+    const deleteItemPhotos = (await import('../../src/utils/itemPhotos')).deleteItemPhotos as ReturnType<typeof vi.fn>;
+    deleteItemPhotos.mockClear();
+    const list = await b.lists.create({ name: 'A', color: '#22D3EE', icon: 'cart-outline', collection_id: null });
+    await b.items.create({ list_id: list.id, name: 'a1', checked: 0, note: null, position: 0, pictures: '["a1.jpg"]' });
+    await b.items.create({ list_id: list.id, name: 'a2', checked: 0, note: null, position: 1, pictures: '["a2.jpg","a3.jpg"]' });
+
+    await b.lists.delete(list.id);
+
+    expect(deleteItemPhotos).toHaveBeenCalledTimes(1);
+    expect(deleteItemPhotos).toHaveBeenCalledWith(['a1.jpg', 'a2.jpg', 'a3.jpg']);
+  });
+
+  it('deletes the photos of all items across the deleted lists in deleteMany', async () => {
+    const deleteItemPhotos = (await import('../../src/utils/itemPhotos')).deleteItemPhotos as ReturnType<typeof vi.fn>;
+    deleteItemPhotos.mockClear();
+    const a = await b.lists.create({ name: 'A', color: '#22D3EE', icon: 'cart-outline', collection_id: null });
+    const c = await b.lists.create({ name: 'C', color: '#34D399', icon: 'gift-outline', collection_id: null });
+    const kept = await b.lists.create({ name: 'Keep', color: '#F87171', icon: 'star-outline', collection_id: null });
+    await b.items.create({ list_id: a.id, name: 'a1', checked: 0, note: null, position: 0, pictures: '["a1.jpg"]' });
+    await b.items.create({ list_id: c.id, name: 'c1', checked: 0, note: null, position: 0, pictures: '["c1.jpg"]' });
+    await b.items.create({ list_id: kept.id, name: 'k1', checked: 0, note: null, position: 0, pictures: '["k1.jpg"]' });
+
+    await b.lists.deleteMany([a.id, c.id]);
+
+    expect(deleteItemPhotos).toHaveBeenCalledTimes(1);
+    const allDeleted = (deleteItemPhotos.mock.calls as string[][]).flat(2);
+    expect(allDeleted.sort()).toEqual(['a1.jpg', 'c1.jpg']);
+    expect(allDeleted).not.toContain('k1.jpg');
   });
 });

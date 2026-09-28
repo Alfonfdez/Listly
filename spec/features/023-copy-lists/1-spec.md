@@ -23,7 +23,7 @@
 - Preserved per item: `name`, `note`, `checked` state, and `pictures`.
 - New rows get fresh `created_at` / `updated_at` and their own `id`s; `position` continues from the target's current `MAX(position) + 1` (skipped items do not leave gaps).
 - Name dedupe: a source item is skipped when the target already has an item with the same name (case-insensitive, matching the add-item uniqueness check). The duplicate-list draft copies into a fresh empty list, so nothing is skipped there. The target's matching item is never modified — its `note` and `pictures` are kept as-is even when the skipped source item carries content. Duplicates within the same copy run are also skipped.
-- Photo blobs are shared, not duplicated (no filesystem copies).
+- Photos are deep-copied: each copied item's image files are duplicated so the copy owns its own files (web inline `data:` URLs are kept as-is). Deleting a photo in one list never affects the other.
 
 ### 4. i18n and error handling
 - New keys in en/es: `list_duplicate`, `list_copy_to`, `list_copied_to`, `list_picker_title`, destination picker hint, `list_copy_picker_subtitle` (picker subtitle).

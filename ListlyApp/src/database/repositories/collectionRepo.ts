@@ -7,7 +7,7 @@ import { collectionSchema } from '../schemas';
 import { parseRowOrNull, parseRows } from '../validate';
 import { dbTimestamp } from '../../utils/formatters';
 import { COLLECTION_DELETE_MODES, type CollectionDeleteMode } from '../../constants/types';
-import { countsSelection, deletePhotosOfLists, nextPositionSql, reorderPositions } from './shared';
+import { countsSelection, deletePhotosOfItems, picturesOfLists, nextPositionSql, reorderPositions } from './shared';
 
 export type NewCollection = Omit<Collection, 'id' | 'created_at' | 'position' | 'pinned'>;
 
@@ -75,13 +75,15 @@ export const collectionRepo = {
 
     const db = await getDrizzle();
     const listIds = (await db.select({ id: lists.id }).from(lists).where(eq(lists.collection_id, id)).all()).map(r => r.id);
+    let photos: { pictures: string | null }[] = [];
     await withTransaction(async db => {
+      photos = await picturesOfLists(db, listIds);
       if (listIds.length > 0) {
         await db.delete(lists).where(inArray(lists.id, listIds)).run();
       }
       await db.delete(collections).where(eq(collections.id, id)).run();
     });
-    await deletePhotosOfLists(listIds);
+    await deletePhotosOfItems(photos);
   },
 
   async deleteMany(ids: number[], mode: CollectionDeleteMode = COLLECTION_DELETE_MODES.cascade): Promise<void> {
@@ -96,13 +98,15 @@ export const collectionRepo = {
 
     const db = await getDrizzle();
     const listIds = (await db.select({ id: lists.id }).from(lists).where(inArray(lists.collection_id, ids)).all()).map(r => r.id);
+    let photos: { pictures: string | null }[] = [];
     await withTransaction(async tx => {
+      photos = await picturesOfLists(tx, listIds);
       if (listIds.length > 0) {
         await tx.delete(lists).where(inArray(lists.id, listIds)).run();
       }
       await tx.delete(collections).where(inArray(collections.id, ids)).run();
     });
-    await deletePhotosOfLists(listIds);
+    await deletePhotosOfItems(photos);
   },
 
   async withCounts(): Promise<CollectionWithCounts[]> {

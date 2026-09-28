@@ -14,9 +14,9 @@
 - Confirming merges and takes the user to the target list with a *Merged into <Target>* toast.
 
 ### 2. Merge semantics
-- The source's items are appended at the end of the target in source `position` order, with full fidelity: `name`, `note`, `checked` state, and `pictures` (photo blobs shared, not re-imported).
+- The source's items are appended at the end of the target in source `position` order, with full fidelity: `name`, `note`, `checked` state, and `pictures` (image files are deep-copied so the merged items own their own files).
 - The merge applies the same name-dedupe rule as 023: a source item whose name (case-insensitive) already exists in the target is skipped, and the target's matching item is never modified. Consequence for merge: note/photos carried only by a skipped source item are lost with the source's deletion.
-- The source list is then deleted inside the same transaction (including its item rows and photo cleanup).
+- The source list is then deleted inside the same transaction (including its item rows and all of the source's photo files, which are no longer needed since the merged copies own duplicates).
 - Cancelling the confirmation or the picker changes nothing.
 
 ### 3. Guards

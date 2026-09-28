@@ -6,7 +6,7 @@ import type { List, ListWithCounts } from '../types';
 import { listSchema } from '../schemas';
 import { parseRowOrNull, parseRows } from '../validate';
 import { dbTimestamp } from '../../utils/formatters';
-import { countsSelection, deletePhotosOfLists, nextPositionSql, reorderPositions, copyItemsInto } from './shared';
+import { countsSelection, deletePhotosOfItems, picturesOfLists, nextPositionSql, reorderPositions, copyItemsInto } from './shared';
 
 export type NewList = Omit<List, 'id' | 'created_at' | 'position' | 'pinned' | 'collection_id'> & {
   collection_id?: number | null;
@@ -136,19 +136,24 @@ export const listRepo = {
   },
 
   async delete(id: number): Promise<void> {
-    const db = await getDrizzle();
-    await db.delete(lists).where(eq(lists.id, id)).run();
-    await deletePhotosOfLists([id]);
+    let photos: { pictures: string | null }[] = [];
+    await withTransaction(async db => {
+      photos = await picturesOfLists(db, [id]);
+      await db.delete(lists).where(eq(lists.id, id)).run();
+    });
+    await deletePhotosOfItems(photos);
   },
 
   async deleteMany(ids: number[]): Promise<void> {
     if (ids.length === 0) return;
+    let photos: { pictures: string | null }[] = [];
     await withTransaction(async db => {
+      photos = await picturesOfLists(db, ids);
       for (const id of ids) {
         await db.delete(lists).where(eq(lists.id, id)).run();
       }
     });
-    await deletePhotosOfLists(ids);
+    await deletePhotosOfItems(photos);
   },
 
   async withCounts(): Promise<ListWithCounts[]> {

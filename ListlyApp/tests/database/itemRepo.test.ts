@@ -13,7 +13,11 @@ vi.mock('expo-sqlite', async () => {
 
 vi.mock('../../src/utils/itemPhotos', async () => {
   const actual = await vi.importActual<typeof import('../../src/utils/itemPhotos')>('../../src/utils/itemPhotos');
-  return { ...actual, deleteItemPhotos: vi.fn(async () => {}) };
+  return {
+    ...actual,
+    deleteItemPhotos: vi.fn(async () => {}),
+    duplicateItemPhotos: vi.fn(async (photos: string[]) => photos.map(p => `copy-of-${p}`)),
+  };
 });
 
 await import('expo-sqlite');
@@ -195,7 +199,7 @@ describe('itemRepo.duplicateItems', () => {
     expect(copies.map(i => i.position)).toEqual([0, 1, 2, 3]);
     expect(copies.slice(1).map(i => i.checked)).toEqual([1, 0, 0]);
     expect(copies.slice(1).map(i => i.note)).toEqual(['note-1', null, 'note-3']);
-    expect(copies[1].pictures).toBe('["p1.jpg"]');
+    expect(copies[1].pictures).toBe('["copy-of-p1.jpg"]');
     expect(copies[1].created_at).toBe(dbTimestamp());
     expect(copies[1].updated_at).toBe(dbTimestamp());
     expect(copies.map(i => i.id)).not.toContain(0);
@@ -307,7 +311,7 @@ describe('itemRepo.mergeInto', () => {
     expect(merged.map(i => i.position)).toEqual([0, 1, 2, 3]);
     expect(merged.slice(1).map(i => i.checked)).toEqual([1, 0, 0]);
     expect(merged.slice(1).map(i => i.note)).toEqual(['note-1', null, 'note-3']);
-    expect(merged[1].pictures).toBe('["p1.jpg"]');
+    expect(merged[1].pictures).toBe('["copy-of-p1.jpg"]');
     expect(merged.map(i => i.id)).not.toContain(0);
     expect(merged[0].id).toBe(existing.id);
     expect(await b.lists.get(a.id)).toBeNull();
@@ -339,21 +343,46 @@ describe('itemRepo.mergeInto', () => {
     expect(await b.items.listByList(a.id)).toEqual([]);
   });
 
-  it('deletes only the photos of dedupe-skipped source items, keeping shared photos of merged items', async () => {
-    const deleteItemPhotos = (await import('../../src/utils/itemPhotos')).deleteItemPhotos as ReturnType<typeof vi.fn>;
+  it('deep-copies merged items\' photos and deletes the source\'s originals without touching the target', async () => {
+    const photosMod = await import('../../src/utils/itemPhotos');
+    const deleteItemPhotos = photosMod.deleteItemPhotos as ReturnType<typeof vi.fn>;
+    const duplicateItemPhotos = photosMod.duplicateItemPhotos as ReturnType<typeof vi.fn>;
     deleteItemPhotos.mockClear();
+    duplicateItemPhotos.mockClear();
     const a = await b.lists.create({ name: 'A', color: '#22D3EE', icon: 'cart-outline', collection_id: null });
     const target = await b.lists.create({ name: 'B', color: '#34D399', icon: 'gift-outline', collection_id: null });
-    await b.items.create({ list_id: target.id, name: 'dup', checked: 1, note: null, position: 0, pictures: '["own.jpg"]' });
+    const existing = await b.items.create({ list_id: target.id, name: 'dup', checked: 1, note: null, position: 0, pictures: '["own.jpg"]' });
     await b.items.create({ list_id: a.id, name: 'unique', checked: 0, note: null, position: 0, pictures: '["keep.jpg"]' });
     await b.items.create({ list_id: a.id, name: 'dup', checked: 0, note: null, position: 1, pictures: '["skip.jpg"]' });
 
     await b.items.mergeInto(a.id, target.id);
 
+    const merged = await b.items.listByList(target.id);
+    const unique = merged.find(i => i.name === 'unique');
+    expect(unique?.pictures).toBe('["copy-of-keep.jpg"]');
+    expect(merged.find(i => i.id === existing.id)?.pictures).toBe('["own.jpg"]');
+
     expect(deleteItemPhotos).toHaveBeenCalledTimes(1);
-    expect(deleteItemPhotos).toHaveBeenCalledWith(['skip.jpg']);
-    const calls = deleteItemPhotos.mock.calls as string[][];
-    expect(calls.every(call => !call.some(photo => photo.includes('keep.jpg') || photo.includes('own.jpg')))).toBe(true);
+    const deleted = (deleteItemPhotos.mock.calls as string[][]).flat(2).sort();
+    expect(deleted).toEqual(['keep.jpg', 'skip.jpg']);
+    expect(deleted).not.toContain('own.jpg');
+  });
+
+  it('duplicates item photos when copying items into another list', async () => {
+    const photosMod = await import('../../src/utils/itemPhotos');
+    const duplicateItemPhotos = photosMod.duplicateItemPhotos as ReturnType<typeof vi.fn>;
+    duplicateItemPhotos.mockClear();
+    const a = await b.lists.create({ name: 'A', color: '#22D3EE', icon: 'cart-outline', collection_id: null });
+    const target = await b.lists.create({ name: 'B', color: '#34D399', icon: 'gift-outline', collection_id: null });
+    await b.items.create({ list_id: a.id, name: 'a1', checked: 0, note: null, position: 0, pictures: '["p1.jpg"]' });
+
+    await b.items.duplicateItems(a.id, target.id);
+
+    expect(duplicateItemPhotos).toHaveBeenCalledWith(['p1.jpg']);
+    const copies = await b.items.listByList(target.id);
+    expect(copies[0].pictures).toBe('["copy-of-p1.jpg"]');
+    const source = await b.items.listByList(a.id);
+    expect(source[0].pictures).toBe('["p1.jpg"]');
   });
 
   it('rejects a self-merge', async () => {

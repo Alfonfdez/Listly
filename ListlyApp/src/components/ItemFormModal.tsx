@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { useConfig } from '../context/ConfigContext';
 import { useFontSize } from '../hooks/useFontSize';
@@ -47,15 +47,18 @@ export default function ItemFormModal({
   const [confirmDelete, setConfirmDelete] = useState(false);
   const { photos, setPhotos, handleTakePhoto, handlePickFromGallery, handleRemovePhoto } = useItemPhotos(initialPhotos);
 
+  const initialRef = useRef({ initialName, initialNote, initialPhotos });
+  initialRef.current = { initialName, initialNote, initialPhotos };
+
   useEffect(() => {
-    if (visible) {
-      setName(initialName);
-      setNote(initialNote);
-      setPhotos(initialPhotos);
-      setError(null);
-      setConfirmDelete(false);
-    }
-  }, [visible, initialName, initialNote, initialPhotos, setPhotos]);
+    if (!visible) return;
+    const { initialName: n, initialNote: nt, initialPhotos: np } = initialRef.current;
+    setName(n);
+    setNote(nt);
+    setPhotos(np);
+    setError(null);
+    setConfirmDelete(false);
+  }, [visible, setPhotos]);
 
   const onNameChange = (value: string) => {
     setName(value);

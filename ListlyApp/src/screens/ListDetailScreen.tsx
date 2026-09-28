@@ -13,7 +13,7 @@ import {
 } from '../constants/types';
 import type { Item, ListWithCounts } from '../database/types';
 import { itemRepository as itemRepo } from '../database';
-import { logError, runSafely, ERROR_SCOPE } from '../utils/errors';
+import { logError, runSafelyAsync, ERROR_SCOPE } from '../utils/errors';
 import { useApp } from '../context/AppContext';
 import { useConfig } from '../context/ConfigContext';
 import { useFontSize } from '../hooks/useFontSize';
@@ -148,8 +148,10 @@ export default function ListDetailScreen() {
   const { display: dragItems, onDragEnd: handleDragEnd } = useDragOrder(
     filteredItems,
     useCallback((ids: number[]) => {
-      runSafely(itemRepo.reorder(listId, ids), ERROR_SCOPE.reorderItems);
-      void refresh();
+      void (async () => {
+        await runSafelyAsync(itemRepo.reorder(listId, ids), ERROR_SCOPE.reorderItems);
+        await refresh();
+      })();
     }, [listId, refresh])
   );
   const sortActive = sort.key !== 'manual';
@@ -213,7 +215,7 @@ export default function ListDetailScreen() {
     (withNotes: boolean) => {
       if (!list) return;
       const text = buildListCopyText(list.name, items, withNotes);
-      void Clipboard.setStringAsync(text);
+      void Clipboard.setStringAsync(text).catch(error => logError(ERROR_SCOPE.copyToClipboard, error));
       setCopiedAction(withNotes ? 'all' : 'names');
       if (copyTimeout.current) clearTimeout(copyTimeout.current);
       copyTimeout.current = setTimeout(() => setCopiedAction(null), COPY_FEEDBACK_MS);
@@ -223,12 +225,14 @@ export default function ListDetailScreen() {
 
   const copyToList = useCallback((target: ListWithCounts) => {
     if (!list) return;
-    runSafely(itemRepo.duplicateItems(list.id, target.id), ERROR_SCOPE.copyItemsToList);
     setCopiedAction('to-list');
     setCopiedToName(target.name);
     if (copyTimeout.current) clearTimeout(copyTimeout.current);
     copyTimeout.current = setTimeout(() => setCopiedAction(null), COPY_FEEDBACK_MS);
-    void refresh();
+    void (async () => {
+      await runSafelyAsync(itemRepo.duplicateItems(list.id, target.id), ERROR_SCOPE.copyItemsToList);
+      await refresh();
+    })();
   }, [list, refresh]);
 
   const doMerge = useCallback(async (target: ListWithCounts) => {
