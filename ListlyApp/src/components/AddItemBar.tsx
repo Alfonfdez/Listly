@@ -9,7 +9,7 @@ import { useLabels } from '../hooks/useLabels';
 import { useItemPhotos } from '../hooks/useItemPhotos';
 import { validateItemName, type ItemNameError } from '../utils/validation';
 import { serializeItemPhotos } from '../utils/itemPhotos';
-import { clampQuantity, formatMinor, lineTotalMinor, parseAmountInput } from '../utils/numeric';
+import { clampQuantity, formatMinor, lineTotalMinor, parseAmountInput, sanitizeAmountText } from '../utils/numeric';
 import { DEFAULT_QUANTITY, MAX_ITEM_NAME_LENGTH, MAX_ITEM_NOTE_LENGTH } from '../constants/types';
 import PhotoSection from './PhotoSection';
 import CharCounter from './CharCounter';
@@ -122,7 +122,7 @@ export default function AddItemBar({ listId, existingNames, position, numeric = 
         <View style={styles.numericRow}>
           <TextInput
             value={amount}
-            onChangeText={text => setAmount(text)}
+            onChangeText={text => setAmount(sanitizeAmountText(text))}
             keyboardType="decimal-pad"
             placeholder={labels.item_amount_label}
             placeholderTextColor={c.textSecondary}
