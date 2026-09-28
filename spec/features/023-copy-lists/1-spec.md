@@ -14,7 +14,7 @@
 - Items are not (re)copied if the draft is cancelled.
 
 ### 2. Copy items into another list
-- List detail shows a third compact header action next to *Copy names* / *Copy all* (shown only when the list has items), using a `duplicate-outline` icon so it is distinguishable from the clipboard-copy actions.
+- List detail shows a third compact header action next to *Copy names* / *Copy all* (shown only when the list has items **and at least one other list exists in the app**), using a `duplicate-outline` icon so it is distinguishable from the clipboard-copy actions.
 - Tapping it opens a list picker modal titled *Copy items to another list* listing every other list (the source is excluded), with a subtitle clarifying the outcome ("this list stays; its items are appended to the list you pick; same-name items are skipped").
 - Selecting a target appends a copy of the source's items to the target (items whose name already exists in the target are skipped, see §3) and shows transient feedback naming the result ("Items copied into \"<Target>\"").
 
@@ -44,7 +44,7 @@
 - [x] Edit List shows a *Duplicate list* button that opens a pre-filled create draft (`"<Name> copy"`, same icon/color).
 - [x] Saving the draft creates the new list and copies the source's items (name, note, checked, pictures) appended in source order.
 - [x] Cancelling the draft creates nothing.
-- [x] List detail shows a third copy-to-list action only when the list has items.
+- [x] List detail shows a third copy-to-list action only when the list has items **and another list exists to copy into**; with a single list it is hidden (the clipboard *Copy* actions stay).
 - [x] The list picker lists other lists, excludes the source, and appends the items to the chosen target.
 - [x] Copies preserve checked state and pictures; photos are shared, not re-imported.
 - [x] Copying skips source items whose name (case-insensitive) already exists in the target; the target's matching item is never modified and positions stay contiguous.

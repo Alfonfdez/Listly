@@ -118,6 +118,19 @@ const LIST: ListWithCounts = {
   completed: 2,
 };
 
+const OTHER_LIST: ListWithCounts = {
+  id: 2,
+  name: 'Recipes',
+  color: '#34D399',
+  icon: 'restaurant-outline',
+  collection_id: null,
+  created_at: 'x',
+  position: 1,
+  pinned: 0,
+  total: 1,
+  completed: 0,
+};
+
 const ITEMS: Item[] = [
   { id: 1, list_id: 1, name: 'Milk', checked: 1, note: null, position: 0, created_at: 'x', updated_at: 'x', pictures: null },
   { id: 2, list_id: 1, name: 'Eggs', checked: 0, note: 'free-range', position: 1, created_at: 'x', updated_at: 'x', pictures: null },
@@ -617,6 +630,7 @@ describe('ListDetailScreen', () => {
   });
 
   it('shows the merge into action when the list has items', async () => {
+    setLists([LIST, OTHER_LIST]);
     const view = await render(<ListDetailScreen />);
     await view.findByText('Milk');
     expect(view.getByLabelText('Merge into…')).toBeTruthy();
@@ -624,12 +638,14 @@ describe('ListDetailScreen', () => {
 
   it('hides the merge into action when the list has no items', async () => {
     setItemsByListId(new Map([[1, []]]));
+    setLists([LIST, OTHER_LIST]);
     const view = await render(<ListDetailScreen />);
     await view.findByText('No items yet');
     expect(view.queryByLabelText('Merge into…')).toBeNull();
   });
 
   it('hides the merge into action while searching', async () => {
+    setLists([LIST, OTHER_LIST]);
     const view = await render(<ListDetailScreen />);
     await view.findByText('Milk');
     expect(view.getByLabelText('Merge into…')).toBeTruthy();
@@ -639,6 +655,23 @@ describe('ListDetailScreen', () => {
     fireEvent.press(headerTree.getByLabelText('Search'));
     await view.findByPlaceholderText('Search items...', {}, { timeout: 2000 });
     expect(view.queryByLabelText('Merge into…')).toBeNull();
+  });
+
+  it('hides the merge into action and copy-to-list when there is no other list', async () => {
+    const view = await render(<ListDetailScreen />);
+    await view.findByText('Milk');
+    expect(view.queryByLabelText('Merge into…')).toBeNull();
+    expect(view.queryByLabelText('Copy items to another list')).toBeNull();
+    expect(view.getByLabelText('Copy list')).toBeTruthy();
+    expect(view.getByLabelText('Copy list with notes')).toBeTruthy();
+  });
+
+  it('shows the merge into action and copy-to-list when another list exists', async () => {
+    setLists([LIST, OTHER_LIST]);
+    const view = await render(<ListDetailScreen />);
+    await view.findByText('Milk');
+    expect(view.getByLabelText('Merge into…')).toBeTruthy();
+    expect(view.getByLabelText('Copy items to another list')).toBeTruthy();
   });
 
   it('opens the merge picker excluding the current list', async () => {

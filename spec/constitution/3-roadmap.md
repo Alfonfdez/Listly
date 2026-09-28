@@ -235,7 +235,7 @@ Status: done.
 
 Copy a list's data into the app (beyond the feature-017 clipboard copy):
 - *Duplicate list*: Edit List gains a *Duplicate list* button opening the create flow pre-filled as an editable draft (`"<Name> copy"`, same icon/color); Save creates the list and copies its items in one transaction.
-- *Copy items into another list*: a third compact header action on List detail (hidden when empty, `duplicate-outline` icon) opens a shared `ListPickerModal` with a descriptive title + subtitle, and appends a full-fidelity copy of the items (name, note, checked, pictures; fresh timestamps; image files deep-copied so each list owns its photos; same-name items already in the target are skipped — case-insensitive dedupe, target items never modified, positions stay contiguous); feedback names the result ("Items copied into \"<Target>\"").
+- *Copy items into another list*: a third compact header action on List detail (hidden when empty or when no other list exists, `duplicate-outline` icon) opens a shared `ListPickerModal` with a descriptive title + subtitle, and appends a full-fidelity copy of the items (name, note, checked, pictures; fresh timestamps; image files deep-copied so each list owns its photos; same-name items already in the target are skipped — case-insensitive dedupe, target items never modified, positions stay contiguous); feedback names the result ("Items copied into \"<Target>\"").
 - Repo: `itemRepo.duplicateItems(sourceListId, targetListId)` + a transactional duplicate-list path; no schema change (`SCHEMA_VERSION` 7).
 - Spec: spec/features/023-copy-lists/.
 
@@ -251,7 +251,7 @@ Assign / move a list between collections (and back to standalone) from Edit List
 Status: done.
 
 Merge one list into another:
-- A *Merge into…* action on the source list detail (visible when the list has items and inert during search/select) sits on the toolbar's first row beside the sort pill, amber (`warning` token); it opens `ListPickerModal` (excludes self, empty hint when no other list), then a destructive confirmation ("Merge N items into <Target> and delete <Source>?").
+- A *Merge into…* action on the source list detail (visible when the list has items **and another list exists**, and inert during search/select) sits on the toolbar's first row beside the sort pill, amber (`warning` token); it opens `ListPickerModal` (excludes self), then a destructive confirmation ("Merge N items into <Target> and delete <Source>?").
 - `itemRepo.mergeInto(sourceId, targetId)` transactionally appends a full-fidelity copy of the source's items to the target (same case-insensitive name-dedupe rule as 023: same-name items already in the target are skipped and the target item is never modified), deletes the source (cleaning up only the dedupe-skipped items' photos), and rolls back on failure; after merging the app navigates via `navigation.replace` to the target with a "Merged into <Target>" toast.
 - No schema change (`SCHEMA_VERSION` 7).
 - Spec: spec/features/025-merge-lists/.
