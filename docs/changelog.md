@@ -635,3 +635,14 @@ pm run test:all green.
 - `npm run test:all` green (53 files, 454 tests) with the existing tile/a11y/star/drop-hint tests unchanged. Lint + typecheck clean.
 - Verified on web at 375px (dark theme): Home grid tiles, Lists rows (icon badge, progress, type badge), and select mode (selection border + check overlay on the icon, pinned star, action bar) all render identically; 0 console errors.
 - No spec/roadmap change (pure refactor).
+
+[2026-09-28] ~ | ListlyApp [refactor: shared picker modal chrome]
+- Extracted the duplicated picker chrome into `src/components/PickerModal.tsx`:
+  - `PickerModal` — `ModalShell` (maxWidth 380, padding 20) + centered `fs(18)` title + optional subtitle + a `ScrollView` for rows + a footer slot.
+  - `PickerRow` — the shared row (leading node | flex label with selected tint | trailing node) with `accessibilityRole="button"` and `accessibilityState={{ selected }}`; optional `selectedTint` reproduces the collection picker's highlighted row.
+  - `pickerStyles` — shared `row`/`label`/`iconBadge`/`leading`/`footer` styles.
+- `ModalFooter`: `confirmLabel` is now optional — when omitted it renders a single full-width Cancel button (used by the list/collection pickers, matching their previous single-button footer). Existing callers pass `confirmLabel`, so behavior is unchanged.
+- Refactored `ListPickerModal`, `CollectionPickerModal` and `OptionPickerModal` to compose `PickerModal`/`PickerRow` (list + collection pickers use a single-Cancel footer; the option picker keeps Cancel + Confirm). Removed ~200 lines of duplicated styles/markup. No prop-signature, i18n, or visual changes.
+- `npm run test:all` green (53 files, 454 tests); lint + typecheck clean.
+- Verified on web at 375px (dark theme, Spanish): copy-to-list picker (title + subtitle + icon badge row + chevron + single Cancel), sort option picker (radios + tinted selected label + Cancel/Seleccionar), collection picker (standalone row selected with tint + checkmark + Cancel). 0 console errors.
+- No spec/roadmap change (pure refactor).
