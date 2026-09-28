@@ -22,7 +22,6 @@ export const en = {
   edit_collection_title: 'Edit collection',
   collection_edit_label: 'Edit collection',
   collection_delete_label: 'Delete collection',
-  collection_delete_title: 'Delete collection?',
   collection_delete_message: 'What should happen to its lists?',
   collection_delete_move: 'Move lists to Lists',
   collection_delete_also: 'Delete lists too',
@@ -111,7 +110,6 @@ export const en = {
   list_duplicate: 'Duplicate list',
   list_copy_to: 'Copy items to another list',
   list_copied_to: (name: string) => `Items copied into "${name}"`,
-  list_picker_title: 'Choose a list',
   list_picker_hint: 'Copy this list\'s items into another list',
   list_picker_empty: 'No other lists to copy into',
   list_copy_picker_subtitle:

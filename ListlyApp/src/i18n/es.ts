@@ -24,7 +24,6 @@ export const es: Translations = {
   edit_collection_title: 'Editar colección',
   collection_edit_label: 'Editar colección',
   collection_delete_label: 'Eliminar colección',
-  collection_delete_title: '¿Eliminar colección?',
   collection_delete_message: '¿Qué hacer con sus listas?',
   collection_delete_move: 'Mover listas a Listas',
   collection_delete_also: 'Eliminar también las listas',
@@ -114,7 +113,6 @@ export const es: Translations = {
   list_duplicate: 'Duplicar lista',
   list_copy_to: 'Copiar elementos a otra lista',
   list_copied_to: (name: string) => `Elementos copiados en "${name}"`,
-  list_picker_title: 'Elegir lista',
   list_picker_hint: 'Copiar los elementos de esta lista a otra lista',
   list_picker_empty: 'No hay otras listas donde copiar',
   list_copy_picker_subtitle:

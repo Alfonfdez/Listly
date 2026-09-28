@@ -675,3 +675,8 @@ pm run test:all green.
 - Tests: `ColorGrid.test.tsx`, `CreateListScreen.test.tsx`, `EditListScreen.test.tsx` updated to query swatches by their new color-name labels. `npm run test:all` green (53 files, 454 tests); lint + typecheck clean.
 - Verified on web at 375px (Spanish): Create List shows the color swatches labeled Cian/Rojo/Verde/Ámbar/Rosa/Lima + "Más colores"; the FAB exposes `role="button"`; 0 console errors.
 - No spec/roadmap change (polish refactor).
+
+[2026-09-28] test | ListlyApp [hook tests + unused i18n keys]
+- Tests: new `tests/hooks/useSelectMode.test.ts` (7 cases: idle state, enter/exit select mode clears selection, item toggle, open/close delete confirm, confirmDelete calls `deleteMany` + exits + runs `afterDelete`, failure logs and still exits) and `tests/hooks/useCollectionDropZones.test.ts` (8 cases: reorder on plain drag end, `removeTargetActive` from `inCollectionDetail`, hover tracking only while dragging, zone drop → `moveToCollection` + refresh, remove-zone drop → `removeFromCollection`, handled-drop and hover-drag-end skip reorder, move failure logs). `npm run test:all` green (55 files, 469 tests); lint + typecheck clean.
+- i18n: removed the unused keys `collection_delete_title` and `list_picker_title` from `en.ts` and `es.ts` (no references in `src/`).
+- No production behavior change.
