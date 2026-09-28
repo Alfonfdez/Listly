@@ -541,3 +541,8 @@ pm run test:all green.
 - No repo/schema/i18n changes; `SelectionActionBar.test.tsx` unchanged. `npm run test:all` green (51 files, 440 tests).
 - Docs: requirement bullets + acceptance criteria added to 010 and 021 specs; roadmap 010/021 notes updated.
 - Verified on web at 375px (fresh IndexedDB, data built via UI, Spanish + Large text): Home select mode with a collection + 2 lists selected shows "3 seleccionados" with Pin/Cancel on the first row and the red Delete wrapped to the second row, all inside the 375px viewport (right edge 347px, 0 horizontal overflow); List detail (1 item selected) keeps Cancel+Delete on one row (right edge 359px); 0 console errors (same pre-existing pointerEvents warning).
+
+[2026-09-28] ~ | ListlyApp [deps: expo 57.0.25 patch bump]
+- `npx expo install --fix`: `expo` `~57.0.24` -> `~57.0.25`, `expo-image-picker` `~57.0.19` -> `~57.0.20`, `expo-sharing` `~57.0.21` -> `~57.0.22` (SDK 57 patch releases; `package.json` + `package-lock.json` updated, 8 packages changed).
+- `npx expo install --check` reports "Dependencies are up to date".
+- `npm run test:all` green (51 files, 440 tests). Web smoke at 375px: app boots and Home renders with data, 0 console errors, no horizontal overflow. Expo Go / web, so no native rebuild needed.
