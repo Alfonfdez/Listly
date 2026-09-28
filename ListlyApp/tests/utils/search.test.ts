@@ -3,13 +3,13 @@ import { filterItemsByQuery, filterListsByQuery, matchesAllTerms, searchTerms } 
 import type { Item, ListWithCounts } from '../../src/database/types';
 
 const LISTS: ListWithCounts[] = [
-  { id: 1, name: 'Groceries', color: '#22D3EE', icon: 'cart-outline', collection_id: null, created_at: 'x', position: 0, pinned: 0, total: 3, completed: 1 },
-  { id: 2, name: 'Work Tasks', color: '#34D399', icon: 'briefcase-outline', collection_id: null, created_at: 'x', position: 1, pinned: 0, total: 2, completed: 0 },
-  { id: 3, name: 'Reading List', color: '#A78BFA', icon: 'book-outline', collection_id: null, created_at: 'x', position: 2, pinned: 0, total: 1, completed: 1 },
+  { id: 1, name: 'Groceries', color: '#22D3EE', icon: 'cart-outline', collection_id: null, created_at: 'x', position: 0, pinned: 0, kind: 'standard', total: 3, completed: 1 },
+  { id: 2, name: 'Work Tasks', color: '#34D399', icon: 'briefcase-outline', collection_id: null, created_at: 'x', position: 1, pinned: 0, kind: 'standard', total: 2, completed: 0 },
+  { id: 3, name: 'Reading List', color: '#A78BFA', icon: 'book-outline', collection_id: null, created_at: 'x', position: 2, pinned: 0, kind: 'standard', total: 1, completed: 1 },
 ];
 
 function item(name: string): Item {
-  return { id: 0, list_id: 0, name, checked: 0, note: null, position: 0, created_at: 'x', updated_at: 'x', pictures: null };
+  return { id: 0, list_id: 0, name, checked: 0, note: null, position: 0, created_at: 'x', updated_at: 'x', pictures: null, amount_minor: null, quantity: 0 };
 }
 
 const ITEMS: Map<number, Item[]> = new Map([

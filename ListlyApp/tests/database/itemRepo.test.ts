@@ -412,3 +412,58 @@ describe('itemRepo.mergeInto', () => {
     expect(targetItems.map(i => i.name)).toEqual(['existing']);
   });
 });
+
+describe('itemRepo numeric fields', () => {
+  let b: Backend;
+
+  beforeAll(async () => {
+    await initSqlJsOnce();
+  });
+
+  beforeEach(async () => {
+    b = await createBackend();
+  });
+
+  it('stores amount/quantity on create and defaults them when omitted', async () => {
+    const list = await b.lists.create({ name: 'N', color: '#22D3EE', icon: 'cart-outline', collection_id: null });
+    const withValues = await b.items.create({
+      list_id: list.id,
+      name: 'Milk',
+      checked: 0,
+      note: null,
+      position: 0,
+      pictures: null,
+      amount_minor: 199,
+      quantity: 3,
+    });
+    const plain = await b.items.create({ list_id: list.id, name: 'Eggs', checked: 0, note: null, position: 1, pictures: null });
+
+    expect(withValues.amount_minor).toBe(199);
+    expect(withValues.quantity).toBe(3);
+    expect(plain.amount_minor).toBeNull();
+    expect(plain.quantity).toBe(0);
+  });
+
+  it('updates the numeric fields', async () => {
+    const list = await b.lists.create({ name: 'N', color: '#22D3EE', icon: 'cart-outline', collection_id: null });
+    const item = await b.items.create({ list_id: list.id, name: 'Milk', checked: 0, note: null, position: 0, pictures: null });
+
+    await b.items.update(item.id, { amount_minor: 250, quantity: 4 });
+
+    const updated = await b.items.get(item.id);
+    expect(updated?.amount_minor).toBe(250);
+    expect(updated?.quantity).toBe(4);
+  });
+
+  it('carries numeric fields when copying items into another list', async () => {
+    const source = await b.lists.create({ name: 'S', color: '#22D3EE', icon: 'cart-outline', collection_id: null });
+    const target = await b.lists.create({ name: 'T', color: '#34D399', icon: 'gift-outline', collection_id: null });
+    await b.items.create({ list_id: source.id, name: 'Milk', checked: 0, note: null, position: 0, pictures: null, amount_minor: 499, quantity: 2 });
+
+    await b.items.duplicateItems(source.id, target.id);
+
+    const copies = await b.items.listByList(target.id);
+    expect(copies[0].amount_minor).toBe(499);
+    expect(copies[0].quantity).toBe(2);
+  });
+});

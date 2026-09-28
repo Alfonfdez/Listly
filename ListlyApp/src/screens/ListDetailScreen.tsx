@@ -17,6 +17,7 @@ import { uniqueNormalizedNames } from '../utils/validation';
 import { filterItemsByQuery } from '../utils/search';
 import { parseItemPhotos } from '../utils/itemPhotos';
 import { isOn } from '../utils/flags';
+import { sumTotals } from '../utils/numeric';
 import { HIT_SLOP } from '../components/componentStyles';
 import ScreenShell from '../components/ScreenShell';
 import EmptyState from '../components/EmptyState';
@@ -150,6 +151,14 @@ export default function ListDetailScreen() {
   const done = items.filter(i => isOn(i.checked)).length;
   const total = items.length;
   const pct = total > 0 ? Math.round((done / total) * 100) : 0;
+  const numeric = list?.kind === 'numeric';
+  const totals = useMemo(
+    () =>
+      numeric
+        ? { all: sumTotals(items, { onlyDone: false }), done: sumTotals(items, { onlyDone: true }) }
+        : undefined,
+    [numeric, items]
+  );
 
   const toggle = useCallback(
     async (item: Item) => {
@@ -169,11 +178,12 @@ export default function ListDetailScreen() {
         item={item}
         selectMode={selectMode}
         selected={selectedIds.has(item.id)}
+        numeric={numeric}
         onToggle={() => (selectMode ? toggleItem(item.id) : void toggle(item))}
         onEdit={() => setEditing(item)}
       />
     ),
-    [selectMode, selectedIds, toggleItem, toggle, setEditing]
+    [selectMode, selectedIds, toggleItem, toggle, setEditing, numeric]
   );
 
   if (!list) {
@@ -189,6 +199,7 @@ export default function ListDetailScreen() {
       onEdit={() => navigation.navigate('EditList', { listId })}
       editAccessibilityLabel={labels.list_edit_label}
       progressPercent={pct}
+      totals={totals}
       trailing={
         items.length > 0 ? (
           <View style={styles.copyGroup}>
@@ -372,6 +383,7 @@ export default function ListDetailScreen() {
           listId={listId}
           existingNames={existingNames}
           position={maxPosition}
+          numeric={numeric}
           onAdded={refresh}
         />
       ) : (
@@ -395,8 +407,13 @@ export default function ListDetailScreen() {
         initialPhotos={parseItemPhotos(editing?.pictures ?? null)}
         existingNames={editingExclusiveNames}
         allowDelete
+        numeric={numeric}
+        initialAmountMinor={editing?.amount_minor ?? null}
+        initialQuantity={editing?.quantity ?? 0}
         onCancel={() => setEditing(null)}
-        onSave={(name, note, photos) => void saveEdit(name, note, photos)}
+        onSave={(name, note, photos, amountMinor, quantity) =>
+          void saveEdit(name, note, photos, amountMinor, quantity)
+        }
         onDelete={() => void deleteItem()}
       />
 

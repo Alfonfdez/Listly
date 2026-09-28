@@ -32,8 +32,13 @@ export const itemRepo = {
     return parseRowOrNull(itemSchema, 'items', row);
   },
 
-  async create(data: Omit<Item, 'id' | 'created_at' | 'updated_at'>): Promise<Item> {
+  async create(data: Omit<Item, 'id' | 'created_at' | 'updated_at' | 'amount_minor' | 'quantity'> & {
+    amount_minor?: number | null;
+    quantity?: number;
+  }): Promise<Item> {
     const db = await getDrizzle();
+    const amountMinor = data.amount_minor ?? null;
+    const quantity = data.quantity ?? 0;
     const result = await db
       .insert(items)
       .values({
@@ -43,10 +48,14 @@ export const itemRepo = {
         note: data.note ?? null,
         pictures: data.pictures ?? null,
         position: data.position ?? 0,
+        amount_minor: amountMinor,
+        quantity,
       })
       .run();
     return {
       ...data,
+      amount_minor: amountMinor,
+      quantity,
       id: runResultOf(result).lastInsertRowId,
       created_at: dbTimestamp(),
       updated_at: dbTimestamp(),
@@ -70,6 +79,8 @@ export const itemRepo = {
     if (data.checked !== undefined) set.checked = data.checked;
     if (data.note !== undefined) set.note = data.note;
     if (data.pictures !== undefined) set.pictures = data.pictures;
+    if (data.amount_minor !== undefined) set.amount_minor = data.amount_minor;
+    if (data.quantity !== undefined) set.quantity = data.quantity;
     if (data.position !== undefined) set.position = data.position;
     if (Object.keys(set).length === 0) return;
     await db.update(items).set({ ...set, updated_at: dbTimestamp() }).where(eq(items.id, id)).run();

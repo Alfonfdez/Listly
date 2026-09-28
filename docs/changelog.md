@@ -699,3 +699,14 @@ pm run test:all green.
 - Tests: `ListDetailScreen.test.tsx` updated the merge-visibility cases to provide a second list, plus new cases — hidden with one list (both actions), shown with two. `npm run test:all` green (55 files, 471 tests); lint + typecheck clean.
 - Docs: 023 §2 + criterion, 025 §1/§3 + criterion, roadmap 023/025 notes.
 - Verified on web at 375px (fresh IndexedDB): with a single list the copy-to-list icon and merge pill are absent (clipboard copy still present); after creating a second list both appear again. 0 console errors.
+
+[2026-09-28] feat | ListlyApp [026: numeric lists]
+- New list kind: `lists.kind` (`'standard'` | `'numeric'`), chosen via a **Type** selector in Create List and changeable in Edit List (`KindSelectRow` → `SelectorInline`). The selector sits directly under **Name** (`EntityForm` gained an optional `kindSlot`, rendered between the Name and Icon fields). `listRepo.create/duplicate/update/withCounts` carry `kind`.
+- Numeric items: `items.amount_minor` (INTEGER minor units, nullable) and `items.quantity` (INTEGER, default 0); `SCHEMA_VERSION` 7 → 8 (DDL, Drizzle, Zod, types). `utils/numeric.ts` (parse/format/clamp/lineTotal/sumTotals) does all arithmetic in integer minor units (cap 999,999.99 / quantity 0..99,999, qty starts at 1).
+- UI (numeric lists only): `AddItemBar` gains an Amount input + `QuantityStepper` (+/−) + read-only line total; `ItemRow` shows `amount × qty` and the line total; `ItemFormModal` gains Amount + Quantity. `DetailHeader` shows two read-only rows — **Total** (all items) and **Done** (checked only). Standard lists render exactly as before.
+- Cross-list: `copyItemsInto` carries `amount_minor`/`quantity` (any kind into any kind); `listRepo.duplicate` copies the source kind.
+- Backup: `backup.ts` round-trips `kind` + numeric fields; older backups import as `standard` / null / 0.
+- i18n en/es: `list_kind_label`, `list_kind_standard`, `list_kind_numeric`, `item_amount_label`, `item_quantity_label`, `item_line_total_label`, `list_total_label`, `list_done_total_label`.
+- Tests: `numeric.test.ts` (7), `itemRepo` numeric fields (3), `listRepo` kind (2), backup round-trip + legacy numeric (2), `ListDetailScreen` numeric (3). `npm run test:all` green (56 files, 488 tests); lint + typecheck clean.
+- Docs: new `spec/features/026-numeric-lists/` (1-spec/2-plan/3-tasks) + roadmap entry.
+- Verified on web at 375px (fresh IndexedDB): created a numeric list via the Type selector, added an item (Amount 1.50, qty 2) → line total 3.00, header Total 3.00 / Done 0.00; checking it moved Done to 3.00; a standard list shows no Amount/Total rows; 0 console errors.

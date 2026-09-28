@@ -20,6 +20,7 @@ export async function createSchema(db: DatabaseHandle): Promise<void> {
       created_at TEXT NOT NULL DEFAULT (datetime('now', 'localtime')),
       position INTEGER NOT NULL DEFAULT 0,
       pinned INTEGER NOT NULL DEFAULT 0,
+      kind TEXT NOT NULL DEFAULT 'standard',
       collection_id INTEGER,
       FOREIGN KEY (collection_id) REFERENCES collections(id)
     );
@@ -34,6 +35,8 @@ export async function createSchema(db: DatabaseHandle): Promise<void> {
       created_at TEXT NOT NULL DEFAULT (datetime('now', 'localtime')),
       updated_at TEXT NOT NULL DEFAULT (datetime('now', 'localtime')),
       pictures TEXT,
+      amount_minor INTEGER,
+      quantity INTEGER NOT NULL DEFAULT 0,
       FOREIGN KEY (list_id) REFERENCES lists(id) ON DELETE CASCADE
     );
 

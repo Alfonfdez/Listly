@@ -18,10 +18,22 @@ export function useItemEditing({ items, refresh }: Options) {
     [items, editing]
   );
 
-  const saveEdit = async (name: string, note: string | null, photos: string[]) => {
+  const saveEdit = async (
+    name: string,
+    note: string | null,
+    photos: string[],
+    amountMinor: number | null,
+    quantity: number
+  ) => {
     if (!editing) return;
     try {
-      await itemRepo.update(editing.id, { name, note, pictures: serializeItemPhotos(photos) });
+      await itemRepo.update(editing.id, {
+        name,
+        note,
+        pictures: serializeItemPhotos(photos),
+        amount_minor: amountMinor,
+        quantity,
+      });
       setEditing(null);
     } catch (error) {
       logError(ERROR_SCOPE.updateItem, error);

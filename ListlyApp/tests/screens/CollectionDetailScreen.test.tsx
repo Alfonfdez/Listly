@@ -82,8 +82,8 @@ const COLLECTION: CollectionWithCounts = {
 };
 
 const LISTS: ListWithCounts[] = [
-  { id: 1, name: 'Groceries', color: '#22D3EE', icon: 'cart-outline', collection_id: 10, created_at: 'x', position: 0, pinned: 0, total: 3, completed: 1 },
-  { id: 2, name: 'Errands', color: '#F87171', icon: 'walk-outline', collection_id: 10, created_at: 'x', position: 1, pinned: 0, total: 2, completed: 1 },
+  { id: 1, name: 'Groceries', color: '#22D3EE', icon: 'cart-outline', collection_id: 10, created_at: 'x', position: 0, pinned: 0, kind: 'standard', total: 3, completed: 1 },
+  { id: 2, name: 'Errands', color: '#F87171', icon: 'walk-outline', collection_id: 10, created_at: 'x', position: 1, pinned: 0, kind: 'standard', total: 2, completed: 1 },
 ];
 
 describe('CollectionDetailScreen', () => {

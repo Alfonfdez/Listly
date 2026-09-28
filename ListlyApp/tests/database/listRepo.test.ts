@@ -317,3 +317,33 @@ describe('listRepo delete photo cleanup', () => {
     expect(allDeleted).not.toContain('k1.jpg');
   });
 });
+
+describe('listRepo kind', () => {
+  let b: Backend;
+
+  beforeAll(async () => {
+    await initSqlJsOnce();
+  });
+
+  beforeEach(async () => {
+    b = await createBackend();
+  });
+
+  it('defaults to standard and stores/updates a numeric kind', async () => {
+    const standard = await b.lists.create({ name: 'S', color: '#22D3EE', icon: 'cart-outline', collection_id: null });
+    const numeric = await b.lists.create({ name: 'N', color: '#34D399', icon: 'gift-outline', collection_id: null, kind: 'numeric' });
+
+    expect(standard.kind).toBe('standard');
+    expect(numeric.kind).toBe('numeric');
+    expect((await b.lists.withCounts()).find(l => l.id === numeric.id)?.kind).toBe('numeric');
+
+    await b.lists.update(standard.id, { kind: 'numeric' });
+    expect((await b.lists.get(standard.id))?.kind).toBe('numeric');
+  });
+
+  it('duplicates the source list kind', async () => {
+    const source = await b.lists.create({ name: 'N', color: '#34D399', icon: 'gift-outline', collection_id: null, kind: 'numeric' });
+    const copy = await b.lists.duplicate(source.id, { name: 'N copy', color: source.color, icon: source.icon, collection_id: null });
+    expect(copy.kind).toBe('numeric');
+  });
+});

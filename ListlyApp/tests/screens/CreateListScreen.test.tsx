@@ -74,6 +74,7 @@ const SOURCE: ListWithCounts = {
   created_at: 'x',
   position: 0,
   pinned: 0,
+  kind: 'standard',
   total: 3,
   completed: 1,
 };
@@ -164,6 +165,7 @@ describe('CreateListScreen', () => {
         name: 'Weekend',
         color: '#FBBF24',
         icon: 'cart-outline',
+        kind: 'standard',
       })
     );
     expect(nav.goBack).toHaveBeenCalled();
@@ -193,6 +195,7 @@ describe('CreateListScreen', () => {
         name: 'Weekend',
         color: '#123456',
         icon: LIST_ICONS[0],
+        kind: 'standard',
       })
     );
   });
@@ -266,6 +269,7 @@ describe('CreateListScreen', () => {
         name: 'Weekend',
         color: QUICK_COLORS[0],
         icon: LIST_ICONS[0],
+        kind: 'standard',
       })
     );
     expect(listRepositoryMock.duplicate).not.toHaveBeenCalled();

@@ -16,18 +16,26 @@ const configRowSchema = z.object({
 });
 
 const backupPinnedSchema = z.union([z.literal(0), z.literal(1)]).default(0);
+const backupListKindSchema = z.enum(['standard', 'numeric']).default('standard');
 const backupCollectionSchema = collectionSchema.extend({ pinned: backupPinnedSchema });
 const backupListSchema = listSchema
   .extend({
     collection_id: z.number().int().nullable().optional(),
     pinned: backupPinnedSchema,
+    kind: backupListKindSchema,
   })
   .transform(value => ({ ...value, collection_id: value.collection_id ?? null }));
 
-const backupItemSchema = itemSchema.extend({ updated_at: z.string().optional() }).transform(value => ({
-  ...value,
-  updated_at: value.updated_at ?? value.created_at,
-}));
+const backupItemSchema = itemSchema
+  .extend({
+    updated_at: z.string().optional(),
+    amount_minor: z.number().int().nullable().default(null),
+    quantity: z.number().int().default(0),
+  })
+  .transform(value => ({
+    ...value,
+    updated_at: value.updated_at ?? value.created_at,
+  }));
 
 const snapshotSchema = z.object({
   app: z.literal('Listly'),
@@ -115,7 +123,7 @@ export async function applyBackup(db: DatabaseHandle, snapshot: BackupSnapshot):
 
     for (const list of snapshot.data.lists) {
       await db.runAsync(
-        'INSERT INTO lists (id, name, color, icon, created_at, position, pinned, collection_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+        'INSERT INTO lists (id, name, color, icon, created_at, position, pinned, kind, collection_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
         list.id,
         list.name,
         list.color,
@@ -123,13 +131,14 @@ export async function applyBackup(db: DatabaseHandle, snapshot: BackupSnapshot):
         list.created_at,
         list.position,
         list.pinned,
+        list.kind,
         list.collection_id
       );
     }
 
     for (const item of snapshot.data.items) {
       await db.runAsync(
-        'INSERT INTO items (id, list_id, name, checked, note, position, created_at, updated_at, pictures) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+        'INSERT INTO items (id, list_id, name, checked, note, position, created_at, updated_at, pictures, amount_minor, quantity) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
         item.id,
         item.list_id,
         item.name,
@@ -138,7 +147,9 @@ export async function applyBackup(db: DatabaseHandle, snapshot: BackupSnapshot):
         item.position,
         item.created_at,
         item.updated_at,
-        item.pictures
+        item.pictures,
+        item.amount_minor,
+        item.quantity
       );
     }
 

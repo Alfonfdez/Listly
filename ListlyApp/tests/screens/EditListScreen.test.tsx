@@ -72,6 +72,7 @@ const LIST: ListWithCounts = {
   created_at: 'x',
   position: 0,
   pinned: 0,
+  kind: 'standard',
   total: 5,
   completed: 2,
 };
@@ -85,6 +86,7 @@ const OTHER: ListWithCounts = {
   created_at: 'x',
   position: 1,
   pinned: 0,
+  kind: 'standard',
   total: 2,
   completed: 0,
 };
@@ -172,6 +174,7 @@ describe('EditListScreen', () => {
         name: 'Groceries',
         color: '#22D3EE',
         icon: 'cart-outline',
+        kind: 'standard',
       })
     );
     expect(nav.goBack).toHaveBeenCalled();
@@ -203,6 +206,7 @@ describe('EditListScreen', () => {
         name: 'Groceries Express',
         color: '#34D399',
         icon: 'briefcase-outline',
+        kind: 'standard',
       })
     );
     expect(nav.goBack).toHaveBeenCalled();
@@ -258,6 +262,7 @@ describe('EditListScreen', () => {
         name: 'Groceries',
         color: '#22D3EE',
         icon: 'cart-outline',
+        kind: 'standard',
       })
     );
     expect(listRepositoryMock.moveToCollection).toHaveBeenCalledWith(1, 7);
@@ -293,6 +298,7 @@ describe('EditListScreen', () => {
         name: 'Recipes',
         color: '#22D3EE',
         icon: 'cart-outline',
+        kind: 'standard',
       })
     );
     expect(listRepositoryMock.moveToCollection).not.toHaveBeenCalled();

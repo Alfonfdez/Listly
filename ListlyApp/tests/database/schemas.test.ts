@@ -4,7 +4,7 @@ import { DEFAULT_CONFIG, sanitizeConfig } from '../../src/database/configDefault
 import { LANGUAGES } from '../../src/constants/languages';
 import { LIST_LAYOUTS, TEXT_SIZES, THEMES } from '../../src/constants/types';
 
-const VALID_LIST = { id: 1, name: 'Work Tasks', color: '#22D3EE', icon: 'briefcase-outline', created_at: '2026-09-05 08:00:00', position: 0, collection_id: null, pinned: 0 };
+const VALID_LIST = { id: 1, name: 'Work Tasks', color: '#22D3EE', icon: 'briefcase-outline', created_at: '2026-09-05 08:00:00', position: 0, collection_id: null, pinned: 0, kind: 'standard' };
 
 describe('schemas', () => {
   describe('listSchema', () => {
@@ -29,7 +29,7 @@ describe('schemas', () => {
   });
 
   describe('itemSchema', () => {
-    const VALID_ITEM = { id: 10, list_id: 1, name: 'Milk', checked: 0, note: null, position: 0, created_at: '2026-09-05 08:00:00', updated_at: '2026-09-05 08:00:00', pictures: null };
+    const VALID_ITEM = { id: 10, list_id: 1, name: 'Milk', checked: 0, note: null, position: 0, created_at: '2026-09-05 08:00:00', updated_at: '2026-09-05 08:00:00', pictures: null, amount_minor: null, quantity: 0 };
 
     it('accepts a fully valid row', () => {
       expect(itemSchema.parse(VALID_ITEM)).toEqual(VALID_ITEM);

@@ -11,6 +11,7 @@ import { ICONS } from '../constants/icons';
 import { parseItemPhotos } from '../utils/itemPhotos';
 import { withAlpha } from '../utils/color';
 import { isOn } from '../utils/flags';
+import { formatMinor, lineTotalMinor } from '../utils/numeric';
 import SortablePressable from './SortablePressable';
 import SelectionCheck from './SelectionCheck';
 import NoteViewer from './NoteViewer';
@@ -20,11 +21,12 @@ interface Props {
   item: Item;
   selectMode: boolean;
   selected: boolean;
+  numeric?: boolean;
   onToggle: () => void;
   onEdit: () => void;
 }
 
-function ItemRowInner({ item, selectMode, selected, onToggle, onEdit }: Props) {
+function ItemRowInner({ item, selectMode, selected, numeric = false, onToggle, onEdit }: Props) {
   const { activeColors: c, config } = useConfig();
   const fs = useFontSize();
   const labels = useLabels();
@@ -87,6 +89,19 @@ function ItemRowInner({ item, selectMode, selected, onToggle, onEdit }: Props) {
             </SortablePressable>
           ) : null}
         </View>
+        {numeric && !selectMode ? (
+          <View style={styles.numericRow}>
+            <Text style={[styles.numericDetail, { color: c.textSecondary, fontSize: fs(12) }]}>
+              {`${formatMinor(item.amount_minor)} × ${item.quantity}`}
+            </Text>
+            <Text
+              style={[styles.numericTotal, { color: isDone ? c.textSecondary : c.text, fontSize: fs(14) }]}
+              accessibilityLabel={`${labels.item_line_total_label}: ${formatMinor(lineTotalMinor(item.amount_minor, item.quantity))}`}
+            >
+              {formatMinor(lineTotalMinor(item.amount_minor, item.quantity))}
+            </Text>
+          </View>
+        ) : null}
         {showNote && !selectMode ? (
           <SortablePressable
             onPress={() => setNoteViewerVisible(true)}
@@ -169,6 +184,19 @@ const styles = StyleSheet.create({
   },
   notePreview: {
     marginTop: 4,
+  },
+  numericRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginTop: 4,
+    gap: 8,
+  },
+  numericDetail: {
+    fontWeight: '500',
+  },
+  numericTotal: {
+    fontWeight: '700',
   },
   editButton: {
     width: 30,

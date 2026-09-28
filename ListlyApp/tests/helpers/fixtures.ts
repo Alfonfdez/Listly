@@ -6,6 +6,7 @@ export function buildList(name: string, overrides: Partial<NewList> = {}): NewLi
     color: '#22D3EE',
     icon: 'cart-outline',
     collection_id: null,
+    kind: 'standard',
     ...overrides,
   };
 }
@@ -18,6 +19,8 @@ export function buildItem(listId: number, name: string, overrides: Partial<NewIt
     note: null,
     pictures: null,
     position: 0,
+    amount_minor: null,
+    quantity: 0,
     ...overrides,
   };
 }

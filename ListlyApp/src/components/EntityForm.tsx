@@ -34,6 +34,7 @@ interface Props<TError extends StringTranslationKey> {
   onDelete?: () => void;
   middleLabel?: string;
   onMiddle?: () => void;
+  kindSlot?: ReactNode;
   fieldSlot?: ReactNode;
   onSubmit: (data: { name: string; icon: IconName; color: string }) => Promise<void>;
 }
@@ -55,6 +56,7 @@ export default function EntityForm<TError extends StringTranslationKey>({
   onDelete,
   middleLabel,
   onMiddle,
+  kindSlot,
   fieldSlot,
   onSubmit,
 }: Props<TError>) {
@@ -128,6 +130,8 @@ export default function EntityForm<TError extends StringTranslationKey>({
           accessibilityLabel={nameLabel}
         />
       </FormField>
+
+      {kindSlot ? <View style={styles.field}>{kindSlot}</View> : null}
 
       <FormField label={iconLabel} style={styles.field}>
         <IconGrid options={LIST_ICONS} selected={icon} onSelect={setIcon} />

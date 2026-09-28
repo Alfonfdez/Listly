@@ -17,6 +17,7 @@ interface Props {
   middleLabel?: string;
   onMiddle?: () => void;
   fieldSlot?: ReactNode;
+  kindSlot?: ReactNode;
   onSubmit: (data: {
     name: string;
     icon: IconName;
@@ -37,6 +38,7 @@ export default function ListForm({
   middleLabel,
   onMiddle,
   fieldSlot,
+  kindSlot,
   onSubmit,
 }: Props) {
   const labels = useLabels();
@@ -65,6 +67,7 @@ export default function ListForm({
       onDelete={onDelete}
       middleLabel={middleLabel}
       onMiddle={onMiddle}
+      kindSlot={kindSlot}
       fieldSlot={fieldSlot}
       onSubmit={submit}
     />
