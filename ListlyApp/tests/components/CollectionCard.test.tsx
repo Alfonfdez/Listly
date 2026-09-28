@@ -45,13 +45,13 @@ describe('CollectionCard', () => {
     expect(view.getByLabelText('Pinned')).toBeTruthy();
   });
 
-  it('hides the star indicator when the collection is not pinned or in select mode', async () => {
+  it('hides the star indicator when the collection is not pinned and keeps it visible in select mode', async () => {
     const unpinned = await render(<CollectionCard collection={COLLECTION} selectMode={false} selected={false} onPress={() => {}} />);
     expect(unpinned.queryByLabelText('Pinned')).toBeNull();
 
     const selecting = await render(
       <CollectionCard collection={{ ...COLLECTION, pinned: 1 }} selectMode selected={false} onPress={() => {}} />
     );
-    expect(selecting.queryByLabelText('Pinned')).toBeNull();
+    expect(selecting.getByLabelText('Pinned')).toBeTruthy();
   });
 });

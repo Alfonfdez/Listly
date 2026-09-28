@@ -53,7 +53,7 @@ function ListRowInner({ list, collection, selectMode, selected, onPress }: Props
           <Text style={[styles.name, { color: c.text, fontSize: fs(15) }]} numberOfLines={1}>
             {list.name}
           </Text>
-          {list.pinned === 1 && !selectMode ? (
+          {list.pinned === 1 ? (
             <Ionicons name="star" size={13} color={c.star} accessibilityLabel={labels.home_pinned} />
           ) : null}
         </View>

@@ -23,7 +23,7 @@
 - Runs under `ERROR_SCOPE.pinLists` / `ERROR_SCOPE.unpinLists` and refreshes after applying.
 
 ### 4. Star indicator
-- Pinned lists and collections render a filled `star` icon (theme token `c.star`, amber) inline after the name on both grid cards (`ListCard`, `CollectionCard`) and rows (`ListRow`, `CollectionRow`), hidden in select mode. Accessibility label `home_pinned`.
+- Pinned lists and collections render a filled `star` icon (theme token `c.star`, amber) inline after the name on both grid cards (`ListCard`, `CollectionCard`) and rows (`ListRow`, `CollectionRow`), also while in select mode so pinning/unpinning gives immediate visual feedback (the `SelectionCheck` badge sits in the corner, the star stays inline). Accessibility label `home_pinned`.
 
 ### 5. Backup
 - `pinned` is serialized on export and restored on import for both tables.
@@ -37,7 +37,7 @@
 ## Non-functional requirements
 
 - **TypeScript strict**, no `any`; theme `star` token added to both palettes (dark `#F9A825`, light `#F59E0B`) exposed through `useConfig`; `ERROR_SCOPE.pinLists` / `ERROR_SCOPE.unpinLists`; no new dependencies.
-- **Tests**: repo tests (`setPinned` + pinned-first ordering for `list()`/`withCounts()`, `create` returns 0, move/remove keep the flag, unpin restores order); backup tests (pinned round-trip, legacy schema-5 backup imports unpinned); component tests (star on pinned cards/rows, hidden otherwise or in select mode; action-bar pin button render/press/disabled); `ListsView` select-flow tests (Pin/Unpin labels, pin/unpin calls for lists and collections).
+- **Tests**: repo tests (`setPinned` + pinned-first ordering for `list()`/`withCounts()`, `create` returns 0, move/remove keep the flag, unpin restores order); backup tests (pinned round-trip, legacy schema-5 backup imports unpinned); component tests (star on pinned cards/rows, hidden when unpinned and kept visible in select mode; action-bar pin button render/press/disabled); `ListsView` select-flow tests (Pin/Unpin labels, pin/unpin calls for lists and collections).
 - **Verification**: `npm run test:all`; web loop at 375px (pin a list and a collection → both float to the top of their sections with an amber star; repeat → Unpin restores order; disabled at 0 selected; star persists across reload; Spanish labels; 0 console errors).
 
 ---
@@ -52,4 +52,5 @@
 - [x] Backup/restore preserves the pinned flags; backups made before pinning (schema 5) import with everything unpinned.
 - [x] `select_pin`, `select_unpin`, `home_pinned` exist in en and es.
 - [x] The action-bar star action is never clipped: the bar wraps its buttons on narrow screens with long labels (es) and scaled text.
+- [x] Pinning/unpinning from the select-mode action bar updates the amber star on the selected cards/rows immediately, without leaving select mode (lists and collections).
 - [x] `npm run test:all` passes.

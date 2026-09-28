@@ -54,7 +54,7 @@ function CollectionRowInner({ collection, selectMode, selected, onPress, dropTar
         <Text style={[styles.name, { color: c.text, fontSize: fs(15) }]} numberOfLines={1}>
           {collection.name}
         </Text>
-        {collection.pinned === 1 && !selectMode ? (
+        {collection.pinned === 1 ? (
           <Ionicons name="star" size={13} color={c.star} accessibilityLabel={labels.home_pinned} />
         ) : null}
       </View>
