@@ -711,3 +711,20 @@ pm run test:all green.
 - Tests: `numeric.test.ts` (7), `itemRepo` numeric fields (3), `listRepo` kind (2), backup round-trip + legacy numeric (2), `ListDetailScreen` numeric (3). `npm run test:all` green (56 files, 488 tests); lint + typecheck clean.
 - Docs: new `spec/features/026-numeric-lists/` (1-spec/2-plan/3-tasks) + roadmap entry.
 - Verified on web at 375px (fresh IndexedDB): created a numeric list via the Type selector, added an item (Amount 1.50, qty 2) → line total 3.00, header Total 3.00 / Done 0.00; checking it moved Done to 3.00; a standard list shows no Amount/Total rows; 0 console errors.
+
+[2026-09-28] spike | ListlyApp [027: pre-spec crypto spike for locked lists]
+- Throwaway spike (no product code) to de-risk feature 027 (locked lists / encrypted vault) before writing the spec: throwaway `ListlyApp/spike/vaultSpike.ts` + `spike/VaultSpikeScreen.tsx` wired temporarily as the stack's `initialRouteName` (navigator + `RootStackParamList` `VaultSpike` route), all reverted and the `spike/` folder deleted after the measurements.
+- Web (browser/jsdom-free real browser): expo-crypto AES-GCM primitives + `getRandomBytesAsync` + iterated-SHA-256 KDF all pass (salt, 256-bit key import from derived bytes, verifier, unicode round-trip, wrong-passphrase and GCM-tamper rejection); KDF iterated SHA-256 50k = 250 ms, 120k = 557 ms.
+- Native (Android emulator `finly_test`, `sdk_gphone64_x86_64` API 35, x86_64) via Expo Go 57 → the AES module **is** bundled in Expo Go: all functional checks pass, but the iterated-SHA-256 KDF is ~60x slower than web (each `digestStringAsync` is a JS↔native bridge round-trip): 50k = 15 s, 120k = 36 s. Option A (pure-JS PBKDF2-HMAC-SHA256 via `@noble/hashes`) was also measured and rejected: 100k = 20 s, 600k = 123 s.
+- Option B (`react-native-quick-crypto`, JSI/Nitro native PBKDF2) measured on the dev build: **sha256 600k = 52 ms**, **sha512 600k = 165 ms** (~3,000x faster than pure JS, ~8,000x faster than the bridge loop) — all checks pass including a native-derived-key + AES round-trip. Decision: **PBKDF2-HMAC-SHA-512 with 600,000 iterations** (digest + count stored per vault row for future upgrades); this **requires a development build** (quick-crypto cannot run in Expo Go); web will branch to `crypto.subtle` PBKDF2.
+- Deps: added `react-native-quick-crypto ^1.1.7` + `react-native-nitro-modules ^0.37.1` (Expo config plugin `react-native-quick-crypto` in `app.json`); `expo-crypto` and the spike-only `@noble/hashes` were installed during the spike and uninstalled after (AES will come from quick-crypto in 027). `npx expo prebuild --platform android` + `npx expo run:android` generated the (already gitignored) `android/` dev-build project and installed it on the emulator.
+- `npm run test:all` green after cleanup (56 files, 490 tests); typecheck + lint clean; navigator/`RootStackParamList` restored (no spike route), dev server stopped and port 8081 freed.
+- No spec/roadmap change yet — feature 027 is still unscheduled; this entry records the spike and the resulting tech-stack decision.
+
+[2026-09-28] + | spec/features/027-locked-lists/, spec/constitution/3-roadmap.md
+- Created the spec set for feature 027 — locked lists (encrypted vault): `1-spec.md` (threat model + scope, functional requirements for lock/locked-state/unlock/remove-lock, cross-list guards, vault persistence + KDF/AES/backup, i18n/errors, 12 acceptance criteria), `2-plan.md` (architecture, `vaults` schema, crypto core + platform branches, `vaultRepo` operations, components, data flow, risks), `3-tasks.md` (checklist seeded from the completed crypto spike).
+- Key decisions recorded: per-list passphrase (min 6 chars, unrecoverable), PBKDF2-HMAC-SHA-512 @ 600k → AES-256-GCM, locked list = badge + hidden progress + excluded from search/totals, in-memory unlock re-locked on leaving the screen, photos disallowed in locked lists (v1), vault exported encrypted in backups and locked items omitted from plaintext.
+- Roadmap: added `## 027-locked-lists` (Status: not started).
+- No code changes; implementation follows the spec.
+
+

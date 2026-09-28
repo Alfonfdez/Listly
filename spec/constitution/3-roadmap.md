@@ -267,6 +267,17 @@ Lists whose items also carry a generic Amount and an integer Quantity (shopping,
 - `utils/numeric.ts` (parse/format/clamp/lineTotal/sumTotals); i18n en/es `list_kind*`, `item_amount_label`, `item_quantity_label`, `item_line_total_label`, `list_total_label`, `list_done_total_label`.
 - Spec: spec/features/026-numeric-lists/.
 
+## 027-locked-lists
+Status: not started.
+
+Lock a list with a passphrase so its items are encrypted at rest (real confidentiality):
+- Per-list passphrase (min 6 chars) → PBKDF2-HMAC-SHA-512 (600,000 iterations) → AES-256-GCM; a `vaults` table (`list_id`, `salt`, `kdf_iterations`, `kdf_digest`, `kdf_version`, `verifier`, `payload`, `updated_at`); `SCHEMA_VERSION` 8 → 9.
+- Locking encrypts the items into the vault and deletes the plaintext rows in one transaction; a locked list shows a lock badge, hides its progress, is excluded from search/totals, and opens a passphrase lock screen.
+- Unlock decrypts into memory for the open session and re-locks on leaving the screen; edits are re-encrypted; *Remove lock* restores plaintext rows. No recovery (lost passphrase = permanent loss); photos are disallowed in locked lists (v1).
+- Cross-list actions (copy-to-list / merge / duplicate) are unavailable for a locked list; backup exports the vault encrypted and omits locked items from plaintext.
+- KDF is native (`react-native-quick-crypto`) on device and `crypto.subtle` on web; requires a development build (no Expo Go). Crypto spike verified: PBKDF2 sha512 600k ≈ 165 ms on the emulator.
+- Spec: spec/features/027-locked-lists/.
+
 ## Future scope (not scheduled)
 - Per-list currency symbol (the numeric list is currency-agnostic for now).
 - A third "pending" (all − done) total.
