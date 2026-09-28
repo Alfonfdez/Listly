@@ -552,3 +552,9 @@ pm run test:all green.
 - Tests: `ListCard.test.tsx` / `ListRow.test.tsx` / `CollectionCard.test.tsx` star assertions flipped from "hidden in select mode" to "kept visible in select mode". `npm run test:all` green (51 files, 440 tests).
 - Docs: 021 spec requirement + tests bullet + new acceptance criterion; roadmap 021 note.
 - Verified on web at 375px (Spanish + Large text): Home select mode with 1 collection + 1 list selected shows 0 stars before Pin; pressing "Fijar" shows 2 amber stars instantly (Col + Uno) and floats them to the top of their sections while the bar flips to "Desfijar"; pressing "Desfijar" removes both stars immediately; 0 console errors.
+
+[2026-09-28] ~ | ListlyApp [010: selection action bar button order]
+- `SelectionActionBar`: button order changed to destructive-first — **Delete → Pin (when present) → Cancel** (was Pin → Cancel → Delete). Delete gets an extra `marginRight` to separate it from the safe actions; no color/size changes. Restores the 010 spec wording ("count, delete, cancel") and keeps 021's "Pin between Delete and Cancel". Applies to both usages: lists/collections = `Delete · Pin · Cancel`, items = `Delete · Cancel`.
+- Tests: existing assertions query by accessibility label, so order changes are unaffected. `npm run test:all` green (51 files, 440 tests).
+- Docs: 010 spec gains a button-order requirement + acceptance criterion; roadmap 010 note.
+- Verified on web at 375px: lists/collections bar (Spanish + Large) shows "Eliminar · Fijar" on the first row and "Cancelar" wrapped to the second, in that left-to-right order, 0 horizontal overflow; List detail item bar shows "Eliminar · Cancelar" on one row; 0 console errors.
