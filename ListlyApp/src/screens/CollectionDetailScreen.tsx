@@ -1,16 +1,16 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
 import { useApp } from '../context/AppContext';
 import { useConfig } from '../context/ConfigContext';
 import { useLabels } from '../hooks/useLabels';
 import { useSelectMode } from '../hooks/useSelectMode';
+import { useSelectSearchHeader } from '../hooks/useSelectSearchHeader';
 import { listRepository as listRepo } from '../database';
 import { LIST_VIEW_MODES, type IconName, type NavigationProp, type RootStackParamList } from '../constants/types';
 import ScreenShell from '../components/ScreenShell';
 import NotFoundScreen from '../components/NotFoundScreen';
 import DetailHeader from '../components/DetailHeader';
 import ListsView from '../components/ListsView';
-import SelectSearchHeader from '../components/SelectSearchHeader';
 import ConfirmModal from '../components/ConfirmModal';
 
 export default function CollectionDetailScreen() {
@@ -43,38 +43,19 @@ export default function CollectionDetailScreen() {
     afterDelete: refresh,
   });
 
-  const toggleSearch = useCallback(() => {
-    if (selectMode) return;
-    setSearchActive(prev => !prev);
-    if (searchActive) setQuery('');
-  }, [searchActive, selectMode]);
-
   const hasLists = listsInCollection.length > 0;
 
-  useEffect(() => {
-    navigation.setOptions({
-      headerRight: hasLists
-        ? () => (
-            <SelectSearchHeader
-              selectMode={selectMode}
-              showSelect={hasLists}
-              showSearch={hasLists}
-              searchActive={searchActive}
-              onToggleSelect={toggleSelectMode}
-              onToggleSearch={toggleSearch}
-            />
-          )
-        : undefined,
-    });
-  }, [
-    navigation, selectMode, toggleSelectMode, searchActive, toggleSearch, hasLists,
-  ]);
-
-  useEffect(() => {
-    return () => {
-      navigation.setOptions({ headerRight: undefined });
-    };
-  }, [navigation]);
+  useSelectSearchHeader({
+    navigation,
+    searchActive,
+    onSearchClose: useCallback(() => { setQuery(''); setSearchActive(false); }, []),
+    onSearchToggle: useCallback(() => setSearchActive(true), []),
+    selectMode,
+    visible: hasLists,
+    showSelect: hasLists,
+    showSearch: hasLists,
+    onToggleSelect: toggleSelectMode,
+  });
 
   if (!collection) {
     return <NotFoundScreen />;
