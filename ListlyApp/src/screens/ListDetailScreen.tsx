@@ -392,10 +392,10 @@ export default function ListDetailScreen() {
         ) : null}
         {items.length > 0 && !selectMode && !searchActive ? (
           <>
-            <View style={styles.sortRow}>
+            <View style={styles.batchRow}>
               <TouchableOpacity
                 onPress={() => setSortModalVisible(true)}
-                style={[styles.sortButton, { borderColor: sortActive ? c.primary : c.border }]}
+                style={[styles.batchButton, { borderColor: sortActive ? c.primary : c.border }]}
                 accessibilityRole="button"
                 accessibilityLabel={sortLabel}
               >
@@ -412,55 +412,55 @@ export default function ListDetailScreen() {
                 ) : null}
                 <Ionicons name="chevron-down" size={14} color={c.textSecondary} />
               </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => setMergePickerVisible(true)}
+                style={[styles.batchButton, { borderColor: c.warning }]}
+                accessibilityRole="button"
+                accessibilityLabel={labels.list_merge_into}
+              >
+                <Ionicons name="git-merge-outline" size={16} color={c.warning} />
+                <Text style={[styles.batchText, { color: c.warning, fontSize: fs(13) }]}>
+                  {labels.list_merge_into}
+                </Text>
+              </TouchableOpacity>
             </View>
             <View style={styles.batchRow}>
-            <TouchableOpacity
-              onPress={() => void completeAll()}
-              disabled={done === total}
-              style={[styles.batchButton, { borderColor: c.border }]}
-              accessibilityRole="button"
-              accessibilityLabel={labels.item_complete_all}
-            >
-              <Ionicons name="checkmark-done-outline" size={16} color={done === total ? c.textSecondary : c.primary} />
-              <Text style={[styles.batchText, { color: done === total ? c.textSecondary : c.primary, fontSize: fs(13) }]}>
-                {labels.item_complete_all}
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              onPress={() => void uncompleteAll()}
-              disabled={done === 0}
-              style={[styles.batchButton, { borderColor: c.border }]}
-              accessibilityRole="button"
-              accessibilityLabel={labels.item_uncomplete_all}
-            >
-              <Ionicons name="square-outline" size={16} color={done === 0 ? c.textSecondary : list.color} />
-              <Text style={[styles.batchText, { color: done === 0 ? c.textSecondary : list.color, fontSize: fs(13) }]}>
-                {labels.item_uncomplete_all}
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              onPress={() => setClearCompletedVisible(true)}
-              disabled={done === 0}
-              style={[styles.batchButton, { borderColor: c.border }]}
-              accessibilityRole="button"
-              accessibilityLabel={labels.item_clear_completed}
-            >
-              <Ionicons name="close-circle-outline" size={16} color={done === 0 ? c.textSecondary : c.red} />
-              <Text style={[styles.batchText, { color: done === 0 ? c.textSecondary : c.red, fontSize: fs(13) }]}>
-                {labels.item_clear_completed}
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              onPress={() => setMergePickerVisible(true)}
-              style={[styles.batchButton, { borderColor: c.border }]}
-              accessibilityRole="button"
-              accessibilityLabel={labels.list_merge_into}
-            >
-              <Ionicons name="git-merge-outline" size={16} color={c.primary} />
-              <Text style={[styles.batchText, { color: c.primary, fontSize: fs(13) }]}>
-                {labels.list_merge_into}
-              </Text>
-            </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => void completeAll()}
+                disabled={done === total}
+                style={[styles.batchButton, { borderColor: c.border }]}
+                accessibilityRole="button"
+                accessibilityLabel={labels.item_complete_all_a11y}
+              >
+                <Ionicons name="checkmark-done-outline" size={16} color={done === total ? c.textSecondary : c.primary} />
+                <Text style={[styles.batchText, { color: done === total ? c.textSecondary : c.primary, fontSize: fs(13) }]}>
+                  {labels.item_complete_all}
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => void uncompleteAll()}
+                disabled={done === 0}
+                style={[styles.batchButton, { borderColor: c.border }]}
+                accessibilityRole="button"
+                accessibilityLabel={labels.item_uncomplete_all_a11y}
+              >
+                <Ionicons name="square-outline" size={16} color={done === 0 ? c.textSecondary : list.color} />
+                <Text style={[styles.batchText, { color: done === 0 ? c.textSecondary : list.color, fontSize: fs(13) }]}>
+                  {labels.item_uncomplete_all}
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => setClearCompletedVisible(true)}
+                disabled={done === 0}
+                style={[styles.batchButton, { borderColor: c.border }]}
+                accessibilityRole="button"
+                accessibilityLabel={labels.item_clear_completed_a11y}
+              >
+                <Ionicons name="close-circle-outline" size={16} color={done === 0 ? c.textSecondary : c.red} />
+                <Text style={[styles.batchText, { color: done === 0 ? c.textSecondary : c.red, fontSize: fs(13) }]}>
+                  {labels.item_clear_completed}
+                </Text>
+              </TouchableOpacity>
             </View>
           </>
         ) : null}
@@ -622,20 +622,6 @@ const styles = StyleSheet.create({
     gap: 8,
     marginBottom: 12,
     paddingHorizontal: 4,
-  },
-  sortRow: {
-    flexDirection: 'row',
-    marginBottom: 8,
-    paddingHorizontal: 4,
-  },
-  sortButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    borderWidth: 1,
-    borderRadius: 999,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
   },
   batchButton: {
     flexDirection: 'row',

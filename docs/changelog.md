@@ -573,3 +573,18 @@ pm run test:all green.
 - Tests: `ListPickerModal.test.tsx` subtitle render/absence case; `ListDetailScreen.test.tsx` feedback assertion updated. `npm run test:all` green (52 files, 444 tests).
 - Docs: 023 spec §2/§4 + acceptance criterion; roadmap 023 note.
 - Verified on web at 375px (Spanish): the copy picker shows title "Copiar elementos a otra lista" + subtitle "Esta lista se mantiene; sus elementos se añaden a la lista que elijas (los que ya existan se omiten)."; selecting "Dos" shows the toast `Elementos copiados en "Dos"`; 0 console errors.
+
+[2026-09-28] ~ | ListlyApp [020/022: single-row list toolbar]
+- `ListDetailScreen`: removed the dedicated `sortRow`; the item sort pill is now the first chip of the shared `batchRow` (with an extra `marginRight` to separate it from the bulk actions) so the toolbar no longer wastes a whole line on sort alone.
+- Shortened the bulk-action visible labels (en `All` / `None` / `Clear`, es `Todo` / `Nada` / `Limpiar`) with new full-name accessibility labels (`item_*_a11y`), so 5 labeled chips fit **two rows** at 375px in both languages (previously 3 rows). Bulk behavior unchanged.
+- i18n en/es: `item_complete_all` / `item_uncomplete_all` / `item_clear_completed` shortened; added `item_complete_all_a11y`, `item_uncomplete_all_a11y`, `item_clear_completed_a11y`.
+- Tests: existing assertions query the accessibility labels (unchanged), so they stay green. `npm run test:all` green (52 files, 444 tests).
+- Docs: 020 spec §1/§3 + acceptance criteria; 022 spec §1; roadmap 010/020/022.
+- Verified on web at 375px: English/Medium `Manual · All · None` / `Clear · Merge into…` (2 rows); Spanish/Medium `Manual · Todo · Nada` / `Limpiar · Combinar en…` (2 rows); no horizontal overflow; 0 console errors.
+
+[2026-09-28] ~ | ListlyApp [020/022/025: two-row toolbar + warning token]
+- `ListDetailScreen`: the item toolbar is now two explicit rows — Row 1 = sort pill + *Merge into…*, Row 2 = All / None / Clear — instead of a single wrapping row. Merge moves out of the bulk trio and next to the sort control, away from the item-state toggles (reduces mis-taps next to Clear).
+- `constants/themes.ts`: new `warning` palette token (dark `#F9A825`, light `#F59E0B`) added to `ColorPalette` + both palettes; the *Merge into…* pill (icon, text, border) now uses `c.warning`, distinct from the primary-blue view actions and from red (pure-delete) semantics — merge deletes the source list but preserves its items in the target.
+- No repo/schema/i18n change. `npm run test:all` green (52 files, 444 tests).
+- Docs: 4-design-system palette (incl. the previously-missing `star`); 020 spec §1 + criteria; 022 §1; 025 §1 + criterion; roadmap 010/020/022/025.
+- Verified on web at 375px: light theme `Manual · Combinar en…` (amber `#F59E0B`) / `Todo · Nada · Limpiar`; dark theme merge `#F9A825` legible; two rows in en/es; no overflow; 0 console errors.

@@ -12,7 +12,7 @@
 - `sortItems(items, sort)` is pure and stable: `manual` returns the array unchanged (manual position order); `name` compares case-insensitively with numeric awareness (`localeCompare` `{ numeric: true, sensitivity: 'base' }`); `created` compares the `created_at` timestamp strings lexicographically (`YYYY-MM-DD HH:MM:SS` sorts correctly). On ties the input order (manual position) is preserved.
 
 ### 2. Sort toggle on List detail
-- A bounded sort pill (icon + current mode label + chevron) renders in its own row above the batch toolbar when the list has items and neither select mode nor search is active. It is primary-tinted when a non-manual sort is active and reflects the current direction with an arrow icon.
+- A bounded sort pill (icon + current mode label + chevron) renders as the first chip of the toolbar's first row (feature 020), next to *Merge into…*, when the list has items and neither select mode nor search is active. It is primary-tinted when a non-manual sort is active and reflects the current direction with an arrow icon.
 - Tapping it opens the shared `OptionPickerModal` with five one-tap radio options: Manual, Name asc, Name desc, Created asc, Created desc (Manual has no direction). Cancel discards; a confirmation button (`common_select`) applies the temporary selection.
 
 ### 3. Sorting behavior

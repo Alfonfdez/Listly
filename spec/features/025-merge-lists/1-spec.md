@@ -8,7 +8,7 @@
 ## Functional requirements
 
 ### 1. Merge action
-- List detail shows a *Merge into…* action only when the list has items (and it stays inert during search/select modes).
+- List detail shows a *Merge into…* action only when the list has items (and it stays inert during search/select modes). It is the second chip of the toolbar's first row, next to the sort pill, tinted with the amber `warning` token to signal a caution/destructive-but-data-preserving action.
 - Tapping it opens a list picker modal listing every other list (the source is excluded). If no other list exists, the picker shows an empty/info state.
 - Selecting a target opens a destructive confirmation: "Merge N items into <Target> and delete <Source>?".
 - Confirming merges and takes the user to the target list with a *Merged into <Target>* toast.
@@ -41,6 +41,7 @@
 ## Acceptance criteria
 
 - [x] List detail shows a *Merge into…* action only when the list has items.
+- [x] *Merge into…* sits on the toolbar's first row beside the sort pill and is amber (`warning` token), distinct from the primary-blue view actions.
 - [x] The picker lists other lists, excludes the source, and lets the user pick a target.
 - [x] The confirmation states the item count and the target name, with Cancel and Merge.
 - [x] Confirming appends the source's items (name, note, checked, pictures) to the target in source order and deletes the source list in one transaction.
