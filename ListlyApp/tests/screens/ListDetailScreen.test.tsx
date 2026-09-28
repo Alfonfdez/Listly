@@ -613,7 +613,7 @@ describe('ListDetailScreen', () => {
 
     await user.press(await view.findByLabelText('Work Tasks'));
     await waitFor(() => expect(itemRepositoryMock.duplicateItems).toHaveBeenCalledWith(1, 2));
-    expect(await view.findByText('Copied to Work Tasks')).toBeTruthy();
+    expect(await view.findByText('Items copied into "Work Tasks"')).toBeTruthy();
   });
 
   it('shows the merge into action when the list has items', async () => {

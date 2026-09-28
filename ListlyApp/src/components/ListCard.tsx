@@ -9,6 +9,7 @@ import { TRANSPARENT } from '../constants/themes';
 import { NBSP } from '../constants/text';
 import { ICONS } from '../constants/icons';
 import { withAlpha } from '../utils/color';
+import { isOn } from '../utils/flags';
 import SortablePressable from './SortablePressable';
 import SelectionCheck from './SelectionCheck';
 import TypeBadge from './TypeBadge';
@@ -49,7 +50,7 @@ function ListCardInner({ list, collection, selectMode, selected, onPress, reserv
         <Text style={[styles.name, { color: c.text, fontSize: fs(14) }]} numberOfLines={1}>
           {list.name}
         </Text>
-        {list.pinned === 1 ? (
+        {isOn(list.pinned) ? (
           <Ionicons name="star" size={14} color={c.star} accessibilityLabel={labels.home_pinned} />
         ) : null}
       </View>

@@ -33,6 +33,7 @@ import {
 } from '../utils/itemSort';
 import { buildListCopyText } from '../utils/copyList';
 import { parseItemPhotos, serializeItemPhotos } from '../utils/itemPhotos';
+import { isOn } from '../utils/flags';
 import { HIT_SLOP } from '../components/componentStyles';
 import ScreenShell from '../components/ScreenShell';
 import EmptyState from '../components/EmptyState';
@@ -179,7 +180,7 @@ export default function ListDetailScreen() {
     [items, editing]
   );
 
-  const done = items.filter(i => i.checked === 1).length;
+  const done = items.filter(i => isOn(i.checked)).length;
   const total = items.length;
   const pct = total > 0 ? Math.round((done / total) * 100) : 0;
 
@@ -346,7 +347,7 @@ export default function ListDetailScreen() {
               hitSlop={HIT_SLOP}
             >
               <Ionicons
-                name={copiedAction === 'to-list' ? 'checkmark' : 'git-branch-outline'}
+                name={copiedAction === 'to-list' ? 'checkmark' : 'duplicate-outline'}
                 size={20}
                 color={copiedAction === 'to-list' ? c.green : list.color}
               />
@@ -550,7 +551,8 @@ export default function ListDetailScreen() {
 
       <ListPickerModal
         visible={copyPickerVisible}
-        title={labels.list_picker_title}
+        title={labels.list_copy_to}
+        subtitle={labels.list_copy_picker_subtitle}
         options={lists}
         excludeListId={listId}
         cancelLabel={labels.common_cancel}

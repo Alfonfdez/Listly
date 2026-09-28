@@ -7,6 +7,7 @@ import { useLabels } from '../hooks/useLabels';
 import { CARD_BORDER_RADIUS, ALPHA_TINT } from './componentStyles';
 import { TRANSPARENT } from '../constants/themes';
 import { withAlpha } from '../utils/color';
+import { isOn } from '../utils/flags';
 import SortablePressable from './SortablePressable';
 import SelectionCheck from './SelectionCheck';
 import TypeBadge from './TypeBadge';
@@ -49,7 +50,7 @@ function CollectionCardInner({ collection, selectMode, selected, onPress, dropTa
         <Text style={[styles.name, { color: c.text, fontSize: fs(14) }]} numberOfLines={1}>
           {collection.name}
         </Text>
-        {collection.pinned === 1 ? (
+        {isOn(collection.pinned) ? (
           <Ionicons name="star" size={14} color={c.star} accessibilityLabel={labels.home_pinned} />
         ) : null}
       </View>

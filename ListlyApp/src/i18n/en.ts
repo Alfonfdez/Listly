@@ -107,10 +107,12 @@ export const en = {
   list_copied_notes: 'List + notes copied',
   list_duplicate: 'Duplicate list',
   list_copy_to: 'Copy items to another list',
-  list_copied_to: (name: string) => `Copied to ${name}`,
+  list_copied_to: (name: string) => `Items copied into "${name}"`,
   list_picker_title: 'Choose a list',
   list_picker_hint: 'Copy this list\'s items into another list',
   list_picker_empty: 'No other lists to copy into',
+  list_copy_picker_subtitle:
+    'This list stays; its items are appended to the list you pick (same-name items are skipped).',
   list_merge_into: 'Merge into…',
   list_merge_confirm: 'Merge',
   list_merge_confirm_title: 'Merge list?',

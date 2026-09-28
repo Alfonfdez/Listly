@@ -130,4 +130,39 @@ describe('ListPickerModal', () => {
     );
     expect(view.getByText('No other lists to merge into')).toBeTruthy();
   });
+
+  it('renders a subtitle when provided and omits it otherwise', async () => {
+    const onSelect = vi.fn();
+    const onClose = vi.fn();
+    const withSubtitle = await render(
+      <ListPickerModal
+        visible
+        title="Copy items to another list"
+        subtitle="This list stays; its items are appended to the list you pick."
+        options={[OTHER]}
+        excludeListId={1}
+        cancelLabel="Cancel"
+        onSelect={onSelect}
+        onClose={onClose}
+      />
+    );
+    expect(
+      withSubtitle.getByText('This list stays; its items are appended to the list you pick.')
+    ).toBeTruthy();
+
+    const withoutSubtitle = await render(
+      <ListPickerModal
+        visible
+        title="Choose a list"
+        options={[OTHER]}
+        excludeListId={1}
+        cancelLabel="Cancel"
+        onSelect={onSelect}
+        onClose={onClose}
+      />
+    );
+    expect(
+      withoutSubtitle.queryByText('This list stays; its items are appended to the list you pick.')
+    ).toBeNull();
+  });
 });

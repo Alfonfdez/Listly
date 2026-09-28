@@ -110,10 +110,12 @@ export const es: Translations = {
   list_copied_notes: 'Lista copiada con notas',
   list_duplicate: 'Duplicar lista',
   list_copy_to: 'Copiar elementos a otra lista',
-  list_copied_to: (name: string) => `Copiado a ${name}`,
+  list_copied_to: (name: string) => `Elementos copiados en "${name}"`,
   list_picker_title: 'Elegir lista',
   list_picker_hint: 'Copiar los elementos de esta lista a otra lista',
   list_picker_empty: 'No hay otras listas donde copiar',
+  list_copy_picker_subtitle:
+    'Esta lista se mantiene; sus elementos se añaden a la lista que elijas (los que ya existan se omiten).',
   list_merge_into: 'Combinar en…',
   list_merge_confirm: 'Combinar',
   list_merge_confirm_title: '¿Combinar lista?',
