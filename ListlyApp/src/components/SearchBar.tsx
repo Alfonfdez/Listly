@@ -29,7 +29,7 @@ export default function SearchBar({ placeholder, value, onChangeText, onClose, a
         onChangeText={onChangeText}
         autoFocus={autoFocus}
       />
-      <TouchableOpacity onPress={onClose} style={styles.closeButton} accessibilityLabel={labels.common_close}>
+      <TouchableOpacity onPress={onClose} style={styles.closeButton} accessibilityRole="button" accessibilityLabel={labels.common_close}>
         <Ionicons name="close-circle" size={20} color={c.textSecondary} />
       </TouchableOpacity>
     </View>

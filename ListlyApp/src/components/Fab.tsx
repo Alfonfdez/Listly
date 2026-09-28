@@ -16,6 +16,7 @@ export default function Fab({ onPress, accessibilityLabel }: Props) {
     <TouchableOpacity
       style={[styles.fab, { backgroundColor: c.primary }, isWeb ? fabShadowWeb : fabShadowNative]}
       onPress={onPress}
+      accessibilityRole="button"
       accessibilityLabel={accessibilityLabel}
     >
       <Ionicons name="add" size={28} color={c.background} />

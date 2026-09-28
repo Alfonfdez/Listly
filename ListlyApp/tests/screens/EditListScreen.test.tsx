@@ -6,6 +6,13 @@ import { buildAppMock, resetAppStub, setLists, setCollections } from '../helpers
 import { resetStub } from '../helpers/configStub';
 import type { CollectionWithCounts, ListWithCounts } from '../../src/database/types';
 import { MAX_LIST_NAME_LENGTH } from '../../src/constants/types';
+import { QUICK_COLOR_LABELS } from '../../src/constants/listColors';
+import { en } from '../../src/i18n/en';
+
+const colorLabel = (color: string): string => {
+  const value = en[QUICK_COLOR_LABELS[color]];
+  return typeof value === 'string' ? value : color;
+};
 
 interface PickerProps {
   value?: string;
@@ -139,7 +146,7 @@ describe('EditListScreen', () => {
     const view = await render(<EditListScreen />);
     expect(view.getByLabelText('Name').props.value).toBe('Groceries');
     expect(view.getByLabelText('cart-outline').props.accessibilityState.selected).toBe(true);
-    expect(view.getByLabelText('#22D3EE').props.accessibilityState.selected).toBe(true);
+    expect(view.getByLabelText(colorLabel('#22D3EE')).props.accessibilityState.selected).toBe(true);
     expect(view.getByLabelText('Save')).toBeTruthy();
   });
 
@@ -187,7 +194,7 @@ describe('EditListScreen', () => {
     await user.clear(view.getByLabelText('Name'));
     await user.type(view.getByLabelText('Name'), 'Groceries Express');
     await user.press(view.getByLabelText('briefcase-outline'));
-    await user.press(view.getByLabelText('#34D399'));
+    await user.press(view.getByLabelText(colorLabel('#34D399')));
     await new Promise(resolve => setTimeout(resolve, DEBOUNCE_WAIT));
     await user.press(view.getByLabelText('Save'));
 

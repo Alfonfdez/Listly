@@ -5,9 +5,15 @@ import CreateListScreen from '../../src/screens/CreateListScreen';
 import { buildAppMock, resetAppStub, setLists } from '../helpers/appStub';
 import { resetStub } from '../helpers/configStub';
 import { LIST_ICONS } from '../../src/constants/listIcons';
-import { QUICK_COLORS } from '../../src/constants/listColors';
+import { QUICK_COLORS, QUICK_COLOR_LABELS } from '../../src/constants/listColors';
+import { en } from '../../src/i18n/en';
 import { MAX_LIST_NAME_LENGTH } from '../../src/constants/types';
 import type { ListWithCounts } from '../../src/database/types';
+
+const colorLabel = (color: string): string => {
+  const value = en[QUICK_COLOR_LABELS[color]];
+  return typeof value === 'string' ? value : color;
+};
 
 interface PickerProps {
   value?: string;
@@ -106,7 +112,7 @@ describe('CreateListScreen', () => {
     const view = await render(<CreateListScreen />);
     expect(view.getByLabelText('Name')).toBeTruthy();
     expect(view.getByLabelText(LIST_ICONS[0]).props.accessibilityState.selected).toBe(true);
-    expect(view.getByLabelText(QUICK_COLORS[0]).props.accessibilityState.selected).toBe(true);
+    expect(view.getByLabelText(colorLabel(QUICK_COLORS[0])).props.accessibilityState.selected).toBe(true);
   });
 
   it('disables Create until the name is valid', async () => {
@@ -148,7 +154,7 @@ describe('CreateListScreen', () => {
     const user = userEvent.setup();
     const view = await render(<CreateListScreen />);
     await user.press(view.getByLabelText('cart-outline'));
-    await user.press(view.getByLabelText('#FBBF24'));
+    await user.press(view.getByLabelText(colorLabel('#FBBF24')));
     await user.type(view.getByLabelText('Name'), 'Weekend');
     await new Promise(resolve => setTimeout(resolve, DEBOUNCE_WAIT));
     await user.press(view.getByLabelText('Create'));
@@ -178,7 +184,7 @@ describe('CreateListScreen', () => {
     await user.press(view.getByLabelText('More colors'));
     pickerStub.getOnChangeJS()?.({ hex: '#123456' });
     await user.press(view.getByLabelText('OK'));
-    expect(view.getByLabelText('#123456').props.accessibilityState.selected).toBe(true);
+    expect(view.getByLabelText('Custom color').props.accessibilityState.selected).toBe(true);
     await user.type(view.getByLabelText('Name'), 'Weekend');
     await new Promise(resolve => setTimeout(resolve, DEBOUNCE_WAIT));
     await user.press(view.getByLabelText('Create'));
@@ -198,7 +204,7 @@ describe('CreateListScreen', () => {
     pickerStub.getOnChangeJS()?.({ hex: '#123456' });
     await user.press(view.getByLabelText('Cancel'));
     expect(view.queryByLabelText('#123456')).toBeNull();
-    expect(view.getByLabelText(QUICK_COLORS[0]).props.accessibilityState.selected).toBe(true);
+    expect(view.getByLabelText(colorLabel(QUICK_COLORS[0])).props.accessibilityState.selected).toBe(true);
   });
 
   it('prefills the form from the source list in duplicate mode', async () => {
@@ -207,7 +213,7 @@ describe('CreateListScreen', () => {
     const view = await render(<CreateListScreen />);
     expect(view.getByLabelText('Name').props.value).toBe('Groceries copy');
     expect(view.getByLabelText('cart-outline').props.accessibilityState.selected).toBe(true);
-    expect(view.getByLabelText('#22D3EE').props.accessibilityState.selected).toBe(true);
+    expect(view.getByLabelText(colorLabel('#22D3EE')).props.accessibilityState.selected).toBe(true);
   });
 
   it('duplicates the source list with the pre-filled details on Save, then opens it', async () => {

@@ -18,7 +18,7 @@ export default function NoteViewer({ note, visible, onClose }: Props) {
     <FullscreenViewer visible={visible} onClose={onClose}>
       <View style={[styles.card, { backgroundColor: c.surface }]}>
         <ScrollView contentContainerStyle={styles.scrollContent}>
-          <Text style={[styles.noteText, { color: c.text, fontSize: fs(15) }]}>{note}</Text>
+          <Text style={{ color: c.text, fontSize: fs(15), lineHeight: fs(22) }}>{note}</Text>
         </ScrollView>
       </View>
     </FullscreenViewer>
@@ -34,8 +34,5 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     padding: 20,
-  },
-  noteText: {
-    lineHeight: 22,
   },
 });

@@ -1,7 +1,13 @@
 import { describe, expect, it } from 'vitest';
 import { render, userEvent } from '@testing-library/react-native';
 import ColorGrid from '../../src/components/ColorGrid';
-import { QUICK_COLORS } from '../../src/constants/listColors';
+import { QUICK_COLORS, QUICK_COLOR_LABELS } from '../../src/constants/listColors';
+import { en } from '../../src/i18n/en';
+
+const colorLabel = (color: string): string => {
+  const value = en[QUICK_COLOR_LABELS[color]];
+  return typeof value === 'string' ? value : color;
+};
 
 describe('ColorGrid', () => {
   it('renders the quick colors as selectable circles', async () => {
@@ -11,7 +17,7 @@ describe('ColorGrid', () => {
     );
 
     QUICK_COLORS.forEach(color => {
-      expect(view.getByLabelText(color)).toBeTruthy();
+      expect(view.getByLabelText(colorLabel(color))).toBeTruthy();
     });
     expect(view.getByLabelText('More colors')).toBeTruthy();
   });
@@ -25,10 +31,12 @@ describe('ColorGrid', () => {
       <ColorGrid selectedColor={QUICK_COLORS[0]} customColor={null} onSelect={onSelect} onOpenPicker={() => {}} />
     );
 
-    expect(view.getByLabelText(QUICK_COLORS[0]).props.accessibilityState.selected).toBe(true);
-    expect(view.getByLabelText(QUICK_COLORS[1]).props.accessibilityState.selected).toBe(false);
+    const first = view.getByLabelText(colorLabel(QUICK_COLORS[0]));
+    const second = view.getByLabelText(colorLabel(QUICK_COLORS[1]));
+    expect(first.props.accessibilityState.selected).toBe(true);
+    expect(second.props.accessibilityState.selected).toBe(false);
 
-    await user.press(view.getByLabelText(QUICK_COLORS[1]));
+    await user.press(second);
   });
 
   it('renders a custom color circle when provided and selects it', async () => {
@@ -40,8 +48,8 @@ describe('ColorGrid', () => {
       <ColorGrid selectedColor="#123456" customColor="#123456" onSelect={onSelect} onOpenPicker={() => {}} />
     );
 
-    expect(view.getByLabelText('#123456').props.accessibilityState.selected).toBe(true);
-    await user.press(view.getByLabelText('#123456'));
+    expect(view.getByLabelText('Custom color').props.accessibilityState.selected).toBe(true);
+    await user.press(view.getByLabelText('Custom color'));
   });
 
   it('opens the picker via the "+" trigger', async () => {

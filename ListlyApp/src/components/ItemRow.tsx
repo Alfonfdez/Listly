@@ -96,7 +96,7 @@ function ItemRowInner({ item, selectMode, selected, onToggle, onEdit }: Props) {
             hitSlop={HIT_SLOP_SMALL}
           >
             <Text
-              style={[styles.notePreview, { color: c.textSecondary, fontSize: fs(13) }]}
+              style={[styles.notePreview, { color: c.textSecondary, fontSize: fs(13), lineHeight: fs(18) }]}
               numberOfLines={2}
               ellipsizeMode="tail"
             >
@@ -169,7 +169,6 @@ const styles = StyleSheet.create({
   },
   notePreview: {
     marginTop: 4,
-    lineHeight: 18,
   },
   editButton: {
     width: 30,
