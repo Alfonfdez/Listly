@@ -6,7 +6,7 @@ import { TRANSPARENT } from '../constants/themes';
 
 interface Props {
   cancelLabel?: string;
-  confirmLabel: string;
+  confirmLabel?: string;
   onCancel?: () => void;
   onConfirm: () => void;
   confirmDisabled?: boolean;
@@ -47,15 +47,17 @@ export default function ModalFooter({
           <Text style={[styles.buttonText, { color: c.text, fontSize: fs(14) }]}>{cancelLabel}</Text>
         </TouchableOpacity>
       ) : null}
-      <TouchableOpacity
-        style={[styles.button, { backgroundColor: confirmBg }]}
-        onPress={onConfirm}
-        disabled={confirmDisabled}
-        accessibilityRole="button"
-        accessibilityLabel={confirmLabel}
-      >
-        <Text style={[styles.buttonText, { color: confirmFg, fontSize: fs(14) }]}>{confirmLabel}</Text>
-      </TouchableOpacity>
+      {confirmLabel !== undefined ? (
+        <TouchableOpacity
+          style={[styles.button, { backgroundColor: confirmBg }]}
+          onPress={onConfirm}
+          disabled={confirmDisabled}
+          accessibilityRole="button"
+          accessibilityLabel={confirmLabel}
+        >
+          <Text style={[styles.buttonText, { color: confirmFg, fontSize: fs(14) }]}>{confirmLabel}</Text>
+        </TouchableOpacity>
+      ) : null}
     </View>
   );
 }
