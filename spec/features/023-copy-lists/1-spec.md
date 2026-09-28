@@ -14,9 +14,9 @@
 - Items are not (re)copied if the draft is cancelled.
 
 ### 2. Copy items into another list
-- List detail shows a third compact header action next to *Copy names* / *Copy all* (shown only when the list has items).
-- Tapping it opens a list picker modal listing every other list (the source is excluded).
-- Selecting a target appends a copy of the source's items to the target (items whose name already exists in the target are skipped, see §3) and shows transient feedback ("Copied to <Target>").
+- List detail shows a third compact header action next to *Copy names* / *Copy all* (shown only when the list has items), using a `duplicate-outline` icon so it is distinguishable from the clipboard-copy actions.
+- Tapping it opens a list picker modal titled *Copy items to another list* listing every other list (the source is excluded), with a subtitle clarifying the outcome ("this list stays; its items are appended to the list you pick; same-name items are skipped").
+- Selecting a target appends a copy of the source's items to the target (items whose name already exists in the target are skipped, see §3) and shows transient feedback naming the result ("Items copied into \"<Target>\"").
 
 ### 3. Copy fidelity
 - Same behavior for both duplicate-list and copy-items: each copied item is appended in source `position` order at the end of the target list.
@@ -26,7 +26,7 @@
 - Photo blobs are shared, not duplicated (no filesystem copies).
 
 ### 4. i18n and error handling
-- New keys in en/es: `list_duplicate`, `list_copy_to`, `list_copied_to`, `list_picker_title`, destination picker hint.
+- New keys in en/es: `list_duplicate`, `list_copy_to`, `list_copied_to`, `list_picker_title`, destination picker hint, `list_copy_picker_subtitle` (picker subtitle).
 - Copy/duplicate run under `ERROR_SCOPE.duplicateList` / `ERROR_SCOPE.copyItemsToList`; failures surface via the existing toast/error path.
 
 ---
@@ -49,4 +49,5 @@
 - [x] Copies preserve checked state and pictures; photos are shared, not re-imported.
 - [x] Copying skips source items whose name (case-insensitive) already exists in the target; the target's matching item is never modified and positions stay contiguous.
 - [x] "Copied to <Target>" feedback appears after a copy; new labels exist in en and es.
+- [x] The copy-to-list picker is self-explanatory (descriptive title + subtitle) and the copy-to-list header action uses a `duplicate-outline` icon distinct from the clipboard-copy actions; the post-copy feedback names the result ("Items copied into \"<Target>\"").
 - [x] `npm run test:all` passes.

@@ -10,6 +10,7 @@ import { MAX_ITEM_PICTURES } from '../constants/types';
 import { ICONS } from '../constants/icons';
 import { parseItemPhotos } from '../utils/itemPhotos';
 import { withAlpha } from '../utils/color';
+import { isOn } from '../utils/flags';
 import SortablePressable from './SortablePressable';
 import SelectionCheck from './SelectionCheck';
 import NoteViewer from './NoteViewer';
@@ -27,7 +28,7 @@ function ItemRowInner({ item, selectMode, selected, onToggle, onEdit }: Props) {
   const { activeColors: c, config } = useConfig();
   const fs = useFontSize();
   const labels = useLabels();
-  const isDone = item.checked === 1;
+  const isDone = isOn(item.checked);
   const photos = parseItemPhotos(item.pictures);
   const showNote = config.showNotes && Boolean(item.note);
   const showPhotos = config.showPhotos && photos.length > 0;

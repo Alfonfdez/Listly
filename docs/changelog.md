@@ -558,3 +558,18 @@ pm run test:all green.
 - Tests: existing assertions query by accessibility label, so order changes are unaffected. `npm run test:all` green (51 files, 440 tests).
 - Docs: 010 spec gains a button-order requirement + acceptance criterion; roadmap 010 note.
 - Verified on web at 375px: lists/collections bar (Spanish + Large) shows "Eliminar · Fijar" on the first row and "Cancelar" wrapped to the second, in that left-to-right order, 0 horizontal overflow; List detail item bar shows "Eliminar · Cancelar" on one row; 0 console errors.
+
+[2026-09-28] ~ | ListlyApp [refactor: flag helpers for 0/1 columns]
+- New `src/utils/flags.ts` exporting `Flag` (`0 | 1`), `isOn(flag)` and `toFlag(value)`; the UI read-sites now call `isOn(...)` instead of `pinned === 1` / `checked === 1` in `ListCard`, `ListRow`, `CollectionCard`, `CollectionRow`, `ListsView` (`allSelectedPinned`), `ItemRow` (`isDone`), `ListDetailScreen` (`done` count) and `copyList`.
+- Repo write-sites (`setPinned`, `itemRepo.toggle`) and the `0 | 1` storage types (Zod/Drizzle/`database/types.ts`) are intentionally unchanged — the literal flag representation stays at the storage boundary.
+- Tests: new `tests/utils/flags.test.ts` (`isOn`/`toFlag` + round-trip). `npm run test:all` green (52 files, 443 tests).
+- Docs: changelog only (pure refactor; no spec/behavior change).
+- Verified on web at 375px: Home renders, pin/unpin via the select bar still shows/removes the star (1 -> 0), List detail renders the checked progress; 0 console errors.
+
+[2026-09-28] ~ | ListlyApp [023: clarify copy-to-list action]
+- `ListPickerModal`: new optional `subtitle` prop rendered under the title (`c.textSecondary`, `fs(13)`), so a picker can explain its intent to sighted users (previously only available as an accessibility hint).
+- `ListDetailScreen`: the copy-to-list header action swaps `git-branch-outline` for `duplicate-outline` (distinct from the `copy-outline`/`reader-outline` clipboard actions) and its picker now uses the descriptive title `list_copy_to` plus the new `list_copy_picker_subtitle`.
+- i18n en/es: `list_copied_to` reworded to name the result ("Items copied into \"<Target>\"" / "Elementos copiados en \"<Destino>\""); new `list_copy_picker_subtitle`.
+- Tests: `ListPickerModal.test.tsx` subtitle render/absence case; `ListDetailScreen.test.tsx` feedback assertion updated. `npm run test:all` green (52 files, 444 tests).
+- Docs: 023 spec §2/§4 + acceptance criterion; roadmap 023 note.
+- Verified on web at 375px (Spanish): the copy picker shows title "Copiar elementos a otra lista" + subtitle "Esta lista se mantiene; sus elementos se añaden a la lista que elijas (los que ya existan se omiten)."; selecting "Dos" shows the toast `Elementos copiados en "Dos"`; 0 console errors.

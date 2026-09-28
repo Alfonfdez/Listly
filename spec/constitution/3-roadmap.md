@@ -234,7 +234,7 @@ Status: done.
 
 Copy a list's data into the app (beyond the feature-017 clipboard copy):
 - *Duplicate list*: Edit List gains a *Duplicate list* button opening the create flow pre-filled as an editable draft (`"<Name> copy"`, same icon/color); Save creates the list and copies its items in one transaction.
-- *Copy items into another list*: a third compact header action on List detail (hidden when empty) opens a shared `ListPickerModal` (excludes the current list) and appends a full-fidelity copy of the items (name, note, checked, pictures; fresh timestamps; photos shared by reference; same-name items already in the target are skipped — case-insensitive dedupe, target items never modified, positions stay contiguous).
+- *Copy items into another list*: a third compact header action on List detail (hidden when empty, `duplicate-outline` icon) opens a shared `ListPickerModal` with a descriptive title + subtitle, and appends a full-fidelity copy of the items (name, note, checked, pictures; fresh timestamps; photos shared by reference; same-name items already in the target are skipped — case-insensitive dedupe, target items never modified, positions stay contiguous); feedback names the result ("Items copied into \"<Target>\"").
 - Repo: `itemRepo.duplicateItems(sourceListId, targetListId)` + a transactional duplicate-list path; no schema change (`SCHEMA_VERSION` 7).
 - Spec: spec/features/023-copy-lists/.
 

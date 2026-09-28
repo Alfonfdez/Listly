@@ -11,6 +11,7 @@ import { useLabels } from '../hooks/useLabels';
 import { useDragOrder } from '../hooks/useDragOrder';
 import { useCollectionDropZones } from '../hooks/useCollectionDropZones';
 import { filterListsByQuery } from '../utils/search';
+import { isOn } from '../utils/flags';
 import { LIST_VIEW_MODES, LIST_LAYOUTS, type NavigationProp, type ListViewMode, type ListLayout } from '../constants/types';
 import { ICONS } from '../constants/icons';
 import ScreenShell from './ScreenShell';
@@ -182,8 +183,8 @@ export default function ListsView({
   const allSelectedPinned = useMemo(
     () =>
       hasPinSelection &&
-      selectedListItems.every(l => l.pinned === 1) &&
-      selectedCollectionItems.every(col => col.pinned === 1),
+      selectedListItems.every(l => isOn(l.pinned)) &&
+      selectedCollectionItems.every(col => isOn(col.pinned)),
     [hasPinSelection, selectedListItems, selectedCollectionItems]
   );
 

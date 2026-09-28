@@ -1,5 +1,6 @@
 import type { Item } from '../database/types';
 import { MAX_LIST_NAME_LENGTH } from '../constants/types';
+import { isOn } from './flags';
 
 const CHECKED_MARK = '✅';
 const NOTE_SEPARATOR = ' — ';
@@ -12,7 +13,7 @@ function sortByPosition(items: Item[]): Item[] {
 export function buildListCopyText(listName: string, items: Item[], withNotes: boolean): string {
   const lines: string[] = [listName];
   for (const item of sortByPosition(items)) {
-    let line = item.checked === 1 ? `${CHECKED_MARK} ${item.name}` : item.name;
+    let line = isOn(item.checked) ? `${CHECKED_MARK} ${item.name}` : item.name;
     if (withNotes && item.note && item.note.trim().length > 0) {
       line += `${NOTE_SEPARATOR}${item.note}`;
     }

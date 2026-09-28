@@ -18,6 +18,7 @@ interface Props {
   cancelLabel: string;
   onSelect: (list: ListWithCounts) => void;
   onClose: () => void;
+  subtitle?: string;
   emptyLabel?: string;
 }
 
@@ -29,6 +30,7 @@ export default function ListPickerModal({
   cancelLabel,
   onSelect,
   onClose,
+  subtitle,
   emptyLabel,
 }: Props) {
   const { activeColors: c } = useConfig();
@@ -45,6 +47,9 @@ export default function ListPickerModal({
   return (
     <ModalShell visible={visible} onClose={onClose} maxWidth={380} padding={20}>
       <Text style={[styles.title, { color: c.text, fontSize: fs(18) }]}>{title}</Text>
+      {subtitle ? (
+        <Text style={[styles.subtitle, { color: c.textSecondary, fontSize: fs(13) }]}>{subtitle}</Text>
+      ) : null}
       <ScrollView style={styles.scroll} showsVerticalScrollIndicator={false}>
         {available.length === 0 ? (
           <Text style={[styles.empty, { color: c.textSecondary, fontSize: fs(14) }]}>
@@ -92,6 +97,11 @@ const styles = StyleSheet.create({
   title: {
     fontWeight: '700',
     textAlign: 'center',
+  },
+  subtitle: {
+    fontWeight: '500',
+    textAlign: 'center',
+    marginTop: 6,
   },
   scroll: {
     marginTop: 12,
