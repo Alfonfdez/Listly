@@ -111,6 +111,13 @@ export const en = {
   list_picker_title: 'Choose a list',
   list_picker_hint: 'Copy this list\'s items into another list',
   list_picker_empty: 'No other lists to copy into',
+  list_merge_into: 'Merge into…',
+  list_merge_confirm: 'Merge',
+  list_merge_confirm_title: 'Merge list?',
+  list_merge_confirm_message: (count: number, target: string, source: string) =>
+    `Merge ${count} items into ${target} and delete ${source}?`,
+  list_merged: (name: string) => `Merged into ${name}`,
+  list_merge_empty: 'No other lists to merge into',
   list_collection_label: 'Collection',
   list_collection_none: 'Standalone / No collection',
   list_collection_picker_title: 'Choose a collection',

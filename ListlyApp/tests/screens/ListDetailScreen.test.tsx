@@ -11,11 +11,12 @@ import {
   setLists,
 } from '../helpers/appStub';
 import { resetStub } from '../helpers/configStub';
+import { getAppStub } from '../helpers/appStub';
 import { fireGridDragEnd, lastGrid } from '../mocks/react-native-sortables';
 import type { Item, ListWithCounts } from '../../src/database/types';
 import { darkColors } from '../../src/constants/themes';
 
-const { itemRepositoryMock, listRepositoryMock, selectMocks, nav, photoMocks, clipboardMock } = vi.hoisted(() => ({
+const { itemRepositoryMock, listRepositoryMock, selectMocks, nav, routeParams, photoMocks, clipboardMock } = vi.hoisted(() => ({
   itemRepositoryMock: {
     create: vi.fn(),
     update: vi.fn(),
@@ -26,6 +27,7 @@ const { itemRepositoryMock, listRepositoryMock, selectMocks, nav, photoMocks, cl
     setAllChecked: vi.fn(),
     deleteCompleted: vi.fn(),
     duplicateItems: vi.fn(),
+    mergeInto: vi.fn(),
   },
   listRepositoryMock: {
     delete: vi.fn(),
@@ -35,6 +37,7 @@ const { itemRepositoryMock, listRepositoryMock, selectMocks, nav, photoMocks, cl
   selectMocks: {
     toggleSelectMode: vi.fn(),
   },
+  routeParams: { value: { listId: 1 } as { listId: number; notice?: 'merged' } },
   photoMocks: {
     photos: [] as string[],
     setPhotos: vi.fn(),
@@ -46,6 +49,7 @@ const { itemRepositoryMock, listRepositoryMock, selectMocks, nav, photoMocks, cl
     setOptions: vi.fn(),
     navigate: vi.fn(),
     goBack: vi.fn(),
+    replace: vi.fn(),
   },
   clipboardMock: {
     setStringAsync: vi.fn(async () => true),
@@ -93,7 +97,7 @@ vi.mock('../../src/hooks/useSelectMode', () => ({
 vi.mock('@react-navigation/native', async () => {
   const React = await import('react');
   return {
-    useRoute: () => ({ params: { listId: 1 } }),
+    useRoute: () => ({ params: routeParams.value }),
     useNavigation: () => nav,
     useFocusEffect: (cb: () => void | (() => void)) => {
       React.useEffect(cb, [cb]);
@@ -131,6 +135,7 @@ describe('ListDetailScreen', () => {
     itemRepositoryMock.setAllChecked.mockReset();
     itemRepositoryMock.deleteCompleted.mockReset();
     itemRepositoryMock.duplicateItems.mockReset();
+    itemRepositoryMock.mergeInto.mockReset();
     itemRepositoryMock.create.mockResolvedValue({});
     itemRepositoryMock.update.mockResolvedValue(undefined);
     itemRepositoryMock.delete.mockResolvedValue(undefined);
@@ -139,11 +144,14 @@ describe('ListDetailScreen', () => {
     itemRepositoryMock.setAllChecked.mockResolvedValue(undefined);
     itemRepositoryMock.deleteCompleted.mockResolvedValue(undefined);
     itemRepositoryMock.duplicateItems.mockResolvedValue(undefined);
+    itemRepositoryMock.mergeInto.mockResolvedValue(undefined);
     listRepositoryMock.delete.mockReset();
     listRepositoryMock.delete.mockResolvedValue(undefined);
     selectMocks.toggleSelectMode.mockReset();
     nav.setOptions.mockReset();
     nav.goBack.mockReset();
+    nav.replace.mockReset();
+    routeParams.value = { listId: 1 };
     clipboardMock.setStringAsync.mockReset();
     clipboardMock.setStringAsync.mockResolvedValue(true);
     photoMocks.photos = [];
@@ -606,6 +614,141 @@ describe('ListDetailScreen', () => {
     await user.press(await view.findByLabelText('Work Tasks'));
     await waitFor(() => expect(itemRepositoryMock.duplicateItems).toHaveBeenCalledWith(1, 2));
     expect(await view.findByText('Copied to Work Tasks')).toBeTruthy();
+  });
+
+  it('shows the merge into action when the list has items', async () => {
+    const view = await render(<ListDetailScreen />);
+    await view.findByText('Milk');
+    expect(view.getByLabelText('Merge into…')).toBeTruthy();
+  });
+
+  it('hides the merge into action when the list has no items', async () => {
+    setItemsByListId(new Map([[1, []]]));
+    const view = await render(<ListDetailScreen />);
+    await view.findByText('No items yet');
+    expect(view.queryByLabelText('Merge into…')).toBeNull();
+  });
+
+  it('hides the merge into action while searching', async () => {
+    const view = await render(<ListDetailScreen />);
+    await view.findByText('Milk');
+    expect(view.getByLabelText('Merge into…')).toBeTruthy();
+
+    const opts = lastHeaderRight() as { headerRight?: () => ReactElement } | undefined;
+    const headerTree = await render(opts!.headerRight!());
+    fireEvent.press(headerTree.getByLabelText('Search'));
+    await view.findByPlaceholderText('Search items...', {}, { timeout: 2000 });
+    expect(view.queryByLabelText('Merge into…')).toBeNull();
+  });
+
+  it('opens the merge picker excluding the current list', async () => {
+    const user = userEvent.setup();
+    const other: ListWithCounts = {
+      id: 2,
+      name: 'Recipes',
+      color: '#34D399',
+      icon: 'restaurant-outline',
+      collection_id: null,
+      created_at: 'x',
+      position: 1,
+      pinned: 0,
+      total: 1,
+      completed: 0,
+    };
+    setLists([LIST, other]);
+    const view = await render(<ListDetailScreen />);
+    await view.findByText('Milk');
+    await user.press(view.getByLabelText('Merge into…'));
+
+    expect(await view.findByLabelText('Recipes')).toBeTruthy();
+    expect(view.queryByLabelText('Groceries')).toBeNull();
+  });
+
+  it('asks for a destructive confirmation with count, target and source before merging', async () => {
+    const user = userEvent.setup();
+    const other: ListWithCounts = {
+      id: 2,
+      name: 'Recipes',
+      color: '#34D399',
+      icon: 'restaurant-outline',
+      collection_id: null,
+      created_at: 'x',
+      position: 1,
+      pinned: 0,
+      total: 1,
+      completed: 0,
+    };
+    setLists([LIST, other]);
+    const view = await render(<ListDetailScreen />);
+    await view.findByText('Milk');
+    await user.press(view.getByLabelText('Merge into…'));
+    await user.press(await view.findByLabelText('Recipes'));
+
+    expect(await view.findByText('Merge 2 items into Recipes and delete Groceries?')).toBeTruthy();
+    expect(view.getAllByLabelText('Cancel')[1]).toBeTruthy();
+    expect(view.getByLabelText('Merge')).toBeTruthy();
+    expect(itemRepositoryMock.mergeInto).not.toHaveBeenCalled();
+  });
+
+  it('merges into a chosen list and replaces the screen with the target and a merge notice', async () => {
+    const user = userEvent.setup();
+    const other: ListWithCounts = {
+      id: 2,
+      name: 'Recipes',
+      color: '#34D399',
+      icon: 'restaurant-outline',
+      collection_id: null,
+      created_at: 'x',
+      position: 1,
+      pinned: 0,
+      total: 1,
+      completed: 0,
+    };
+    setLists([LIST, other]);
+    const view = await render(<ListDetailScreen />);
+    await view.findByText('Milk');
+    await user.press(view.getByLabelText('Merge into…'));
+    await user.press(await view.findByLabelText('Recipes'));
+    await user.press(view.getByLabelText('Merge'));
+
+    await waitFor(() => expect(itemRepositoryMock.mergeInto).toHaveBeenCalledWith(1, 2));
+    await waitFor(() => expect(getAppStub().refresh).toHaveBeenCalled());
+    await waitFor(() =>
+      expect(nav.replace).toHaveBeenCalledWith('ListDetail', { listId: 2, notice: 'merged' })
+    );
+  });
+
+  it('cancelling the merge confirmation changes nothing', async () => {
+    const user = userEvent.setup();
+    const other: ListWithCounts = {
+      id: 2,
+      name: 'Recipes',
+      color: '#34D399',
+      icon: 'restaurant-outline',
+      collection_id: null,
+      created_at: 'x',
+      position: 1,
+      pinned: 0,
+      total: 1,
+      completed: 0,
+    };
+    setLists([LIST, other]);
+    const view = await render(<ListDetailScreen />);
+    await view.findByText('Milk');
+    await user.press(view.getByLabelText('Merge into…'));
+    await user.press(await view.findByLabelText('Recipes'));
+    await user.press(view.getAllByLabelText('Cancel')[1]);
+
+    await waitFor(() => expect(view.queryByText(/Merge 2 items into/)).toBeNull());
+    expect(itemRepositoryMock.mergeInto).not.toHaveBeenCalled();
+    expect(nav.replace).not.toHaveBeenCalled();
+  });
+
+  it('shows a transient Merged into label when arriving with the merge notice', async () => {
+    routeParams.value = { listId: 1, notice: 'merged' };
+    const view = await render(<ListDetailScreen />);
+    await view.findByText('Milk');
+    expect(await view.findByText('Merged into Groceries')).toBeTruthy();
   });
 
   it('reorders items through the repository when the grid drag ends', async () => {

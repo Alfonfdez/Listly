@@ -1,6 +1,6 @@
 import { and, eq, inArray, ne, sql, type SQL } from 'drizzle-orm';
 import { getDrizzle, withTransaction } from '../drizzle/engine';
-import { items } from '../drizzle/schema';
+import { items, lists } from '../drizzle/schema';
 import { runResultOf } from '../drizzle/proxy';
 import type { Item } from '../types';
 import { itemSchema } from '../schemas';
@@ -129,6 +129,24 @@ export const itemRepo = {
   async duplicateItems(sourceListId: number, targetListId: number): Promise<void> {
     await withTransaction(async db => {
       await copyItemsInto(db, sourceListId, targetListId);
+    });
+  },
+
+  async mergeInto(sourceListId: number, targetListId: number): Promise<void> {
+    if (sourceListId === targetListId) {
+      throw new Error('Cannot merge a list into itself');
+    }
+    await withTransaction(async db => {
+      const copiedIds = await copyItemsInto(db, sourceListId, targetListId);
+      const copiedSet = new Set(copiedIds);
+      const sourceRows = await db
+        .select({ id: items.id, pictures: items.pictures })
+        .from(items)
+        .where(eq(items.list_id, sourceListId))
+        .all();
+      const skipped = sourceRows.filter(row => !copiedSet.has(row.id));
+      await deletePhotosOfItems(skipped);
+      await db.delete(lists).where(eq(lists.id, sourceListId)).run();
     });
   },
 

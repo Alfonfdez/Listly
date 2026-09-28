@@ -11,6 +11,11 @@ vi.mock('expo-sqlite', async () => {
   return { openDatabaseSync: mod.openDatabaseSync };
 });
 
+vi.mock('../../src/utils/itemPhotos', async () => {
+  const actual = await vi.importActual<typeof import('../../src/utils/itemPhotos')>('../../src/utils/itemPhotos');
+  return { ...actual, deleteItemPhotos: vi.fn(async () => {}) };
+});
+
 await import('expo-sqlite');
 
 type Backend = {
@@ -266,5 +271,115 @@ describe('itemRepo.duplicateItems', () => {
 
     const source = await b.items.listByList(a.id);
     expect(source.map(i => i.id)).toEqual([a1.id, a2.id, a3.id]);
+  });
+});
+
+describe('itemRepo.mergeInto', () => {
+  let b: Backend;
+
+  beforeAll(async () => {
+    await initSqlJsOnce();
+  });
+
+  beforeEach(async () => {
+    b = await createBackend();
+  });
+
+  it('appends full-fidelity copies to the target in source order and deletes the source list', async () => {
+    const a = await b.lists.create({ name: 'A', color: '#22D3EE', icon: 'cart-outline', collection_id: null });
+    const target = await b.lists.create({ name: 'B', color: '#34D399', icon: 'gift-outline', collection_id: null });
+    const existing = await b.items.create({
+      list_id: target.id,
+      name: 'existing',
+      checked: 1,
+      note: 'keep',
+      position: 0,
+      pictures: '["photo-existing.jpg"]',
+    });
+    await b.items.create({ list_id: a.id, name: 'a1', checked: 1, note: 'note-1', position: 0, pictures: '["p1.jpg"]' });
+    await b.items.create({ list_id: a.id, name: 'a2', checked: 0, note: null, position: 1, pictures: null });
+    await b.items.create({ list_id: a.id, name: 'a3', checked: 0, note: 'note-3', position: 2, pictures: null });
+
+    await b.items.mergeInto(a.id, target.id);
+
+    const merged = await b.items.listByList(target.id);
+    expect(merged.map(i => i.name)).toEqual(['existing', 'a1', 'a2', 'a3']);
+    expect(merged.map(i => i.position)).toEqual([0, 1, 2, 3]);
+    expect(merged.slice(1).map(i => i.checked)).toEqual([1, 0, 0]);
+    expect(merged.slice(1).map(i => i.note)).toEqual(['note-1', null, 'note-3']);
+    expect(merged[1].pictures).toBe('["p1.jpg"]');
+    expect(merged.map(i => i.id)).not.toContain(0);
+    expect(merged[0].id).toBe(existing.id);
+    expect(await b.lists.get(a.id)).toBeNull();
+    expect(await b.items.listByList(a.id)).toEqual([]);
+  });
+
+  it('skips source items whose name already exists in the target and never touches the matching target item', async () => {
+    const a = await b.lists.create({ name: 'A', color: '#22D3EE', icon: 'cart-outline', collection_id: null });
+    const target = await b.lists.create({ name: 'B', color: '#34D399', icon: 'gift-outline', collection_id: null });
+    const existing = await b.items.create({
+      list_id: target.id,
+      name: 'A1',
+      checked: 1,
+      note: 'own-note',
+      position: 0,
+      pictures: '["own.jpg"]',
+    });
+    await b.items.create({ list_id: a.id, name: 'a1', checked: 0, note: 'source-note', position: 0, pictures: null });
+    await b.items.create({ list_id: a.id, name: 'a2', checked: 0, note: null, position: 1, pictures: null });
+    await b.items.create({ list_id: a.id, name: 'a3', checked: 0, note: 'note-3', position: 2, pictures: null });
+
+    await b.items.mergeInto(a.id, target.id);
+
+    const merged = await b.items.listByList(target.id);
+    expect(merged.map(i => i.name)).toEqual(['A1', 'a2', 'a3']);
+    const original = merged.find(i => i.id === existing.id);
+    expect(original).toMatchObject({ checked: 1, note: 'own-note', pictures: '["own.jpg"]' });
+    expect(await b.lists.get(a.id)).toBeNull();
+    expect(await b.items.listByList(a.id)).toEqual([]);
+  });
+
+  it('deletes only the photos of dedupe-skipped source items, keeping shared photos of merged items', async () => {
+    const deleteItemPhotos = (await import('../../src/utils/itemPhotos')).deleteItemPhotos as ReturnType<typeof vi.fn>;
+    deleteItemPhotos.mockClear();
+    const a = await b.lists.create({ name: 'A', color: '#22D3EE', icon: 'cart-outline', collection_id: null });
+    const target = await b.lists.create({ name: 'B', color: '#34D399', icon: 'gift-outline', collection_id: null });
+    await b.items.create({ list_id: target.id, name: 'dup', checked: 1, note: null, position: 0, pictures: '["own.jpg"]' });
+    await b.items.create({ list_id: a.id, name: 'unique', checked: 0, note: null, position: 0, pictures: '["keep.jpg"]' });
+    await b.items.create({ list_id: a.id, name: 'dup', checked: 0, note: null, position: 1, pictures: '["skip.jpg"]' });
+
+    await b.items.mergeInto(a.id, target.id);
+
+    expect(deleteItemPhotos).toHaveBeenCalledTimes(1);
+    expect(deleteItemPhotos).toHaveBeenCalledWith(['skip.jpg']);
+    const calls = deleteItemPhotos.mock.calls as string[][];
+    expect(calls.every(call => !call.some(photo => photo.includes('keep.jpg') || photo.includes('own.jpg')))).toBe(true);
+  });
+
+  it('rejects a self-merge', async () => {
+    const { a } = await seedTwoLists(b);
+    await expect(b.items.mergeInto(a.id, a.id)).rejects.toThrow();
+  });
+
+  it('rolls back and rejects when the target list does not exist', async () => {
+    const { a, a1, a2, a3 } = await seedTwoLists(b);
+
+    await expect(b.items.mergeInto(a.id, 99999)).rejects.toThrow();
+
+    expect(await b.lists.get(a.id)).not.toBeNull();
+    const source = await b.items.listByList(a.id);
+    expect(source.map(i => i.id)).toEqual([a1.id, a2.id, a3.id]);
+  });
+
+  it('deletes an empty source list without touching the target', async () => {
+    const empty = await b.lists.create({ name: 'Empty', color: '#22D3EE', icon: 'cart-outline', collection_id: null });
+    const target = await b.lists.create({ name: 'B', color: '#34D399', icon: 'gift-outline', collection_id: null });
+    await b.items.create({ list_id: target.id, name: 'existing', checked: 0, note: null, position: 0, pictures: null });
+
+    await b.items.mergeInto(empty.id, target.id);
+
+    expect(await b.lists.get(empty.id)).toBeNull();
+    const targetItems = await b.items.listByList(target.id);
+    expect(targetItems.map(i => i.name)).toEqual(['existing']);
   });
 });

@@ -18,6 +18,7 @@ interface Props {
   cancelLabel: string;
   onSelect: (list: ListWithCounts) => void;
   onClose: () => void;
+  emptyLabel?: string;
 }
 
 export default function ListPickerModal({
@@ -28,6 +29,7 @@ export default function ListPickerModal({
   cancelLabel,
   onSelect,
   onClose,
+  emptyLabel,
 }: Props) {
   const { activeColors: c } = useConfig();
   const fs = useFontSize();
@@ -46,7 +48,7 @@ export default function ListPickerModal({
       <ScrollView style={styles.scroll} showsVerticalScrollIndicator={false}>
         {available.length === 0 ? (
           <Text style={[styles.empty, { color: c.textSecondary, fontSize: fs(14) }]}>
-            {labels.list_picker_empty}
+            {emptyLabel ?? labels.list_picker_empty}
           </Text>
         ) : (
           available.map(list => (

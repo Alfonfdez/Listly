@@ -114,6 +114,13 @@ export const es: Translations = {
   list_picker_title: 'Elegir lista',
   list_picker_hint: 'Copiar los elementos de esta lista a otra lista',
   list_picker_empty: 'No hay otras listas donde copiar',
+  list_merge_into: 'Combinar en…',
+  list_merge_confirm: 'Combinar',
+  list_merge_confirm_title: '¿Combinar lista?',
+  list_merge_confirm_message: (count: number, target: string, source: string) =>
+    `¿Combinar ${count} elementos en ${target} y eliminar ${source}?`,
+  list_merged: (name: string) => `Combinado en ${name}`,
+  list_merge_empty: 'No hay más listas para combinar',
   list_collection_label: 'Colección',
   list_collection_none: 'Independiente / Sin colección',
   list_collection_picker_title: 'Elegir colección',
