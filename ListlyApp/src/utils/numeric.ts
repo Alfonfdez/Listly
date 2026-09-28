@@ -16,12 +16,20 @@ export function clampAmountMinor(value: number): number {
   return int;
 }
 
+export function sanitizeAmountText(raw: string): string {
+  const allowed = raw.replace(/[^0-9.]/g, '');
+  const firstDot = allowed.indexOf('.');
+  const hasDot = firstDot !== -1;
+  const intRaw = hasDot ? allowed.slice(0, firstDot) : allowed;
+  const decRaw = hasDot ? allowed.slice(firstDot + 1).replace(/\./g, '') : '';
+  const maxIntLength = String(Math.floor(MAX_AMOUNT_MINOR / 100)).length;
+  const intPart = intRaw.slice(0, maxIntLength);
+  const decimals = decRaw.slice(0, 2);
+  return hasDot ? `${intPart}.${decimals}` : intPart;
+}
+
 export function parseAmountInput(input: string): number {
-  const cleaned = input.replace(/[^0-9.]/g, '');
-  const firstDot = cleaned.indexOf('.');
-  let normalized = firstDot === -1
-    ? cleaned
-    : cleaned.slice(0, firstDot + 1) + cleaned.slice(firstDot + 1).replace(/\./g, '');
+  const normalized = sanitizeAmountText(input);
   const [intPart = '', decPart] = normalized.split('.');
   const decimals = decPart === undefined ? '' : decPart.slice(0, 2);
   const minor = Number.parseInt(intPart || '0', 10) * 100 + Number.parseInt(decimals.padEnd(2, '0') || '0', 10);

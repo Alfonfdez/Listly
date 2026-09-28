@@ -706,6 +706,7 @@ pm run test:all green.
 - UI (numeric lists only): `AddItemBar` gains an Amount input + `QuantityStepper` (+/−) + read-only line total; `ItemRow` shows `amount × qty` and the line total; `ItemFormModal` gains Amount + Quantity. `DetailHeader` shows two read-only rows — **Total** (all items) and **Done** (checked only). Standard lists render exactly as before.
 - Cross-list: `copyItemsInto` carries `amount_minor`/`quantity` (any kind into any kind); `listRepo.duplicate` copies the source kind.
 - Backup: `backup.ts` round-trips `kind` + numeric fields; older backups import as `standard` / null / 0.
+- Amount input is sanitized live (`sanitizeAmountText`): only digits and a single decimal point, ≤2 decimals, integer part capped at 6 digits — invalid keystrokes are rejected instead of silently stripped/merged (`123bgbv456` no longer becomes `123456`).
 - i18n en/es: `list_kind_label`, `list_kind_standard`, `list_kind_numeric`, `item_amount_label`, `item_quantity_label`, `item_line_total_label`, `list_total_label`, `list_done_total_label`.
 - Tests: `numeric.test.ts` (7), `itemRepo` numeric fields (3), `listRepo` kind (2), backup round-trip + legacy numeric (2), `ListDetailScreen` numeric (3). `npm run test:all` green (56 files, 488 tests); lint + typecheck clean.
 - Docs: new `spec/features/026-numeric-lists/` (1-spec/2-plan/3-tasks) + roadmap entry.

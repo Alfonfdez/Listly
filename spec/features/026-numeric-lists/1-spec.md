@@ -18,7 +18,7 @@
   - **Quantity** — an integer, `0 .. 99,999`; a new item starts at **1**.
   - **Line total** — computed, read-only: `amount × quantity`, shown with 2 decimals.
 - On a standard list these fields are neither shown nor editable; existing numeric values are preserved but ignored.
-- Amount input uses a numeric keypad and is masked to 2 decimals; quantity has `+`/`−` steppers in the add bar and edit form.
+- Amount input uses a numeric keypad and is masked live: only digits and a single decimal point are accepted, capped at 2 decimals and at the 999,999.99 maximum; invalid keystrokes are rejected (never silently merged into the value). Quantity has `+`/`−` steppers in the add bar and edit form.
 
 ### 3. Detail totals (numeric lists only)
 - The list detail header shows two read-only rows below the progress bar:
@@ -54,7 +54,7 @@
 ## Acceptance criteria
 
 - [x] A list can be created as **Numeric** and its kind is shown/changeable in Edit List.
-- [x] On a numeric list, items accept an **Amount** (2 decimals, ≤ 999,999.99) and a **Quantity** (integer, ≤ 99,999, starts at 1) with a computed read-only **line total**.
+- [x] On a numeric list, items accept an **Amount** (2 decimals, ≤ 999,999.99, invalid keystrokes rejected) and a **Quantity** (integer, ≤ 99,999, starts at 1) with a computed read-only **line total**.
 - [x] The list detail shows **Total** (all items) and **Done** (checked items only), both computed from `amount × quantity`.
 - [x] Totals are computed in integer minor units (no floating-point drift) and formatted with 2 decimals.
 - [x] A standard list renders exactly as before (no Amount/Quantity/Total rows).

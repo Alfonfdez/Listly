@@ -5,7 +5,7 @@ import { useFontSize } from '../hooks/useFontSize';
 import { useLabels } from '../hooks/useLabels';
 import { BUTTON_BORDER_RADIUS, PRESSED_OPACITY, DISABLED_OPACITY } from './componentStyles';
 import { validateItemName, type ItemNameError } from '../utils/validation';
-import { clampQuantity, formatMinor, parseAmountInput } from '../utils/numeric';
+import { clampQuantity, formatMinor, parseAmountInput, sanitizeAmountText } from '../utils/numeric';
 import { MAX_ITEM_NAME_LENGTH, MAX_ITEM_NOTE_LENGTH } from '../constants/types';
 import { useItemPhotos } from '../hooks/useItemPhotos';
 import ModalShell from './ModalShell';
@@ -130,7 +130,7 @@ export default function ItemFormModal({
           <FormField label={labels.item_amount_label}>
             <TextInput
               value={amount}
-              onChangeText={setAmount}
+              onChangeText={text => setAmount(sanitizeAmountText(text))}
               keyboardType="decimal-pad"
               placeholder={labels.item_amount_label}
               placeholderTextColor={c.textSecondary}

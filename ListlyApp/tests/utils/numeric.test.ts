@@ -5,6 +5,7 @@ import {
   formatMinor,
   lineTotalMinor,
   parseAmountInput,
+  sanitizeAmountText,
   sumTotals,
 } from '../../src/utils/numeric';
 import { MAX_AMOUNT_MINOR, MAX_QUANTITY } from '../../src/constants/types';
@@ -60,5 +61,21 @@ describe('numeric utils', () => {
     ];
     expect(sumTotals(items, { onlyDone: false })).toBe(500 + 1000 + 999);
     expect(sumTotals(items, { onlyDone: true })).toBe(500 + 999);
+  });
+
+  it('sanitizeAmountText strips invalid characters, collapses dots and caps decimals', () => {
+    expect(sanitizeAmountText('123bgbv456')).toBe('123456');
+    expect(sanitizeAmountText('1.2.3')).toBe('1.23');
+    expect(sanitizeAmountText('1.999')).toBe('1.99');
+    expect(sanitizeAmountText('abc')).toBe('');
+    expect(sanitizeAmountText('')).toBe('');
+    expect(sanitizeAmountText('12.')).toBe('12.');
+    expect(sanitizeAmountText('0.05')).toBe('0.05');
+  });
+
+  it('sanitizeAmountText clamps the integer part to the max', () => {
+    expect(sanitizeAmountText('9999999')).toBe('999999');
+    expect(sanitizeAmountText('12345678.99')).toBe('123456.99');
+    expect(sanitizeAmountText('999999.999')).toBe('999999.99');
   });
 });
