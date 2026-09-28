@@ -1,4 +1,4 @@
-import { File } from './fileIo';
+import { File, Paths } from './fileIo';
 
 let photoCounter = 0;
 
@@ -32,4 +32,27 @@ export async function deleteItemPhotos(photos: string[]): Promise<void> {
       console.warn('Failed to delete photo:', uri, error);
     }
   }
+}
+
+export async function copyItemPhotoToStorage(src: string): Promise<string> {
+  const dest = Paths.document.uri + itemPhotoFileName();
+  await new File(src).copy(new File(dest), { overwrite: true });
+  return dest;
+}
+
+export async function duplicateItemPhotos(photos: string[]): Promise<string[]> {
+  const copies: string[] = [];
+  for (const uri of photos) {
+    if (uri.startsWith('data:')) {
+      copies.push(uri);
+      continue;
+    }
+    try {
+      copies.push(await copyItemPhotoToStorage(uri));
+    } catch (error) {
+      console.warn('Failed to duplicate photo:', uri, error);
+      copies.push(uri);
+    }
+  }
+  return copies;
 }

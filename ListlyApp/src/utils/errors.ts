@@ -9,6 +9,7 @@ export const ERROR_SCOPE = {
   toggleItem: 'toggle item',
   deleteItem: 'delete item',
   addPhoto: 'add photo',
+  removePhoto: 'remove photo',
   reorderLists: 'reorder lists',
   reorderItems: 'reorder items',
   reorderCollections: 'reorder collections',
@@ -26,6 +27,7 @@ export const ERROR_SCOPE = {
   duplicateList: 'duplicate list',
   copyItemsToList: 'copy items to another list',
   mergeLists: 'merge lists',
+  copyToClipboard: 'copy to clipboard',
 } as const;
 
 export type ErrorScope = (typeof ERROR_SCOPE)[keyof typeof ERROR_SCOPE];
@@ -48,4 +50,12 @@ export function logError(scope: ErrorScope, error: unknown): void {
 
 export function runSafely(action: Promise<unknown>, scope: ErrorScope): void {
   void action.catch(error => logError(scope, error));
+}
+
+export async function runSafelyAsync(action: Promise<unknown>, scope: ErrorScope): Promise<void> {
+  try {
+    await action;
+  } catch (error) {
+    logError(scope, error);
+  }
 }

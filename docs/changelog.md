@@ -588,3 +588,41 @@ pm run test:all green.
 - No repo/schema/i18n change. `npm run test:all` green (52 files, 444 tests).
 - Docs: 4-design-system palette (incl. the previously-missing `star`); 020 spec §1 + criteria; 022 §1; 025 §1 + criterion; roadmap 010/020/022/025.
 - Verified on web at 375px: light theme `Manual · Combinar en…` (amber `#F59E0B`) / `Todo · Nada · Limpiar`; dark theme merge `#F9A825` legible; two rows in en/es; no overflow; 0 console errors.
+
+[2026-09-28] fix | ListlyApp [photo cleanup on list/collection delete]
+- Fix a photo leak: deleting a list (or a collection with its lists) removed the rows first and *then* queried `items.pictures`, so the cascade had already erased the rows and no photo files were ever cleaned up.
+  - `shared.ts`: replaced `deletePhotosOfLists` with `picturesOfLists(db, listIds)` that gathers the pictures *before* the delete.
+  - `listRepo.delete` / `deleteMany`: gather the target items' pictures inside the transaction, delete the list(s), then run `deletePhotosOfItems` after commit (file IO stays outside the transaction).
+  - `collectionRepo.delete` / `deleteMany` (cascade): same — gather member lists' item pictures inside the transaction, then clean up after commit; move mode is unaffected (lists survive).
+- Tests: `listRepo.test.ts` +2 and `collectionRepo.test.ts` +2 regression cases with real `pictures` JSON (assert the exact URIs are cleaned and unrelated lists' photos are untouched), mocking `deleteItemPhotos` like the merge tests. `npm run test:all` green (52 files, 448 tests).
+- No schema or behavior change beyond correct cleanup; `SCHEMA_VERSION` unchanged.
+
+[2026-09-28] fix | ListlyApp [deep-copy item photos on duplicate/copy/merge]
+- Fix a data-integrity bug: duplicated / copied / merged items reused the *same* image file URIs. Removing a photo in one list called `deleteItemPhotos`, which deleted the shared file and silently broke the photo in the other list.
+  - `utils/itemPhotos.ts`: added `copyItemPhotoToStorage(src)` (shared by the picker) and `duplicateItemPhotos(photos)` — copies each non-`data:` file to a fresh `item_photo_*.jpg` and returns the new URIs; web `data:` URLs are kept inline (sharing is harmless there). Per-photo failures fall back to the original URI with a warning.
+  - `repositories/shared.ts` `copyItemsInto`: each copied row now stores `duplicateItemPhotos(row.pictures)` instead of the source's URIs.
+  - `itemRepo.mergeInto`: since merged copies now own duplicate files, the source's originals are all deleted on merge (previously only the dedupe-skipped items' photos were cleaned). The target's existing items are never touched.
+  - `hooks/useItemPhotos.ts` now reuses `copyItemPhotoToStorage` for the picker path (no behavior change).
+- Tests: `itemRepo.test.ts` merge/duplicate cases assert `duplicateItemPhotos` is called and copies carry `copy-of-` URIs while the source keeps its own; the merge-cleanup case asserts all source photos are deleted and the target's are untouched. `listRepo.test.ts` duplicate case updated for copied URIs. `npm run test:all` green (52 files, 449 tests).
+- Docs: 023 §3 and 025 §2 wording ("photo blobs shared" -> deep-copied); roadmap 023 note. No schema change (`SCHEMA_VERSION` unchanged).
+
+[2026-09-28] fix | ListlyApp [item edit modal resets while open]
+- Fix: the item edit modal reset its fields whenever the parent re-rendered. `ListDetailScreen` passed `initialPhotos={parseItemPhotos(...)}`, a new array each render, and `ItemFormModal`'s effect depended on that identity — so any re-render (e.g. an unrelated state change) wiped the user's in-progress name/note/photos.
+  - `ItemFormModal`: the reset effect now runs only on the `visible` transition (opening the modal) and reads the current initial values through a ref, so changing prop identity while open no longer resets the form.
+- Tests: `ItemFormModal.test.tsx` new case — type a name, re-render with a fresh `initialPhotos` array, assert the input is preserved and `setPhotos` is not called again. `npm run test:all` green (52 files, 450 tests).
+
+[2026-09-28] fix | ListlyApp [await writes before refresh]
+- Fix a race: several flows fired a repository write and immediately called `refresh()` without awaiting the write, so `refresh` could read the pre-write state (stale order/contents until the next focus).
+  - `utils/errors.ts`: added `runSafelyAsync(action, scope)` — awaits the action, routing failures to `logError` (keeps `runSafely` for fire-and-forget callers).
+  - `ListDetailScreen`: item reorder and copy-to-list now `await runSafelyAsync(...)` before `refresh()`.
+  - `ListsView`: collection reorder awaits before refresh.
+  - `useCollectionDropZones`: list reorder on drag-end awaits before refresh.
+- Tests: `ListDetailScreen.test.tsx` new case with a deferred `reorder` promise asserts `refresh` is not called until the write resolves. `npm run test:all` green (52 files, 451 tests).
+- No behavior change on success; only the ordering of the read relative to the write.
+
+[2026-09-28] fix | ListlyApp [handle photo-picker and clipboard errors]
+- Fix unhandled promise rejections in the photo flows: `useItemPhotos.handleTakePhoto` / `handlePickFromGallery` called the permission and launch APIs without a `try/catch`, so a denied/failed camera or gallery launch surfaced as an unhandled rejection instead of going through the app's error path.
+  - `hooks/useItemPhotos.ts`: both handlers now wrap the permission + launch in `try/catch` -> `logError(ERROR_SCOPE.addPhoto, err)`; `handleRemovePhoto` wraps the file delete -> `logError(ERROR_SCOPE.removePhoto, err)` (state still updates so the photo disappears from the UI).
+  - `screens/ListDetailScreen.tsx`: the clipboard write in `copyList` now `.catch(...)` -> `logError(ERROR_SCOPE.copyToClipboard, err)`.
+  - `utils/errors.ts`: new `ERROR_SCOPE.removePhoto` and `ERROR_SCOPE.copyToClipboard`.
+- Tests: new `tests/hooks/useItemPhotos.test.ts` (camera permission rejection, gallery launch rejection, denied permission does not launch) — mocks `expo-image-picker` via `vi.hoisted`. `npm run test:all` green (53 files, 454 tests).
