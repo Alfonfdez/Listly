@@ -1,14 +1,16 @@
 import { useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
+import { useState } from 'react';
 import { useApp } from '../context/AppContext';
 import { useLabels } from '../hooks/useLabels';
 import { LIST_ICONS } from '../constants/listIcons';
 import { QUICK_COLORS } from '../constants/listColors';
-import type { IconName, NavigationProp, RootStackParamList } from '../constants/types';
+import { LIST_KINDS, type IconName, type ListKind, type NavigationProp, type RootStackParamList } from '../constants/types';
 import { listRepository as listRepo } from '../database';
 import { makeListCopyName } from '../utils/copyList';
 import { logError, ERROR_SCOPE } from '../utils/errors';
 import ScreenShell from '../components/ScreenShell';
 import ListForm from '../components/ListForm';
+import KindSelectRow from '../components/KindSelectRow';
 
 export default function CreateListScreen() {
   const navigation = useNavigation<NavigationProp<'CreateList'>>();
@@ -19,6 +21,8 @@ export default function CreateListScreen() {
   const collectionId = route.params?.collectionId;
   const duplicateFromListId = route.params?.duplicateFromListId;
   const sourceList = duplicateFromListId !== undefined ? lists.find(l => l.id === duplicateFromListId) : undefined;
+  const isDuplicate = duplicateFromListId !== undefined;
+  const [kind, setKind] = useState<ListKind>(LIST_KINDS.standard);
 
   const create = async ({
     name,
@@ -48,7 +52,7 @@ export default function CreateListScreen() {
         return;
       }
     }
-    await listRepo.create({ name, icon, color, collection_id: collectionIdToUse ?? collectionId });
+    await listRepo.create({ name, icon, color, collection_id: collectionIdToUse ?? collectionId, kind });
     await refresh();
     navigation.goBack();
   };
@@ -61,6 +65,7 @@ export default function CreateListScreen() {
         initialColor={sourceList?.color ?? QUICK_COLORS[0]}
         submitLabel={labels.list_create}
         initialCollectionId={sourceList ? sourceList.collection_id : collectionId}
+        kindSlot={isDuplicate ? undefined : <KindSelectRow kind={kind} onChange={setKind} />}
         onSubmit={create}
       />
     </ScreenShell>

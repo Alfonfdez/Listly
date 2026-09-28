@@ -3,13 +3,15 @@ import { getDrizzle, withTransaction } from '../drizzle/engine';
 import { items, lists } from '../drizzle/schema';
 import { runResultOf } from '../drizzle/proxy';
 import type { List, ListWithCounts } from '../types';
+import type { ListKind } from '../../constants/types';
 import { listSchema } from '../schemas';
 import { parseRowOrNull, parseRows } from '../validate';
 import { dbTimestamp } from '../../utils/formatters';
 import { countRows, countsSelection, deletePhotosOfItems, picturesOfLists, nextPosition, reorderPositions, copyItemsInto } from './shared';
 
-export type NewList = Omit<List, 'id' | 'created_at' | 'position' | 'pinned' | 'collection_id'> & {
+export type NewList = Omit<List, 'id' | 'created_at' | 'position' | 'pinned' | 'collection_id' | 'kind'> & {
   collection_id?: number | null;
+  kind?: ListKind;
 };
 
 export const listRepo = {
@@ -42,9 +44,18 @@ export const listRepo = {
         icon: data.icon,
         collection_id: collectionId,
         position,
+        kind: data.kind ?? 'standard',
       })
       .run();
-    return { ...data, collection_id: collectionId, id: runResultOf(result).lastInsertRowId, created_at: dbTimestamp(), position, pinned: 0 };
+    return {
+      ...data,
+      collection_id: collectionId,
+      kind: data.kind ?? 'standard',
+      id: runResultOf(result).lastInsertRowId,
+      created_at: dbTimestamp(),
+      position,
+      pinned: 0,
+    };
   },
 
   async duplicate(
@@ -53,6 +64,7 @@ export const listRepo = {
   ): Promise<List> {
     return await withTransaction(async db => {
       const collectionId = data.collection_id ?? null;
+      const sourceKind = (await db.select({ kind: lists.kind }).from(lists).where(eq(lists.id, id)).get())?.kind ?? 'standard';
       const position = await nextPosition(
         db,
         lists,
@@ -67,6 +79,7 @@ export const listRepo = {
           icon: data.icon,
           collection_id: collectionId,
           position,
+          kind: sourceKind,
         })
         .run();
       const newId = runResultOf(created).lastInsertRowId;
@@ -74,6 +87,7 @@ export const listRepo = {
       return {
         ...data,
         collection_id: collectionId,
+        kind: sourceKind,
         id: newId,
         created_at: dbTimestamp(),
         position,
@@ -113,6 +127,7 @@ export const listRepo = {
     if (data.name !== undefined) set.name = data.name;
     if (data.color !== undefined) set.color = data.color;
     if (data.icon !== undefined) set.icon = data.icon;
+    if (data.kind !== undefined) set.kind = data.kind;
     if (Object.keys(set).length === 0) return;
     await db.update(lists).set(set).where(eq(lists.id, id)).run();
   },
@@ -149,6 +164,7 @@ export const listRepo = {
         created_at: lists.created_at,
         position: lists.position,
         pinned: lists.pinned,
+        kind: lists.kind,
         collection_id: lists.collection_id,
         ...countsSelection,
       })

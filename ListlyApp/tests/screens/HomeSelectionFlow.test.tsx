@@ -34,8 +34,8 @@ vi.mock('../../src/database', () => ({
 }));
 
 const LISTS: ListWithCounts[] = [
-  { id: 1, name: 'Groceries', color: '#22D3EE', icon: 'cart-outline', collection_id: null, created_at: 'x', position: 0, pinned: 0, total: 5, completed: 2 },
-  { id: 2, name: 'Work Tasks', color: '#34D399', icon: 'briefcase-outline', collection_id: null, created_at: 'x', position: 1, pinned: 0, total: 2, completed: 0 },
+  { id: 1, name: 'Groceries', color: '#22D3EE', icon: 'cart-outline', collection_id: null, created_at: 'x', position: 0, pinned: 0, kind: 'standard', total: 5, completed: 2 },
+  { id: 2, name: 'Work Tasks', color: '#34D399', icon: 'briefcase-outline', collection_id: null, created_at: 'x', position: 1, pinned: 0, kind: 'standard', total: 2, completed: 0 },
 ];
 
 const COLLECTIONS: CollectionWithCounts[] = [
@@ -51,6 +51,7 @@ const MEMBER_LIST: ListWithCounts = {
   created_at: 'x',
   position: 0,
   pinned: 0,
+  kind: 'standard',
   total: 0,
   completed: 0,
 };

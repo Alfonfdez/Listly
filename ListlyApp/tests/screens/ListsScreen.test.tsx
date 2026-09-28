@@ -42,12 +42,12 @@ vi.mock('../../src/hooks/useSelectMode', () => ({
 }));
 
 const LISTS: ListWithCounts[] = [
-  { id: 1, name: 'Groceries', color: '#22D3EE', icon: 'cart-outline', collection_id: null, created_at: 'x', position: 0, pinned: 0, total: 5, completed: 2 },
-  { id: 2, name: 'Work Tasks', color: '#34D399', icon: 'briefcase-outline', collection_id: null, created_at: 'x', position: 1, pinned: 0, total: 2, completed: 0 },
+  { id: 1, name: 'Groceries', color: '#22D3EE', icon: 'cart-outline', collection_id: null, created_at: 'x', position: 0, pinned: 0, kind: 'standard', total: 5, completed: 2 },
+  { id: 2, name: 'Work Tasks', color: '#34D399', icon: 'briefcase-outline', collection_id: null, created_at: 'x', position: 1, pinned: 0, kind: 'standard', total: 2, completed: 0 },
 ];
 
 function items(names: string[]): Item[] {
-  return names.map((name, i) => ({ id: i + 1, list_id: 1, name, checked: 0, note: null, position: i, created_at: 'x', updated_at: 'x', pictures: null }));
+  return names.map((name, i) => ({ id: i + 1, list_id: 1, name, checked: 0, note: null, position: i, created_at: 'x', updated_at: 'x', pictures: null, amount_minor: null, quantity: 0 }));
 }
 
 const nav = { navigate: vi.fn(), setOptions: vi.fn() };

@@ -19,6 +19,7 @@ export const lists = sqliteTable('lists', {
   created_at: text('created_at').notNull().default(sql`(datetime('now', 'localtime'))`),
   position: integer('position').notNull().default(0),
   pinned: integer('pinned').notNull().default(0).$type<0 | 1>(),
+  kind: text('kind').notNull().default('standard').$type<'standard' | 'numeric'>(),
   collection_id: integer('collection_id').references(() => collections.id),
 });
 
@@ -32,6 +33,8 @@ export const items = sqliteTable('items', {
   created_at: text('created_at').notNull().default(sql`(datetime('now', 'localtime'))`),
   updated_at: text('updated_at').notNull().default(sql`(datetime('now', 'localtime'))`),
   pictures: text('pictures'),
+  amount_minor: integer('amount_minor'),
+  quantity: integer('quantity').notNull().default(0),
 });
 
 export const config = sqliteTable('config', {

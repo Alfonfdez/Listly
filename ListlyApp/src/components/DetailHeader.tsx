@@ -3,7 +3,9 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useConfig } from '../context/ConfigContext';
 import { useFontSize } from '../hooks/useFontSize';
+import { useLabels } from '../hooks/useLabels';
 import { withAlpha } from '../utils/color';
+import { formatMinor } from '../utils/numeric';
 import { ALPHA_TINT, ALPHA_TRACK, HIT_SLOP } from './componentStyles';
 import { ICONS } from '../constants/icons';
 import type { IconName } from '../constants/types';
@@ -17,6 +19,7 @@ interface Props {
   editAccessibilityLabel: string;
   trailing?: ReactNode;
   progressPercent?: number;
+  totals?: { all: number; done: number };
 }
 
 export default function DetailHeader({
@@ -28,9 +31,11 @@ export default function DetailHeader({
   editAccessibilityLabel,
   trailing,
   progressPercent,
+  totals,
 }: Props) {
   const { activeColors: c } = useConfig();
   const fs = useFontSize();
+  const labels = useLabels();
 
   return (
     <View style={styles.headerBlock}>
@@ -58,6 +63,32 @@ export default function DetailHeader({
       {progressPercent !== undefined ? (
         <View style={[styles.progressTrack, { backgroundColor: withAlpha(color, ALPHA_TRACK) }]}>
           <View style={[styles.progressFill, { backgroundColor: color, width: `${progressPercent}%` }]} />
+        </View>
+      ) : null}
+      {totals ? (
+        <View style={styles.totalsBlock}>
+          <View style={styles.totalRow}>
+            <Text style={[styles.totalLabel, { color: c.textSecondary, fontSize: fs(13) }]}>
+              {labels.list_total_label}
+            </Text>
+            <Text
+              style={[styles.totalValue, { color: c.text, fontSize: fs(14) }]}
+              accessibilityLabel={`${labels.list_total_label}: ${formatMinor(totals.all)}`}
+            >
+              {formatMinor(totals.all)}
+            </Text>
+          </View>
+          <View style={styles.totalRow}>
+            <Text style={[styles.totalLabel, { color: c.textSecondary, fontSize: fs(13) }]}>
+              {labels.list_done_total_label}
+            </Text>
+            <Text
+              style={[styles.totalValue, { color: c.text, fontSize: fs(14) }]}
+              accessibilityLabel={`${labels.list_done_total_label}: ${formatMinor(totals.done)}`}
+            >
+              {formatMinor(totals.done)}
+            </Text>
+          </View>
         </View>
       ) : null}
     </View>
@@ -103,5 +134,19 @@ const styles = StyleSheet.create({
   progressFill: {
     height: PROGRESS_BAR_HEIGHT,
     borderRadius: PROGRESS_BAR_HEIGHT / 2,
+  },
+  totalsBlock: {
+    gap: 2,
+  },
+  totalRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  totalLabel: {
+    fontWeight: '500',
+  },
+  totalValue: {
+    fontWeight: '700',
   },
 });

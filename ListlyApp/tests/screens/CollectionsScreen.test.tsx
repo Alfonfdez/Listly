@@ -47,6 +47,7 @@ const MEMBER_LIST: ListWithCounts = {
   created_at: 'x',
   position: 0,
   pinned: 0,
+  kind: 'standard',
   total: 0,
   completed: 0,
 };

@@ -2,7 +2,7 @@ import { useCallback, useState } from 'react';
 import { useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
 import { useApp } from '../context/AppContext';
 import { useLabels } from '../hooks/useLabels';
-import type { IconName, NavigationProp, RootStackParamList } from '../constants/types';
+import { LIST_KINDS, type IconName, type ListKind, type NavigationProp, type RootStackParamList } from '../constants/types';
 import { listRepository as listRepo } from '../database';
 import { logError, ERROR_SCOPE } from '../utils/errors';
 import ScreenShell from '../components/ScreenShell';
@@ -11,6 +11,7 @@ import ListForm from '../components/ListForm';
 import ConfirmModal from '../components/ConfirmModal';
 import CollectionSelectRow from '../components/CollectionSelectRow';
 import CollectionPickerModal from '../components/CollectionPickerModal';
+import KindSelectRow from '../components/KindSelectRow';
 
 export default function EditListScreen() {
   const route = useRoute<RouteProp<RootStackParamList, 'EditList'>>();
@@ -24,11 +25,12 @@ export default function EditListScreen() {
   const list = lists.find(l => l.id === listId);
   const initialCollectionId = list?.collection_id ?? null;
   const [collectionId, setCollectionId] = useState<number | null>(() => initialCollectionId);
+  const [kind, setKind] = useState<ListKind>(list?.kind ?? LIST_KINDS.standard);
 
   const update = useCallback(
     async ({ name, icon, color }: { name: string; icon: IconName; color: string }) => {
       try {
-        await listRepo.update(listId, { name, icon, color });
+        await listRepo.update(listId, { name, icon, color, kind });
         if (collectionId !== initialCollectionId) {
           if (collectionId === null) {
             await listRepo.removeFromCollection(listId);
@@ -42,7 +44,7 @@ export default function EditListScreen() {
         logError(ERROR_SCOPE.moveList, error);
       }
     },
-    [listId, initialCollectionId, collectionId, refresh, navigation]
+    [listId, initialCollectionId, collectionId, kind, refresh, navigation]
   );
 
   const remove = useCallback(async () => {
@@ -72,6 +74,7 @@ export default function EditListScreen() {
         onDelete={() => setDeleteVisible(true)}
         middleLabel={labels.list_duplicate}
         onMiddle={() => navigation.navigate('CreateList', { duplicateFromListId: list.id })}
+        kindSlot={<KindSelectRow kind={kind} onChange={setKind} />}
         fieldSlot={
           <CollectionSelectRow
             label={labels.list_collection_label}

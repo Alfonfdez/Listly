@@ -1,6 +1,7 @@
 import type { z } from 'zod';
 
 import { collectionSchema, configSchema, itemSchema, listSchema } from './schemas';
+import type { ListKind } from '../constants/types';
 
 export type List = z.infer<typeof listSchema>;
 export type Item = z.infer<typeof itemSchema>;
@@ -15,6 +16,7 @@ export interface ListWithCounts {
   created_at: string;
   position: number;
   pinned: 0 | 1;
+  kind: ListKind;
   collection_id: number | null;
   total: number;
   completed: number;

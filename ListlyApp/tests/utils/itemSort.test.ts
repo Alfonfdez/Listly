@@ -17,6 +17,8 @@ function makeItem(overrides: Partial<Item> = {}): Item {
     checked: 0,
     note: null,
     pictures: null,
+    amount_minor: null,
+    quantity: 0,
     position: 0,
     created_at: '2026-01-01 00:00:00',
     updated_at: '2026-01-01 00:00:00',

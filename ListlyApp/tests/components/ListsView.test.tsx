@@ -34,12 +34,12 @@ vi.mock('@react-navigation/native', async () => {
 });
 
 const LISTS: ListWithCounts[] = [
-  { id: 1, name: 'Groceries', color: '#22D3EE', icon: 'cart-outline', collection_id: null, created_at: 'x', position: 0, pinned: 0, total: 5, completed: 2 },
-  { id: 2, name: 'Work Tasks', color: '#34D399', icon: 'briefcase-outline', collection_id: null, created_at: 'x', position: 1, pinned: 0, total: 2, completed: 0 },
+  { id: 1, name: 'Groceries', color: '#22D3EE', icon: 'cart-outline', collection_id: null, created_at: 'x', position: 0, pinned: 0, kind: 'standard', total: 5, completed: 2 },
+  { id: 2, name: 'Work Tasks', color: '#34D399', icon: 'briefcase-outline', collection_id: null, created_at: 'x', position: 1, pinned: 0, kind: 'standard', total: 2, completed: 0 },
 ];
 
 function items(names: string[]): Item[] {
-  return names.map((name, i) => ({ id: i + 1, list_id: 1, name, checked: 0, note: null, position: i, created_at: 'x', updated_at: 'x', pictures: null }));
+  return names.map((name, i) => ({ id: i + 1, list_id: 1, name, checked: 0, note: null, position: i, created_at: 'x', updated_at: 'x', pictures: null, amount_minor: null, quantity: 0 }));
 }
 
 interface Overrides {
@@ -287,8 +287,8 @@ const onToggleItem = vi.fn();
 
   it('shows the containing collection name under a collection list (lists mode)', async () => {
     setLists([
-      { id: 1, name: 'Groceries', color: '#22D3EE', icon: 'cart-outline', collection_id: 10, created_at: 'x', position: 0, pinned: 0, total: 5, completed: 2 },
-      { id: 2, name: 'Work Tasks', color: '#34D399', icon: 'briefcase-outline', collection_id: null, created_at: 'x', position: 1, pinned: 0, total: 2, completed: 0 },
+      { id: 1, name: 'Groceries', color: '#22D3EE', icon: 'cart-outline', collection_id: 10, created_at: 'x', position: 0, pinned: 0, kind: 'standard', total: 5, completed: 2 },
+      { id: 2, name: 'Work Tasks', color: '#34D399', icon: 'briefcase-outline', collection_id: null, created_at: 'x', position: 1, pinned: 0, kind: 'standard', total: 2, completed: 0 },
     ]);
     setCollections([{ id: 10, name: 'Shopping', color: '#A855F7', icon: 'folder-outline', created_at: 'x', position: 0, pinned: 0, total: 3, completed: 1 }]);
     const view = await renderView({ mode: 'lists' });
@@ -298,7 +298,7 @@ const onToggleItem = vi.fn();
   });
 
   it('shows the containing collection name under a list row (lists mode, list layout)', async () => {
-    setLists([{ id: 1, name: 'Groceries', color: '#22D3EE', icon: 'cart-outline', collection_id: 10, created_at: 'x', position: 0, pinned: 0, total: 5, completed: 2 }]);
+    setLists([{ id: 1, name: 'Groceries', color: '#22D3EE', icon: 'cart-outline', collection_id: 10, created_at: 'x', position: 0, pinned: 0, kind: 'standard', total: 5, completed: 2 }]);
     setCollections([{ id: 10, name: 'Shopping', color: '#A855F7', icon: 'folder-outline', created_at: 'x', position: 0, pinned: 0, total: 3, completed: 1 }]);
     const view = await renderView({ mode: 'lists', variant: 'list' });
     expect(await view.findByText('Groceries')).toBeTruthy();

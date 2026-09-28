@@ -5,12 +5,14 @@ import { useFontSize } from '../hooks/useFontSize';
 import { useLabels } from '../hooks/useLabels';
 import { BUTTON_BORDER_RADIUS, PRESSED_OPACITY, DISABLED_OPACITY } from './componentStyles';
 import { validateItemName, type ItemNameError } from '../utils/validation';
+import { clampQuantity, formatMinor, parseAmountInput } from '../utils/numeric';
 import { MAX_ITEM_NAME_LENGTH, MAX_ITEM_NOTE_LENGTH } from '../constants/types';
 import { useItemPhotos } from '../hooks/useItemPhotos';
 import ModalShell from './ModalShell';
 import PhotoSection from './PhotoSection';
 import CharCounter from './CharCounter';
 import FormField from './FormField';
+import QuantityStepper from './QuantityStepper';
 
 interface Props {
   visible: boolean;
@@ -20,8 +22,11 @@ interface Props {
   initialPhotos: string[];
   existingNames: ReadonlySet<string>;
   allowDelete: boolean;
+  numeric?: boolean;
+  initialAmountMinor?: number | null;
+  initialQuantity?: number;
   onCancel: () => void;
-  onSave: (name: string, note: string | null, photos: string[]) => void;
+  onSave: (name: string, note: string | null, photos: string[], amountMinor: number | null, quantity: number) => void;
   onDelete: () => void;
 }
 
@@ -33,6 +38,9 @@ export default function ItemFormModal({
   initialPhotos,
   existingNames,
   allowDelete,
+  numeric = false,
+  initialAmountMinor = null,
+  initialQuantity = 0,
   onCancel,
   onSave,
   onDelete,
@@ -43,19 +51,23 @@ export default function ItemFormModal({
 
   const [name, setName] = useState(initialName);
   const [note, setNote] = useState(initialNote);
+  const [amount, setAmount] = useState(initialAmountMinor === null ? '' : formatMinor(initialAmountMinor));
+  const [quantity, setQuantity] = useState(initialQuantity);
   const [error, setError] = useState<ItemNameError | null>(null);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const { photos, setPhotos, handleTakePhoto, handlePickFromGallery, handleRemovePhoto } = useItemPhotos(initialPhotos);
 
-  const initialRef = useRef({ initialName, initialNote, initialPhotos });
-  initialRef.current = { initialName, initialNote, initialPhotos };
+  const initialRef = useRef({ initialName, initialNote, initialPhotos, initialAmountMinor, initialQuantity });
+  initialRef.current = { initialName, initialNote, initialPhotos, initialAmountMinor, initialQuantity };
 
   useEffect(() => {
     if (!visible) return;
-    const { initialName: n, initialNote: nt, initialPhotos: np } = initialRef.current;
-    setName(n);
-    setNote(nt);
-    setPhotos(np);
+    const ref = initialRef.current;
+    setName(ref.initialName);
+    setNote(ref.initialNote);
+    setPhotos(ref.initialPhotos);
+    setAmount(ref.initialAmountMinor === null ? '' : formatMinor(ref.initialAmountMinor));
+    setQuantity(ref.initialQuantity);
     setError(null);
     setConfirmDelete(false);
   }, [visible, setPhotos]);
@@ -71,7 +83,13 @@ export default function ItemFormModal({
       setError(err);
       return;
     }
-    onSave(name.trim(), note.trim() ? note.trim() : null, photos);
+    onSave(
+      name.trim(),
+      note.trim() ? note.trim() : null,
+      photos,
+      numeric ? parseAmountInput(amount) : null,
+      numeric ? clampQuantity(quantity) : 0
+    );
   };
 
   const canSave = error === null && name.trim().length > 0;
@@ -106,6 +124,35 @@ export default function ItemFormModal({
         />
         <CharCounter current={name.length} max={MAX_ITEM_NAME_LENGTH} />
       </FormField>
+
+      {numeric ? (
+        <View style={styles.numericRow}>
+          <FormField label={labels.item_amount_label}>
+            <TextInput
+              value={amount}
+              onChangeText={setAmount}
+              keyboardType="decimal-pad"
+              placeholder={labels.item_amount_label}
+              placeholderTextColor={c.textSecondary}
+              style={[
+                styles.input,
+                styles.amountInput,
+                { backgroundColor: c.background, borderColor: c.border, color: c.text, fontSize: fs(15) },
+              ]}
+              accessibilityLabel={labels.item_amount_label}
+            />
+          </FormField>
+          <FormField label={labels.item_quantity_label}>
+            <QuantityStepper
+              value={quantity}
+              onChange={setQuantity}
+              label={labels.item_quantity_label}
+              decrementLabel={`${labels.item_quantity_label} -`}
+              incrementLabel={`${labels.item_quantity_label} +`}
+            />
+          </FormField>
+        </View>
+      ) : null}
 
       {config.editShowNotes ? (
         <FormField label={labels.item_note_label}>
@@ -218,6 +265,14 @@ const styles = StyleSheet.create({
   noteInput: {
     minHeight: 72,
     textAlignVertical: 'top',
+  },
+  numericRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+    gap: 12,
+  },
+  amountInput: {
+    minWidth: 100,
   },
   photoSection: {
     marginTop: 4,

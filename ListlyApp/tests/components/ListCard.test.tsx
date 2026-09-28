@@ -13,6 +13,7 @@ const LIST: ListWithCounts = {
   created_at: 'x',
   position: 0,
   pinned: 0,
+  kind: 'standard',
   total: 5,
   completed: 2,
 };

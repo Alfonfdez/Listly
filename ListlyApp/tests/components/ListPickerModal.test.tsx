@@ -13,6 +13,7 @@ const OTHER: ListWithCounts = {
   created_at: 'x',
   position: 1,
   pinned: 0,
+  kind: 'standard',
   total: 0,
   completed: 0,
 };
@@ -26,6 +27,7 @@ const YET_ANOTHER: ListWithCounts = {
   created_at: 'x',
   position: 2,
   pinned: 0,
+  kind: 'standard',
   total: 0,
   completed: 0,
 };

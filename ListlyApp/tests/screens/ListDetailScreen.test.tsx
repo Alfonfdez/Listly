@@ -114,6 +114,7 @@ const LIST: ListWithCounts = {
   created_at: 'x',
   position: 0,
   pinned: 0,
+  kind: 'standard',
   total: 5,
   completed: 2,
 };
@@ -127,13 +128,14 @@ const OTHER_LIST: ListWithCounts = {
   created_at: 'x',
   position: 1,
   pinned: 0,
+  kind: 'standard',
   total: 1,
   completed: 0,
 };
 
 const ITEMS: Item[] = [
-  { id: 1, list_id: 1, name: 'Milk', checked: 1, note: null, position: 0, created_at: 'x', updated_at: 'x', pictures: null },
-  { id: 2, list_id: 1, name: 'Eggs', checked: 0, note: 'free-range', position: 1, created_at: 'x', updated_at: 'x', pictures: null },
+  { id: 1, list_id: 1, name: 'Milk', checked: 1, note: null, position: 0, created_at: 'x', updated_at: 'x', pictures: null, amount_minor: null, quantity: 0 },
+  { id: 2, list_id: 1, name: 'Eggs', checked: 0, note: 'free-range', position: 1, created_at: 'x', updated_at: 'x', pictures: null, amount_minor: null, quantity: 0 },
 ];
 
 describe('ListDetailScreen', () => {
@@ -209,6 +211,8 @@ describe('ListDetailScreen', () => {
         pictures: null,
         checked: 0,
         position: 2,
+        amount_minor: null,
+        quantity: 0,
       })
     );
   });
@@ -324,6 +328,8 @@ describe('ListDetailScreen', () => {
         pictures: '["data:image/png;base64,AA"]',
         checked: 0,
         position: 2,
+        amount_minor: null,
+        quantity: 0,
       })
     );
     expect(photoMocks.setPhotos).toHaveBeenCalledWith([]);
@@ -347,6 +353,8 @@ describe('ListDetailScreen', () => {
         pictures: null,
         checked: 0,
         position: 2,
+        amount_minor: null,
+        quantity: 0,
       })
     );
   });
@@ -381,7 +389,7 @@ describe('ListDetailScreen', () => {
     await user.press(view.getByLabelText('Save'));
 
     await waitFor(() =>
-      expect(itemRepositoryMock.update).toHaveBeenCalledWith(2, { name: 'Eggs (brown)', note: 'from the market', pictures: null })
+      expect(itemRepositoryMock.update).toHaveBeenCalledWith(2, { name: 'Eggs (brown)', note: 'from the market', pictures: null, amount_minor: null, quantity: 0 })
     );
   });
 
@@ -395,7 +403,7 @@ describe('ListDetailScreen', () => {
 
     await user.press(view.getByLabelText('Save'));
     await waitFor(() =>
-      expect(itemRepositoryMock.update).toHaveBeenCalledWith(2, { name: 'Eggs', note: 'free-range', pictures: '["data:image/png;base64,BB"]' })
+      expect(itemRepositoryMock.update).toHaveBeenCalledWith(2, { name: 'Eggs', note: 'free-range', pictures: '["data:image/png;base64,BB"]', amount_minor: null, quantity: 0 })
     );
   });
 
@@ -593,6 +601,7 @@ describe('ListDetailScreen', () => {
       created_at: 'x',
       position: 1,
       pinned: 0,
+      kind: 'standard',
       total: 2,
       completed: 0,
     };
@@ -616,6 +625,7 @@ describe('ListDetailScreen', () => {
       created_at: 'x',
       position: 1,
       pinned: 0,
+      kind: 'standard',
       total: 2,
       completed: 0,
     };
@@ -685,6 +695,7 @@ describe('ListDetailScreen', () => {
       created_at: 'x',
       position: 1,
       pinned: 0,
+      kind: 'standard',
       total: 1,
       completed: 0,
     };
@@ -708,6 +719,7 @@ describe('ListDetailScreen', () => {
       created_at: 'x',
       position: 1,
       pinned: 0,
+      kind: 'standard',
       total: 1,
       completed: 0,
     };
@@ -734,6 +746,7 @@ describe('ListDetailScreen', () => {
       created_at: 'x',
       position: 1,
       pinned: 0,
+      kind: 'standard',
       total: 1,
       completed: 0,
     };
@@ -762,6 +775,7 @@ describe('ListDetailScreen', () => {
       created_at: 'x',
       position: 1,
       pinned: 0,
+      kind: 'standard',
       total: 1,
       completed: 0,
     };
@@ -942,6 +956,53 @@ it('disables reordering while searching', async () => {
     });
     await waitFor(() => expect(view.getAllByText(/^(Old|New)$/).map(n => n.props.children as string)).toEqual(['New']));
     expect(view.queryByLabelText(/Sort items/)).toBeNull();
+  });
+
+  it('shows amount, quantity and line total rows for a numeric list', async () => {
+    setLists([{ ...LIST, kind: 'numeric' }]);
+    setItemsByListId(
+      new Map([[1, [
+        { ...ITEMS[0], amount_minor: 250, quantity: 2, checked: 1 },
+        { ...ITEMS[1], amount_minor: 100, quantity: 1, checked: 0 },
+      ]]])
+    );
+    const view = await render(<ListDetailScreen />);
+    await view.findByText('Milk');
+
+    // Line totals: 2.50 × 2 = 5.00 and 1.00 × 1 = 1.00
+    expect(view.getByLabelText('Total: 5.00')).toBeTruthy();
+    expect(view.getByLabelText('Total: 1.00')).toBeTruthy();
+    // Header totals: all = 6.00, done = 5.00 (only the checked item)
+    expect(view.getByLabelText('Total: 6.00')).toBeTruthy();
+    expect(view.getByLabelText('Done: 5.00')).toBeTruthy();
+  });
+
+  it('does not show amount/quantity/totals for a standard list', async () => {
+    setLists([{ ...LIST, kind: 'standard' }]);
+    setItemsByListId(new Map([[1, [{ ...ITEMS[0], amount_minor: 250, quantity: 2 }]]]));
+    const view = await render(<ListDetailScreen />);
+    await view.findByText('Milk');
+
+    expect(view.queryByLabelText('Done: 5.00')).toBeNull();
+    expect(view.queryByLabelText('Total: 5.00')).toBeNull();
+  });
+
+  it('creates a numeric item with amount and quantity from the add bar', async () => {
+    setLists([{ ...LIST, kind: 'numeric' }]);
+    const user = userEvent.setup();
+    const view = await render(<ListDetailScreen />);
+    await view.findByText('Milk');
+
+    await user.type(view.getByLabelText('Add an item...'), 'Tea');
+    await user.type(view.getByLabelText('Amount'), '1.50');
+    await user.press(view.getByLabelText('Quantity +'));
+    await user.press(view.getByLabelText('Add'));
+
+    await waitFor(() =>
+      expect(itemRepositoryMock.create).toHaveBeenCalledWith(
+        expect.objectContaining({ name: 'Tea', amount_minor: 150, quantity: 2 })
+      )
+    );
   });
 });
 

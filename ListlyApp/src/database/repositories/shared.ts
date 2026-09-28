@@ -97,6 +97,8 @@ export async function copyItemsInto(
         position,
         created_at: stamp,
         updated_at: stamp,
+        amount_minor: row.amount_minor,
+        quantity: row.quantity,
       })
       .run();
     copiedIds.push(row.id);

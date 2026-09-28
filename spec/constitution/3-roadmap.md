@@ -256,7 +256,20 @@ Merge one list into another:
 - No schema change (`SCHEMA_VERSION` 7).
 - Spec: spec/features/025-merge-lists/.
 
+## 026-numeric-lists
+Status: done.
+
+Lists whose items also carry a generic Amount and an integer Quantity (shopping, counting materials):
+- `lists.kind` (`'standard'` | `'numeric'`), chosen in Create List and changeable in Edit List. `items.amount_minor` (integer minor units, nullable) and `items.quantity` (INTEGER, default 0); schema `SCHEMA_VERSION` 8.
+- On a numeric list, `AddItemBar` / `ItemFormModal` / `ItemRow` show an Amount (2 decimals, cap 999,999.99), a Quantity stepper (0..99,999, starts at 1) and a read-only line total (`amount × quantity`); standard lists are unchanged.
+- The list detail header shows two read-only rows — **Total** (all items) and **Done** (checked items only) — summed in integer minor units (no float drift) and formatted with 2 decimals.
+- Duplicate / copy-to-list / merge carry `kind` and the numeric fields (any kind into any kind); backups round-trip them with lenient defaults for older backups.
+- `utils/numeric.ts` (parse/format/clamp/lineTotal/sumTotals); i18n en/es `list_kind*`, `item_amount_label`, `item_quantity_label`, `item_line_total_label`, `list_total_label`, `list_done_total_label`.
+- Spec: spec/features/026-numeric-lists/.
+
 ## Future scope (not scheduled)
+- Per-list currency symbol (the numeric list is currency-agnostic for now).
+- A third "pending" (all − done) total.
 - Tags, due dates, subtasks, recurring items.
 - List templates and sharing.
 - Cloud sync / multi-device.

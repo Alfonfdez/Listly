@@ -4,7 +4,7 @@ import { createSchema } from './migrations/001_initial';
 import { deleteItemPhotos, parseItemPhotos } from '../utils/itemPhotos';
 import { DATABASE_NAME } from './constants';
 
-export const SCHEMA_VERSION = 7;
+export const SCHEMA_VERSION = 8;
 
 let dbPromise: Promise<DatabaseHandle> | null = null;
 

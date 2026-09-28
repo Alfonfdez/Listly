@@ -1,14 +1,17 @@
 import type { Config, Item, List, ListWithCounts } from '../../src/database/types';
 
-export type NewList = Omit<List, 'id' | 'created_at' | 'position' | 'pinned'>;
-export type NewItem = Omit<Item, 'id' | 'created_at' | 'updated_at'>;
+export type NewList = Omit<List, 'id' | 'created_at' | 'position' | 'pinned' | 'kind'> & { kind?: List['kind'] };
+export type NewItem = Omit<Item, 'id' | 'created_at' | 'updated_at' | 'amount_minor' | 'quantity'> & {
+  amount_minor?: number | null;
+  quantity?: number;
+};
 export type UpdateList = Partial<Omit<List, 'id' | 'created_at'>>;
 export type UpdateItem = Partial<Omit<Item, 'id' | 'created_at'>>;
 
 export interface ContractListRepo {
   list(): Promise<List[]>;
   get(id: number): Promise<List | null>;
-  create(data: Omit<List, 'id' | 'created_at' | 'position' | 'pinned'>): Promise<List>;
+  create(data: NewList): Promise<List>;
   update(id: number, data: UpdateList): Promise<void>;
   delete(id: number): Promise<void>;
   deleteMany(ids: number[]): Promise<void>;
