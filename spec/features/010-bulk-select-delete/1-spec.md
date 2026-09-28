@@ -63,6 +63,7 @@
 
 - **Multilingual**: new i18n keys (en/es) for select-mode labels, confirmation prompts, action-bar text.
 - **Theme/text size**: selection highlights use `c.primary` (tint) or `c.border` (overlay); action bar uses `c.surface`/`c.text`/`c.red` tokens; destructive actions (delete buttons and delete-confirm buttons) use a solid `c.red` background with white text; all text through `fs()`.
+- **Responsive layout**: the `SelectionActionBar` count and buttons wrap within the bar (the button group drops to a second line, right-aligned) so no action is ever clipped on narrow screens (375px) with long labels (en/es) or scaled text.
 - **Tests**: `listRepo` and `itemRepo` contract tests for `deleteMany`; `ListsView`, `SelectSearchHeader`/`SelectToggleButton`, screen tests for the header toggles, select-mode toggle, bulk delete flow, `filterItemsByQuery` unit tests, and header search toggle.
 - **Verification**: web loop at 375px — select mode entry/exit, bulk delete lists, bulk delete items, header search toggle persistence across navigation.
 
@@ -82,5 +83,6 @@
 - [x] In item select mode, tapping items toggles selection; add bar is hidden.
 - [x] Bulk-delete confirmation for items works the same way.
 - [x] All new UI respects theme tokens and `fs()` scaling.
+- [x] The selection action bar wraps its buttons instead of clipping the last one on narrow screens (375px) with long labels (es) and scaled text.
 - [x] All new visible text is in en and es.
 - [x] All tests pass (repo contract tests, component tests, typecheck, lint).

@@ -93,6 +93,7 @@ export default function SelectionActionBar({
 const styles = StyleSheet.create({
   bar: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
     alignItems: 'center',
     justifyContent: 'space-between',
     gap: 12,
@@ -103,11 +104,14 @@ const styles = StyleSheet.create({
   },
   count: {
     fontWeight: '600',
+    flexShrink: 1,
   },
   actions: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'flex-end',
+    flexShrink: 1,
+    marginLeft: 'auto',
     gap: 8,
   },
   button: {
