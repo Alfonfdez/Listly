@@ -1091,8 +1091,8 @@ it('disables reordering while searching', async () => {
   it('rejects a wrong passphrase on the lock screen', async () => {
     setLockedListIds([1]);
     setItemsByListId(new Map());
-    const { VaultCryptoError } = await import('../../src/utils/vaultCrypto');
-    vaultRepositoryMock.unlock.mockRejectedValueOnce(new VaultCryptoError('wrong_passphrase'));
+    const { VaultCryptoError, VAULT_ERROR } = await import('../../src/utils/vaultCrypto');
+    vaultRepositoryMock.unlock.mockRejectedValueOnce(new VaultCryptoError(VAULT_ERROR.wrongPassphrase));
     const user = userEvent.setup();
     const view = await render(<ListDetailScreen />);
     await view.findByText('Locked list');

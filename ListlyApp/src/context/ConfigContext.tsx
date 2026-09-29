@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, useCallback, useMemo, useRef, type ReactNode } from 'react';
+import { createContext, useState, useEffect, useCallback, useMemo, useRef, type ReactNode } from 'react';
 import { Appearance } from 'react-native';
 import { type ColorPalette, darkColors, lightColors } from '../constants/themes';
 import { THEMES, type Theme } from '../constants/types';
@@ -7,6 +7,7 @@ import { DEFAULT_CONFIG } from '../database/configDefaults';
 import { configRepository as configRepo } from '../database';
 import type { Config } from '../database/types';
 import { logError, ERROR_SCOPE } from '../utils/errors';
+import { useRequiredContext } from '../hooks/useRequiredContext';
 
 interface ConfigContextType {
   config: Config;
@@ -19,9 +20,7 @@ interface ConfigContextType {
 const ConfigContext = createContext<ConfigContextType | null>(null);
 
 export function useConfig() {
-  const ctx = useContext(ConfigContext);
-  if (!ctx) throw new Error('useConfig must be used within ConfigProvider');
-  return ctx;
+  return useRequiredContext(ConfigContext, 'useConfig', 'ConfigProvider');
 }
 
 function resolveTheme(theme: Theme): Exclude<Theme, 'system'> {

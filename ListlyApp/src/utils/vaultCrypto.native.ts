@@ -1,26 +1,35 @@
 import type * as QuickCryptoModule from 'react-native-quick-crypto';
 import type { VaultPlatformCrypto } from './vaultCryptoCore';
-import { bindVaultCrypto, bytesToBase64, base64ToBytes, utf8Encode, bytesToHex, VaultCryptoError } from './vaultCryptoCore';
+import {
+  bindVaultCrypto,
+  bytesToBase64,
+  base64ToBytes,
+  utf8Encode,
+  bytesToHex,
+  VaultCryptoError,
+  VAULT_ERROR,
+  AES_IV_BYTES,
+  AES_TAG_BYTES,
+} from './vaultCryptoCore';
 
 declare const require: (id: string) => unknown;
-
-const IV_BYTES = 12;
-const TAG_BYTES = 16;
 
 // Canary: react-native-quick-crypto pulls in react-native-quick-base64, which
 // resolves `TurboModuleRegistry.getEnforcing('QuickBase64')`. Probing with the
 // non-throwing `get` lets us skip the require entirely where the native module
 // is missing (Expo Go) — otherwise Metro reports the failed require as fatal.
-const NATIVE_CRYPTO_MODULE = 'QuickBase64';
+const QUICK_CRYPTO_MODULE = 'QuickBase64';
 
 type QuickCrypto = typeof QuickCryptoModule.default;
 
-const OVERRIDE_KEY = '__listlyQuickCryptoOverride';
+// Test-only global override (see `__setQuickCryptoModuleForTests`): lets the
+// test harness inject a mock that survives `vi.resetModules()`.
+const QUICK_CRYPTO_OVERRIDE_KEY = '__listlyQuickCryptoOverride';
 
 let cached: QuickCrypto | null | undefined;
 
 export function __setQuickCryptoModuleForTests(module: unknown): void {
-  (globalThis as Record<string, unknown>)[OVERRIDE_KEY] = module;
+  (globalThis as Record<string, unknown>)[QUICK_CRYPTO_OVERRIDE_KEY] = module;
   cached = undefined;
 }
 
@@ -35,14 +44,14 @@ function nativeCryptoPresent(): boolean {
     const registry = require('react-native') as {
       TurboModuleRegistry?: { get(name: string): unknown };
     };
-    return registry.TurboModuleRegistry?.get(NATIVE_CRYPTO_MODULE) != null;
+    return registry.TurboModuleRegistry?.get(QUICK_CRYPTO_MODULE) != null;
   } catch {
     return false;
   }
 }
 
 function loadQuickCrypto(): QuickCrypto | null {
-  const override = (globalThis as Record<string, unknown>)[OVERRIDE_KEY];
+  const override = (globalThis as Record<string, unknown>)[QUICK_CRYPTO_OVERRIDE_KEY];
   if (override !== undefined) {
     return override === null ? null : resolveQuickCrypto(override);
   }
@@ -65,7 +74,7 @@ export function isVaultAvailable(): boolean {
 
 function quick(): QuickCrypto {
   const module = loadQuickCrypto();
-  if (!module) throw new VaultCryptoError('unsupported');
+  if (!module) throw new VaultCryptoError(VAULT_ERROR.unsupported);
   return module;
 }
 
@@ -87,7 +96,7 @@ const platform: VaultPlatformCrypto = {
 
   async encrypt(key: Uint8Array, plaintext: Uint8Array): Promise<string> {
     const crypto = quick();
-    const iv = new Uint8Array(crypto.randomBytes(IV_BYTES));
+    const iv = new Uint8Array(crypto.randomBytes(AES_IV_BYTES));
     const cipher = crypto.createCipheriv('aes-256-gcm', key, iv);
     const encrypted = Buffer.concat([cipher.update(plaintext), cipher.final()]);
     const tag = cipher.getAuthTag();
@@ -97,9 +106,9 @@ const platform: VaultPlatformCrypto = {
   async decrypt(key: Uint8Array, payload: string): Promise<Uint8Array> {
     const crypto = quick();
     const combined = base64ToBytes(payload);
-    const iv = combined.subarray(0, IV_BYTES);
-    const tag = combined.subarray(combined.length - TAG_BYTES);
-    const ciphertext = combined.subarray(IV_BYTES, combined.length - TAG_BYTES);
+    const iv = combined.subarray(0, AES_IV_BYTES);
+    const tag = combined.subarray(combined.length - AES_TAG_BYTES);
+    const ciphertext = combined.subarray(AES_IV_BYTES, combined.length - AES_TAG_BYTES);
     const decipher = crypto.createDecipheriv('aes-256-gcm', key, iv);
     decipher.setAuthTag(Buffer.from(tag) as unknown as Parameters<typeof decipher.setAuthTag>[0]);
     return new Uint8Array(Buffer.concat([decipher.update(ciphertext), decipher.final()]));

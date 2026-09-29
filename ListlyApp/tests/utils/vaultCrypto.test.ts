@@ -15,6 +15,7 @@ import {
   utf8Decode,
   bindVaultCrypto,
   webCryptoHashName,
+  VAULT_ERROR,
   type SealedVault,
   type VaultPlatformCrypto,
 } from '../../src/utils/vaultCryptoCore';
@@ -127,7 +128,7 @@ describe('vaultCrypto seal/unseal', () => {
 
   it('rejects a wrong passphrase', async () => {
     const vault = await seal(testPlatform, PASSPHRASE, json, FAST_ITERATIONS, KDF_DIGEST);
-    await expect(unseal(testPlatform, vault, 'wrong')).rejects.toMatchObject({ code: 'wrong_passphrase' });
+    await expect(unseal(testPlatform, vault, 'wrong')).rejects.toMatchObject({ code: VAULT_ERROR.wrongPassphrase });
   });
 
   it('rejects a tampered payload (GCM tag)', async () => {

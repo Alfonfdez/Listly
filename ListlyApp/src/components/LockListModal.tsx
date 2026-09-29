@@ -5,7 +5,7 @@ import { useConfig } from '../context/ConfigContext';
 import { useFontSize } from '../hooks/useFontSize';
 import { useLabels } from '../hooks/useLabels';
 import { useResetOnOpen } from '../hooks/useResetOnOpen';
-import { VaultCryptoError } from '../utils/vaultCrypto';
+import { VaultCryptoError, VAULT_ERROR } from '../utils/vaultCrypto';
 import { BUTTON_BORDER_RADIUS } from './componentStyles';
 import ModalShell from './ModalShell';
 import ModalFooter from './ModalFooter';
@@ -66,7 +66,7 @@ export default function LockListModal({ visible, hasPhotos, mode = 'lock', onCan
       await onConfirm(passphrase, current);
     } catch (err) {
       setError(
-        mode === 'change' && err instanceof VaultCryptoError && err.code === 'wrong_passphrase'
+        mode === 'change' && err instanceof VaultCryptoError && err.code === VAULT_ERROR.wrongPassphrase
           ? labels.vault_wrong_current
           : labels.error_generic
       );

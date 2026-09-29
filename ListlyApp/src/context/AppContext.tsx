@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useMemo, useCallback, useState, type ReactNode } from 'react';
+import { createContext, useEffect, useMemo, useCallback, useState, type ReactNode } from 'react';
 import type { CollectionWithCounts, Item, ListWithCounts } from '../database/types';
 import {
   listRepository as listRepo,
@@ -7,6 +7,7 @@ import {
   vaultRepository as vaultRepo,
 } from '../database';
 import { logError, ERROR_SCOPE } from '../utils/errors';
+import { useRequiredContext } from '../hooks/useRequiredContext';
 
 interface AppContextType {
   lists: ListWithCounts[];
@@ -22,9 +23,7 @@ interface AppContextType {
 const AppContext = createContext<AppContextType | null>(null);
 
 export function useApp() {
-  const ctx = useContext(AppContext);
-  if (!ctx) throw new Error('useApp must be used within AppProvider');
-  return ctx;
+  return useRequiredContext(AppContext, 'useApp', 'AppProvider');
 }
 
 interface LoadedData {

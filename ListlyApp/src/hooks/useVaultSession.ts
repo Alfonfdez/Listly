@@ -1,7 +1,7 @@
 import { useCallback, useRef, useState } from 'react';
 import { vaultRepository as vaultRepo } from '../database';
 import type { UnlockedItems, VaultItemRecord } from '../database/repositories/vaultRepo';
-import { VaultCryptoError } from '../utils/vaultCrypto';
+import { VaultCryptoError, VAULT_ERROR } from '../utils/vaultCrypto';
 import { dbTimestamp } from '../utils/formatters';
 
 let tempIdCounter = -1;
@@ -40,7 +40,7 @@ export function useVaultSession(listId: number) {
         setWrongPassphrase(false);
         setUnlocked(true);
       } catch (error) {
-        if (error instanceof VaultCryptoError && error.code === 'wrong_passphrase') {
+        if (error instanceof VaultCryptoError && error.code === VAULT_ERROR.wrongPassphrase) {
           setWrongPassphrase(true);
           return;
         }
