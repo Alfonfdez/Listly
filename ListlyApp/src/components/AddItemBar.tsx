@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Pressable, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { itemRepository as itemRepo } from '../database';
@@ -35,12 +35,17 @@ export default function AddItemBar({
   onAdded,
   onSubmitOverride,
 }: Props) {
-  const { activeColors: c } = useConfig();
+  const { activeColors: c, config } = useConfig();
   const fs = useFontSize();
   const labels = useLabels();
 
   const draft = useItemDraft({ existingNames, numeric });
   const [noteExpanded, setNoteExpanded] = useState(false);
+  const canAddDetails = config.showNotes || config.showPhotos;
+
+  useEffect(() => {
+    if (!canAddDetails) setNoteExpanded(false);
+  }, [canAddDetails]);
 
   const submit = async () => {
     if (draft.validate()) return;
@@ -83,19 +88,21 @@ export default function AddItemBar({
             style={[styles.input, { backgroundColor: c.surface, borderColor: c.border }]}
           />
         </View>
-        <TouchableOpacity
-          onPress={() => setNoteExpanded(prev => !prev)}
-          style={[styles.noteToggle, { backgroundColor: c.surface, borderColor: c.border }]}
-          accessibilityRole="button"
-          accessibilityLabel={labels.item_add_note_toggle}
-        >
-          <Ionicons
-            name="chevron-down"
-            size={18}
-            color={c.textSecondary}
-            style={noteExpanded ? styles.chevronOpen : undefined}
-          />
-        </TouchableOpacity>
+        {canAddDetails ? (
+          <TouchableOpacity
+            onPress={() => setNoteExpanded(prev => !prev)}
+            style={[styles.noteToggle, { backgroundColor: c.surface, borderColor: c.border }]}
+            accessibilityRole="button"
+            accessibilityLabel={labels.item_add_note_toggle}
+          >
+            <Ionicons
+              name="chevron-down"
+              size={18}
+              color={c.textSecondary}
+              style={noteExpanded ? styles.chevronOpen : undefined}
+            />
+          </TouchableOpacity>
+        ) : null}
         <Pressable
           style={({ pressed }) => [styles.addButton, { backgroundColor: c.primary }, pressed && styles.pressed]}
           onPress={() => void submit()}
@@ -122,19 +129,23 @@ export default function AddItemBar({
           />
         </View>
       ) : null}
-      {noteExpanded ? (
+      {noteExpanded && canAddDetails ? (
         <>
-          <ItemNoteField
-            value={draft.note}
-            onChangeText={draft.setNote}
-            style={[styles.input, styles.noteInput, { backgroundColor: c.surface, borderColor: c.border }]}
-          />
-          <ItemPhotosField
-            photos={draft.photos}
-            onTakePhoto={draft.handleTakePhoto}
-            onPickFromGallery={draft.handlePickFromGallery}
-            onRemovePhoto={draft.handleRemovePhoto}
-          />
+          {config.showNotes ? (
+            <ItemNoteField
+              value={draft.note}
+              onChangeText={draft.setNote}
+              style={[styles.input, styles.noteInput, { backgroundColor: c.surface, borderColor: c.border }]}
+            />
+          ) : null}
+          {config.showPhotos ? (
+            <ItemPhotosField
+              photos={draft.photos}
+              onTakePhoto={draft.handleTakePhoto}
+              onPickFromGallery={draft.handlePickFromGallery}
+              onRemovePhoto={draft.handleRemovePhoto}
+            />
+          ) : null}
         </>
       ) : null}
     </View>
