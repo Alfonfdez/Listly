@@ -807,6 +807,12 @@ pm run test:all green.
 - Refactor (behavior-preserving): new `useRequiredContext(context, hookName, providerName)` helper DRYs the repeated "must be used within provider" guard; `useApp` / `useConfig` / `useToast` now delegate to it, keeping their exact error messages and return types. Removed the now-unused `useContext` imports from the three contexts.
 - `npm run test:all` green (60 files, 534 tests); typecheck + lint clean. No spec change.
 
+[2026-09-29] fix | ListlyApp/tests/database/itemRepo.test.ts
+- Fix a **flaky** test: `itemRepo.updated_at` compared values written at operation time against a fresh `dbTimestamp()` at assertion time, and `dbTimestamp()` has second granularity, so crossing a second boundary made it fail intermittently (CI saw `12:32:28` vs `12:32:29`). The failure was timing-only and unrelated to the vault/context refactor.
+- Replaced the 6 exact `toBe(dbTimestamp())` assertions (create, update/toggle/reorder/setAllChecked, duplicateItems) with a new `expectStamped(value, before, after)` helper that brackets each write and asserts the stamp lies within `[before, after]` (lexicographic compare on the sortable `YYYY-MM-DD HH:MM:SS` format). Test-only; no production code change.
+- `npm run test:all` green (60 files, 534 tests); the itemRepo file passed across repeated runs.
+
+
 
 
 

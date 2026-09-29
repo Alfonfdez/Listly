@@ -22,6 +22,12 @@ vi.mock('../../src/utils/itemPhotos', async () => {
 
 await import('expo-sqlite');
 
+function expectStamped(value: string, before: string, after: string): void {
+  // `dbTimestamp()` has second granularity, so assert the value lies within the
+  // bracket captured around the write instead of equalling a fresh timestamp.
+  expect(value >= before && value <= after).toBe(true);
+}
+
 type Backend = {
   collections: typeof collectionRepo;
   lists: typeof listRepo;
@@ -65,33 +71,39 @@ describe('itemRepo.updated_at', () => {
   });
 
   it('stamps updated_at on create', async () => {
+    const before = dbTimestamp();
     const list = await b.lists.create({ name: 'A', color: '#22D3EE', icon: 'cart-outline', collection_id: null });
     const item = await b.items.create({ list_id: list.id, name: 'x', checked: 0, note: null, position: 0, pictures: null });
-    expect(item.updated_at).toBe(dbTimestamp());
+    const after = dbTimestamp();
+    expectStamped(item.updated_at, before, after);
   });
 
   it('stamps updated_at on update, toggle, reorder and setAllChecked without touching created_at', async () => {
+    const createdBefore = dbTimestamp();
     const list = await b.lists.create({ name: 'A', color: '#22D3EE', icon: 'cart-outline', collection_id: null });
     const a1 = await b.items.create({ list_id: list.id, name: 'a1', checked: 0, note: null, position: 0, pictures: null });
     const a2 = await b.items.create({ list_id: list.id, name: 'a2', checked: 0, note: null, position: 1, pictures: null });
+    const createdAfter = dbTimestamp();
 
     const db = openDatabaseSync('Listly.db') as unknown as DatabaseHandle;
     await db.runAsync("UPDATE items SET created_at = '2020-01-01 00:00:00' WHERE id = ?", a1.id);
 
+    const updatedBefore = dbTimestamp();
     await b.items.update(a1.id, { name: 'renamed' });
     await b.items.toggle(a1.id);
     await b.items.reorder(list.id, [a2.id, a1.id]);
     await b.items.setAllChecked(list.id, true);
+    const updatedAfter = dbTimestamp();
 
     const items = await b.items.listByList(list.id);
     const first = items.find(i => i.id === a1.id);
     const second = items.find(i => i.id === a2.id);
     expect(first).toBeDefined();
     expect(second).toBeDefined();
-    expect(first!.updated_at).toBe(dbTimestamp());
-    expect(second!.updated_at).toBe(dbTimestamp());
+    expectStamped(first!.updated_at, updatedBefore, updatedAfter);
+    expectStamped(second!.updated_at, updatedBefore, updatedAfter);
     expect(first!.created_at).toBe('2020-01-01 00:00:00');
-    expect(second!.created_at).toBe(dbTimestamp());
+    expectStamped(second!.created_at, createdBefore, createdAfter);
   });
 });
 
@@ -192,7 +204,9 @@ describe('itemRepo.duplicateItems', () => {
     await b.items.create({ list_id: a.id, name: 'a2', checked: 0, note: null, position: 1, pictures: null });
     await b.items.create({ list_id: a.id, name: 'a3', checked: 0, note: 'note-3', position: 2, pictures: null });
 
+    const duplicatedBefore = dbTimestamp();
     await b.items.duplicateItems(a.id, target.id);
+    const duplicatedAfter = dbTimestamp();
 
     const copies = await b.items.listByList(target.id);
     expect(copies.map(i => i.name)).toEqual(['existing', 'a1', 'a2', 'a3']);
@@ -200,8 +214,8 @@ describe('itemRepo.duplicateItems', () => {
     expect(copies.slice(1).map(i => i.checked)).toEqual([1, 0, 0]);
     expect(copies.slice(1).map(i => i.note)).toEqual(['note-1', null, 'note-3']);
     expect(copies[1].pictures).toBe('["copy-of-p1.jpg"]');
-    expect(copies[1].created_at).toBe(dbTimestamp());
-    expect(copies[1].updated_at).toBe(dbTimestamp());
+    expectStamped(copies[1].created_at, duplicatedBefore, duplicatedAfter);
+    expectStamped(copies[1].updated_at, duplicatedBefore, duplicatedAfter);
     expect(copies.map(i => i.id)).not.toContain(0);
   });
 
