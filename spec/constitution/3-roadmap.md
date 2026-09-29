@@ -268,14 +268,15 @@ Lists whose items also carry a generic Amount and an integer Quantity (shopping,
 - Spec: spec/features/026-numeric-lists/.
 
 ## 027-locked-lists
-Status: not started.
+Status: done.
 
 Lock a list with a passphrase so its items are encrypted at rest (real confidentiality):
 - Per-list passphrase (min 6 chars) → PBKDF2-HMAC-SHA-512 (600,000 iterations) → AES-256-GCM; a `vaults` table (`list_id`, `salt`, `kdf_iterations`, `kdf_digest`, `kdf_version`, `verifier`, `payload`, `updated_at`); `SCHEMA_VERSION` 8 → 9.
-- Locking encrypts the items into the vault and deletes the plaintext rows in one transaction; a locked list shows a lock badge, hides its progress, is excluded from search/totals, and opens a passphrase lock screen.
+- Locking encrypts the items into the vault and deletes the plaintext rows in one transaction; any list can be locked (even empty — lock first, add items after unlocking); a locked list shows a lock badge, hides its progress, is excluded from search/totals, and opens a passphrase lock screen.
 - Unlock decrypts into memory for the open session and re-locks on leaving the screen; edits are re-encrypted; *Remove lock* restores plaintext rows. No recovery (lost passphrase = permanent loss); photos are disallowed in locked lists (v1).
 - Cross-list actions (copy-to-list / merge / duplicate) are unavailable for a locked list; backup exports the vault encrypted and omits locked items from plaintext.
-- KDF is native (`react-native-quick-crypto`) on device and `crypto.subtle` on web; requires a development build (no Expo Go). Crypto spike verified: PBKDF2 sha512 600k ≈ 165 ms on the emulator.
+- KDF is native (`react-native-quick-crypto`) on device and `crypto.subtle` on web; requires a development build (no Expo Go). Crypto spike verified: PBKDF2 sha512 600k ≈ 165 ms on the emulator. In Expo Go the native crypto is loaded lazily so the app runs normally and vault actions show an explanatory message (see `docs/locked-lists.md`).
+- An unlocked locked list renders as a normal list (bottom-pinned add bar, search, select, sort, batch toolbar, edit/delete), with every write re-encrypted via `saveUnlocked`; a locked list offers *Change passphrase* (current + new ×2, fresh salt, same KDF config, items unchanged) instead of *Lock list*.
 - Spec: spec/features/027-locked-lists/.
 
 ## Future scope (not scheduled)

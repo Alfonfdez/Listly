@@ -17,12 +17,13 @@ export default function EditListScreen() {
   const route = useRoute<RouteProp<RootStackParamList, 'EditList'>>();
   const navigation = useNavigation<NavigationProp<'EditList'>>();
   const { listId } = route.params;
-  const { lists, collections, refresh } = useApp();
+  const { lists, collections, refresh, lockedListIds } = useApp();
   const labels = useLabels();
   const [deleteVisible, setDeleteVisible] = useState(false);
   const [pickerVisible, setPickerVisible] = useState(false);
 
   const list = lists.find(l => l.id === listId);
+  const locked = lockedListIds.has(listId);
   const initialCollectionId = list?.collection_id ?? null;
   const [collectionId, setCollectionId] = useState<number | null>(() => initialCollectionId);
   const [kind, setKind] = useState<ListKind>(list?.kind ?? LIST_KINDS.standard);
@@ -72,8 +73,8 @@ export default function EditListScreen() {
         excludeId={list.id}
         deleteLabel={labels.list_delete_label}
         onDelete={() => setDeleteVisible(true)}
-        middleLabel={labels.list_duplicate}
-        onMiddle={() => navigation.navigate('CreateList', { duplicateFromListId: list.id })}
+        middleLabel={locked ? undefined : labels.list_duplicate}
+        onMiddle={locked ? undefined : () => navigation.navigate('CreateList', { duplicateFromListId: list.id })}
         kindSlot={<KindSelectRow kind={kind} onChange={setKind} />}
         fieldSlot={
           <CollectionSelectRow

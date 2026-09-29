@@ -17,7 +17,8 @@
 ## Functional requirements
 
 ### 1. Locking a list
-- List detail offers a *Lock list* action (available when the list has items and is not already locked).
+- Locked lists require real native cryptography (`react-native-quick-crypto`) on device and `crypto.subtle` on web, so they are **unavailable in Expo Go** (which ships no such native module). The app must not crash there: the native crypto is loaded lazily, and when it is missing the vault actions show an explanatory message while every other feature keeps working. See `docs/locked-lists.md`.
+- List detail offers a *Lock list* action for any list that is not already locked (with or without items — the user may lock a list before adding anything, then add items after unlocking).
 - Locking asks for a passphrase (entered twice to confirm) and requires an explicit acknowledgement that the passphrase is unrecoverable if lost.
 - Passphrase rule: **minimum 6 characters**, no maximum. The UI states that longer is stronger (a 6-char passphrase is weak against offline brute force) — the work factor compensates as far as possible.
 - On confirm, the list's items are encrypted into the vault and the plaintext item rows are **deleted** from the `items` table in one transaction. From that moment the items exist only as ciphertext.
@@ -38,6 +39,11 @@
 
 ### 4. Removing the lock
 - An *Unlock permanently* / *Remove lock* action (from the locked/unlocked list) requires the passphrase, then decrypts and re-inserts the items as plaintext rows and deletes the vault row in one transaction; the list becomes a normal list again.
+
+### 4b. Changing the passphrase
+- A locked list (once unlocked) offers a *Change passphrase* action instead of *Lock list*. It requires the **current** passphrase plus the new passphrase (entered twice) and the unrecoverable warning; a wrong current passphrase is rejected inline.
+- On success the vault is re-sealed with the new key under a **fresh salt** (same `kdf_iterations`/`kdf_digest`), the items are unchanged, and a transient confirmation is shown. The unlocked session continues with the new passphrase so later edits re-encrypt correctly.
+- A not-yet-locked list keeps the plain *Lock list* action (set passphrase ×2 + warning).
 
 ### 5. Cross-list and global guards
 - A locked list cannot be the **source or target** of copy-to-list, merge, or a full duplicate while locked (its items are not readable). These actions are hidden/disabled for a locked list (and hidden when a locked list is the only candidate target).
@@ -70,15 +76,18 @@
 
 ## Acceptance criteria
 
-- [ ] A list with items can be locked with a passphrase (min 6 chars, entered twice, unrecoverable warning acknowledged).
-- [ ] A list containing photos cannot be locked (blocked with a clear message).
-- [ ] Locking encrypts the items and deletes the plaintext item rows in one transaction; the vault row stores salt, iterations, digest, verifier, and ciphertext.
-- [ ] A locked list shows a lock badge and hides its progress everywhere it appears, and its items are excluded from search and from all totals.
-- [ ] Opening a locked list shows a passphrase lock screen; the correct passphrase unlocks it, a wrong passphrase is clearly rejected.
-- [ ] Unlocking decrypts into memory only; the unlocked session re-locks automatically when leaving the list screen.
-- [ ] Edits to an unlocked locked list are persisted encrypted (no plaintext item rows are created).
-- [ ] *Remove lock* (with the correct passphrase) restores the items as plaintext rows and deletes the vault row.
-- [ ] Copy-to-list, merge, and full duplicate are unavailable for a locked list (as source or target) while locked.
-- [ ] Backup exports the vault encrypted and omits the locked items from plaintext; import restores the encrypted vault; older backups import with no vaults.
-- [ ] Key derivation is PBKDF2-HMAC-SHA-512 with 600,000 iterations (digest/count stored per vault) and AES-256-GCM encryption, with no key or passphrase persisted.
-- [ ] New labels and error scopes exist; `npm run test:all` passes.
+- [x] A list can be locked with a passphrase (min 6 chars, entered twice, unrecoverable warning acknowledged), whether or not it has items; the *Lock list* action is always available for a non-locked list.
+- [x] A list containing photos cannot be locked (blocked with a clear message).
+- [x] Locking encrypts the items and deletes the plaintext item rows in one transaction; the vault row stores salt, iterations, digest, verifier, and ciphertext.
+- [x] A locked list shows a lock badge and hides its progress everywhere it appears, and its items are excluded from search and from all totals.
+- [x] Opening a locked list shows a passphrase lock screen; the correct passphrase unlocks it, a wrong passphrase is clearly rejected.
+- [x] Unlocking decrypts into memory only; the unlocked session re-locks automatically when leaving the list screen.
+- [x] Edits to an unlocked locked list are persisted encrypted (no plaintext item rows are created).
+- [x] *Remove lock* (with the correct passphrase) restores the items as plaintext rows and deletes the vault row.
+- [x] A locked list offers *Change passphrase* (current + new ×2 + warning, wrong current rejected); it re-seals with a fresh salt, keeps the items, and the unlocked session continues with the new passphrase. The action is shown even when the list has no items.
+- [x] An unlocked locked list renders as a normal list (bottom-pinned add bar, search, sort, batch actions, edit/delete) while writes stay encrypted.
+- [x] Copy-to-list, merge, and full duplicate are unavailable for a locked list (as source or target) while locked.
+- [x] Backup exports the vault encrypted and omits the locked items from plaintext; import restores the encrypted vault; older backups import with no vaults.
+- [x] Key derivation is PBKDF2-HMAC-SHA-512 with 600,000 iterations (digest/count stored per vault) and AES-256-GCM encryption, with no key or passphrase persisted.
+- [x] New labels and error scopes exist; `npm run test:all` passes.
+- [x] On a platform without the native crypto (Expo Go) the app runs normally and the lock action shows an explanatory message instead of crashing; web and development builds support locked lists fully.

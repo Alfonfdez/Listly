@@ -28,6 +28,11 @@ export const ERROR_SCOPE = {
   copyItemsToList: 'copy items to another list',
   mergeLists: 'merge lists',
   copyToClipboard: 'copy to clipboard',
+  lockList: 'lock list',
+  unlockList: 'unlock list',
+  removeLock: 'remove lock',
+  saveLockedList: 'save locked list',
+  changePassphrase: 'change passphrase',
 } as const;
 
 export type ErrorScope = (typeof ERROR_SCOPE)[keyof typeof ERROR_SCOPE];

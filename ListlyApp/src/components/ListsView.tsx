@@ -84,7 +84,7 @@ export default function ListsView({
   selectedCount,
 }: Props) {
   const navigation = useNavigation<NavigationProp<'Home'>>();
-  const { lists, collections, listsByCollectionId, baseLists, itemsByListId, loading, refresh } = useApp();
+  const { lists, collections, listsByCollectionId, baseLists, itemsByListId, lockedListIds, loading, refresh } = useApp();
   const { activeColors: c } = useConfig();
   const labels = useLabels();
   const [chooserVisible, setChooserVisible] = useState(false);
@@ -223,6 +223,7 @@ export default function ListsView({
           selected={selectedIds.has(item.id)}
           onPress={() => handleTilePress(item)}
           reserveCollectionLine={mode === LIST_VIEW_MODES.lists}
+          locked={lockedListIds.has(item.id)}
         />
       ) : (
         <ListRow
@@ -231,10 +232,11 @@ export default function ListsView({
           selectMode={selectMode}
           selected={selectedIds.has(item.id)}
           onPress={() => handleTilePress(item)}
+          locked={lockedListIds.has(item.id)}
         />
       );
     },
-    [isGrid, selectMode, selectedIds, handleTilePress, mode, collections]
+    [isGrid, selectMode, selectedIds, handleTilePress, mode, collections, lockedListIds]
   );
 
   const renderCollection = useCallback<SortableGridRenderItem<CollectionWithCounts>>(

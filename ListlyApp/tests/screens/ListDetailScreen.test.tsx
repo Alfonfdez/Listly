@@ -9,14 +9,16 @@ import {
   resetAppStub,
   setItemsByListId,
   setLists,
+  setLockedListIds,
 } from '../helpers/appStub';
 import { resetStub } from '../helpers/configStub';
 import { getAppStub } from '../helpers/appStub';
 import { fireGridDragEnd, lastGrid } from '../mocks/react-native-sortables';
 import type { Item, ListWithCounts } from '../../src/database/types';
+import type { UnlockedItems } from '../../src/database/repositories/vaultRepo';
 import { darkColors } from '../../src/constants/themes';
 
-const { itemRepositoryMock, listRepositoryMock, selectMocks, nav, routeParams, photoMocks, clipboardMock } = vi.hoisted(() => ({
+const { itemRepositoryMock, listRepositoryMock, vaultRepositoryMock, selectMocks, nav, routeParams, photoMocks, clipboardMock } = vi.hoisted(() => ({
   itemRepositoryMock: {
     create: vi.fn(),
     update: vi.fn(),
@@ -33,6 +35,17 @@ const { itemRepositoryMock, listRepositoryMock, selectMocks, nav, routeParams, p
     delete: vi.fn(),
     deleteMany: vi.fn(),
     reorder: vi.fn(),
+  },
+  vaultRepositoryMock: {
+    lock: vi.fn(),
+    unlock: vi.fn(async (): Promise<UnlockedItems> => []),
+    changePassphrase: vi.fn(async () => {}),
+    saveUnlocked: vi.fn(),
+    removeLock: vi.fn(),
+    readPlainItems: vi.fn(async (): Promise<UnlockedItems> => []),
+    listIds: vi.fn(async () => []),
+    exists: vi.fn(async () => false),
+    meta: vi.fn(async () => null),
   },
   selectMocks: {
     toggleSelectMode: vi.fn(),
@@ -56,9 +69,18 @@ const { itemRepositoryMock, listRepositoryMock, selectMocks, nav, routeParams, p
   },
 }));
 
+const vaultAvailability = vi.hoisted(() => ({ available: true }));
+
+vi.mock('../../src/utils/vaultCrypto', async () => {
+  const actual =
+    await vi.importActual<typeof import('../../src/utils/vaultCrypto')>('../../src/utils/vaultCrypto');
+  return { ...actual, isVaultAvailable: () => vaultAvailability.available };
+});
+
 vi.mock('../../src/database', () => ({
   itemRepository: itemRepositoryMock,
   listRepository: listRepositoryMock,
+  vaultRepository: vaultRepositoryMock,
 }));
 
 vi.mock('expo-clipboard', () => ({
@@ -171,6 +193,15 @@ describe('ListDetailScreen', () => {
     clipboardMock.setStringAsync.mockResolvedValue(true);
     photoMocks.photos = [];
     photoMocks.setPhotos.mockClear();
+    vaultRepositoryMock.unlock.mockReset();
+    vaultRepositoryMock.unlock.mockResolvedValue([]);
+    vaultRepositoryMock.changePassphrase.mockReset();
+    vaultRepositoryMock.changePassphrase.mockResolvedValue(undefined);
+    vaultRepositoryMock.lock.mockReset();
+    vaultRepositoryMock.lock.mockResolvedValue(undefined);
+    vaultRepositoryMock.readPlainItems.mockReset();
+    vaultRepositoryMock.readPlainItems.mockResolvedValue([]);
+    vaultAvailability.available = true;
     setLists([LIST]);
     setItemsByListId(new Map([[1, ITEMS]]));
   });
@@ -1003,6 +1034,139 @@ it('disables reordering while searching', async () => {
         expect.objectContaining({ name: 'Tea', amount_minor: 150, quantity: 2 })
       )
     );
+  });
+
+  it('shows a lock action for a list with items', async () => {
+    const view = await renderWithHeader();
+    expect(await view.findByLabelText('Lock list')).toBeTruthy();
+  });
+
+  it('shows a lock action for a list with no items', async () => {
+    setItemsByListId(new Map());
+    const view = await render(<ListDetailScreen />);
+    expect(await view.findByLabelText('Lock list')).toBeTruthy();
+  });
+
+  it('explains that locked lists need a development build when the vault is unavailable', async () => {
+    vaultAvailability.available = false;
+    const user = userEvent.setup();
+    const view = await render(<ListDetailScreen />);
+    await user.press(await view.findByLabelText('Lock list'));
+    expect(await view.findByText('Not available here')).toBeTruthy();
+    expect(view.getByText(/development build/)).toBeTruthy();
+    expect(view.queryByLabelText('Passphrase')).toBeNull();
+  });
+
+  it('shows the unsupported message instead of the lock screen when the vault is unavailable', async () => {
+    vaultAvailability.available = false;
+    setLockedListIds([1]);
+    setItemsByListId(new Map());
+    const view = await render(<ListDetailScreen />);
+    expect(await view.findByText('Not available here')).toBeTruthy();
+    expect(view.queryByLabelText('Passphrase')).toBeNull();
+  });
+
+  it('shows Change passphrase for a locked list with no items', async () => {
+    setLockedListIds([1]);
+    setItemsByListId(new Map());
+    vaultRepositoryMock.unlock.mockResolvedValueOnce([]);
+    const user = userEvent.setup();
+    const view = await render(<ListDetailScreen />);
+    await view.findByText('Locked list');
+    await user.type(view.getByLabelText('Passphrase'), 'secret123');
+    await user.press(view.getByLabelText('Unlock'));
+
+    expect(await view.findByLabelText('Change passphrase')).toBeTruthy();
+  });
+
+  it('renders the lock screen instead of items for a locked list', async () => {
+    setLockedListIds([1]);
+    setItemsByListId(new Map());
+    const view = await render(<ListDetailScreen />);
+    expect(await view.findByText('Locked list')).toBeTruthy();
+    expect(view.queryByText('Milk')).toBeNull();
+    expect(view.getByLabelText('Passphrase')).toBeTruthy();
+  });
+
+  it('rejects a wrong passphrase on the lock screen', async () => {
+    setLockedListIds([1]);
+    setItemsByListId(new Map());
+    const { VaultCryptoError } = await import('../../src/utils/vaultCrypto');
+    vaultRepositoryMock.unlock.mockRejectedValueOnce(new VaultCryptoError('wrong_passphrase'));
+    const user = userEvent.setup();
+    const view = await render(<ListDetailScreen />);
+    await view.findByText('Locked list');
+
+    await user.type(view.getByLabelText('Passphrase'), 'nope123');
+    await user.press(view.getByLabelText('Unlock'));
+
+    expect(await view.findByText('Wrong passphrase')).toBeTruthy();
+    expect(vaultRepositoryMock.unlock).toHaveBeenCalledWith(1, 'nope123');
+  });
+
+  it('unlocks an encrypted list into an in-memory session', async () => {
+    setLockedListIds([1]);
+    setItemsByListId(new Map());
+    vaultRepositoryMock.unlock.mockResolvedValueOnce([
+      { ...ITEMS[0], id: 10, list_id: 1 },
+    ]);
+    const user = userEvent.setup();
+    const view = await render(<ListDetailScreen />);
+    await view.findByText('Locked list');
+
+    await user.type(view.getByLabelText('Passphrase'), 'secret123');
+    await user.press(view.getByLabelText('Unlock'));
+
+    expect(await view.findByText('Milk')).toBeTruthy();
+    expect(vaultRepositoryMock.unlock).toHaveBeenCalledWith(1, 'secret123');
+  });
+
+  it('shows Change passphrase (not Lock list) for a locked list', async () => {
+    setLockedListIds([1]);
+    setItemsByListId(new Map());
+    vaultRepositoryMock.unlock.mockResolvedValueOnce([{ ...ITEMS[0], id: 10, list_id: 1 }]);
+    const user = userEvent.setup();
+    const view = await render(<ListDetailScreen />);
+    await view.findByText('Locked list');
+    await user.type(view.getByLabelText('Passphrase'), 'secret123');
+    await user.press(view.getByLabelText('Unlock'));
+    await view.findByText('Milk');
+
+    expect(view.getByLabelText('Change passphrase')).toBeTruthy();
+    expect(view.queryByLabelText('Lock list')).toBeNull();
+  });
+
+  it('changes the passphrase through the vault session', async () => {
+    setLockedListIds([1]);
+    setItemsByListId(new Map());
+    vaultRepositoryMock.unlock.mockResolvedValueOnce([{ ...ITEMS[0], id: 10, list_id: 1 }]);
+    const user = userEvent.setup();
+    const view = await render(<ListDetailScreen />);
+    await view.findByText('Locked list');
+    await user.type(view.getByLabelText('Passphrase'), 'secret123');
+    await user.press(view.getByLabelText('Unlock'));
+    await view.findByText('Milk');
+
+    await user.press(view.getByLabelText('Change passphrase'));
+    await user.type(view.getByLabelText('Current passphrase'), 'secret123');
+    await user.type(view.getByLabelText('Passphrase'), 'newsecret');
+    await user.type(view.getByLabelText('Confirm passphrase'), 'newsecret');
+    await user.press(view.getByLabelText('I understand this passphrase cannot be recovered'));
+    await user.press(view.getByLabelText('Change'));
+
+    await waitFor(() =>
+      expect(vaultRepositoryMock.changePassphrase).toHaveBeenCalledWith(1, 'secret123', 'newsecret')
+    );
+  });
+
+  it('hides copy-to-list and merge while a list is locked', async () => {
+    setLists([LIST, OTHER_LIST]);
+    setLockedListIds([1]);
+    setItemsByListId(new Map());
+    const view = await render(<ListDetailScreen />);
+    await view.findByText('Locked list');
+    expect(view.queryByLabelText('Merge into…')).toBeNull();
+    expect(view.queryByLabelText('Copy items to another list')).toBeNull();
   });
 });
 

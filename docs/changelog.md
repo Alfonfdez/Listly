@@ -727,4 +727,73 @@ pm run test:all green.
 - Roadmap: added `## 027-locked-lists` (Status: not started).
 - No code changes; implementation follows the spec.
 
+[2026-09-28] + | ListlyApp [027: locked lists / encrypted vault]
+- Crypto core: `src/utils/vaultCryptoCore.ts` (pure: RN-safe base64/UTF-8, `deriveKey`, `makeVerifier`, `seal`/`unseal`, `bindVaultCrypto`, `VaultCryptoError`, `KDF_ITERATIONS = 600_000`, `KDF_DIGEST = 'sha512'`, `KDF_VERSION = 1`); platform branches `vaultCrypto.native.ts` (react-native-quick-crypto: PBKDF2 + AES-256-GCM) and `vaultCrypto.ts` (web: `crypto.subtle`); derived-key buffers are zeroed after use.
+- Schema: `SCHEMA_VERSION` 8 → 9; new `vaults` table (`list_id` PK FK→lists ON DELETE CASCADE, `salt`, `kdf_iterations`, `kdf_digest`, `kdf_version`, `verifier`, `payload`, `updated_at`) in canonical `createSchema`; Drizzle `vaults`, Zod `vaultSchema`, `Vault` type; `clearDataKeepSettings()` / `resetDatabase()` clear vaults.
+- Repo: `src/database/repositories/vaultRepo.ts` — `listIds`, `exists`, `meta`, `readPlainItems`, `lock` (encrypt + insert vault + delete plaintext rows in one transaction), `unlock` (verify + decrypt to memory), `saveUnlocked` (re-encrypt on edit), `removeLock` (decrypt + re-insert plaintext + delete vault in one transaction).
+- Backup: `data.vaults` exported as-is (encrypted) and restored on import; lock items are absent from `data.items`; legacy backups import with `vaults` defaulting to `[]`.
+- State/guards: `AppContext` exposes `lockedListIds`; locked lists show a lock badge with hidden progress (`TileName` lock + `TileLocked`), are excluded from search/totals, and cannot be the source/target of copy-to-list, merge, or duplicate (hidden in `ListDetailScreen` and `EditListScreen`).
+- UI: `LockListModal` (passphrase ×2, min 6 chars, unrecoverable-warning checkbox, blocked when the list has photos), `VaultUnlockView` (passphrase lock screen + *Remove lock*), `UnlockedVaultList` (in-memory encrypted session: add/edit/delete/toggle/reorder re-encrypt via `saveUnlocked`), `useVaultSession` (unlock/relock; re-locks on leaving the screen via focus-effect cleanup). `AddItemBar` gained an optional `onSubmitOverride` so the unlocked session can persist through the vault.
+- i18n en/es: `list_lock_*`, `list_locked_*`, `vault_*`, `list_unlock_*`, `list_remove_lock*`, `home_locked`; `errors.ts` adds `lockList`/`unlockList`/`removeLock`/`saveLockedList`; `ICONS.lock`/`unlock`/`removeLock`.
+- Tests: `tests/utils/vaultCrypto.test.ts` (11: encoding, deterministic key, verifier accept/reject, unicode round-trip, wrong-passphrase + GCM tamper rejection, bound API + 600k/sha512 defaults), `tests/database/vaultRepo.test.ts` (8: lock deletes plaintext + stores vault, unlock fidelity, wrong passphrase, re-encrypt on edit, remove-lock restore, listIds, cascade delete), backup (+2: encrypted vault export/import + legacy no-vaults), `tests/components/LockListModal.test.tsx` (5), `ListDetailScreen` (+5: lock action, lock screen, wrong passphrase, unlock session, hidden cross-list actions). New `tests/database/quickCryptoMock.ts` (setupFile) keeps repo tests off the native module. Suite baseline: 59 files, 521 tests; typecheck + lint clean.
+- Note: `react-native-quick-crypto` requires a development build (no Expo Go); native KDF timing was verified by the spike (PBKDF2 sha512 600k ≈ 165 ms), web uses `crypto.subtle`.
+- Docs: roadmap 027 entry; `docs/harnesses.md` baseline refreshed to 59 files / 521 tests.
+
+[2026-09-29] fix | ListlyApp/src/screens/ListDetailScreen.tsx
+- Fix: *Remove lock* deleted the vault row but the screen stayed on the lock view because `lockedListIds` was not refreshed. `onRemoveLock` now `await vaultRepo.removeLock(...)` then `await refresh()`, so the list returns to the normal plaintext view immediately.
+- Found during the 027 browser verification loop (web, 375px, `crypto.subtle`); re-verified after the fix.
+- 027 verified end-to-end: lock action + modal (short-passphrase rejection, unrecoverable warning, confirm), locking hides item names and shows the lock screen, Home tile lock badge + "Locked" progress, locked items excluded from search, wrong passphrase rejected, correct passphrase unlocks (items visible), locked state persists across reload, re-locks on leaving the screen, and *Remove lock* restores plaintext items. 0 console errors (only the pre-existing `props.pointerEvents` warning). Native KDF path/camera capture not checkable on web (web uses `crypto.subtle`; native PBKDF2 timing documented from the spike).
+- Backups: encrypted-vault round-trip and legacy no-vaults import covered by `backup.test.ts`.
+- Docs: 027 `1-spec.md` acceptance criteria flipped `[x]`; roadmap 027 → done.
+
+[2026-09-29] fix | ListlyApp/src/screens/ListDetailScreen.tsx, ListlyApp/src/components/UnlockedVaultList.tsx (deleted)
+- Fix: the unlocked vault session rendered a stripped-down parallel view (`UnlockedVaultList`), so the unlocked list lost the normal UX — the add bar was not bottom-pinned, the edit button did nothing, and delete / search / sort / Complete all / Uncomplete all / Clear completed were missing or inert.
+- Removed `UnlockedVaultList` and made the real `ListDetailScreen` render tree serve the unlocked session: item data comes from `vault.items`, and every mutation routes through the vault when unlocked — `toggle`, drag-reorder `reorder`, select-mode `deleteMany`, add (`AddItemBar` `onSubmitOverride`), edit save, delete, and the batch actions (`setAllChecked` / `deleteCompleted`) all persist re-encrypted via `saveUnlocked`. Wrappers `handleSaveEdit` / `handleDeleteItem` / `handleCompleteAll` / `handleUncompleteAll` / `handleClearCompleted` branch on `vault.unlocked`.
+- Result: an unlocked locked list now behaves exactly like a normal list (bottom-pinned add bar, working edit modal, search, select mode, sort, batch toolbar, drag-reorder), while writes stay encrypted at rest.
+- Verified on web at 375px (relocked then unlocked "Secrets"): add-bar bounding box bottom = 691 of a 720 viewport (pinned), edit modal opens + renames, delete confirm removes the item, search filters ("Recovery" hides "PIN 9999"), sort pill + batch toolbar present. 0 console errors.
+- `npm run test:all` green (59 files, 521 tests).
+
+[2026-09-29] feat | ListlyApp [027: change passphrase]
+- A locked list, once unlocked, now shows *Change passphrase* instead of *Lock list* (the plain header action is gated: `locked ? 'key-outline'/change : 'lock-closed-outline'/lock`).
+- `vaultRepo.changePassphrase(listId, currentPassphrase, newPassphrase)`: verifies the current passphrase against the stored `verifier` (rejects with `VaultCryptoError('wrong_passphrase')` otherwise), decrypts the payload, re-seals with the **new** passphrase under a **fresh salt** while preserving `kdf_iterations`/`kdf_digest`, and updates the vault row. Items are untouched.
+- `useVaultSession.changePassphrase` calls the repo then updates the in-memory passphrase so subsequent edits re-encrypt with the new one.
+- `LockListModal` gained a `mode: 'lock' | 'change'` prop (reused, not duplicated): change mode adds a *Current passphrase* field, uses the change title/confirm (`list_change_passphrase_confirm` = "Change"/"Cambiar"), and surfaces `vault_wrong_current` inline on a wrong current passphrase or other errors generically.
+- `ListDetailScreen`: header now hides the clipboard copy actions for a locked list and shows the change action; a transient *Passphrase changed* label (`COPY_FEEDBACK_MS`) confirms success. New `ERROR_SCOPE.changePassphrase`.
+- i18n en/es: `list_change_passphrase`, `list_change_passphrase_title`, `list_change_passphrase_confirm`, `vault_current_passphrase_label`, `vault_wrong_current`, `vault_passphrase_changed`.
+- Tests: `vaultRepo.test.ts` +3 (old fails/new works/items intact, wrong current rejected + vault usable, fresh salt + preserved iterations/digest), `LockListModal.test.tsx` +2 (change mode requires current; confirms with new+current), `ListDetailScreen.test.tsx` +2 (Change shown not Lock on a locked list; change flow calls `changePassphrase`). `npm run test:all` green (59 files, 528 tests); typecheck + lint clean.
+- Verified on web at 375px: unlocked "Secrets" shows *Change passphrase* (copy buttons hidden), modal requires the current passphrase (wrong → "Current passphrase is incorrect"), correct change closes the modal, re-locks on leaving, and the **new** passphrase unlocks while the old no longer does. 0 console errors.
+- Docs: 027 `1-spec.md` (change-passphrase section + 2 criteria), roadmap 027 note, `docs/harnesses.md` baseline (528 tests).
+
+[2026-09-29] fix | ListlyApp/src/screens/ListDetailScreen.tsx
+- Fix: the *Change passphrase* key button only appeared when the locked list had at least one item, so an **empty** locked list had no way to change its passphrase. The header `trailing` block was gated on `items.length > 0`; changed the outer condition to `locked || items.length > 0` and the clipboard-copy group to `!locked && items.length > 0`.
+- Result: a locked list always shows *Change passphrase* (items or not); copy actions keep their `items > 0` requirement; a normal empty list is unchanged.
+- Test: `ListDetailScreen.test.tsx` +1 ("shows Change passphrase for a locked list with no items"). `npm run test:all` green (59 files, 529 tests).
+- Verified on web at 375px: unlocked "Secrets", deleted its only item (0/0), the key button remained and opened the change-passphrase modal. 0 console errors.
+- Docs: 027 `1-spec.md` change-passphrase criterion notes it is shown even when empty; `docs/harnesses.md` baseline (529 tests).
+
+[2026-09-29] fix | ListlyApp/src/screens/ListDetailScreen.tsx, spec/features/027-locked-lists/1-spec.md
+- Fix: the *Lock list* action (lock icon) only appeared when the list had at least one item, because the header `trailing` group was gated on `locked || items.length > 0`. Now the header action group always renders: any non-locked list shows *Lock list* (with or without items) and any locked list shows *Change passphrase*; the clipboard-copy actions keep their `!locked && items.length > 0` requirement.
+- Enables the "lock first, then fill" flow: a list can be locked while empty (its vault seals an empty payload), then unlocked to add items (encrypted), change passphrase, etc. The photos guard and cross-list guards are unchanged.
+- Spec: 027 `1-spec.md` §1 now states the *Lock list* action is available for any list (not only ones with items); acceptance criterion updated; roadmap 027 note updated.
+- Test: `ListDetailScreen.test.tsx` +1 ("shows a lock action for a list with no items"). `npm run test:all` green (59 files, 530 tests).
+- Verified on web at 375px: an empty list shows the lock icon, locking works, and after unlocking an item can be added. 0 console errors.
+- Docs: `docs/harnesses.md` baseline (530 tests).
+
+[2026-09-29] fix | ListlyApp/src/utils/vaultCrypto.native.ts, ListlyApp/src/utils/vaultCrypto.ts, ListlyApp/src/screens/ListDetailScreen.tsx, ListlyApp/tests/database/quickCryptoMock.ts
+- Fix: the app crashed in **Expo Go** with `TurboModuleRegistry.getEnforcing(...): 'QuickBase64' could not be found` because `vaultCrypto.native.ts` imported `react-native-quick-crypto` at module top-level, and the startup graph (`App → AppContext → database → vaultRepo → vaultCrypto`) evaluated it. Expo Go ships no quick-crypto native module, so locked lists cannot work there — but the app must not crash.
+- `vaultCrypto.native.ts` now loads quick-crypto **lazily** (`require` inside the platform methods, cached) and exposes `isVaultAvailable()`; vault operations throw `VaultCryptoError('unsupported')` when the module is absent. `vaultCryptoCore` `VaultCryptoError` gained the `'unsupported'` code; the web module (`vaultCrypto.ts`) returns `isVaultAvailable() === true`.
+- `ListDetailScreen`: a `vaultReady = isVaultAvailable()` flag. When unavailable, the *Lock list* / *Change passphrase* action stays visible and opens a new **`InfoModal`** ("Locked lists need a development build"), and a previously locked list shows an explanatory `EmptyState` instead of the passphrase prompt. All other features work unchanged. New i18n en/es `vault_unsupported_title` / `vault_unsupported_message`; new `src/components/InfoModal.tsx`.
+- Tests: the global `tests/database/quickCryptoMock.ts` now also injects its mock via a `globalThis`-backed test seam (`__setQuickCryptoModuleForTests`) so repo tests survive `vi.resetModules()`; `ListDetailScreen.test.tsx` +2 (lock action explains when the vault is unavailable; locked list shows the unsupported view). Suite: 59 files, 532 tests; typecheck + lint clean.
+- Docs: new `docs/locked-lists.md` (crypto, platform support matrix web / dev build / Expo Go, graceful degradation, how to test); `spec/constitution/7-platform-differences.md` + `027/1-spec.md` updated; `docs/harnesses.md` baseline (532 tests).
+- Verified on web at 375px: app boots, locked lists still show the normal unlock screen (`crypto.subtle`), 0 console errors. Expo Go now boots and shows the explanatory message on the lock action (developer to confirm on device).
+
+[2026-09-29] fix | ListlyApp/src/utils/vaultCrypto.native.ts
+- Fix: opening a list in **Expo Go** still raised `TurboModuleRegistry.getEnforcing(...): 'QuickBase64' could not be found` from `isVaultAvailable()`, even though the `require('react-native-quick-crypto')` was wrapped in `try/catch`. Cause: Metro's `guardedLoadModule` calls `ErrorUtils.reportFatalError(e)` when a module factory throws, so the red screen is raised *before* the catch runs — swallowing the rethrow is too late.
+- `vaultCrypto.native.ts` now **probes** the native module first with the non-throwing `TurboModuleRegistry.get('QuickBase64')` (accessed via `require('react-native')`, not a static named import) and only then `require`s quick-crypto. Where the module is absent (Expo Go) the require is skipped entirely, so no fatal report; `isVaultAvailable()` returns `false` and the existing InfoModal / unsupported view handle it.
+- Note: the probe keys on `QuickBase64` (the module `react-native-quick-base64` resolves); documented in a comment and in `docs/locked-lists.md`.
+- Tests: new `tests/utils/vaultCryptoNative.test.ts` (+2: `isVaultAvailable()` true with the module, and false + `VaultCryptoError('unsupported')` when the override is null). Suite: 60 files, 534 tests; typecheck + lint clean.
+- Docs: `docs/locked-lists.md` (probe + Metro fatal-report rationale), `docs/harnesses.md` baseline (534 tests).
+- Verified on web at 375px (unchanged path, 0 console errors); Expo Go to be re-confirmed on device.
+
+
 

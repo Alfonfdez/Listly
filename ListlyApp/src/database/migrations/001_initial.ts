@@ -45,6 +45,18 @@ export async function createSchema(db: DatabaseHandle): Promise<void> {
       value TEXT NOT NULL
     );
 
+    CREATE TABLE IF NOT EXISTS vaults (
+      list_id INTEGER PRIMARY KEY,
+      salt TEXT NOT NULL,
+      kdf_iterations INTEGER NOT NULL,
+      kdf_digest TEXT NOT NULL,
+      kdf_version INTEGER NOT NULL,
+      verifier TEXT NOT NULL,
+      payload TEXT NOT NULL,
+      updated_at TEXT NOT NULL DEFAULT (datetime('now', 'localtime')),
+      FOREIGN KEY (list_id) REFERENCES lists(id) ON DELETE CASCADE
+    );
+
     CREATE INDEX IF NOT EXISTS items_list_id ON items(list_id);
     CREATE INDEX IF NOT EXISTS items_list_position ON items(list_id, position);
     CREATE INDEX IF NOT EXISTS items_name_idx ON items(name COLLATE NOCASE);

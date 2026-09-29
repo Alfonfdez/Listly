@@ -61,10 +61,11 @@ interface TileNameProps {
   pinned: Flag;
   fontSize: number;
   starSize?: number;
+  locked?: boolean;
   style?: StyleProp<ViewStyle>;
 }
 
-export function TileName({ name, pinned, fontSize, starSize = 14, style }: TileNameProps) {
+export function TileName({ name, pinned, fontSize, starSize = 14, locked = false, style }: TileNameProps) {
   const { activeColors: c } = useConfig();
   const labels = useLabels();
 
@@ -73,6 +74,9 @@ export function TileName({ name, pinned, fontSize, starSize = 14, style }: TileN
       <Text style={[tileStyles.name, { color: c.text, fontSize }]} numberOfLines={1}>
         {name}
       </Text>
+      {locked ? (
+        <Ionicons name="lock-closed" size={starSize} color={c.textSecondary} accessibilityLabel={labels.home_locked} />
+      ) : null}
       {isOn(pinned) ? (
         <Ionicons name="star" size={starSize} color={c.star} accessibilityLabel={labels.home_pinned} />
       ) : null}
@@ -130,6 +134,17 @@ export function TileProgress({ completed, total, fontSize }: TileProgressProps) 
   return (
     <Text style={[tileStyles.progress, { color: c.textSecondary, fontSize }]}>
       {labels.home_progress(completed, total)}
+    </Text>
+  );
+}
+
+export function TileLocked({ fontSize }: { fontSize: number }) {
+  const { activeColors: c } = useConfig();
+  const labels = useLabels();
+
+  return (
+    <Text style={[tileStyles.progress, { color: c.textSecondary, fontSize }]}>
+      {labels.list_locked_progress}
     </Text>
   );
 }

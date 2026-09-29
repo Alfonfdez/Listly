@@ -5,7 +5,7 @@ import { TRANSPARENT } from '../constants/themes';
 import { withAlpha } from '../utils/color';
 import SelectionCheck from './SelectionCheck';
 import TypeBadge from './TypeBadge';
-import { TileShell, TileName, TileCollection, TileProgress, TileBadge, tileStyles, tileBadgeSize } from './Tile';
+import { TileShell, TileName, TileCollection, TileProgress, TileLocked, TileBadge, tileStyles, tileBadgeSize } from './Tile';
 import { useConfig } from '../context/ConfigContext';
 import { useFontSize } from '../hooks/useFontSize';
 import type { ListWithCounts } from '../database/types';
@@ -16,9 +16,10 @@ interface Props {
   selectMode: boolean;
   selected: boolean;
   onPress: () => void;
+  locked?: boolean;
 }
 
-function ListRowInner({ list, collection, selectMode, selected, onPress }: Props) {
+function ListRowInner({ list, collection, selectMode, selected, onPress, locked = false }: Props) {
   const { activeColors: c } = useConfig();
   const fs = useFontSize();
 
@@ -37,10 +38,14 @@ function ListRowInner({ list, collection, selectMode, selected, onPress }: Props
         ) : null}
       </View>
       <View style={styles.nameColumn}>
-        <TileName name={list.name} pinned={list.pinned} fontSize={fs(15)} starSize={13} style={styles.nameRow} />
+        <TileName name={list.name} pinned={list.pinned} locked={locked} fontSize={fs(15)} starSize={13} style={styles.nameRow} />
         {collection && !selectMode ? <TileCollection collection={collection} /> : null}
       </View>
-      <TileProgress completed={list.completed} total={list.total} fontSize={fs(13)} />
+      {locked ? (
+        <TileLocked fontSize={fs(13)} />
+      ) : (
+        <TileProgress completed={list.completed} total={list.total} fontSize={fs(13)} />
+      )}
       {!selectMode ? <TypeBadge type="list" /> : null}
     </TileShell>
   );
