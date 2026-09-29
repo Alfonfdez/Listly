@@ -1,42 +1,19 @@
 import { useCallback, useState } from 'react';
-import { itemRepository as itemRepo } from '../database';
-import { logError, ERROR_SCOPE } from '../utils/errors';
 
 interface Options {
-  listId: number;
-  refresh: () => Promise<void>;
+  setAllChecked: (checked: boolean) => Promise<void>;
+  deleteCompleted: () => Promise<void>;
 }
 
-export function useBatchItemActions({ listId, refresh }: Options) {
+export function useBatchItemActions({ setAllChecked, deleteCompleted }: Options) {
   const [clearCompletedVisible, setClearCompletedVisible] = useState(false);
 
-  const completeAll = useCallback(async () => {
-    try {
-      await itemRepo.setAllChecked(listId, true);
-    } catch (error) {
-      logError(ERROR_SCOPE.completeAllItems, error);
-    }
-    void refresh();
-  }, [listId, refresh]);
-
-  const uncompleteAll = useCallback(async () => {
-    try {
-      await itemRepo.setAllChecked(listId, false);
-    } catch (error) {
-      logError(ERROR_SCOPE.uncompleteAllItems, error);
-    }
-    void refresh();
-  }, [listId, refresh]);
-
+  const completeAll = useCallback(() => setAllChecked(true), [setAllChecked]);
+  const uncompleteAll = useCallback(() => setAllChecked(false), [setAllChecked]);
   const clearCompleted = useCallback(async () => {
     setClearCompletedVisible(false);
-    try {
-      await itemRepo.deleteCompleted(listId);
-    } catch (error) {
-      logError(ERROR_SCOPE.clearCompletedItems, error);
-    }
-    void refresh();
-  }, [listId, refresh]);
+    await deleteCompleted();
+  }, [deleteCompleted]);
 
   return {
     clearCompletedVisible,

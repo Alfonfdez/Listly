@@ -5,8 +5,8 @@ import Sortable, { type SortableGridRenderItem } from 'react-native-sortables';
 import { useFocusEffect, useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
 import { type IconName, type NavigationProp, type RootStackParamList, COPY_FEEDBACK_MS } from '../constants/types';
 import type { Item } from '../database/types';
-import { itemRepository as itemRepo, vaultRepository as vaultRepo } from '../database';
-import { logError, runSafelyAsync, ERROR_SCOPE } from '../utils/errors';
+import { vaultRepository as vaultRepo } from '../database';
+import { logError, ERROR_SCOPE } from '../utils/errors';
 import { useApp } from '../context/AppContext';
 import { useConfig } from '../context/ConfigContext';
 import { useFontSize } from '../hooks/useFontSize';
@@ -15,7 +15,7 @@ import { useDragOrder } from '../hooks/useDragOrder';
 import { useLabels } from '../hooks/useLabels';
 import { uniqueNormalizedNames } from '../utils/validation';
 import { filterItemsByQuery } from '../utils/search';
-import { parseItemPhotos, serializeItemPhotos } from '../utils/itemPhotos';
+import { parseItemPhotos } from '../utils/itemPhotos';
 import { isOn } from '../utils/flags';
 import { sumTotals } from '../utils/numeric';
 import { HIT_SLOP } from '../components/componentStyles';
@@ -41,6 +41,7 @@ import LockListModal from '../components/LockListModal';
 import VaultUnlockView from '../components/VaultUnlockView';
 import InfoModal from '../components/InfoModal';
 import { useVaultSession } from '../hooks/useVaultSession';
+import { useItemStore } from '../hooks/useItemStore';
 import { isVaultAvailable } from '../utils/vaultCrypto';
 
 export default function ListDetailScreen() {
@@ -62,10 +63,9 @@ export default function ListDetailScreen() {
   const vaultReady = useMemo(() => isVaultAvailable(), []);
 
   const repoItems = useMemo(() => itemsByListId.get(listId) ?? [], [itemsByListId, listId]);
-  const items = useMemo(
-    () => (vault.unlocked ? (vault.items as unknown as Item[]) : repoItems),
-    [vault.unlocked, vault.items, repoItems]
-  );
+  const store = useItemStore({ listId, repoItems, refresh, vault });
+  const { reorder, toggle } = store;
+  const items = store.items;
   const hasPhotos = useMemo(() => items.some(i => parseItemPhotos(i.pictures).length > 0), [items]);
   const hasOtherLists = useMemo(() => lists.some(l => l.id !== listId && !lockedListIds.has(l.id)), [lists, listId, lockedListIds]);
 
@@ -83,8 +83,7 @@ export default function ListDetailScreen() {
     closeDeleteConfirm,
     confirmDelete,
   } = useSelectMode({
-    deleteMany: (ids) =>
-      vault.unlocked ? vault.deleteMany(ids as number[]) : itemRepo.deleteMany(ids as number[]),
+    deleteMany: store.removeMany,
     afterDelete: refresh,
   });
 
@@ -123,15 +122,8 @@ export default function ListDetailScreen() {
   const { display: dragItems, onDragEnd: handleDragEnd } = useDragOrder(
     filteredItems,
     useCallback((ids: number[]) => {
-      void (async () => {
-        if (vault.unlocked) {
-          await vault.reorder(ids);
-          return;
-        }
-        await runSafelyAsync(itemRepo.reorder(listId, ids), ERROR_SCOPE.reorderItems);
-        await refresh();
-      })();
-    }, [listId, refresh, vault])
+      void reorder(ids);
+    }, [reorder])
   );
 
   const {
@@ -169,7 +161,11 @@ export default function ListDetailScreen() {
     doMerge,
   } = useMergeFlow({ list, notice, refresh, navigation });
 
-  const { editing, setEditing, editingExclusiveNames, saveEdit, deleteItem } = useItemEditing({ items, refresh });
+  const { editing, setEditing, editingExclusiveNames, saveEdit, deleteItem } = useItemEditing({
+    items,
+    update: store.update,
+    remove: store.remove,
+  });
 
   const {
     clearCompletedVisible,
@@ -178,9 +174,13 @@ export default function ListDetailScreen() {
     completeAll,
     uncompleteAll,
     clearCompleted,
-  } = useBatchItemActions({ listId, refresh });
+  } = useBatchItemActions({
+    setAllChecked: store.setAllChecked,
+    deleteCompleted: store.deleteCompleted,
+  });
 
-  const done = items.filter(i => isOn(i.checked)).length;  const total = items.length;
+  const done = items.filter(i => isOn(i.checked)).length;
+  const total = items.length;
   const pct = total > 0 ? Math.round((done / total) * 100) : 0;
   const numeric = list?.kind === 'numeric';
   const totals = useMemo(
@@ -191,76 +191,6 @@ export default function ListDetailScreen() {
     [numeric, items]
   );
 
-  const handleSaveEdit = useCallback(
-    async (name: string, note: string | null, photos: string[], amountMinor: number | null, quantity: number) => {
-      if (vault.unlocked) {
-        if (!editing) return;
-        await vault.updateItem(editing.id, {
-          name,
-          note,
-          pictures: serializeItemPhotos(photos),
-          amount_minor: amountMinor,
-          quantity,
-        });
-        setEditing(null);
-        return;
-      }
-      await saveEdit(name, note, photos, amountMinor, quantity);
-    },
-    [vault, editing, setEditing, saveEdit]
-  );
-
-  const handleDeleteItem = useCallback(async () => {
-    if (vault.unlocked) {
-      if (!editing) return;
-      await vault.deleteItem(editing.id);
-      setEditing(null);
-      return;
-    }
-    await deleteItem();
-  }, [vault, editing, setEditing, deleteItem]);
-
-  const handleCompleteAll = useCallback(async () => {
-    if (vault.unlocked) {
-      await vault.setAllChecked(true);
-      return;
-    }
-    await completeAll();
-  }, [vault, completeAll]);
-
-  const handleUncompleteAll = useCallback(async () => {
-    if (vault.unlocked) {
-      await vault.setAllChecked(false);
-      return;
-    }
-    await uncompleteAll();
-  }, [vault, uncompleteAll]);
-
-  const handleClearCompleted = useCallback(async () => {
-    if (vault.unlocked) {
-      closeClearCompleted();
-      await vault.deleteCompleted();
-      return;
-    }
-    await clearCompleted();
-  }, [vault, closeClearCompleted, clearCompleted]);
-
-  const toggle = useCallback(
-    async (item: Item) => {
-      if (vault.unlocked) {
-        await vault.toggleItem(item.id);
-        return;
-      }
-      try {
-        await itemRepo.toggle(item.id);
-      } catch (error) {
-        logError(ERROR_SCOPE.toggleItem, error);
-      }
-      void refresh();
-    },
-    [refresh, vault]
-  );
-
   const renderItem = useCallback<SortableGridRenderItem<Item>>(
     ({ item }) => (
       <ItemRow
@@ -268,7 +198,7 @@ export default function ListDetailScreen() {
         selectMode={selectMode}
         selected={selectedIds.has(item.id)}
         numeric={numeric}
-        onToggle={() => (selectMode ? toggleItem(item.id) : void toggle(item))}
+        onToggle={() => (selectMode ? toggleItem(item.id) : void toggle(item.id))}
         onEdit={() => setEditing(item)}
       />
     ),
@@ -467,7 +397,7 @@ export default function ListDetailScreen() {
             </View>
             <View style={styles.batchRow}>
               <TouchableOpacity
-                onPress={() => void handleCompleteAll()}
+                onPress={() => void completeAll()}
                 disabled={done === total}
                 style={[styles.batchButton, { borderColor: c.border }]}
                 accessibilityRole="button"
@@ -479,7 +409,7 @@ export default function ListDetailScreen() {
                 </Text>
               </TouchableOpacity>
               <TouchableOpacity
-                onPress={() => void handleUncompleteAll()}
+                onPress={() => void uncompleteAll()}
                 disabled={done === 0}
                 style={[styles.batchButton, { borderColor: c.border }]}
                 accessibilityRole="button"
@@ -530,8 +460,8 @@ export default function ListDetailScreen() {
           existingNames={existingNames}
           position={maxPosition}
           numeric={numeric}
-          onAdded={vault.unlocked ? () => undefined : refresh}
-          onSubmitOverride={vault.unlocked ? vault.addItem : undefined}
+          onAdded={() => undefined}
+          onSubmitOverride={store.add}
         />
       ) : (
         <SelectionActionBar
@@ -559,9 +489,9 @@ export default function ListDetailScreen() {
         initialQuantity={editing?.quantity ?? 0}
         onCancel={() => setEditing(null)}
         onSave={(name, note, photos, amountMinor, quantity) =>
-          void handleSaveEdit(name, note, photos, amountMinor, quantity)
+          void saveEdit(name, note, photos, amountMinor, quantity)
         }
-        onDelete={() => void handleDeleteItem()}
+        onDelete={() => void deleteItem()}
       />
 
       <ConfirmModal
@@ -582,7 +512,7 @@ export default function ListDetailScreen() {
         cancelLabel={labels.common_cancel}
         confirmLabel={labels.item_delete}
         onCancel={closeClearCompleted}
-        onConfirm={() => void handleClearCompleted()}
+        onConfirm={() => void clearCompleted()}
         destructive
       />
 

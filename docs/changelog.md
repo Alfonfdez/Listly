@@ -854,6 +854,15 @@ pm run test:all green.
 - `sqliteWeb.ts` `withTransactionAsync` now throws a clear error on a nested transaction (defensive guard).
 - Tests: new `tests/database/transaction.test.ts` (serializes concurrent transactions; propagates errors and keeps the chain usable). `npm run test:all` green (64 files, 548 tests); typecheck + lint clean.
 
+[2026-09-29] ~ | ListlyApp/src/hooks/useItemStore.ts, src/hooks/useItemEditing.ts, src/hooks/useBatchItemActions.ts, src/hooks/useVaultSession.ts, src/screens/ListDetailScreen.tsx
+- Refactor (Tier 1, behavior-preserving): new `useItemStore({ listId, repoItems, refresh, vault })` exposes one item API (`items`, `add`, `update`, `remove`, `removeMany`, `toggle`, `setAllChecked`, `deleteCompleted`, `reorder`) that dispatches to the vault session when unlocked (re-encrypting writes) or to `itemRepo` + `refresh` otherwise, keeping the existing `ERROR_SCOPE`s. Removes the **9** `if (vault.unlocked)` branches and the six screen-level `handle*` wrappers from `ListDetailScreen` (which no longer imports `itemRepo`, `runSafelyAsync` or `serializeItemPhotos`).
+- `useItemEditing` and `useBatchItemActions` became dependency-injected state controllers (`useItemEditing({ items, update, remove })`, `useBatchItemActions({ setAllChecked, deleteCompleted })`) with no repo calls or logging of their own (the store owns it); `useSelectMode` unchanged.
+- Folded Tier 2 cleanups: removed the dead `VaultSessionState` export and the module-level `tempIdCounter` (now derived per-add); fixed the `done`/`total` single-line artifact in `ListDetailScreen`.
+- Fix: vault temp-id collision — a new item's id is now derived below the smallest existing id (`min(ids, 0) - 1`), so a fresh session can't reuse a negative id already persisted in the vault (previously showed a React duplicate-key warning when adding items to a previously-locked list).
+- Tests: new `tests/hooks/useItemStore.test.ts` (repo vs vault dispatch, `add` position, logging), `tests/hooks/useVaultSession.test.ts` (new id below existing). `npm run test:all` green (66 files, 554 tests); typecheck + lint clean.
+- Verified on web at 375px: normal list add/toggle/clear-completed; locked list lock → unlock → add two items (no duplicate-key error, 3 rows, 0/3). 0 console errors.
+
+
 
 
 

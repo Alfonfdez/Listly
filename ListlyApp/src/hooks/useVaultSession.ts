@@ -4,18 +4,6 @@ import type { UnlockedItems, VaultItemRecord } from '../database/repositories/va
 import { VaultCryptoError, VAULT_ERROR } from '../utils/vaultCrypto';
 import { dbTimestamp } from '../utils/formatters';
 
-let tempIdCounter = -1;
-
-function nextTempId(): number {
-  return tempIdCounter--;
-}
-
-export interface VaultSessionState {
-  unlocked: boolean;
-  items: UnlockedItems;
-  wrongPassphrase: boolean;
-}
-
 export function useVaultSession(listId: number) {
   const [unlocked, setUnlocked] = useState(false);
   const [items, setItems] = useState<UnlockedItems>([]);
@@ -90,10 +78,14 @@ export function useVaultSession(listId: number) {
       quantity: number;
     }) => {
       const stamp = dbTimestamp();
+      // Temp ids stay negative so they never collide with SQLite (positive)
+      // ids; derive each new id below the smallest existing one so a fresh
+      // session cannot reuse an id already persisted in the vault.
+      const id = items.reduce((min, item) => Math.min(min, item.id), 0) - 1;
       const next = [
         ...items,
         {
-          id: nextTempId(),
+          id,
           list_id: listId,
           name: data.name,
           checked: 0 as const,
