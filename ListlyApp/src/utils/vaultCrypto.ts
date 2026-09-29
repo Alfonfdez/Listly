@@ -1,7 +1,14 @@
 import type { VaultPlatformCrypto } from './vaultCryptoCore';
-import { bindVaultCrypto, bytesToBase64, base64ToBytes, utf8Encode, bytesToHex, webCryptoHashName } from './vaultCryptoCore';
-
-const IV_BYTES = 12;
+import {
+  bindVaultCrypto,
+  bytesToBase64,
+  base64ToBytes,
+  utf8Encode,
+  bytesToHex,
+  webCryptoHashName,
+  AES_IV_BYTES,
+  AES_TAG_BYTES,
+} from './vaultCryptoCore';
 
 function toArrayBuffer(bytes: Uint8Array): ArrayBuffer {
   const copy = new Uint8Array(bytes.length);
@@ -38,10 +45,10 @@ const platform: VaultPlatformCrypto = {
 
   async encrypt(key: Uint8Array, plaintext: Uint8Array): Promise<string> {
     const subtle = globalThis.crypto.subtle;
-    const iv = globalThis.crypto.getRandomValues(new Uint8Array(IV_BYTES));
+    const iv = globalThis.crypto.getRandomValues(new Uint8Array(AES_IV_BYTES));
     const cryptoKey = await subtle.importKey('raw', toArrayBuffer(key), { name: 'AES-GCM' }, false, ['encrypt']);
     const sealed = await subtle.encrypt(
-      { name: 'AES-GCM', iv: toArrayBuffer(iv) },
+      { name: 'AES-GCM', iv: toArrayBuffer(iv), tagLength: AES_TAG_BYTES * 8 },
       cryptoKey,
       toArrayBuffer(plaintext)
     );
@@ -55,11 +62,11 @@ const platform: VaultPlatformCrypto = {
   async decrypt(key: Uint8Array, payload: string): Promise<Uint8Array> {
     const subtle = globalThis.crypto.subtle;
     const combined = base64ToBytes(payload);
-    const iv = combined.subarray(0, IV_BYTES);
-    const ciphertext = combined.subarray(IV_BYTES);
+    const iv = combined.subarray(0, AES_IV_BYTES);
+    const ciphertext = combined.subarray(AES_IV_BYTES);
     const cryptoKey = await subtle.importKey('raw', toArrayBuffer(key), { name: 'AES-GCM' }, false, ['decrypt']);
     const plain = await subtle.decrypt(
-      { name: 'AES-GCM', iv: toArrayBuffer(iv) },
+      { name: 'AES-GCM', iv: toArrayBuffer(iv), tagLength: AES_TAG_BYTES * 8 },
       cryptoKey,
       toArrayBuffer(ciphertext)
     );

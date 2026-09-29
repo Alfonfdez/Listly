@@ -5,7 +5,10 @@ import type { Vault } from '../types';
 import { itemSchema, vaultSchema } from '../schemas';
 import { parseRowOrNull, parseRows } from '../validate';
 import { dbTimestamp } from '../../utils/formatters';
-import { vaultCrypto, KDF_ITERATIONS, KDF_DIGEST, KDF_VERSION, VaultCryptoError, type SealedVault } from '../../utils/vaultCrypto';
+import { vaultCrypto, KDF_ITERATIONS, KDF_DIGEST, KDF_VERSION, VaultCryptoError, VAULT_ERROR, type SealedVault } from '../../utils/vaultCrypto';
+
+const VAULT_NOT_FOUND = 'vault not found';
+const VAULT_PAYLOAD_INVALID = 'vault payload is not a list';
 
 export interface VaultItemRecord {
   id: number;
@@ -29,7 +32,7 @@ function serializeItems(unlocked: UnlockedItems): string {
 
 function deserializeItems(json: string): UnlockedItems {
   const parsed: unknown = JSON.parse(json);
-  if (!Array.isArray(parsed)) throw new Error('vault payload is not a list');
+  if (!Array.isArray(parsed)) throw new Error(VAULT_PAYLOAD_INVALID);
   return parsed as UnlockedItems;
 }
 
@@ -93,14 +96,14 @@ export const vaultRepo = {
 
   async unlock(listId: number, passphrase: string): Promise<UnlockedItems> {
     const row = await readVault(listId);
-    if (!row) throw new Error('vault not found');
+    if (!row) throw new Error(VAULT_NOT_FOUND);
     return deserializeItems(await vaultCrypto.unseal(sealedOf(row), passphrase));
   },
 
   async saveUnlocked(listId: number, passphrase: string, unlocked: UnlockedItems): Promise<void> {
     const db = await getDrizzle();
     const row = await readVault(listId);
-    if (!row) throw new Error('vault not found');
+    if (!row) throw new Error(VAULT_NOT_FOUND);
     const sealed = await vaultCrypto.seal(
       passphrase,
       serializeItems(unlocked),
@@ -117,10 +120,10 @@ export const vaultRepo = {
   async changePassphrase(listId: number, currentPassphrase: string, newPassphrase: string): Promise<void> {
     const db = await getDrizzle();
     const row = await readVault(listId);
-    if (!row) throw new Error('vault not found');
+    if (!row) throw new Error(VAULT_NOT_FOUND);
     const sealed = sealedOf(row);
     if (!(await vaultCrypto.verify(sealed, currentPassphrase))) {
-      throw new VaultCryptoError('wrong_passphrase');
+      throw new VaultCryptoError(VAULT_ERROR.wrongPassphrase);
     }
     const json = await vaultCrypto.unseal(sealed, currentPassphrase);
     const resealed = await vaultCrypto.seal(newPassphrase, json, row.kdf_iterations, row.kdf_digest);
@@ -137,7 +140,7 @@ export const vaultRepo = {
   },
 
   async removeLock(listId: number, passphrase: string): Promise<void> {    const row = await readVault(listId);
-    if (!row) throw new Error('vault not found');
+    if (!row) throw new Error(VAULT_NOT_FOUND);
     const unlocked = deserializeItems(await vaultCrypto.unseal(sealedOf(row), passphrase));
     await withTransaction(async tx => {
       for (const item of unlocked) {

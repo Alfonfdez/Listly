@@ -1,7 +1,8 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import { createContext, useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useLabels } from '../hooks/useLabels';
 import { subscribeToErrors } from '../utils/errors';
+import { useRequiredContext } from '../hooks/useRequiredContext';
 import Toast from '../components/Toast';
 
 interface ToastContextType {
@@ -11,9 +12,7 @@ interface ToastContextType {
 const ToastContext = createContext<ToastContextType | null>(null);
 
 export function useToast() {
-  const ctx = useContext(ToastContext);
-  if (!ctx) throw new Error('useToast must be used within ToastProvider');
-  return ctx;
+  return useRequiredContext(ToastContext, 'useToast', 'ToastProvider');
 }
 
 const TOAST_DURATION_MS = 3000;

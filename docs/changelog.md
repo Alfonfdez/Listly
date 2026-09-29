@@ -795,5 +795,19 @@ pm run test:all green.
 - Docs: `docs/locked-lists.md` (probe + Metro fatal-report rationale), `docs/harnesses.md` baseline (534 tests).
 - Verified on web at 375px (unchanged path, 0 console errors); Expo Go to be re-confirmed on device.
 
+[2026-09-29] ~ | ListlyApp/src/utils/vaultCryptoCore.ts, vaultCrypto.ts, vaultCrypto.native.ts, vaultRepo.ts, useVaultSession.ts, LockListModal.tsx
+- Refactor (behavior-preserving) of the vault constants/codes flagged in review:
+  - `vaultCryptoCore.ts` is the single source for the crypto parameters: added `AES_IV_BYTES = 12` and `AES_TAG_BYTES = 16` (the duplicated `IV_BYTES` in `vaultCrypto.ts`/`vaultCrypto.native.ts` and the magic `TAG_BYTES` are gone); web now passes `tagLength: AES_TAG_BYTES * 8` explicitly.
+  - Error codes are a typed const map (house pattern, mirrors `ERROR_SCOPE`): `VAULT_ERROR = { wrongPassphrase, tampered, unsupported } as const` + `type VaultErrorCode`. `VaultCryptoError` takes `VaultErrorCode`; all literals replaced in `vaultCryptoCore`, `vaultCrypto.native`, `vaultRepo`, `useVaultSession`, `LockListModal` and the two tests.
+  - Minor: `VERIFIER_LABEL` constant for the verifier input separator; `webCryptoHashName` uses a `WEB_CRYPTO_DIGEST` map instead of inline literals; `vaultRepo` invariant messages extracted (`VAULT_NOT_FOUND`, `VAULT_PAYLOAD_INVALID`).
+  - Native-only constants kept local but clarified: `QUICK_CRYPTO_MODULE` (canary) and `QUICK_CRYPTO_OVERRIDE_KEY` (test-only global, documented).
+- No behavior or public-API change beyond a few additional named exports from `vaultCryptoCore`. `npm run test:all` green (60 files, 534 tests); typecheck + lint clean. No spec change.
+
+[2026-09-29] ~ | ListlyApp/src/hooks/useRequiredContext.ts, src/context/{AppContext,ConfigContext,ToastContext}.tsx
+- Refactor (behavior-preserving): new `useRequiredContext(context, hookName, providerName)` helper DRYs the repeated "must be used within provider" guard; `useApp` / `useConfig` / `useToast` now delegate to it, keeping their exact error messages and return types. Removed the now-unused `useContext` imports from the three contexts.
+- `npm run test:all` green (60 files, 534 tests); typecheck + lint clean. No spec change.
+
+
+
 
 

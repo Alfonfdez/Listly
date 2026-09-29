@@ -2,6 +2,16 @@ export const KDF_ITERATIONS = 600_000;
 export const KDF_DIGEST = 'sha512';
 export const KDF_VERSION = 1;
 export const ZERO_SALT_BYTES = 16;
+export const AES_IV_BYTES = 12;
+export const AES_TAG_BYTES = 16;
+
+const VERIFIER_LABEL = 'verifier';
+
+const WEB_CRYPTO_DIGEST: Record<string, string> = {
+  sha256: 'SHA-256',
+  sha384: 'SHA-384',
+  sha512: 'SHA-512',
+};
 
 const B64 = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
 
@@ -110,16 +120,21 @@ export function hexToBytes(hex: string): Uint8Array {
 }
 
 export function webCryptoHashName(digest: string): string {
-  const normalized = digest.replace(/-/g, '').toLowerCase();
-  if (normalized === 'sha512') return 'SHA-512';
-  if (normalized === 'sha384') return 'SHA-384';
-  return 'SHA-256';
+  return WEB_CRYPTO_DIGEST[digest.replace(/-/g, '').toLowerCase()] ?? 'SHA-256';
 }
 
-export class VaultCryptoError extends Error {
-  readonly code: 'wrong_passphrase' | 'tampered' | 'unsupported';
+export const VAULT_ERROR = {
+  wrongPassphrase: 'wrong_passphrase',
+  tampered: 'tampered',
+  unsupported: 'unsupported',
+} as const;
 
-  constructor(code: 'wrong_passphrase' | 'tampered' | 'unsupported') {
+export type VaultErrorCode = (typeof VAULT_ERROR)[keyof typeof VAULT_ERROR];
+
+export class VaultCryptoError extends Error {
+  readonly code: VaultErrorCode;
+
+  constructor(code: VaultErrorCode) {
     super(code);
     this.name = 'VaultCryptoError';
     this.code = code;
@@ -143,7 +158,7 @@ export interface SealedVault {
 }
 
 function verifierInput(keyBytes: Uint8Array, saltHex: string): string {
-  return `${saltHex}:verifier:${bytesToBase64(keyBytes)}`;
+  return `${saltHex}:${VERIFIER_LABEL}:${bytesToBase64(keyBytes)}`;
 }
 
 export async function newSalt(platform: VaultPlatformCrypto): Promise<string> {
@@ -194,12 +209,12 @@ export async function unseal(
   const keyBytes = await deriveKey(platform, passphrase, vault.salt, vault.iterations, vault.digest);
   try {
     const verifier = await makeVerifier(platform, keyBytes, vault.salt);
-    if (verifier !== vault.verifier) throw new VaultCryptoError('wrong_passphrase');
+    if (verifier !== vault.verifier) throw new VaultCryptoError(VAULT_ERROR.wrongPassphrase);
     let plain: Uint8Array;
     try {
       plain = await platform.decrypt(keyBytes, vault.payload);
     } catch {
-      throw new VaultCryptoError('tampered');
+      throw new VaultCryptoError(VAULT_ERROR.tampered);
     }
     return utf8Decode(plain);
   } finally {
