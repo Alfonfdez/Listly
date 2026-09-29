@@ -115,7 +115,7 @@ describe('backup service', () => {
       pictures: null,
       position: 0,
     });
-    await configRepo.save({ theme: 'dark', showNotes: false });
+    await configRepo.save({ theme: 'dark', showNotes: false, showNotesNumeric: false });
 
     const json = await exportBackup();
     const snapshot = JSON.parse(json) as BackupSnapshot;
@@ -139,6 +139,35 @@ describe('backup service', () => {
     const config = await configRepo.get();
     expect(config.theme).toBe('dark');
     expect(config.showNotes).toBe(false);
+    expect(config.showNotesNumeric).toBe(false);
+  });
+
+  it('imports a legacy backup without the numeric visibility keys with the defaults', async () => {
+    const { importBackup } = await import('../../src/database/backupService');
+    const { configRepo } = await import('../../src/database/repositories/configRepo');
+
+    const legacy = {
+      app: 'Listly',
+      kind: 'backup',
+      formatVersion: BACKUP_FORMAT_VERSION,
+      exportedAt: '2026-01-01T00:00:00.000Z',
+      schema: 9,
+      data: {
+        collections: [],
+        lists: [],
+        items: [],
+        config: [{ key: 'show_notes', value: 'false' }],
+      },
+    } as never;
+
+    await importBackup(JSON.stringify(legacy));
+
+    const config = await configRepo.get();
+    expect(config.showNotes).toBe(false);
+    expect(config.showNotesNumeric).toBe(true);
+    expect(config.showPhotosNumeric).toBe(true);
+    expect(config.editShowNotesNumeric).toBe(true);
+    expect(config.editShowPhotosNumeric).toBe(true);
   });
 
   it('exports a locked list encrypted and restores the vault on import', async () => {

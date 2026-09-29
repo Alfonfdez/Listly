@@ -11,6 +11,36 @@ import { settingsStyles } from '../../components/settings/settingsStyles';
 import { SECTION_SUBTITLE_FONT_SIZE, SECTION_TITLE_FONT_SIZE, textStyles } from '../../components/textStyles';
 import type { Option } from '../../components/settings/SelectorInline';
 
+type FlagKey = 'showNotes' | 'showPhotos' | 'editShowNotes' | 'editShowPhotos'
+  | 'showNotesNumeric' | 'showPhotosNumeric' | 'editShowNotesNumeric' | 'editShowPhotosNumeric';
+
+interface OptionalFieldsCardProps {
+  title: string;
+  subtitle: string;
+  notes: { label: string; checked: boolean; onToggle: () => void };
+  photos: { label: string; checked: boolean; onToggle: () => void };
+}
+
+function OptionalFieldsCard({ title, subtitle, notes, photos }: OptionalFieldsCardProps) {
+  const { activeColors: c } = useConfig();
+  const fs = useFontSize();
+
+  return (
+    <View style={[settingsStyles.card, { backgroundColor: c.surface }]}>
+      <Text style={[textStyles.sectionTitle, { color: c.text, fontSize: fs(SECTION_TITLE_FONT_SIZE) }]}>
+        {title}
+      </Text>
+      <Text
+        style={[textStyles.sectionSubtitle, { color: c.textSecondary, fontSize: fs(SECTION_SUBTITLE_FONT_SIZE) }]}
+      >
+        {subtitle}
+      </Text>
+      <CheckboxRow label={notes.label} checked={notes.checked} onToggle={notes.onToggle} />
+      <CheckboxRow label={photos.label} checked={photos.checked} onToggle={photos.onToggle} />
+    </View>
+  );
+}
+
 export default function PersonalizationScreen() {
   const { config, activeColors: c, updateConfig } = useConfig();
   const fs = useFontSize();
@@ -20,6 +50,37 @@ export default function PersonalizationScreen() {
     { label: labels.layout_grid, value: LIST_LAYOUTS.grid },
     { label: labels.layout_list, value: LIST_LAYOUTS.list },
   ];
+
+  const groupHeading = (label: string) => (
+    <Text style={[textStyles.sectionTitle, { color: c.textSecondary, fontSize: fs(12) }]}>{label}</Text>
+  );
+
+  const flag = (key: FlagKey) => ({
+    checked: config[key],
+    onToggle: () => void updateConfig({ [key]: !config[key] }),
+  });
+
+  const optionalFields = (keys: {
+    showNotes: FlagKey;
+    showPhotos: FlagKey;
+    editShowNotes: FlagKey;
+    editShowPhotos: FlagKey;
+  }, titles: { display: string; edit: string }) => (
+    <>
+      <OptionalFieldsCard
+        title={titles.display}
+        subtitle={labels.settings_optional_fields}
+        notes={{ label: labels.settings_notes, ...flag(keys.showNotes) }}
+        photos={{ label: labels.settings_photos, ...flag(keys.showPhotos) }}
+      />
+      <OptionalFieldsCard
+        title={titles.edit}
+        subtitle={labels.settings_optional_fields}
+        notes={{ label: labels.settings_notes, ...flag(keys.editShowNotes) }}
+        photos={{ label: labels.settings_photos, ...flag(keys.editShowPhotos) }}
+      />
+    </>
+  );
 
   return (
     <ScreenShell>
@@ -68,47 +129,27 @@ export default function PersonalizationScreen() {
             />
           </View>
 
-          <View style={[settingsStyles.card, { backgroundColor: c.surface }]}>
-            <Text style={[textStyles.sectionTitle, { color: c.text, fontSize: fs(SECTION_TITLE_FONT_SIZE) }]}>
-              {labels.settings_item_display}
-            </Text>
-            <Text
-              style={[textStyles.sectionSubtitle, { color: c.textSecondary, fontSize: fs(SECTION_SUBTITLE_FONT_SIZE) }]}
-            >
-              {labels.settings_optional_fields}
-            </Text>
-            <CheckboxRow
-              label={labels.settings_notes}
-              checked={config.showNotes}
-              onToggle={() => void updateConfig({ showNotes: !config.showNotes })}
-            />
-            <CheckboxRow
-              label={labels.settings_photos}
-              checked={config.showPhotos}
-              onToggle={() => void updateConfig({ showPhotos: !config.showPhotos })}
-            />
-          </View>
+          {groupHeading(labels.settings_standard_lists)}
+          {optionalFields(
+            {
+              showNotes: 'showNotes',
+              showPhotos: 'showPhotos',
+              editShowNotes: 'editShowNotes',
+              editShowPhotos: 'editShowPhotos',
+            },
+            { display: labels.settings_item_display, edit: labels.settings_edit_item }
+          )}
 
-          <View style={[settingsStyles.card, { backgroundColor: c.surface }]}>
-            <Text style={[textStyles.sectionTitle, { color: c.text, fontSize: fs(SECTION_TITLE_FONT_SIZE) }]}>
-              {labels.settings_edit_item}
-            </Text>
-            <Text
-              style={[textStyles.sectionSubtitle, { color: c.textSecondary, fontSize: fs(SECTION_SUBTITLE_FONT_SIZE) }]}
-            >
-              {labels.settings_optional_fields}
-            </Text>
-            <CheckboxRow
-              label={labels.settings_notes}
-              checked={config.editShowNotes}
-              onToggle={() => void updateConfig({ editShowNotes: !config.editShowNotes })}
-            />
-            <CheckboxRow
-              label={labels.settings_photos}
-              checked={config.editShowPhotos}
-              onToggle={() => void updateConfig({ editShowPhotos: !config.editShowPhotos })}
-            />
-          </View>
+          {groupHeading(labels.settings_numeric_lists)}
+          {optionalFields(
+            {
+              showNotes: 'showNotesNumeric',
+              showPhotos: 'showPhotosNumeric',
+              editShowNotes: 'editShowNotesNumeric',
+              editShowPhotos: 'editShowPhotosNumeric',
+            },
+            { display: labels.settings_item_display, edit: labels.settings_edit_item }
+          )}
         </SettingsSection>
       </ScrollView>
     </ScreenShell>

@@ -36,6 +36,7 @@
 - *Collection detail* section (directly under *Collections screen*): a Layout selector bound to `collectionDetailLayout` (grid/list) for the lists inside a collection.
 - *Lists screen* header (no outer card) followed by three separate surface cards with no divider lines — *Layout* (bound to `listsLayout`), *Item display* and *Edit item* — each of the latter two with the subtitle *Optional fields* and Notes / Photos checkboxes. The *Item display* / *Edit item* titles share the *Layout* label's font size and style (`fs(15)`, weight 600).
 - The Item display checkboxes are bound to `showNotes` / `showPhotos`; the Edit item checkboxes to `editShowNotes` / `editShowPhotos`.
+- Added in 028: the optional-field cards are grouped by list kind — a **Standard lists** group and a **Numeric lists** group, each with Item display + Edit item — bound to the standard keys and the `*Numeric` keys respectively.
 
 ### 6. Data screen
 - Export data / Import data / Delete all lists / Factory reset rows, inline status message, and the existing confirmation flows move from the old Settings screen.

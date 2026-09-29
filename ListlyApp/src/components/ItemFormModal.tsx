@@ -3,6 +3,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useConfig } from '../context/ConfigContext';
 import { useFontSize } from '../hooks/useFontSize';
 import { useLabels } from '../hooks/useLabels';
+import { useItemDisplayFlags } from '../hooks/useItemDisplayFlags';
 import { BUTTON_BORDER_RADIUS, PRESSED_OPACITY, DISABLED_OPACITY } from './componentStyles';
 import { useItemDraft, type ItemDraftSeed } from '../hooks/useItemDraft';
 import { ItemAmountField, ItemNameField, ItemNoteField, ItemQuantityField } from './ItemFields';
@@ -41,9 +42,10 @@ export default function ItemFormModal({
   onSave,
   onDelete,
 }: Props) {
-  const { activeColors: c, config } = useConfig();
+  const { activeColors: c } = useConfig();
   const fs = useFontSize();
   const labels = useLabels();
+  const flags = useItemDisplayFlags(numeric);
 
   const draft = useItemDraft({ existingNames, numeric, validateOnChange: true });
   const { applySeed } = draft;
@@ -115,7 +117,7 @@ export default function ItemFormModal({
         </View>
       ) : null}
 
-      {config.editShowNotes ? (
+      {flags.editShowNotes ? (
         <FormField label={labels.item_note_label}>
           <ItemNoteField
             value={draft.note}
@@ -126,7 +128,7 @@ export default function ItemFormModal({
         </FormField>
       ) : null}
 
-      {config.editShowPhotos ? (
+      {flags.editShowPhotos ? (
         <View style={styles.photoSection}>
           <ItemPhotosField
             photos={draft.photos}

@@ -12,12 +12,14 @@ describe('PersonalizationScreen', () => {
     expect(view.getByText('Collections screen')).toBeTruthy();
     expect(view.getByText('Collection detail')).toBeTruthy();
     expect(view.getByText('Lists screen')).toBeTruthy();
-    expect(view.getByText('Item display')).toBeTruthy();
-    expect(view.getByText('Edit item')).toBeTruthy();
-    expect(view.getAllByText('Optional fields')).toHaveLength(2);
-    expect(view.getAllByLabelText('Notes')).toHaveLength(2);
-    expect(view.getAllByLabelText('Photos')).toHaveLength(2);
-    expect(view.getAllByRole('checkbox')).toHaveLength(4);
+    expect(view.getByText('Standard lists')).toBeTruthy();
+    expect(view.getByText('Numeric lists')).toBeTruthy();
+    expect(view.getAllByText('Item display')).toHaveLength(2);
+    expect(view.getAllByText('Edit item')).toHaveLength(2);
+    expect(view.getAllByText('Optional fields')).toHaveLength(4);
+    expect(view.getAllByLabelText('Notes')).toHaveLength(4);
+    expect(view.getAllByLabelText('Photos')).toHaveLength(4);
+    expect(view.getAllByRole('checkbox')).toHaveLength(8);
   });
 
   it('stores every layout under its own config key', async () => {
@@ -43,7 +45,7 @@ describe('PersonalizationScreen', () => {
     expect(updateConfig).toHaveBeenCalledWith({ listsLayout: 'grid' });
   });
 
-  it('toggles the list-detail item display flags', async () => {
+  it('toggles the standard-list item display and edit-item flags', async () => {
     const user = userEvent.setup();
     const view = await render(<PersonalizationScreen />);
     const updateConfig = getConfigStub().updateConfig;
@@ -53,17 +55,31 @@ describe('PersonalizationScreen', () => {
 
     await user.press(view.getAllByLabelText('Photos')[0]!);
     expect(updateConfig).toHaveBeenCalledWith({ showPhotos: false });
-  });
-
-  it('toggles the edit-item field flags', async () => {
-    const user = userEvent.setup();
-    const view = await render(<PersonalizationScreen />);
-    const updateConfig = getConfigStub().updateConfig;
 
     await user.press(view.getAllByLabelText('Notes')[1]!);
     expect(updateConfig).toHaveBeenCalledWith({ editShowNotes: false });
 
     await user.press(view.getAllByLabelText('Photos')[1]!);
     expect(updateConfig).toHaveBeenCalledWith({ editShowPhotos: false });
+  });
+
+  it('toggles the numeric-list item display and edit-item flags', async () => {
+    const user = userEvent.setup();
+    const view = await render(<PersonalizationScreen />);
+    const updateConfig = getConfigStub().updateConfig;
+
+    const notes = view.getAllByLabelText('Notes');
+    const photos = view.getAllByLabelText('Photos');
+    await user.press(notes[2]!);
+    expect(updateConfig).toHaveBeenCalledWith({ showNotesNumeric: false });
+
+    await user.press(view.getAllByLabelText('Photos')[2]!);
+    expect(updateConfig).toHaveBeenCalledWith({ showPhotosNumeric: false });
+
+    await user.press(view.getAllByLabelText('Notes')[3]!);
+    expect(updateConfig).toHaveBeenCalledWith({ editShowNotesNumeric: false });
+
+    await user.press(view.getAllByLabelText('Photos')[3]!);
+    expect(updateConfig).toHaveBeenCalledWith({ editShowPhotosNumeric: false });
   });
 });

@@ -175,6 +175,8 @@ export const es: Translations = {
   settings_personalization: 'Personalización',
   settings_home_screen: 'Pantalla de inicio',
   settings_lists_screen: 'Pantalla de listas',
+  settings_standard_lists: 'Listas estándar',
+  settings_numeric_lists: 'Listas numéricas',
   settings_collections_screen: 'Pantalla de colecciones',
   settings_collection_detail_screen: 'Detalle de colección',
   settings_list_layout: 'Diseño',

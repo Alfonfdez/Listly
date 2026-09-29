@@ -72,6 +72,10 @@ describe('schemas', () => {
           showPhotos: false,
           editShowNotes: false,
           editShowPhotos: false,
+          showNotesNumeric: false,
+          showPhotosNumeric: false,
+          editShowNotesNumeric: false,
+          editShowPhotosNumeric: false,
         })
       ).toEqual({
         theme: THEMES.dark,
@@ -86,6 +90,10 @@ describe('schemas', () => {
         showPhotos: false,
         editShowNotes: false,
         editShowPhotos: false,
+        showNotesNumeric: false,
+        showPhotosNumeric: false,
+        editShowNotesNumeric: false,
+        editShowPhotosNumeric: false,
       });
     });
 
@@ -94,6 +102,10 @@ describe('schemas', () => {
       expect(() => configSchema.parse({ ...DEFAULT_CONFIG, showPhotos: 1 })).toThrow();
       expect(() => configSchema.parse({ ...DEFAULT_CONFIG, editShowNotes: 'no' })).toThrow();
       expect(() => configSchema.parse({ ...DEFAULT_CONFIG, editShowPhotos: 0 })).toThrow();
+      expect(() => configSchema.parse({ ...DEFAULT_CONFIG, showNotesNumeric: 'yes' })).toThrow();
+      expect(() => configSchema.parse({ ...DEFAULT_CONFIG, showPhotosNumeric: 1 })).toThrow();
+      expect(() => configSchema.parse({ ...DEFAULT_CONFIG, editShowNotesNumeric: 'no' })).toThrow();
+      expect(() => configSchema.parse({ ...DEFAULT_CONFIG, editShowPhotosNumeric: 0 })).toThrow();
     });
 
     it('rejects an invalid list layout', () => {

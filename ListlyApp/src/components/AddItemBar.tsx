@@ -7,6 +7,7 @@ import { useConfig } from '../context/ConfigContext';
 import { useFontSize } from '../hooks/useFontSize';
 import { useLabels } from '../hooks/useLabels';
 import { useItemDraft } from '../hooks/useItemDraft';
+import { useItemDisplayFlags } from '../hooks/useItemDisplayFlags';
 import { serializeItemPhotos } from '../utils/itemPhotos';
 import { ItemAmountField, ItemLineTotal, ItemNameField, ItemNoteField, ItemQuantityField } from './ItemFields';
 import ItemPhotosField from './ItemPhotosField';
@@ -35,13 +36,14 @@ export default function AddItemBar({
   onAdded,
   onSubmitOverride,
 }: Props) {
-  const { activeColors: c, config } = useConfig();
+  const { activeColors: c } = useConfig();
   const fs = useFontSize();
   const labels = useLabels();
+  const flags = useItemDisplayFlags(numeric);
 
   const draft = useItemDraft({ existingNames, numeric });
   const [noteExpanded, setNoteExpanded] = useState(false);
-  const canAddDetails = config.showNotes || config.showPhotos;
+  const canAddDetails = flags.showNotes || flags.showPhotos;
 
   useEffect(() => {
     if (!canAddDetails) setNoteExpanded(false);
@@ -131,14 +133,14 @@ export default function AddItemBar({
       ) : null}
       {noteExpanded && canAddDetails ? (
         <>
-          {config.showNotes ? (
+          {flags.showNotes ? (
             <ItemNoteField
               value={draft.note}
               onChangeText={draft.setNote}
               style={[styles.input, styles.noteInput, { backgroundColor: c.surface, borderColor: c.border }]}
             />
           ) : null}
-          {config.showPhotos ? (
+          {flags.showPhotos ? (
             <ItemPhotosField
               photos={draft.photos}
               onTakePhoto={draft.handleTakePhoto}

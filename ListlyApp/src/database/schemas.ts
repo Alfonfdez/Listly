@@ -69,4 +69,8 @@ export const configSchema = z.object({
   showPhotos: z.boolean(),
   editShowNotes: z.boolean(),
   editShowPhotos: z.boolean(),
+  showNotesNumeric: z.boolean(),
+  showPhotosNumeric: z.boolean(),
+  editShowNotesNumeric: z.boolean(),
+  editShowPhotosNumeric: z.boolean(),
 });
