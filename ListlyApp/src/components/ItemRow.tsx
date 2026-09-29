@@ -11,11 +11,12 @@ import { ICONS } from '../constants/icons';
 import { parseItemPhotos } from '../utils/itemPhotos';
 import { withAlpha } from '../utils/color';
 import { isOn } from '../utils/flags';
-import { formatMinor, lineTotalMinor } from '../utils/numeric';
+import { formatMinor } from '../utils/numeric';
 import SortablePressable from './SortablePressable';
 import SelectionCheck from './SelectionCheck';
 import NoteViewer from './NoteViewer';
 import PhotoViewer from './PhotoViewer';
+import { ItemLineTotal } from './ItemFields';
 
 interface Props {
   item: Item;
@@ -94,12 +95,12 @@ function ItemRowInner({ item, selectMode, selected, numeric = false, onToggle, o
             <Text style={[styles.numericDetail, { color: c.textSecondary, fontSize: fs(12) }]}>
               {`${formatMinor(item.amount_minor)} × ${item.quantity}`}
             </Text>
-            <Text
-              style={[styles.numericTotal, { color: isDone ? c.textSecondary : c.text, fontSize: fs(14) }]}
-              accessibilityLabel={`${labels.item_line_total_label}: ${formatMinor(lineTotalMinor(item.amount_minor, item.quantity))}`}
-            >
-              {formatMinor(lineTotalMinor(item.amount_minor, item.quantity))}
-            </Text>
+            <ItemLineTotal
+              amountMinor={item.amount_minor}
+              quantity={item.quantity}
+              fontSize={fs(14)}
+              style={[styles.numericTotal, { color: isDone ? c.textSecondary : c.text }]}
+            />
           </View>
         ) : null}
         {showNote && !selectMode ? (

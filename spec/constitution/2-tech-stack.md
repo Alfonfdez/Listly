@@ -59,7 +59,7 @@ ListlyApp/
 |   +-- components/
 |   |   +-- ListsView.tsx             <- shared grid/list body + select + sections + drop zones
 |   |   +-- Tile.tsx / EntityTile.tsx / TypeBadge.tsx
-|   |   +-- ItemRow.tsx / ItemFormModal.tsx / AddItemBar.tsx / QuantityStepper.tsx / CharCounter.tsx
+|   |   +-- ItemRow.tsx / ItemFormModal.tsx / AddItemBar.tsx / ItemFields.tsx / ItemPhotosField.tsx / QuantityStepper.tsx / CharCounter.tsx
 |   |   +-- PhotoSection.tsx / PhotoViewer.tsx / NoteViewer.tsx
 |   |   +-- EntityForm.tsx / ListForm.tsx / CollectionForm.tsx / IconGrid.tsx / KindSelectRow.tsx / CollectionSelectRow.tsx
 |   |   +-- ColorGrid.tsx / ColorPickerModal.tsx
@@ -102,7 +102,8 @@ ListlyApp/
 |   +-- hooks/                        <- useFontSize, useLabels, useSelectMode, useSelectSearchHeader,
 |   |                                   useDragOrder, useItemSort, useItemPhotos, useColorSelection,
 |   |                                   useClipboardCopy, useMergeFlow, useItemEditing, useBatchItemActions,
-|   |                                   useCollectionDropZones, useVaultSession, useRequiredContext, useResetOnOpen
+|   |                                   useItemStore, useItemDraft, useCollectionDropZones, useVaultSession,
+|   |                                   useRequiredContext, useResetOnOpen
 |   |
 |   +-- constants/
 |   |   +-- themes.ts                 <- dark + light palettes (ColorPalette)

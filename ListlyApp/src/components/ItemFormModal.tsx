@@ -1,18 +1,14 @@
 import { useEffect, useRef, useState } from 'react';
-import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useConfig } from '../context/ConfigContext';
 import { useFontSize } from '../hooks/useFontSize';
 import { useLabels } from '../hooks/useLabels';
 import { BUTTON_BORDER_RADIUS, PRESSED_OPACITY, DISABLED_OPACITY } from './componentStyles';
-import { validateItemName, type ItemNameError } from '../utils/validation';
-import { clampQuantity, formatMinor, parseAmountInput, sanitizeAmountText } from '../utils/numeric';
-import { MAX_ITEM_NAME_LENGTH, MAX_ITEM_NOTE_LENGTH } from '../constants/types';
-import { useItemPhotos } from '../hooks/useItemPhotos';
+import { useItemDraft, type ItemDraftSeed } from '../hooks/useItemDraft';
+import { ItemAmountField, ItemNameField, ItemNoteField, ItemQuantityField } from './ItemFields';
+import ItemPhotosField from './ItemPhotosField';
 import ModalShell from './ModalShell';
-import PhotoSection from './PhotoSection';
-import CharCounter from './CharCounter';
 import FormField from './FormField';
-import QuantityStepper from './QuantityStepper';
 
 interface Props {
   visible: boolean;
@@ -49,50 +45,38 @@ export default function ItemFormModal({
   const fs = useFontSize();
   const labels = useLabels();
 
-  const [name, setName] = useState(initialName);
-  const [note, setNote] = useState(initialNote);
-  const [amount, setAmount] = useState(initialAmountMinor === null ? '' : formatMinor(initialAmountMinor));
-  const [quantity, setQuantity] = useState(initialQuantity);
-  const [error, setError] = useState<ItemNameError | null>(null);
+  const draft = useItemDraft({ existingNames, numeric, validateOnChange: true });
+  const { applySeed } = draft;
   const [confirmDelete, setConfirmDelete] = useState(false);
-  const { photos, setPhotos, handleTakePhoto, handlePickFromGallery, handleRemovePhoto } = useItemPhotos(initialPhotos);
 
-  const initialRef = useRef({ initialName, initialNote, initialPhotos, initialAmountMinor, initialQuantity });
-  initialRef.current = { initialName, initialNote, initialPhotos, initialAmountMinor, initialQuantity };
+  const initialRef = useRef<ItemDraftSeed>({
+    name: initialName,
+    note: initialNote,
+    photos: initialPhotos,
+    amountMinor: initialAmountMinor,
+    quantity: initialQuantity,
+  });
+  initialRef.current = {
+    name: initialName,
+    note: initialNote,
+    photos: initialPhotos,
+    amountMinor: initialAmountMinor,
+    quantity: initialQuantity,
+  };
 
   useEffect(() => {
     if (!visible) return;
-    const ref = initialRef.current;
-    setName(ref.initialName);
-    setNote(ref.initialNote);
-    setPhotos(ref.initialPhotos);
-    setAmount(ref.initialAmountMinor === null ? '' : formatMinor(ref.initialAmountMinor));
-    setQuantity(ref.initialQuantity);
-    setError(null);
+    applySeed(initialRef.current);
     setConfirmDelete(false);
-  }, [visible, setPhotos]);
-
-  const onNameChange = (value: string) => {
-    setName(value);
-    setError(validateItemName(value, existingNames));
-  };
+  }, [visible, applySeed]);
 
   const submit = () => {
-    const err = validateItemName(name, existingNames);
-    if (err) {
-      setError(err);
-      return;
-    }
-    onSave(
-      name.trim(),
-      note.trim() ? note.trim() : null,
-      photos,
-      numeric ? parseAmountInput(amount) : null,
-      numeric ? clampQuantity(quantity) : 0
-    );
+    if (draft.validate()) return;
+    const payload = draft.buildPayload();
+    onSave(payload.name, payload.note, payload.photos, payload.amountMinor, payload.quantity);
   };
 
-  const canSave = error === null && name.trim().length > 0;
+  const canSave = draft.error === null && draft.name.trim().length > 0;
 
   return (
     <ModalShell
@@ -106,82 +90,49 @@ export default function ItemFormModal({
     >
       <Text style={[styles.title, { color: c.text, fontSize: fs(18) }]}>{title}</Text>
 
-      <FormField
-        label={labels.item_name_label}
-        error={error ? labels[error] : null}
-      >
-        <TextInput
-          value={name}
-          onChangeText={onNameChange}
-          maxLength={MAX_ITEM_NAME_LENGTH}
+      <FormField label={labels.item_name_label} error={draft.error ? labels[draft.error] : null}>
+        <ItemNameField
+          value={draft.name}
+          onChangeText={draft.onNameChange}
           placeholder={labels.item_name_label}
-          placeholderTextColor={c.textSecondary}
-          style={[
-            styles.input,
-            { backgroundColor: c.background, borderColor: c.border, color: c.text, fontSize: fs(15) },
-          ]}
           accessibilityLabel={labels.item_name_label}
+          style={[styles.input, { backgroundColor: c.background, borderColor: c.border }]}
         />
-        <CharCounter current={name.length} max={MAX_ITEM_NAME_LENGTH} />
       </FormField>
 
       {numeric ? (
         <View style={styles.numericRow}>
           <FormField label={labels.item_amount_label}>
-            <TextInput
-              value={amount}
-              onChangeText={text => setAmount(sanitizeAmountText(text))}
-              keyboardType="decimal-pad"
-              placeholder={labels.item_amount_label}
-              placeholderTextColor={c.textSecondary}
-              style={[
-                styles.input,
-                styles.amountInput,
-                { backgroundColor: c.background, borderColor: c.border, color: c.text, fontSize: fs(15) },
-              ]}
-              accessibilityLabel={labels.item_amount_label}
+            <ItemAmountField
+              value={draft.amount}
+              onChangeText={draft.onAmountChange}
+              style={[styles.input, styles.amountInput, { backgroundColor: c.background, borderColor: c.border }]}
             />
           </FormField>
           <FormField label={labels.item_quantity_label}>
-            <QuantityStepper
-              value={quantity}
-              onChange={setQuantity}
-              label={labels.item_quantity_label}
-              decrementLabel={`${labels.item_quantity_label} -`}
-              incrementLabel={`${labels.item_quantity_label} +`}
-            />
+            <ItemQuantityField value={draft.quantity} onChange={draft.setQuantity} />
           </FormField>
         </View>
       ) : null}
 
       {config.editShowNotes ? (
         <FormField label={labels.item_note_label}>
-          <TextInput
-            value={note}
-            onChangeText={setNote}
-            maxLength={MAX_ITEM_NOTE_LENGTH}
-            placeholder={labels.item_note_label}
-            placeholderTextColor={c.textSecondary}
-            multiline
+          <ItemNoteField
+            value={draft.note}
+            onChangeText={draft.setNote}
             numberOfLines={3}
-            style={[
-              styles.input,
-              styles.noteInput,
-              { backgroundColor: c.background, borderColor: c.border, color: c.text, fontSize: fs(15) },
-            ]}
-            accessibilityLabel={labels.item_note_label}
+            style={[styles.input, styles.noteInput, { backgroundColor: c.background, borderColor: c.border }]}
           />
-          <CharCounter current={note.length} max={MAX_ITEM_NOTE_LENGTH} />
         </FormField>
       ) : null}
 
       {config.editShowPhotos ? (
         <View style={styles.photoSection}>
-          <PhotoSection
-            photos={photos}
-            onTakePhoto={() => void handleTakePhoto()}
-            onPickFromGallery={() => void handlePickFromGallery()}
-            onRemovePhoto={uri => void handleRemovePhoto(uri)}
+          <ItemPhotosField
+            photos={draft.photos}
+            onTakePhoto={draft.handleTakePhoto}
+            onPickFromGallery={draft.handlePickFromGallery}
+            onRemovePhoto={draft.handleRemovePhoto}
           />
         </View>
       ) : null}
@@ -257,14 +208,10 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   input: {
-    borderWidth: 1,
-    borderRadius: BUTTON_BORDER_RADIUS,
-    paddingHorizontal: 12,
     paddingVertical: 10,
   },
   noteInput: {
     minHeight: 72,
-    textAlignVertical: 'top',
   },
   numericRow: {
     flexDirection: 'row',
