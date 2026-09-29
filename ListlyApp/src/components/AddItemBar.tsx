@@ -1,19 +1,15 @@
 import { useState } from 'react';
-import { Pressable, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Pressable, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { itemRepository as itemRepo } from '../database';
 import { logError, ERROR_SCOPE } from '../utils/errors';
 import { useConfig } from '../context/ConfigContext';
 import { useFontSize } from '../hooks/useFontSize';
 import { useLabels } from '../hooks/useLabels';
-import { useItemPhotos } from '../hooks/useItemPhotos';
-import { validateItemName, type ItemNameError } from '../utils/validation';
+import { useItemDraft } from '../hooks/useItemDraft';
 import { serializeItemPhotos } from '../utils/itemPhotos';
-import { clampQuantity, formatMinor, lineTotalMinor, parseAmountInput, sanitizeAmountText } from '../utils/numeric';
-import { DEFAULT_QUANTITY, MAX_ITEM_NAME_LENGTH, MAX_ITEM_NOTE_LENGTH } from '../constants/types';
-import PhotoSection from './PhotoSection';
-import CharCounter from './CharCounter';
-import QuantityStepper from './QuantityStepper';
+import { ItemAmountField, ItemLineTotal, ItemNameField, ItemNoteField, ItemQuantityField } from './ItemFields';
+import ItemPhotosField from './ItemPhotosField';
 import { BUTTON_BORDER_RADIUS, PRESSED_OPACITY } from './componentStyles';
 
 interface Props {
@@ -43,42 +39,27 @@ export default function AddItemBar({
   const fs = useFontSize();
   const labels = useLabels();
 
-  const [name, setName] = useState('');
-  const [note, setNote] = useState('');
+  const draft = useItemDraft({ existingNames, numeric });
   const [noteExpanded, setNoteExpanded] = useState(false);
-  const [amount, setAmount] = useState('');
-  const [quantity, setQuantity] = useState(DEFAULT_QUANTITY);
-  const [error, setError] = useState<ItemNameError | null>(null);
-  const { photos, setPhotos, handleTakePhoto, handlePickFromGallery, handleRemovePhoto } = useItemPhotos();
-
-  const amountMinor = parseAmountInput(amount);
 
   const submit = async () => {
-    const err = validateItemName(name, existingNames);
-    if (err) {
-      setError(err);
-      return;
-    }
+    if (draft.validate()) return;
+    const payload = draft.buildPayload();
     try {
-      const payload = {
-        name: name.trim(),
-        note: note.trim() || null,
-        pictures: serializeItemPhotos(photos),
-        amount_minor: numeric ? amountMinor : null,
-        quantity: numeric ? clampQuantity(quantity) : 0,
+      const data = {
+        name: payload.name,
+        note: payload.note,
+        pictures: serializeItemPhotos(payload.photos),
+        amount_minor: payload.amountMinor,
+        quantity: payload.quantity,
       };
       if (onSubmitOverride) {
-        await onSubmitOverride(payload);
+        await onSubmitOverride(data);
       } else {
-        await itemRepo.create({ list_id: listId, checked: 0, position, ...payload });
+        await itemRepo.create({ list_id: listId, checked: 0, position, ...data });
       }
-      setName('');
-      setNote('');
-      setPhotos([]);
+      draft.reset();
       setNoteExpanded(false);
-      setAmount('');
-      setQuantity(DEFAULT_QUANTITY);
-      setError(null);
     } catch (err) {
       logError(ERROR_SCOPE.addItem, err);
     }
@@ -87,29 +68,20 @@ export default function AddItemBar({
 
   return (
     <View style={styles.addRow}>
-      {error ? (
-        <Text style={[styles.errorText, { color: c.red, fontSize: fs(12) }]}>{labels[error]}</Text>
+      {draft.error ? (
+        <Text style={[styles.errorText, { color: c.red, fontSize: fs(12) }]}>{labels[draft.error]}</Text>
       ) : null}
       <View style={styles.inputRow}>
         <View style={styles.nameColumn}>
-          <TextInput
-            value={name}
-            onChangeText={value => {
-              setName(value);
-              setError(null);
-            }}
-            maxLength={MAX_ITEM_NAME_LENGTH}
+          <ItemNameField
+            value={draft.name}
+            onChangeText={draft.onNameChange}
             placeholder={labels.item_add_placeholder}
-            placeholderTextColor={c.textSecondary}
+            accessibilityLabel={labels.item_add_placeholder}
             returnKeyType="done"
             onSubmitEditing={() => void submit()}
-            style={[
-              styles.input,
-              { backgroundColor: c.surface, borderColor: c.border, color: c.text, fontSize: fs(15) },
-            ]}
-            accessibilityLabel={labels.item_add_placeholder}
+            style={[styles.input, { backgroundColor: c.surface, borderColor: c.border }]}
           />
-          <CharCounter current={name.length} max={MAX_ITEM_NAME_LENGTH} />
         </View>
         <TouchableOpacity
           onPress={() => setNoteExpanded(prev => !prev)}
@@ -136,61 +108,34 @@ export default function AddItemBar({
       </View>
       {numeric ? (
         <View style={styles.numericRow}>
-          <TextInput
-            value={amount}
-            onChangeText={text => setAmount(sanitizeAmountText(text))}
-            keyboardType="decimal-pad"
-            placeholder={labels.item_amount_label}
-            placeholderTextColor={c.textSecondary}
-            style={[
-              styles.input,
-              styles.amountInput,
-              { backgroundColor: c.surface, borderColor: c.border, color: c.text, fontSize: fs(15) },
-            ]}
-            accessibilityLabel={labels.item_amount_label}
+          <ItemAmountField
+            value={draft.amount}
+            onChangeText={draft.onAmountChange}
+            style={[styles.input, styles.amountInput, { backgroundColor: c.surface, borderColor: c.border }]}
           />
-          <QuantityStepper
-            value={quantity}
-            onChange={setQuantity}
-            label={labels.item_quantity_label}
-            decrementLabel={`${labels.item_quantity_label} -`}
-            incrementLabel={`${labels.item_quantity_label} +`}
+          <ItemQuantityField value={draft.quantity} onChange={draft.setQuantity} />
+          <ItemLineTotal
+            amountMinor={draft.amountMinor}
+            quantity={draft.quantity}
+            fontSize={fs(15)}
+            style={styles.lineTotal}
           />
-          <Text
-            style={[styles.lineTotal, { color: c.text, fontSize: fs(15) }]}
-            accessibilityLabel={`${labels.item_line_total_label}: ${formatMinor(lineTotalMinor(amountMinor, quantity))}`}
-          >
-            {formatMinor(lineTotalMinor(amountMinor, quantity))}
-          </Text>
         </View>
       ) : null}
       {noteExpanded ? (
         <>
-          <TextInput
-            value={note}
-            onChangeText={setNote}
-            maxLength={MAX_ITEM_NOTE_LENGTH}
-            placeholder={labels.item_note_label}
-            placeholderTextColor={c.textSecondary}
-            multiline
-            textAlignVertical="top"
-            style={[
-              styles.input,
-              styles.noteInput,
-              { backgroundColor: c.surface, borderColor: c.border, color: c.text, fontSize: fs(15) },
-            ]}
-            accessibilityLabel={labels.item_note_label}
+          <ItemNoteField
+            value={draft.note}
+            onChangeText={draft.setNote}
+            style={[styles.input, styles.noteInput, { backgroundColor: c.surface, borderColor: c.border }]}
           />
-          <CharCounter current={note.length} max={MAX_ITEM_NOTE_LENGTH} />
+          <ItemPhotosField
+            photos={draft.photos}
+            onTakePhoto={draft.handleTakePhoto}
+            onPickFromGallery={draft.handlePickFromGallery}
+            onRemovePhoto={draft.handleRemovePhoto}
+          />
         </>
-      ) : null}
-      {noteExpanded ? (
-        <PhotoSection
-          photos={photos}
-          onTakePhoto={() => void handleTakePhoto()}
-          onPickFromGallery={() => void handlePickFromGallery()}
-          onRemovePhoto={uri => void handleRemovePhoto(uri)}
-        />
       ) : null}
     </View>
   );
@@ -215,9 +160,6 @@ const styles = StyleSheet.create({
   },
   input: {
     height: ADD_ROW_HEIGHT,
-    borderWidth: 1,
-    borderRadius: BUTTON_BORDER_RADIUS,
-    paddingHorizontal: 12,
     textAlignVertical: 'center',
   },
   numericRow: {

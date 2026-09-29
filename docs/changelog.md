@@ -877,6 +877,16 @@ pm run test:all green.
 - Removed the four component files and their three test files; replaced with `tests/components/EntityTile.test.tsx` covering list/collection × card/row, press, icon color, collection line shown/hidden in select mode, pin star, locked label, drop hint, and select-mode role.
 - Docs: `spec/constitution/2-tech-stack.md` structure tree + `docs/harnesses.md`. `npm run test:all` green (64 files, 556 tests); typecheck + lint clean.
 
+[2026-09-29] ~ | ListlyApp/src/hooks/useItemDraft.ts, src/components/{ItemFields,ItemPhotosField,AddItemBar,ItemFormModal,ItemRow}.tsx
+- Refactor (Tier 1, behavior-preserving): item name/amount/quantity/note/photo field state and markup are now shared between the add bar and the edit modal.
+  - New `useItemDraft({ existingNames, numeric, validateOnChange })` owns `name/note/amount/quantity/error` + `useItemPhotos`, `validate()`, `buildPayload()` (numeric vs standard), `applySeed(seed)` and `reset()`; it replaces the duplicated local state and submit/validation logic in `AddItemBar` and `ItemFormModal`.
+  - New `ItemFields.tsx` exports `ItemNameField` (input + `CharCounter`), `ItemAmountField` (sanitized decimal input), `ItemQuantityField` (`QuantityStepper` + labels), `ItemNoteField` (multiline + counter) and `ItemLineTotal` (formatted `amount × quantity` with the labelled total); `ItemPhotosField.tsx` wraps `PhotoSection` over the draft's photo handlers. Consumers pass a `style` so the bar (`c.surface`, fixed height) and modal (`c.background`, `FormField`) looks are unchanged.
+  - `AddItemBar` and `ItemFormModal` are rewired onto the draft + fields (`ItemFormModal` keeps its seed-once-on-open effect so a parent re-render never resets typed input); `ItemRow` uses `ItemLineTotal` for its numeric total.
+  - `ItemPhotosField` is a separate module (not part of the `ItemFields` barrel) so `ItemRow`, which only needs the line total, does not pull `PhotoSection`/`expo-image-picker` into its import graph.
+- Tests: new `tests/hooks/useItemDraft.test.ts` (validate on demand + live, duplicate, numeric/standard payload, amount sanitize, seed/reset) and `tests/components/ItemFields.test.tsx` (counters, placeholders, stepper labels, line total); existing `ItemFormModal`/`ItemRow`/`ListDetailScreen` suites unchanged. `npm run test:all` green (66 files, 567 tests); typecheck + lint clean.
+- Verified on web at 375px (0 console errors): standard add clears the bar, edit modal seeds name/note, numeric add shows a live total (`1.50 × 2` → `3.00`) and updates the header Total, numeric edit modal seeds Amount/Quantity.
+
+
 
 
 
