@@ -1,7 +1,7 @@
 import { useCallback, useRef, useState } from 'react';
 import { vaultRepository as vaultRepo } from '../database';
 import type { UnlockedItems, VaultItemRecord } from '../database/repositories/vaultRepo';
-import { VaultCryptoError, VAULT_ERROR } from '../utils/vaultCrypto';
+import { isWrongPassphrase } from '../utils/vaultCrypto';
 import { dbTimestamp } from '../utils/formatters';
 
 export function useVaultSession(listId: number) {
@@ -28,7 +28,7 @@ export function useVaultSession(listId: number) {
         setWrongPassphrase(false);
         setUnlocked(true);
       } catch (error) {
-        if (error instanceof VaultCryptoError && error.code === VAULT_ERROR.wrongPassphrase) {
+        if (isWrongPassphrase(error)) {
           setWrongPassphrase(true);
           return;
         }
@@ -46,9 +46,18 @@ export function useVaultSession(listId: number) {
   }, []);
 
   const removeLock = useCallback(
-    async (passphrase: string) => {
-      await vaultRepo.removeLock(listId, passphrase);
-      relock();
+    async (passphrase: string): Promise<boolean> => {
+      try {
+        await vaultRepo.removeLock(listId, passphrase);
+        relock();
+        return true;
+      } catch (error) {
+        if (isWrongPassphrase(error)) {
+          setWrongPassphrase(true);
+          return false;
+        }
+        throw error;
+      }
     },
     [listId, relock]
   );

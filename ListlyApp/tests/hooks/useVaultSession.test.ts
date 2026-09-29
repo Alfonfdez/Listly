@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { act, renderHook } from '@testing-library/react-native';
 import { useVaultSession } from '../../src/hooks/useVaultSession';
 import type { UnlockedItems } from '../../src/database/repositories/vaultRepo';
+import { VaultCryptoError, VAULT_ERROR } from '../../src/utils/vaultCrypto';
 
 const vaultRepoMock = vi.hoisted(() => ({
   unlock: vi.fn(),
@@ -53,5 +54,36 @@ describe('useVaultSession', () => {
       'pw',
       expect.arrayContaining([expect.objectContaining({ id: -2, name: 'new', position: 1 })])
     );
+  });
+
+  it('flags a wrong passphrase when removing the lock without throwing', async () => {
+    vaultRepoMock.removeLock.mockRejectedValueOnce(new VaultCryptoError(VAULT_ERROR.wrongPassphrase));
+    const { result } = await renderHook(() => useVaultSession(1));
+
+    let removed = true;
+    await act(async () => {
+      removed = await result.current.removeLock('nope');
+    });
+
+    expect(removed).toBe(false);
+    expect(result.current.wrongPassphrase).toBe(true);
+    expect(vaultRepoMock.removeLock).toHaveBeenCalledWith(1, 'nope');
+  });
+
+  it('removes the lock on a correct passphrase', async () => {
+    vaultRepoMock.unlock.mockResolvedValue([record(1, 0)]);
+    const { result } = await renderHook(() => useVaultSession(1));
+    await act(async () => {
+      await result.current.unlock('pw');
+    });
+
+    let removed = false;
+    await act(async () => {
+      removed = await result.current.removeLock('pw');
+    });
+
+    expect(removed).toBe(true);
+    expect(result.current.unlocked).toBe(false);
+    expect(result.current.wrongPassphrase).toBe(false);
   });
 });

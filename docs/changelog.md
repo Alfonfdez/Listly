@@ -862,6 +862,18 @@ pm run test:all green.
 - Tests: new `tests/hooks/useItemStore.test.ts` (repo vs vault dispatch, `add` position, logging), `tests/hooks/useVaultSession.test.ts` (new id below existing). `npm run test:all` green (66 files, 554 tests); typecheck + lint clean.
 - Verified on web at 375px: normal list add/toggle/clear-completed; locked list lock → unlock → add two items (no duplicate-key error, 3 rows, 0/3). 0 console errors.
 
+[2026-09-29] fix | ListlyApp/src/hooks/useVaultSession.ts, src/screens/ListDetailScreen.tsx, src/components/VaultUnlockView.tsx
+- Fix: **"Remove lock" with a wrong passphrase** on the lock screen no longer shows the generic error toast. `useVaultSession.removeLock` now mirrors `unlock`: on `VaultCryptoError(wrong_passphrase)` it sets `wrongPassphrase` and resolves `false` (no throw); it resolves `true` on success (relock). The screen only calls `refresh()` when it returns `true`, and `VaultUnlockView` already renders `vault_wrong_passphrase` ("Wrong passphrase" / "Contraseña incorrecta").
+- `VaultUnlockView.run` gained a `catch` so an already-logged failure can't surface as an unhandled promise rejection (it was `void run(...)` with `try/finally` only).
+- Tests: `tests/hooks/useVaultSession.test.ts` (wrong passphrase → `false` + flag, correct → `true` + relock), `tests/screens/ListDetailScreen.test.tsx` (Remove lock with a bad passphrase shows "Wrong passphrase"). `npm run test:all` green (66 files, 557 tests); typecheck + lint clean.
+
+[2026-09-29] fix | ListlyApp/src/utils/vaultCryptoCore.ts, src/screens/ListDetailScreen.tsx, src/components/LockListModal.tsx, src/hooks/useVaultSession.ts
+- Fix: a **wrong current passphrase** when changing a list's passphrase is no longer logged as a failure. `ListDetailScreen`'s change-passphrase catch only calls `logError` for unexpected errors now; previously it logged `Failed to change passphrase: [VaultCryptoError: wrong_passphrase]` **and** triggered the generic error toast (`ToastContext` subscribes to `logError`) on top of the correct inline "Current passphrase is incorrect". Coding the wrong current passphrase is an expected user error, not a system failure.
+- New helper `isWrongPassphrase(error)` in `vaultCryptoCore.ts` (re-exported by `vaultCrypto`), replacing the repeated `error instanceof VaultCryptoError && error.code === VAULT_ERROR.wrongPassphrase` predicate at all four call sites (`LockListModal`, `useVaultSession.unlock` / `removeLock`, `ListDetailScreen`).
+- Tests: `tests/utils/vaultCrypto.test.ts` (helper classification), `tests/screens/ListDetailScreen.test.tsx` (wrong current → inline message and no `change passphrase` log; unexpected failure → generic message and logs). `npm run test:all` green (66 files, 560 tests); typecheck + lint clean.
+
+
+
 
 
 
