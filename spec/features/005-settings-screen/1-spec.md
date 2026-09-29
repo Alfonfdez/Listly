@@ -34,7 +34,9 @@
 ### 5. Backup format and IO
 - `src/database/backup.ts`: `BACKUP_FORMAT_VERSION = 1`; snapshot `{ app: 'Listly', kind: 'backup', formatVersion, exportedAt, schema, data: { lists, items, config } }`; `buildBackup` reads all rows ordered by position; `applyBackup` replaces all three tables inside one transaction; `parseBackup`/`serializeBackup`; `BackupValidationError` codes `invalid_json` | `invalid_format` | `newer_version`.
 - `src/database/backupService.ts`: `exportBackup()` serializes a snapshot at the current `SCHEMA_VERSION`; `importBackup(json)` rejects `schema > SCHEMA_VERSION` with `newer_version` and otherwise applies the snapshot.
-- `src/utils/backupIO.ts` (native): writes `listly-backup-YYYY-MM-DD.json` in the document directory and shares it (`expo-sharing`); imports via `expo-document-picker`.
+- `src/utils/backupIO.ts` (native): writes `listly-backup-YYYY-MM-DD.json` in the document directory, then shares it through the local `listly-share` Expo module (`shareFileAsync`) after the `expo-sharing` availability gate; iOS reports the real share outcome (`saved`/`dismissed`). `saveBackupToDownloads(json)` writes to the public Downloads folder via the module's `saveToDownloadsAsync` (Android only; returns `false` when unsupported so the caller can fall back). Imports via `expo-document-picker`.
+- `src/constants/shareResult.ts`: `ShareResult` (`saved`/`dismissed`) + `ShareResultValue`, shared by the module, `backupIO` and the screen.
+- Local native module `ListlyApp/modules/listly-share/` (`ListlyShare`): share sheet + Android public-Downloads writer.
 - `src/utils/backupIO.web.ts`: downloads a Blob via an anchor; imports via a hidden `<input type="file">` with a focus fallback when the picker is cancelled.
 - `backupFileName()` lives in `src/utils/formatters.ts`.
 
@@ -42,7 +44,7 @@
 - `clearDataKeepSettings()` deletes all items and lists (and their photo files) but keeps settings.
 - `resetDatabase()` additionally deletes all config rows, restoring defaults.
 - After import/reset the screen refreshes app data (`useApp().refresh`) and reloads config (`ConfigContext.reload`).
-- Feedback uses an inline status message (success/error), not a native alert, so it is verifiable on web. Confirmation modals gate import, delete-all, and factory reset.
+- Export feedback is a native `Alert`: on **Android** it first saves the backup to the public **Downloads** folder and shows a *saved* alert with **Share** / **Done** (falling back to the share sheet when the Downloads write is unsupported); otherwise it opens the share sheet and shows success **only when the share actually completed** (a dismissed sheet shows nothing). Import/delete-all/factory-reset also show success/error alerts. Confirmation modals gate import, delete-all, and factory reset. `Alert` is a no-op on web, so this feedback is native-only and covered by tests rather than the browser loop.
 
 ### 7. Drawer separator and seed removal
 - The drawer shows a separator between `Lists` and `Settings`.
@@ -54,9 +56,9 @@
 
 - **TypeScript strict**, no `any`; theme tokens + `fs()` everywhere.
 - **Multilingual**: all new strings exist in both `en` and `es`.
-- **Dependencies**: adds `expo-sharing` and `expo-document-picker`.
+- **Dependencies**: `expo-sharing`, `expo-document-picker`, and the local native module `listly-share` (`ListlyApp/modules/listly-share/`), which requires a development/release build (not Expo Go).
 - **Tests**: `SettingsScreen` (sections, preference writes, toggles, export/import/cancel/validation/invalid/newer, delete-all, factory reset, cancel); `backup` format + service + reset helpers; contract/dbDrift/schema tests updated for an empty seed and the new config keys; `ItemRow` visibility tests; list layout test.
-- **Verification**: web loop at 375px - switch theme/text size/language/layout, toggle notes/photos, export and re-import a backup, delete all lists, factory reset, with 0 console errors.
+- **Verification**: web loop at 375px - switch theme/text size/language/layout, toggle notes/photos, export and re-import a backup, delete all lists, factory reset, with 0 console errors. Export/import success/error **alerts** are native-only (`Alert` is a no-op on web) and are covered by unit tests instead.
 - **Known limitation**: native item-photo file URIs are not portable across devices (web base64 data URLs are); documented, not blocking.
 
 ---
@@ -67,7 +69,7 @@
 - [x] Theme, text size, language, and list layout selections persist and take effect across the app.
 - [x] `Show notes` / `Show photos` hide notes and photos everywhere and survive a reload.
 - [x] The list layout setting changes how lists render on both Home and Lists.
-- [x] Export downloads/shares a valid `listly-backup-YYYY-MM-DD.json` and reports success.
+- [x] Export downloads/shares a valid `listly-backup-YYYY-MM-DD.json`; on Android it is saved to the public Downloads folder with a *saved* alert offering Share/Done, and success feedback is shown only when the export actually succeeded.
 - [x] Import restores lists, items, and config after confirmation and reports success.
 - [x] An invalid or newer-version backup is rejected with a specific message and no data change.
 - [x] Delete all lists removes lists/items but keeps settings; factory reset also restores defaults.

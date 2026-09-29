@@ -812,6 +812,25 @@ pm run test:all green.
 - Replaced the 6 exact `toBe(dbTimestamp())` assertions (create, update/toggle/reorder/setAllChecked, duplicateItems) with a new `expectStamped(value, before, after)` helper that brackets each write and asserts the stamp lies within `[before, after]` (lexicographic compare on the sortable `YYYY-MM-DD HH:MM:SS` format). Test-only; no production code change.
 - `npm run test:all` green (60 files, 534 tests); the itemRepo file passed across repeated runs.
 
+[2026-09-29] + | ListlyApp/modules/listly-share/, src/utils/backupIO.ts, src/utils/backupIO.web.ts, src/constants/shareResult.ts, src/utils/platform.ts
+- Ported Finly's Data export UX: new local Expo module `listly-share` (`ListlyShare`) — `shareFileAsync` (FileProvider + chooser; iOS reports the true outcome via `completionWithItemsHandler`, Android resolves `saved` on activity return) and `saveToDownloadsAsync` (Android `MediaStore.Downloads`, API 29+, `IS_PENDING`). Includes `expo-module.config.json`, `package.json`, `src/index.ts` (lazy `requireNativeModule`, never crashes at startup), `android/build.gradle`, Android manifest (FileProvider `${applicationId}.listlyshare.fileprovider` + SEND query), `listly_share_paths.xml`, `ListlyShareModule.kt`, `ListlyShareModule.swift`.
+- `src/constants/shareResult.ts` (`ShareResult` + `ShareResultValue`); `src/utils/platform.ts` gains `isAndroid` + `isAndroidPlatform()`.
+- `backupIO.ts`: `saveBackupFile` returns `ShareResultValue` (writes the file, shares via the module after the `expo-sharing` availability gate) and new `saveBackupToDownloads` (Android-only); `backupIO.web.ts` returns `saved` and adds `saveBackupToDownloads`. `.gitignore` ignores `modules/**/android/build/`.
+
+[2026-09-29] + | ListlyApp/src/screens/settings/DataScreen.tsx
+- Data export switched to the Finly flow: Android first saves to the public Downloads folder and shows a *saved* `Alert` with **Share** / **Done** (optional share, fire-and-forget; falls back to the share sheet when the Downloads write returns `false`); otherwise it shares and shows success only when the share completed (`dismissed` shows nothing). Import/delete-all/factory-reset now use native `Alert`s instead of the inline status message (removed the inline `status` state, `Text`/`useFontSize`/`StyleSheet` usage).
+- i18n en/es: `backup_dialog_title`, `settings_export_downloaded_title`, `settings_export_downloaded_message`, `settings_export_share_action`, `settings_export_done_action` (to be translated in the pending 9-language pass).
+- Tests: rewrote `tests/screens/settings/DataScreen.test.tsx` for `Alert` + the Android flow (success only on saved, dismissed = no feedback, Downloads alert with Share triggering the share, fallback when unsupported, failure → error); new `tests/utils/backupIO.test.ts` (saved-when-unavailable, delegates to `shareFileAsync`, Downloads Android-only + delegation) and `tests/utils/platform.test.ts`. `npm run test:all` green (62 files, 544 tests); typecheck + lint clean.
+- Docs: `spec/features/005-settings-screen/1-spec.md` (§5/§6 + acceptance criteria: Android Downloads + share, success only on real completion, feedback native-only), `spec/constitution/7-platform-differences.md`, `spec/constitution/3-roadmap.md`, `docs/harnesses.md`.
+- Note: the local native module requires a development/release build (not Expo Go); export/import feedback (Alert) is not checkable in the web loop.
+
+[2026-09-29] fix | ListlyApp/src/utils/vaultCrypto.native.ts, src/screens/ListDetailScreen.tsx, tests/database/quickCryptoMock.ts
+- Fix: locking a list on a native build failed with the generic "Something went wrong. Please try again." Root cause: `vaultCrypto.native.ts` used the **global** `Buffer` in `encrypt`/`decrypt`, but `react-native-quick-crypto` only sets `global.Buffer` when `install()` is called (we don't), so the runtime threw `ReferenceError: Buffer is not defined` (dev builds masked it via a dev-only polyfill). Now uses the module's own `crypto.Buffer` (`quick().Buffer`), so no global is required.
+- Added error logging to the vault entry points so failures are no longer swallowed: the lock/change `onConfirm`, `onUnlock` and `onRemoveLock` now `logError(ERROR_SCOPE.lockList|changePassphrase|unlockList|removeLock, error)` and rethrow (the user still sees the generic message; the real error reaches the toast/console).
+- `tests/database/quickCryptoMock.ts` mock gained `Buffer`. `npm run test:all` green (62 files, 544 tests); typecheck + lint clean.
+
+
+
 
 
 

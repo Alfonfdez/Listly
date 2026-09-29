@@ -295,10 +295,22 @@ export default function ListDetailScreen() {
       <ScreenShell>
         <VaultUnlockView
           wrongPassphrase={vault.wrongPassphrase}
-          onUnlock={vault.unlock}
+          onUnlock={async (passphrase) => {
+            try {
+              await vault.unlock(passphrase);
+            } catch (error) {
+              logError(ERROR_SCOPE.unlockList, error);
+              throw error;
+            }
+          }}
           onRemoveLock={async (passphrase) => {
-            await vault.removeLock(passphrase);
-            await refresh();
+            try {
+              await vault.removeLock(passphrase);
+              await refresh();
+            } catch (error) {
+              logError(ERROR_SCOPE.removeLock, error);
+              throw error;
+            }
           }}
         />
       </ScreenShell>
@@ -631,15 +643,20 @@ export default function ListDetailScreen() {
         mode={locked ? 'change' : 'lock'}
         onCancel={() => setLockModalVisible(false)}
         onConfirm={async (passphrase, currentPassphrase) => {
-          if (locked) {
-            await vault.changePassphrase(currentPassphrase, passphrase);
+          try {
+            if (locked) {
+              await vault.changePassphrase(currentPassphrase, passphrase);
+              setLockModalVisible(false);
+              setPassphraseChanged(true);
+              return;
+            }
+            await vaultRepo.lock(listId, passphrase, await vaultRepo.readPlainItems(listId));
             setLockModalVisible(false);
-            setPassphraseChanged(true);
-            return;
+            await refresh();
+          } catch (error) {
+            logError(locked ? ERROR_SCOPE.changePassphrase : ERROR_SCOPE.lockList, error);
+            throw error;
           }
-          await vaultRepo.lock(listId, passphrase, await vaultRepo.readPlainItems(listId));
-          setLockModalVisible(false);
-          await refresh();
         }}
       />
 

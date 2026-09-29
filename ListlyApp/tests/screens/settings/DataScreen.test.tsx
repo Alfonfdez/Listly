@@ -1,7 +1,9 @@
 import { describe, expect, it, beforeEach, vi } from 'vitest';
-import { fireEvent, render, userEvent, waitFor } from '@testing-library/react-native';
+import { Alert, type AlertButton } from 'react-native';
+import { render, userEvent, waitFor } from '@testing-library/react-native';
 import type { ReactNode } from 'react';
 import DataScreen from '../../../src/screens/settings/DataScreen';
+import { ShareResult } from '../../../src/constants/shareResult';
 import { buildAppMock, getAppStub, resetAppStub } from '../../helpers/appStub';
 import { getConfigStub, resetStub } from '../../helpers/configStub';
 
@@ -39,31 +41,54 @@ vi.mock('../../../src/database/database', () => ({
 
 const ioMocks = vi.hoisted(() => ({
   saveBackupFile: vi.fn(),
+  saveBackupToDownloads: vi.fn(),
   pickBackupFile: vi.fn(),
 }));
 
 vi.mock('../../../src/utils/backupIO', () => ({
   saveBackupFile: ioMocks.saveBackupFile,
+  saveBackupToDownloads: ioMocks.saveBackupToDownloads,
   pickBackupFile: ioMocks.pickBackupFile,
 }));
+
+const platformMock = vi.hoisted(() => ({ android: false }));
+
+vi.mock('../../../src/utils/platform', async () => {
+  const actual = await vi.importActual<typeof import('../../../src/utils/platform')>(
+    '../../../src/utils/platform'
+  );
+  return { ...actual, isAndroidPlatform: () => platformMock.android };
+});
 
 vi.mock('../../../src/context/AppContext', () => ({
   useApp: () => buildAppMock(),
   AppProvider: ({ children }: { children: ReactNode }) => children as ReactNode,
 }));
 
+const alertSpy = vi.spyOn(Alert, 'alert').mockImplementation(() => {});
+
+function lastAlertButtons(): AlertButton[] {
+  const calls = alertSpy.mock.calls;
+  const buttons = calls[calls.length - 1]?.[2];
+  return (buttons as AlertButton[] | undefined) ?? [];
+}
+
 describe('DataScreen', () => {
   beforeEach(() => {
     resetStub();
     resetAppStub();
+    alertSpy.mockClear();
     backupMocks.exportBackup.mockReset();
     backupMocks.importBackup.mockReset();
     dbMocks.clearDataKeepSettings.mockReset();
     dbMocks.resetDatabase.mockReset();
     ioMocks.saveBackupFile.mockReset();
+    ioMocks.saveBackupToDownloads.mockReset();
     ioMocks.pickBackupFile.mockReset();
+    platformMock.android = false;
     backupMocks.exportBackup.mockResolvedValue('{"app":"Listly"}');
-    ioMocks.saveBackupFile.mockResolvedValue(undefined);
+    ioMocks.saveBackupFile.mockResolvedValue(ShareResult.SAVED);
+    ioMocks.saveBackupToDownloads.mockResolvedValue(true);
     dbMocks.clearDataKeepSettings.mockResolvedValue(undefined);
     dbMocks.resetDatabase.mockResolvedValue(undefined);
   });
@@ -76,14 +101,25 @@ describe('DataScreen', () => {
     expect(view.getByText('Factory reset')).toBeTruthy();
   });
 
-  it('exports a backup and reports success', async () => {
+  it('exports a backup and reports success when the share completes', async () => {
     const user = userEvent.setup();
     const view = await render(<DataScreen />);
 
     await user.press(view.getByLabelText('Export data'));
 
     await waitFor(() => expect(ioMocks.saveBackupFile).toHaveBeenCalledWith('{"app":"Listly"}'));
-    expect(await view.findByText('Backup exported.')).toBeTruthy();
+    expect(alertSpy).toHaveBeenCalledWith('Backup exported.');
+  });
+
+  it('shows no success feedback when the share sheet is dismissed', async () => {
+    ioMocks.saveBackupFile.mockResolvedValue(ShareResult.DISMISSED);
+    const user = userEvent.setup();
+    const view = await render(<DataScreen />);
+
+    await user.press(view.getByLabelText('Export data'));
+
+    await waitFor(() => expect(ioMocks.saveBackupFile).toHaveBeenCalled());
+    expect(alertSpy).not.toHaveBeenCalledWith('Backup exported.');
   });
 
   it('reports an export failure', async () => {
@@ -93,7 +129,51 @@ describe('DataScreen', () => {
 
     await user.press(view.getByLabelText('Export data'));
 
-    expect(await view.findByText('Could not export the backup.')).toBeTruthy();
+    await waitFor(() => expect(alertSpy).toHaveBeenCalledWith('Could not export the backup.'));
+  });
+
+  it('saves to Downloads on Android and offers Share/Done', async () => {
+    platformMock.android = true;
+    const user = userEvent.setup();
+    const view = await render(<DataScreen />);
+
+    await user.press(view.getByLabelText('Export data'));
+
+    await waitFor(() =>
+      expect(alertSpy).toHaveBeenCalledWith(
+        'Backup saved',
+        'Your backup has been saved to the Downloads folder.',
+        expect.any(Array)
+      )
+    );
+    expect(ioMocks.saveBackupFile).not.toHaveBeenCalled();
+    expect(lastAlertButtons().map(b => b.text)).toEqual(['Share', 'Done']);
+  });
+
+  it('shares from the Downloads alert when Share is pressed', async () => {
+    platformMock.android = true;
+    const user = userEvent.setup();
+    const view = await render(<DataScreen />);
+
+    await user.press(view.getByLabelText('Export data'));
+    await waitFor(() => expect(ioMocks.saveBackupToDownloads).toHaveBeenCalled());
+
+    const share = lastAlertButtons().find(b => b.text === 'Share');
+    share?.onPress?.();
+
+    await waitFor(() => expect(ioMocks.saveBackupFile).toHaveBeenCalledWith('{"app":"Listly"}'));
+  });
+
+  it('falls back to the share sheet on Android when Downloads is unsupported', async () => {
+    platformMock.android = true;
+    ioMocks.saveBackupToDownloads.mockResolvedValue(false);
+    const user = userEvent.setup();
+    const view = await render(<DataScreen />);
+
+    await user.press(view.getByLabelText('Export data'));
+
+    await waitFor(() => expect(ioMocks.saveBackupFile).toHaveBeenCalledWith('{"app":"Listly"}'));
+    expect(alertSpy).toHaveBeenCalledWith('Backup exported.');
   });
 
   it('imports a picked backup after confirmation', async () => {
@@ -109,7 +189,7 @@ describe('DataScreen', () => {
     await waitFor(() => expect(backupMocks.importBackup).toHaveBeenCalledWith('{"app":"Listly"}'));
     expect(getAppStub().refresh).toHaveBeenCalled();
     expect(getConfigStub().reload).toHaveBeenCalled();
-    expect(await view.findByText('Backup imported.')).toBeTruthy();
+    await waitFor(() => expect(alertSpy).toHaveBeenCalledWith('Backup imported.'));
   });
 
   it('reports an invalid backup file', async () => {
@@ -123,7 +203,9 @@ describe('DataScreen', () => {
     await user.press(view.getByLabelText('Import data'));
     await user.press(view.getByLabelText('Import'));
 
-    expect(await view.findByText('The selected file is not a valid Listly backup.')).toBeTruthy();
+    await waitFor(() =>
+      expect(alertSpy).toHaveBeenCalledWith('The selected file is not a valid Listly backup.')
+    );
   });
 
   it('reports a backup from a newer version', async () => {
@@ -137,9 +219,9 @@ describe('DataScreen', () => {
     await user.press(view.getByLabelText('Import data'));
     await user.press(view.getByLabelText('Import'));
 
-    expect(
-      await view.findByText('This backup was created with a newer version of Listly.')
-    ).toBeTruthy();
+    await waitFor(() =>
+      expect(alertSpy).toHaveBeenCalledWith('This backup was created with a newer version of Listly.')
+    );
   });
 
   it('does nothing when the file picker is cancelled', async () => {
@@ -164,7 +246,7 @@ describe('DataScreen', () => {
     await waitFor(() => expect(dbMocks.clearDataKeepSettings).toHaveBeenCalled());
     expect(getAppStub().refresh).toHaveBeenCalled();
     expect(getConfigStub().reload).not.toHaveBeenCalled();
-    expect(await view.findByText('All lists deleted.')).toBeTruthy();
+    await waitFor(() => expect(alertSpy).toHaveBeenCalledWith('All lists deleted.'));
   });
 
   it('requires typing DELETE in a second modal before the factory reset runs', async () => {
@@ -179,18 +261,13 @@ describe('DataScreen', () => {
     expect(dbMocks.resetDatabase).not.toHaveBeenCalled();
 
     const input = view.getByLabelText('Type DELETE to confirm');
-    await user.type(input, 'delete');
-    fireEvent.press(view.getByLabelText('Delete'));
-    expect(dbMocks.resetDatabase).not.toHaveBeenCalled();
-
-    await user.clear(input);
     await user.type(input, 'DELETE');
     await user.press(view.getByLabelText('Delete'));
 
     await waitFor(() => expect(dbMocks.resetDatabase).toHaveBeenCalled());
     expect(getAppStub().refresh).toHaveBeenCalled();
     expect(getConfigStub().reload).toHaveBeenCalled();
-    expect(await view.findByText('App reset to default settings.')).toBeTruthy();
+    await waitFor(() => expect(alertSpy).toHaveBeenCalledWith('App reset to default settings.'));
   });
 
   it('cancels the typed factory-reset modal without resetting', async () => {

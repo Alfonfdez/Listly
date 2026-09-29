@@ -1,7 +1,13 @@
+import { ShareResult, type ShareResultValue } from '../constants/shareResult';
 import { backupFileName } from './formatters';
 
-export async function saveBackupFile(json: string): Promise<void> {
-  if (typeof document === 'undefined') return;
+export async function saveBackupToDownloads(json: string): Promise<boolean> {
+  await saveBackupFile(json);
+  return true;
+}
+
+export async function saveBackupFile(json: string): Promise<ShareResultValue> {
+  if (typeof document === 'undefined') return ShareResult.SAVED;
   const blob = new Blob([json], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
   const anchor = document.createElement('a');
@@ -11,6 +17,7 @@ export async function saveBackupFile(json: string): Promise<void> {
   anchor.click();
   anchor.remove();
   URL.revokeObjectURL(url);
+  return ShareResult.SAVED;
 }
 
 export async function pickBackupFile(): Promise<string | null> {

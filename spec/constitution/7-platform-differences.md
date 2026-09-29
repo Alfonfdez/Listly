@@ -19,7 +19,7 @@ Listly targets **iOS, Android, and web** with one codebase. This file collects h
 
 ## Native-only features
 - **Item photos (camera):** the "Take photo" source is native-only and gated with `isNative`; web stores base64 data URLs inline while native copies files into the document directory. Camera capture is reported "not checkable on web".
-- **Backup share/pick:** native uses `expo-sharing` + `expo-document-picker`; web downloads a Blob and imports via a hidden file input (same `backupIO` API, per-platform implementation).
+- **Backup export/share/pick:** native writes the file then shares via the local `listly-share` module (iOS reports the true share outcome; Android can also save to the public Downloads folder); imports via `expo-document-picker`. Web downloads a Blob and imports via a hidden file input (same `backupIO` API, per-platform implementation). `listly-share` requires a development/release build (not Expo Go).
 - **Locked lists (encryption):** key derivation/encryption use `react-native-quick-crypto` (native) and `crypto.subtle` (web). This is a **native development build only** — Expo Go lacks the native modules, so vault actions are disabled there with an explanatory message (the app still runs). See `docs/locked-lists.md`.
 - Anything else native-only must be gated with `isNative`, hidden on web, and its criteria reported "not checkable on web".
 

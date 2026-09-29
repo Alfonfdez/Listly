@@ -37,6 +37,7 @@ function tagOf(bytes: Uint8Array): Uint8Array<ArrayBuffer> {
 
 function buildMock() {
   return {
+    Buffer,
     randomBytes(length: number): Uint8Array {
       return cryptoRef.getRandomValues(new Uint8Array(length));
     },
