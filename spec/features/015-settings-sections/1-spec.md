@@ -46,6 +46,7 @@
 - `HomeScreen` renders `ListsScreenBase` with `homeLayout`; `ListsScreen` uses `listsLayout`.
 - `CollectionDetailScreen` passes `collectionDetailLayout` to its `ListsView` variant (grid cards or full-width rows).
 - `ItemRow` hides the note/photo UI when `showNotes` / `showPhotos` are off; `ItemFormModal` hides its note/photo fields when `editShowNotes` / `editShowPhotos` are off.
+- `AddItemBar` also honors `showNotes` / `showPhotos`: its details toggle disappears when both are off, and the note field / photo section each follow their own toggle independently (standard and numeric lists alike).
 
 ### 8. Components
 - `SettingsPickerRow.tsx` (label + bordered value box + chevron) and `OptionPickerModal.tsx` (title, radio list with optional leading icons, temporary selection, Cancel + Select footer).

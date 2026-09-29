@@ -886,6 +886,14 @@ pm run test:all green.
 - Tests: new `tests/hooks/useItemDraft.test.ts` (validate on demand + live, duplicate, numeric/standard payload, amount sanitize, seed/reset) and `tests/components/ItemFields.test.tsx` (counters, placeholders, stepper labels, line total); existing `ItemFormModal`/`ItemRow`/`ListDetailScreen` suites unchanged. `npm run test:all` green (66 files, 567 tests); typecheck + lint clean.
 - Verified on web at 375px (0 console errors): standard add clears the bar, edit modal seeds name/note, numeric add shows a live total (`1.50 × 2` → `3.00`) and updates the header Total, numeric edit modal seeds Amount/Quantity.
 
+[2026-09-29] fix | ListlyApp/src/components/AddItemBar.tsx
+- Fix: the list-detail **add bar ignored the Personalization "Notes" / "Photos" toggles**. `showNotes` / `showPhotos` hid the note/photo UI in the item rows and edit modal but the add bar rendered its "toggle details" chevron, note field and photo section unconditionally, so hiding either toggle had no effect when adding an item (most noticeable on numeric lists, where the always-on details block stacked under the amount/quantity row).
+- `AddItemBar` now reads `config`: each field follows its own toggle and the details chevron is hidden when **both** are off (`canAddDetails = showNotes || showPhotos`), with an effect collapsing the expanded block if the toggles change to "both off" mid-open. Amount/quantity/line total on numeric lists are unchanged.
+- Spec: clarifying requirement added to `spec/features/005-settings-screen/1-spec.md` (§4) and `spec/features/015-settings-sections/1-spec.md` (§7) — the item-form scope explicitly includes the add bar.
+- Tests: new `tests/components/AddItemBar.test.tsx` (default details, notes-only, photos-only, both-off chevron, numeric unaffected). `npm run test:all` green (67 files, 573 tests); typecheck + lint clean.
+- Verified on web at 375px, 0 console errors: English + Spanish; standard list (Notes off → no note field, Photos on; both off → no chevron) and numeric list (both off → no chevron while Amount/Quantity/Total stay).
+
+
 
 
 

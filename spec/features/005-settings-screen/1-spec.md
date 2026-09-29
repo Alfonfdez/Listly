@@ -29,6 +29,7 @@
 - The chosen list layout drives both `HomeScreen` and `ListsScreen` (both wrap `ListsScreenBase`, which reads `config.listLayout` and passes it as the `ListsView` variant).
 - `showNotes` hides the note indicator, note preview, and note field (item form) everywhere.
 - `showPhotos` hides the thumbnail strip and the photo section (item form) everywhere.
+- The item form scope includes the list-detail add bar: its "toggle details" affordance hides when both `showNotes` and `showPhotos` are off, and each of the note field / photo section respects its own toggle independently.
 - Hidden note/photo values are preserved (not wiped) when saving an item.
 
 ### 5. Backup format and IO
