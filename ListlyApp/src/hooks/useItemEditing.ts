@@ -1,16 +1,16 @@
-import { useMemo, useState } from 'react';
-import { itemRepository as itemRepo } from '../database';
-import { logError, ERROR_SCOPE } from '../utils/errors';
+import { useCallback, useMemo, useState } from 'react';
 import { uniqueNormalizedNames } from '../utils/validation';
 import { serializeItemPhotos } from '../utils/itemPhotos';
 import type { Item } from '../database/types';
+import type { ItemUpdate } from './useItemStore';
 
 interface Options {
   items: Item[];
-  refresh: () => Promise<void>;
+  update: (id: number, data: ItemUpdate) => Promise<void>;
+  remove: (id: number) => Promise<void>;
 }
 
-export function useItemEditing({ items, refresh }: Options) {
+export function useItemEditing({ items, update, remove }: Options) {
   const [editing, setEditing] = useState<Item | null>(null);
 
   const editingExclusiveNames = useMemo(
@@ -18,16 +18,16 @@ export function useItemEditing({ items, refresh }: Options) {
     [items, editing]
   );
 
-  const saveEdit = async (
-    name: string,
-    note: string | null,
-    photos: string[],
-    amountMinor: number | null,
-    quantity: number
-  ) => {
-    if (!editing) return;
-    try {
-      await itemRepo.update(editing.id, {
+  const saveEdit = useCallback(
+    async (
+      name: string,
+      note: string | null,
+      photos: string[],
+      amountMinor: number | null,
+      quantity: number
+    ) => {
+      if (!editing) return;
+      await update(editing.id, {
         name,
         note,
         pictures: serializeItemPhotos(photos),
@@ -35,22 +35,15 @@ export function useItemEditing({ items, refresh }: Options) {
         quantity,
       });
       setEditing(null);
-    } catch (error) {
-      logError(ERROR_SCOPE.updateItem, error);
-    }
-    void refresh();
-  };
+    },
+    [editing, update]
+  );
 
-  const deleteItem = async () => {
+  const deleteItem = useCallback(async () => {
     if (!editing) return;
-    try {
-      await itemRepo.delete(editing.id);
-      setEditing(null);
-    } catch (error) {
-      logError(ERROR_SCOPE.deleteItem, error);
-    }
-    void refresh();
-  };
+    await remove(editing.id);
+    setEditing(null);
+  }, [editing, remove]);
 
   return { editing, setEditing, editingExclusiveNames, saveEdit, deleteItem };
 }
