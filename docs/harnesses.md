@@ -75,6 +75,8 @@ acceptance criteria in a real browser.
 
 Components under `tests/components/` / `tests/screens/` stub `ConfigContext`/`AppContext` via the `tests/helpers/configStub.ts` + `tests/helpers/appStub.ts` setup helpers and alias `@expo/vector-icons` to a plain-`Text` mock (`tests/mocks/expo-vector-icons.tsx`).
 
+`vitest.config.mts` pins `resolve.mainFields` and aliases `test-renderer` to its CJS entry (`node_modules/test-renderer/dist/index.cjs`) so Node's `require` and Vite's import graph load the **same** build. Without this the two resolvers picked `main` vs `module` (two copies), splitting RNTL's module-level cleanup queue; the shared build keeps the `vitest-native` "resolves to two different files" warning away.
+
 ### CI workflow note
 
 `.github/workflows/ci.yml` is guarded so it no-ops green until `ListlyApp/package-lock.json`

@@ -893,6 +893,11 @@ pm run test:all green.
 - Tests: new `tests/components/AddItemBar.test.tsx` (default details, notes-only, photos-only, both-off chevron, numeric unaffected). `npm run test:all` green (67 files, 573 tests); typecheck + lint clean.
 - Verified on web at 375px, 0 console errors: English + Spanish; standard list (Notes off → no note field, Photos on; both off → no chevron) and numeric list (both off → no chevron while Amount/Quantity/Total stay).
 
+[2026-09-29] fix | ListlyApp/vitest.config.mts
+- Fix (test harness): `test-renderer` was resolved to **two different builds** — Node's `require` picked `main` (`dist/index.cjs`) while Vite picked `module` (`dist/index.js`) — so `@testing-library/react-native`'s module-level cleanup queue existed twice and `vitest-native` warned on every run ("resolves to two different files"). `vitest.config.mts` now pins `resolve.mainFields` (`module` → … → `main`) and aliases `test-renderer` to its CJS entry so both resolvers agree on one file; the warning is gone.
+- No app code changed. `npm run test:all` green (67 files, 573 tests) and stable across three consecutive runs; typecheck + lint clean. Spot-runs of the component/hook/screen suites individually also pass.
+
+
 
 
 

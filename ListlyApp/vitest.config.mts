@@ -8,9 +8,11 @@ const dirname = path.dirname(fileURLToPath(import.meta.url));
 export default defineConfig({
   plugins: [reactNative()],
   resolve: {
+    mainFields: ['module', 'jsnext:main', 'jsnext', 'main'],
     alias: {
       '@expo/vector-icons': path.resolve(dirname, 'tests/mocks/expo-vector-icons.tsx'),
       'react-native-sortables': path.resolve(dirname, 'tests/mocks/react-native-sortables.tsx'),
+      'test-renderer': path.resolve(dirname, 'node_modules/test-renderer/dist/index.cjs'),
     },
   },
   test: {
