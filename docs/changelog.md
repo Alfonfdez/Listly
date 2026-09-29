@@ -872,6 +872,12 @@ pm run test:all green.
 - New helper `isWrongPassphrase(error)` in `vaultCryptoCore.ts` (re-exported by `vaultCrypto`), replacing the repeated `error instanceof VaultCryptoError && error.code === VAULT_ERROR.wrongPassphrase` predicate at all four call sites (`LockListModal`, `useVaultSession.unlock` / `removeLock`, `ListDetailScreen`).
 - Tests: `tests/utils/vaultCrypto.test.ts` (helper classification), `tests/screens/ListDetailScreen.test.tsx` (wrong current → inline message and no `change passphrase` log; unexpected failure → generic message and logs). `npm run test:all` green (66 files, 560 tests); typecheck + lint clean.
 
+[2026-09-29] ~ | ListlyApp/src/components/EntityTile.tsx, src/components/ListsView.tsx, src/components/{ListCard,ListRow,CollectionCard,CollectionRow}.tsx
+- Refactor (Tier 1, behavior-preserving): the four near-identical tiles (`ListCard`, `ListRow`, `CollectionCard`, `CollectionRow`) collapse into one `EntityTile` driven by a normalized `TileEntity` (`kind`, `name/color/icon/pinned`, `completed/total`, optional `locked` + `collection`) and a `layout: 'card' | 'row'`. It composes the same `Tile` primitives (`TileShell/TileName/TileProgress/TileLocked/TileIcon/TileBadge/TileCollection`) + `SelectionCheck`/`TypeBadge` and keeps the exact card/row structure, collection accent bar, pinned star, locked label, drop-target hint, and select-mode checkbox role/label. `ListsView` (the sole consumer) builds the entity models and picks card/row via the existing layout variants.
+- Removed the four component files and their three test files; replaced with `tests/components/EntityTile.test.tsx` covering list/collection × card/row, press, icon color, collection line shown/hidden in select mode, pin star, locked label, drop hint, and select-mode role.
+- Docs: `spec/constitution/2-tech-stack.md` structure tree + `docs/harnesses.md`. `npm run test:all` green (64 files, 556 tests); typecheck + lint clean.
+
+
 
 
 

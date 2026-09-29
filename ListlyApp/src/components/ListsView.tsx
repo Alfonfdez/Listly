@@ -17,10 +17,7 @@ import { ICONS } from '../constants/icons';
 import ScreenShell from './ScreenShell';
 import SearchBar from './SearchBar';
 import EmptyState from './EmptyState';
-import ListCard from './ListCard';
-import ListRow from './ListRow';
-import CollectionCard from './CollectionCard';
-import CollectionRow from './CollectionRow';
+import EntityTile from './EntityTile';
 import Fab from './Fab';
 import AddChooserModal from './AddChooserModal';
 import SelectionActionBar from './SelectionActionBar';
@@ -215,24 +212,25 @@ export default function ListsView({
         mode === LIST_VIEW_MODES.lists && item.collection_id != null
           ? collections.find(col => col.id === item.collection_id)
           : undefined;
-      return isGrid ? (
-        <ListCard
-          list={item}
-          collection={collection}
+      return (
+        <EntityTile
+          entity={{
+            id: item.id,
+            kind: 'list',
+            name: item.name,
+            color: item.color,
+            icon: item.icon,
+            pinned: item.pinned,
+            completed: item.completed,
+            total: item.total,
+            locked: lockedListIds.has(item.id),
+            collection,
+          }}
+          layout={isGrid ? 'card' : 'row'}
           selectMode={selectMode}
           selected={selectedIds.has(item.id)}
           onPress={() => handleTilePress(item)}
           reserveCollectionLine={mode === LIST_VIEW_MODES.lists}
-          locked={lockedListIds.has(item.id)}
-        />
-      ) : (
-        <ListRow
-          list={item}
-          collection={collection}
-          selectMode={selectMode}
-          selected={selectedIds.has(item.id)}
-          onPress={() => handleTilePress(item)}
-          locked={lockedListIds.has(item.id)}
         />
       );
     },
@@ -247,23 +245,23 @@ export default function ListsView({
         onItemLeave={handleZoneLeave}
         onItemDrop={() => handleZoneDrop(item.id)}
       >
-        {isCollectionsGrid ? (
-          <CollectionCard
-            collection={item}
-            selectMode={selectMode}
-            selected={selectedCollectionIds.has(item.id)}
-            onPress={() => handleCollectionPress(item)}
-            dropTarget={hoverCollectionId === item.id}
-          />
-        ) : (
-          <CollectionRow
-            collection={item}
-            selectMode={selectMode}
-            selected={selectedCollectionIds.has(item.id)}
-            onPress={() => handleCollectionPress(item)}
-            dropTarget={hoverCollectionId === item.id}
-          />
-        )}
+        <EntityTile
+          entity={{
+            id: item.id,
+            kind: 'collection',
+            name: item.name,
+            color: item.color,
+            icon: item.icon,
+            pinned: item.pinned,
+            completed: item.completed,
+            total: item.total,
+          }}
+          layout={isCollectionsGrid ? 'card' : 'row'}
+          selectMode={selectMode}
+          selected={selectedCollectionIds.has(item.id)}
+          onPress={() => handleCollectionPress(item)}
+          dropTarget={hoverCollectionId === item.id}
+        />
       </Sortable.BaseZone>
     ),
     [
