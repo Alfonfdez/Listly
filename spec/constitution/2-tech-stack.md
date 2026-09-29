@@ -58,7 +58,7 @@ ListlyApp/
 |   |
 |   +-- components/
 |   |   +-- ListsView.tsx             <- shared grid/list body + select + sections + drop zones
-|   |   +-- Tile.tsx / ListCard.tsx / ListRow.tsx / CollectionCard.tsx / CollectionRow.tsx / TypeBadge.tsx
+|   |   +-- Tile.tsx / EntityTile.tsx / TypeBadge.tsx
 |   |   +-- ItemRow.tsx / ItemFormModal.tsx / AddItemBar.tsx / QuantityStepper.tsx / CharCounter.tsx
 |   |   +-- PhotoSection.tsx / PhotoViewer.tsx / NoteViewer.tsx
 |   |   +-- EntityForm.tsx / ListForm.tsx / CollectionForm.tsx / IconGrid.tsx / KindSelectRow.tsx / CollectionSelectRow.tsx
