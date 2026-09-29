@@ -2,6 +2,7 @@ import { z } from 'zod';
 
 import { collectionSchema, itemSchema, listSchema, vaultSchema } from './schemas';
 import type { Collection, DatabaseHandle, Item, List, Vault } from './types';
+import { runExclusive } from './transaction';
 
 interface ConfigRow {
   key: string;
@@ -104,7 +105,7 @@ export async function buildBackup(db: DatabaseHandle, schemaVersion: number): Pr
 }
 
 export async function applyBackup(db: DatabaseHandle, snapshot: BackupSnapshot): Promise<void> {
-  await db.withTransactionAsync(async () => {
+  await runExclusive(db, async () => {
     await db.runAsync('DELETE FROM items');
     await db.runAsync('DELETE FROM lists');
     await db.runAsync('DELETE FROM collections');

@@ -13,6 +13,17 @@ export interface DatabaseStorage {
 let sqlReady: SqlJsStatic | null = null;
 let sqlPromise: Promise<SqlJsStatic> | null = null;
 
+type PersistenceErrorListener = (error: unknown) => void;
+
+let persistenceErrorListener: PersistenceErrorListener | null = null;
+
+export function onPersistenceError(listener: PersistenceErrorListener): () => void {
+  persistenceErrorListener = listener;
+  return () => {
+    if (persistenceErrorListener === listener) persistenceErrorListener = null;
+  };
+}
+
 export function initSqlJsEngine(locateFile?: (file: string) => string): Promise<SqlJsStatic> {
   if (!sqlPromise) {
     sqlPromise = (locateFile ? initSqlJs({ locateFile }) : initSqlJs()).then((sql) => {
@@ -64,6 +75,9 @@ export class SqlJsDatabase implements DatabaseHandle {
   }
 
   async withTransactionAsync(task: () => Promise<void>): Promise<void> {
+    if (this.inTransaction > 0) {
+      throw new Error('Nested transaction detected; runExclusive serializes transactions');
+    }
     this.inTransaction += 1;
     this.db.exec('BEGIN');
     try {
@@ -105,12 +119,15 @@ export class SqlJsDatabase implements DatabaseHandle {
     if (this.inTransaction > 0 || !this.storage) return Promise.resolve();
     const bytes = this.db.export();
     this.db.exec('PRAGMA foreign_keys = ON;');
-    this.persistQueue = this.persistQueue
-      .then(() => this.storage!.set(bytes))
-      .catch((error) => {
-        console.error('Failed to persist web database:', error);
-      });
-    return this.persistQueue;
+    const run = this.persistQueue.then(() => this.storage!.set(bytes));
+    this.persistQueue = run.then(
+      () => undefined,
+      () => undefined
+    );
+    return run.catch((error) => {
+      persistenceErrorListener?.(error);
+      throw error;
+    });
   }
 }
 

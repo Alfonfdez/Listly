@@ -838,6 +838,23 @@ pm run test:all green.
 - `DataScreen` now calls `Alert.alert(title, message)` for all export/import outcomes. Tests updated to the new title+message calls. `npm run test:all` green (62 files, 544 tests); typecheck + lint clean.
 - Note: the new/aligned keys must be carried into the pending 9-language pass.
 
+[2026-09-29] ~ | spec/constitution/2-tech-stack.md, docs/programming-concepts.md
+- Docs sync: refreshed `2-tech-stack.md` — tech list now includes `react-native-quick-crypto` (+ `react-native-nitro-modules`) and the local `listly-share` module, with a note that both require a development/release build (not Expo Go); rewrote the file-structure tree to match the current `src/` (vault, numeric, sort, error bus, all hooks/components/repos, `modules/listly-share/`).
+- `programming-concepts.md`: added learning entries for the recent commits — **Cryptography** (encryption at rest, AES-GCM, PBKDF2 + salt/iterations, verifier, key zeroization), **Native modules** (local Expo module, lazy loading, probing a TurboModule before requiring it + not relying on optional-library globals, dev build vs Expo Go graceful degradation, FileProvider/MediaStore Downloads, iOS share result), **Money** (integer minor units), **Concurrency** (serialized async transactions), and **TypeScript** (`as const` maps for typed codes).
+- Docs only; no code change.
+
+[2026-09-29] fix | ListlyApp/src/database/sqliteWeb.ts, src/database/storage/indexedDb.ts, src/database/engine.web.ts, src/utils/errors.ts
+- Fix (Tier 0): web persistence failures were silently swallowed — `indexedDb.set`/`get` resolved on error and `SqlJsDatabase.persistIfCommitted` caught with `console.error`, so writes reported success even when the IndexedDB persist failed (data lost on reload).
+- `indexedDb.ts`: open/read/write now **reject** on error (returns `null` only when `indexedDB` is unavailable).
+- `sqliteWeb.ts`: `persistIfCommitted` now **propagates** the failure (while keeping the serialized queue alive) and notifies a new `onPersistenceError` listener; `engine.web.ts` subscribes it to `logError(ERROR_SCOPE.saveDatabase, error)` (new scope) so the existing toast surfaces "unsaved" states.
+- Tests: new `tests/database/sqliteWeb.test.ts` (persist failure rejects + notifies; nested transaction rejected).
+
+[2026-09-29] fix | ListlyApp/src/database/transaction.ts, src/database/drizzle/engine.ts, src/database/database.ts, src/database/backup.ts, src/database/sqliteWeb.ts
+- Fix (Tier 0): a **single transaction authority**. Writes now all go through `runExclusive(handle, task)` in the new `src/database/transaction.ts`, which chains every transaction onto the previous one. `drizzle/engine.ts`'s `withTransaction` delegates to it, and `database.ts` (`migrate`, `clearDataKeepSettings`, `resetDatabase`) and `backup.ts` (`applyBackup`) no longer call `handle.withTransactionAsync` directly — removing the two-authority race that could nest `BEGIN` on web.
+- `sqliteWeb.ts` `withTransactionAsync` now throws a clear error on a nested transaction (defensive guard).
+- Tests: new `tests/database/transaction.test.ts` (serializes concurrent transactions; propagates errors and keeps the chain usable). `npm run test:all` green (64 files, 548 tests); typecheck + lint clean.
+
+
 
 
 

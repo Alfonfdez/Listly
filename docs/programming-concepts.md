@@ -377,3 +377,157 @@ CREATE TABLE items (
   FOREIGN KEY (list_id) REFERENCES lists(id) ON DELETE CASCADE
 );
 ```
+
+# Cryptography
+
+## Encryption at rest
+**Definition:** Storing data in encrypted (ciphertext) form so a raw copy of the database reveals nothing without the key.
+**Explanation:** In Listly, locking a list encrypts its items into a single ciphertext blob (the `vaults` row) and **deletes the plaintext item rows**. The items only exist in memory while the list is unlocked. Metadata (name, color, icon) stays plaintext.
+**Example:**
+```ts
+// lock: encrypt then remove plaintext
+const sealed = await vaultCrypto.seal(passphrase, JSON.stringify(items));
+await db.insert(vaults).values(sealed).run();
+await db.delete(items).where(eq(items.list_id, listId)).run();
+```
+
+## AES-GCM (authenticated encryption)
+**Definition:** A block-cipher mode that encrypts **and** authenticates data (AEAD): a wrong key or any tampering makes decryption fail instead of returning garbage.
+**Explanation:** Listly uses AES-256-GCM. The stored blob is `iv + ciphertext + tag` (base64). The GCM authentication tag is what lets the app reject a tampered payload; the initialization vector (IV) must be random per encryption.
+**Example:**
+```ts
+const iv = randomBytes(12);
+const cipher = createCipheriv('aes-256-gcm', key, iv);
+const encrypted = Buffer.concat([cipher.update(plaintext), cipher.final()]);
+const tag = cipher.getAuthTag(); // verified on decrypt
+```
+
+## Key derivation (PBKDF2), salt and iteration count
+**Definition:** Turning a human passphrase into a fixed-size cryptographic key using a deliberately slow, salted function.
+**Explanation:** Passphrases are low-entropy, so we never use them directly as a key. PBKDF2-HMAC-SHA-512 with a random **salt** and a high **iteration count** (600,000) makes brute force expensive. The salt and iteration count are stored with the vault (non-secret) so the same key can be re-derived later.
+**Example:**
+```ts
+const key = await platform.pbkdf2(passphrase, saltHex, 600_000, 'sha512'); // 32 bytes
+```
+
+## Verifier (check a passphrase without decrypting)
+**Definition:** A non-secret value that lets the app reject a wrong passphrase before attempting decryption.
+**Explanation:** Listly stores `SHA-256(salt : verifier : base64(key))`. On unlock, the derived key is re-hashed and compared; a mismatch means "wrong passphrase" without ever decrypting. The GCM tag remains the final integrity check.
+**Example:**
+```ts
+if ((await makeVerifier(keyBytes, salt)) !== vault.verifier) {
+  throw new VaultCryptoError('wrong_passphrase');
+}
+```
+
+## Key zeroization
+**Definition:** Overwriting a sensitive buffer (key bytes) with zeros once it is no longer needed.
+**Explanation:** Reduces the window in which a derived key sits in memory. Listly wipes the key buffer in a `finally` block after sealing/unsealing.
+**Example:**
+```ts
+try {
+  /* use keyBytes */
+} finally {
+  keyBytes.fill(0);
+}
+```
+
+# Native modules
+
+## Local Expo module
+**Definition:** A custom native module kept in the app repo (under `modules/`) instead of being installed from npm.
+**Explanation:** Autolinked by `expo-modules-autolinking` (no `app.json` plugin needed). Listly's `listly-share` exposes the share sheet and Android Downloads from JavaScript. It needs an `expo-module.config.json`, a Gradle entry, and a Swift/Kotlin module, and only works in a **development/release build**.
+**Example:**
+```ts
+// modules/listly-share/src/index.ts
+const module = requireNativeModule<ListlyShareNativeModule>('ListlyShare');
+return module.shareFileAsync(url, mimeType, dialogTitle);
+```
+
+## Lazy native module loading (never crash at startup)
+**Definition:** Loading an optional native module only when it is first used, instead of at module import.
+**Explanation:** If a native module is missing at runtime (e.g. locked lists in Expo Go), a top-level `import`/`require` throws while the app boots. Loading it lazily inside a function keeps the app usable elsewhere.
+**Example:**
+```ts
+let nativeModule: T | null = null;
+function getNativeModule(): T | null {
+  if (nativeModule) return nativeModule;
+  try { nativeModule = requireNativeModule('ListlyShare'); } catch { nativeModule = null; }
+  return nativeModule;
+}
+```
+
+## Probing a TurboModule before requiring it
+**Definition:** Checking that a native module is actually registered before importing its JS package.
+**Explanation:** Some packages throw from a module factory (via `TurboModuleRegistry.getEnforcing`). Metro reports a *failed require* as a fatal error **before** a surrounding `try/catch` runs — so catching is too late. The fix is to **probe** with the non-throwing `TurboModuleRegistry.get(name)` and skip the require entirely when it is absent.
+**Example:**
+```ts
+const present = require('react-native').TurboModuleRegistry?.get('QuickBase64') != null;
+if (present) cached = require('react-native-quick-crypto');
+```
+- Never rely on a **global** that an optional native library only sets after `install()` (e.g. `global.Buffer` from `react-native-quick-crypto`); use the module's own export instead (`crypto.Buffer`).
+
+## Development build vs Expo Go (graceful degradation)
+**Definition:** Designing features that need custom native code to be *unavailable but non-fatal* in Expo Go.
+**Explanation:** Listly gates the vault behind `isVaultAvailable()`; when the native module is absent the lock action shows an explanatory message and every other feature works. See `docs/locked-lists.md`.
+**Example:**
+```ts
+const vaultReady = useMemo(() => isVaultAvailable(), []);
+onPress={() => (vaultReady ? setLockModalVisible(true) : setVaultInfoVisible(true))}
+```
+
+## FileProvider and MediaStore Downloads (Android file sharing)
+**Definition:** Android mechanisms for handing a private app file to another app (`FileProvider` content URI) and for writing a file to the public Downloads folder (`MediaStore.Downloads`).
+**Explanation:** The `listly-share` Android module wraps both: sharing uses a `FileProvider` authority declared in the module manifest; saving to Downloads uses `MediaStore` with an `IS_PENDING` write (API 29+).
+**Example:**
+```kotlin
+FileProvider.getUriForFile(context, "$packageName.listlyshare.fileprovider", file)
+resolver.insert(MediaStore.Downloads.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY), values)
+```
+
+## Share-sheet result (iOS completion handler)
+**Definition:** Reporting whether the user actually completed a share or dismissed the sheet.
+**Explanation:** On iOS, `UIActivityViewController.completionWithItemsHandler` reports `completed`; the module resolves `"saved"`/`"dismissed"` accordingly. Android has no reliable result for share targets, so it reports `"saved"` whenever the sheet returns.
+**Example:**
+```swift
+activityController.completionWithItemsHandler = { _, completed, _, error in
+  promise.resolve(completed ? "saved" : "dismissed")
+}
+```
+
+# Money and numbers
+
+## Integer minor units (avoiding floating-point drift)
+**Definition:** Storing money as an integer number of the smallest unit (e.g. cents) instead of a float.
+**Explanation:** Binary floating point cannot represent values like `0.1` exactly, so summing prices drifts. Numeric lists store `amount_minor` as integer minor units and only divide by 100 for display; all arithmetic is integer.
+**Example:**
+```ts
+const lineTotalMinor = amountMinor * quantity;   // integers
+const total = formatMinor(items.reduce((sum, i) => sum + i.amount_minor * i.quantity, 0));
+```
+
+# Concurrency
+
+## Serialized async transactions (mutex/queue)
+**Definition:** Ensuring only one database transaction runs at a time by chaining calls through a single promise queue.
+**Explanation:** Two overlapping `BEGIN`s crash SQLite ("cannot start a transaction within a transaction"). Listly funnels write transactions through one authority that chains each call onto the previous, so concurrent drags/refreshes can never nest.
+**Example:**
+```ts
+let chain: Promise<unknown> = Promise.resolve();
+export async function runExclusive<T>(task: () => Promise<T>): Promise<T> {
+  const run = chain.then(task);
+  chain = run.then(() => undefined, () => undefined);
+  return run;
+}
+```
+
+# TypeScript
+
+## `as const` maps for typed codes and unions
+**Definition:** Using `as const` on an object literal to get narrow literal types, then deriving a union type from it.
+**Explanation:** Centralizes "magic strings" (error codes, scopes, status) in one place and gives a compile-time union. Listly uses this for `ERROR_SCOPE` and `VAULT_ERROR`.
+**Example:**
+```ts
+export const VAULT_ERROR = { wrongPassphrase: 'wrong_passphrase', tampered: 'tampered', unsupported: 'unsupported' } as const;
+export type VaultErrorCode = (typeof VAULT_ERROR)[keyof typeof VAULT_ERROR];
+```
