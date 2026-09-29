@@ -280,6 +280,15 @@ Lock a list with a passphrase so its items are encrypted at rest (real confident
 - An unlocked locked list renders as a normal list (bottom-pinned add bar, search, select, sort, batch toolbar, edit/delete), with every write re-encrypted via `saveUnlocked`; a locked list offers *Change passphrase* (current + new ×2, fresh salt, same KDF config, items unchanged) instead of *Lock list*.
 - Spec: spec/features/027-locked-lists/.
 
+## 028-per-kind-optional-fields
+Status: done.
+
+Configure the optional item fields (Notes, Photos) independently for standard and numeric lists:
+- `Config` gains `showNotesNumeric` / `showPhotosNumeric` / `editShowNotesNumeric` / `editShowPhotosNumeric` (default `true`, DB keys `*_numeric`); the existing four keys remain the standard-list flags. No schema-version change (row-per-key config, lenient read).
+- `useItemDisplayFlags(numeric)` resolves the effective flag pair; `ItemRow`, `AddItemBar` and `ItemFormModal` read through it.
+- Personalization groups the optional-field cards by kind (Standard lists / Numeric lists), eight checkboxes total.
+- Spec: spec/features/028-per-kind-optional-fields/.
+
 ## Future scope (not scheduled)
 - Per-list currency symbol (the numeric list is currency-agnostic for now).
 - A third "pending" (all − done) total.

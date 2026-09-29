@@ -16,6 +16,10 @@ export const DEFAULT_CONFIG: Config = {
   showPhotos: true,
   editShowNotes: true,
   editShowPhotos: true,
+  showNotesNumeric: true,
+  showPhotosNumeric: true,
+  editShowNotesNumeric: true,
+  editShowPhotosNumeric: true,
 };
 
 export const DB_KEY_MAP: Record<string, keyof Config> = {
@@ -31,6 +35,10 @@ export const DB_KEY_MAP: Record<string, keyof Config> = {
   show_photos: 'showPhotos',
   edit_show_notes: 'editShowNotes',
   edit_show_photos: 'editShowPhotos',
+  show_notes_numeric: 'showNotesNumeric',
+  show_photos_numeric: 'showPhotosNumeric',
+  edit_show_notes_numeric: 'editShowNotesNumeric',
+  edit_show_photos_numeric: 'editShowPhotosNumeric',
 };
 
 const DB_KEY_OF: Record<string, string> = Object.fromEntries(

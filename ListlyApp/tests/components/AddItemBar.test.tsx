@@ -68,7 +68,7 @@ describe('AddItemBar', () => {
   });
 
   it('keeps the amount and quantity fields on a numeric list while toggles are off', async () => {
-    setConfig({ showNotes: false, showPhotos: false });
+    setConfig({ showNotesNumeric: false, showPhotosNumeric: false });
     const view = await render(<AddItemBar {...baseProps} numeric />);
 
     expect(view.getByLabelText('Amount')).toBeTruthy();
@@ -76,8 +76,8 @@ describe('AddItemBar', () => {
     expect(view.queryByLabelText('Toggle details')).toBeNull();
   });
 
-  it('applies the toggles on a numeric list too', async () => {
-    setConfig({ showNotes: false });
+  it('applies the numeric toggles on a numeric list', async () => {
+    setConfig({ showNotesNumeric: false });
     const user = userEvent.setup();
     const view = await render(<AddItemBar {...baseProps} numeric />);
 
@@ -86,5 +86,15 @@ describe('AddItemBar', () => {
     expect(view.getByLabelText('Amount')).toBeTruthy();
     expect(view.queryByLabelText('Note')).toBeNull();
     expect(view.getByLabelText('Add photo')).toBeTruthy();
+  });
+
+  it('uses the standard toggles on a standard list independently of the numeric ones', async () => {
+    setConfig({ showNotes: false, showNotesNumeric: true });
+    const user = userEvent.setup();
+    const view = await render(<AddItemBar {...baseProps} />);
+
+    await user.press(view.getByLabelText('Toggle details'));
+
+    expect(view.queryByLabelText('Note')).toBeNull();
   });
 });

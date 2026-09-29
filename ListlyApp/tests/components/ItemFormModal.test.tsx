@@ -51,6 +51,20 @@ describe('ItemFormModal', () => {
     expect(view.getByLabelText('Add photo')).toBeTruthy();
   });
 
+  it('keeps the numeric edit fields when only the standard edit toggles are off', async () => {
+    setConfig({ editShowNotes: false, editShowPhotos: false, editShowNotesNumeric: true, editShowPhotosNumeric: true });
+    const view = await render(<ItemFormModal {...baseProps} numeric />);
+    expect(view.getByLabelText('Note')).toBeTruthy();
+    expect(view.getByLabelText('Add photo')).toBeTruthy();
+  });
+
+  it('hides the numeric edit fields when the numeric edit toggles are off', async () => {
+    setConfig({ editShowNotes: true, editShowPhotos: true, editShowNotesNumeric: false, editShowPhotosNumeric: false });
+    const view = await render(<ItemFormModal {...baseProps} numeric />);
+    expect(view.queryByLabelText('Note')).toBeNull();
+    expect(view.queryByLabelText('Add photo')).toBeNull();
+  });
+
   it('does not reset typed input when the parent re-renders while open', async () => {
     setPhotosMock.mockClear();
     const user = userEvent.setup();

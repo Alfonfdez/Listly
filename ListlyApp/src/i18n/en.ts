@@ -172,6 +172,8 @@ export const en = {
   settings_personalization: 'Personalization',
   settings_home_screen: 'Home screen',
   settings_lists_screen: 'Lists screen',
+  settings_standard_lists: 'Standard lists',
+  settings_numeric_lists: 'Numeric lists',
   settings_collections_screen: 'Collections screen',
   settings_collection_detail_screen: 'Collection detail',
   settings_list_layout: 'Layout',

@@ -897,6 +897,14 @@ pm run test:all green.
 - Fix (test harness): `test-renderer` was resolved to **two different builds** — Node's `require` picked `main` (`dist/index.cjs`) while Vite picked `module` (`dist/index.js`) — so `@testing-library/react-native`'s module-level cleanup queue existed twice and `vitest-native` warned on every run ("resolves to two different files"). `vitest.config.mts` now pins `resolve.mainFields` (`module` → … → `main`) and aliases `test-renderer` to its CJS entry so both resolvers agree on one file; the warning is gone.
 - No app code changed. `npm run test:all` green (67 files, 573 tests) and stable across three consecutive runs; typecheck + lint clean. Spot-runs of the component/hook/screen suites individually also pass.
 
+[2026-09-29] + | ListlyApp/src/hooks/useItemDisplayFlags.ts, src/database/{schemas,configDefaults}.ts, src/screens/settings/PersonalizationScreen.tsx, src/components/{ItemRow,AddItemBar,ItemFormModal}.tsx
+- Feature (028, per-kind optional fields): the Notes / Photos optional-field options are now configurable **independently for standard and numeric lists**. `Config` gains `showNotesNumeric` / `showPhotosNumeric` / `editShowNotesNumeric` / `editShowPhotosNumeric` (default `true`, DB keys `*_numeric`); the existing four keys stay the standard-list flags, so standard behavior is unchanged and no schema-version bump is needed (row-per-key config, lenient read → existing installs and legacy backups fill the new keys with the defaults).
+- New `useItemDisplayFlags(numeric)` resolves the effective `{ showNotes, showPhotos, editShowNotes, editShowPhotos }` pair; `ItemRow`, `AddItemBar` and `ItemFormModal` read through it (each already receives the list's `numeric`; the add bar keeps sharing the *Item display* flags with the rows).
+- Personalization: the optional-field cards are grouped under **Standard lists** and **Numeric lists** headings (Item display + Edit item each) — eight checkboxes total; new i18n `settings_standard_lists` / `settings_numeric_lists` (en/es).
+- Tests: `tests/hooks/useItemDisplayFlags.test.ts`, `tests/components/ItemRow.perKind.test.tsx` (new), plus kind-aware cases in `AddItemBar`/`ItemFormModal`, `PersonalizationScreen` (8 toggles), `schemas`/`dbDrift`/`backup` (round-trip + legacy defaults) and the config stub. `npm run test:all` green (69 files, 584 tests); typecheck + lint clean.
+- Spec: new `spec/features/028-per-kind-optional-fields/` (1-spec / 2-plan / 3-tasks), roadmap 028 entry, and a clarifying bullet in 015's 1-spec.
+
+
 
 
 

@@ -17,6 +17,10 @@ const configTemplate: Config = {
   showPhotos: true,
   editShowNotes: true,
   editShowPhotos: true,
+  showNotesNumeric: true,
+  showPhotosNumeric: true,
+  editShowNotesNumeric: true,
+  editShowPhotosNumeric: true,
 };
 
 interface ConfigStubState {

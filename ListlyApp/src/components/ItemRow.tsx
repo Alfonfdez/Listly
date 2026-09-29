@@ -4,6 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useConfig } from '../context/ConfigContext';
 import { useFontSize } from '../hooks/useFontSize';
 import { useLabels } from '../hooks/useLabels';
+import { useItemDisplayFlags } from '../hooks/useItemDisplayFlags';
 import { BUTTON_BORDER_RADIUS, ALPHA_SELECTED, ALPHA_SUBTLE, PRESSED_OPACITY, HIT_SLOP, HIT_SLOP_SMALL } from './componentStyles';
 import type { Item } from '../database/types';
 import { MAX_ITEM_PICTURES } from '../constants/types';
@@ -28,13 +29,14 @@ interface Props {
 }
 
 function ItemRowInner({ item, selectMode, selected, numeric = false, onToggle, onEdit }: Props) {
-  const { activeColors: c, config } = useConfig();
+  const { activeColors: c } = useConfig();
   const fs = useFontSize();
   const labels = useLabels();
+  const flags = useItemDisplayFlags(numeric);
   const isDone = isOn(item.checked);
   const photos = parseItemPhotos(item.pictures);
-  const showNote = config.showNotes && Boolean(item.note);
-  const showPhotos = config.showPhotos && photos.length > 0;
+  const showNote = flags.showNotes && Boolean(item.note);
+  const showPhotos = flags.showPhotos && photos.length > 0;
   const [viewerIndex, setViewerIndex] = useState<number | null>(null);
   const [noteViewerVisible, setNoteViewerVisible] = useState(false);
 
