@@ -1,6 +1,7 @@
 import type { DatabaseHandle } from './types';
 import { openEngine } from './engine';
 import { createSchema } from './migrations/001_initial';
+import { runExclusive } from './transaction';
 import { deleteItemPhotos, parseItemPhotos } from '../utils/itemPhotos';
 import { DATABASE_NAME } from './constants';
 
@@ -21,7 +22,7 @@ async function migrate(database: DatabaseHandle): Promise<void> {
 
   if (currentVersion >= SCHEMA_VERSION) return;
 
-  await database.withTransactionAsync(async () => {
+  await runExclusive(database, async () => {
     // Pre-1.0 development: the schema is free to change, so an out-of-date
     // database is rebuilt from the single canonical schema instead of being
     // migrated incrementally. Once v1.0.0 is released this becomes a real
@@ -66,7 +67,7 @@ async function deleteAllPhotos(database: DatabaseHandle): Promise<void> {
 export async function clearDataKeepSettings(): Promise<void> {
   const database = await getDatabase();
   await deleteAllPhotos(database);
-  await database.withTransactionAsync(async () => {
+  await runExclusive(database, async () => {
     await database.runAsync('DELETE FROM items');
     await database.runAsync('DELETE FROM lists');
     await database.runAsync('DELETE FROM collections');
@@ -77,7 +78,7 @@ export async function clearDataKeepSettings(): Promise<void> {
 export async function resetDatabase(): Promise<void> {
   const database = await getDatabase();
   await deleteAllPhotos(database);
-  await database.withTransactionAsync(async () => {
+  await runExclusive(database, async () => {
     await database.runAsync('DELETE FROM items');
     await database.runAsync('DELETE FROM lists');
     await database.runAsync('DELETE FROM collections');

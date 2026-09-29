@@ -4,6 +4,7 @@ export const ERROR_SCOPE = {
   loadConfig: 'load config',
   saveConfig: 'save config',
   reloadConfig: 'reload config',
+  saveDatabase: 'save database',
   addItem: 'add item',
   updateItem: 'update item',
   toggleItem: 'toggle item',
