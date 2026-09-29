@@ -4,7 +4,7 @@ import { createSchema } from './migrations/001_initial';
 import { deleteItemPhotos, parseItemPhotos } from '../utils/itemPhotos';
 import { DATABASE_NAME } from './constants';
 
-export const SCHEMA_VERSION = 8;
+export const SCHEMA_VERSION = 9;
 
 let dbPromise: Promise<DatabaseHandle> | null = null;
 
@@ -32,6 +32,7 @@ async function migrate(database: DatabaseHandle): Promise<void> {
         DROP TABLE IF EXISTS lists;
         DROP TABLE IF EXISTS collections;
         DROP TABLE IF EXISTS config;
+        DROP TABLE IF EXISTS vaults;
       `);
     }
     await createSchema(database);
@@ -69,6 +70,7 @@ export async function clearDataKeepSettings(): Promise<void> {
     await database.runAsync('DELETE FROM items');
     await database.runAsync('DELETE FROM lists');
     await database.runAsync('DELETE FROM collections');
+    await database.runAsync('DELETE FROM vaults');
   });
 }
 
@@ -80,5 +82,6 @@ export async function resetDatabase(): Promise<void> {
     await database.runAsync('DELETE FROM lists');
     await database.runAsync('DELETE FROM collections');
     await database.runAsync('DELETE FROM config');
+    await database.runAsync('DELETE FROM vaults');
   });
 }

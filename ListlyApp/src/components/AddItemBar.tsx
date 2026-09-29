@@ -22,9 +22,23 @@ interface Props {
   position: number;
   numeric?: boolean;
   onAdded: () => void | Promise<void>;
+  onSubmitOverride?: (data: {
+    name: string;
+    note: string | null;
+    pictures: string | null;
+    amount_minor: number | null;
+    quantity: number;
+  }) => Promise<void>;
 }
 
-export default function AddItemBar({ listId, existingNames, position, numeric = false, onAdded }: Props) {
+export default function AddItemBar({
+  listId,
+  existingNames,
+  position,
+  numeric = false,
+  onAdded,
+  onSubmitOverride,
+}: Props) {
   const { activeColors: c } = useConfig();
   const fs = useFontSize();
   const labels = useLabels();
@@ -46,16 +60,18 @@ export default function AddItemBar({ listId, existingNames, position, numeric = 
       return;
     }
     try {
-      await itemRepo.create({
-        list_id: listId,
+      const payload = {
         name: name.trim(),
         note: note.trim() || null,
         pictures: serializeItemPhotos(photos),
-        checked: 0,
-        position,
         amount_minor: numeric ? amountMinor : null,
         quantity: numeric ? clampQuantity(quantity) : 0,
-      });
+      };
+      if (onSubmitOverride) {
+        await onSubmitOverride(payload);
+      } else {
+        await itemRepo.create({ list_id: listId, checked: 0, position, ...payload });
+      }
       setName('');
       setNote('');
       setPhotos([]);

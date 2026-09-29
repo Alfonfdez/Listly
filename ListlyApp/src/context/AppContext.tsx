@@ -4,6 +4,7 @@ import {
   listRepository as listRepo,
   itemRepository as itemRepo,
   collectionRepository as collectionRepo,
+  vaultRepository as vaultRepo,
 } from '../database';
 import { logError, ERROR_SCOPE } from '../utils/errors';
 
@@ -13,6 +14,7 @@ interface AppContextType {
   listsByCollectionId: Map<number, ListWithCounts[]>;
   baseLists: ListWithCounts[];
   itemsByListId: Map<number, Item[]>;
+  lockedListIds: Set<number>;
   loading: boolean;
   refresh: () => Promise<void>;
 }
@@ -31,13 +33,15 @@ interface LoadedData {
   listsByCollectionId: Map<number, ListWithCounts[]>;
   baseLists: ListWithCounts[];
   itemsByListId: Map<number, Item[]>;
+  lockedListIds: Set<number>;
 }
 
 async function loadAll(): Promise<LoadedData> {
-  const [lists, items, collections] = await Promise.all([
+  const [lists, items, collections, lockedListIds] = await Promise.all([
     listRepo.withCounts(),
     itemRepo.listAll(),
     collectionRepo.withCounts(),
+    vaultRepo.listIds(),
   ]);
   const itemsByListId = new Map<number, Item[]>();
   for (const item of items) {
@@ -62,7 +66,7 @@ async function loadAll(): Promise<LoadedData> {
       }
     }
   }
-  return { lists, itemsByListId, collections, listsByCollectionId, baseLists };
+  return { lists, itemsByListId, collections, listsByCollectionId, baseLists, lockedListIds: new Set(lockedListIds) };
 }
 
 export function AppProvider({ children }: { children: ReactNode }) {
@@ -71,6 +75,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [listsByCollectionId, setListsByCollectionId] = useState<Map<number, ListWithCounts[]>>(new Map());
   const [baseLists, setBaseLists] = useState<ListWithCounts[]>([]);
   const [itemsByListId, setItemsByListId] = useState<Map<number, Item[]>>(new Map());
+  const [lockedListIds, setLockedListIds] = useState<Set<number>>(new Set());
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -84,6 +89,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         setListsByCollectionId(data.listsByCollectionId);
         setBaseLists(data.baseLists);
         setItemsByListId(data.itemsByListId);
+        setLockedListIds(data.lockedListIds);
       } catch (error) {
         logError(ERROR_SCOPE.loadLists, error);
       } finally {
@@ -102,14 +108,15 @@ export function AppProvider({ children }: { children: ReactNode }) {
       setListsByCollectionId(data.listsByCollectionId);
       setBaseLists(data.baseLists);
       setItemsByListId(data.itemsByListId);
+      setLockedListIds(data.lockedListIds);
     } catch (error) {
       logError(ERROR_SCOPE.refreshLists, error);
     }
   }, []);
 
   const value = useMemo(
-    () => ({ lists, collections, listsByCollectionId, baseLists, itemsByListId, loading, refresh }),
-    [lists, collections, listsByCollectionId, baseLists, itemsByListId, loading, refresh]
+    () => ({ lists, collections, listsByCollectionId, baseLists, itemsByListId, lockedListIds, loading, refresh }),
+    [lists, collections, listsByCollectionId, baseLists, itemsByListId, lockedListIds, loading, refresh]
   );
 
   return (

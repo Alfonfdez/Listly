@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
-import { collectionSchema, itemSchema, listSchema } from './schemas';
-import type { Collection, DatabaseHandle, Item, List } from './types';
+import { collectionSchema, itemSchema, listSchema, vaultSchema } from './schemas';
+import type { Collection, DatabaseHandle, Item, List, Vault } from './types';
 
 interface ConfigRow {
   key: string;
@@ -47,6 +47,7 @@ const snapshotSchema = z.object({
     collections: z.array(backupCollectionSchema).optional().default([]),
     lists: z.array(backupListSchema),
     items: z.array(backupItemSchema),
+    vaults: z.array(vaultSchema).optional().default([]),
     config: z.array(configRowSchema),
   }),
 });
@@ -84,10 +85,11 @@ export function serializeBackup(snapshot: BackupSnapshot): string {
 }
 
 export async function buildBackup(db: DatabaseHandle, schemaVersion: number): Promise<BackupSnapshot> {
-  const [collections, lists, items, config] = await Promise.all([
+  const [collections, lists, items, vaults, config] = await Promise.all([
     db.getAllAsync<Collection>('SELECT * FROM collections ORDER BY position, id'),
     db.getAllAsync<List>('SELECT * FROM lists ORDER BY position, id'),
     db.getAllAsync<Item>('SELECT * FROM items ORDER BY position, id'),
+    db.getAllAsync<Vault>('SELECT * FROM vaults ORDER BY list_id'),
     db.getAllAsync<ConfigRow>('SELECT key, value FROM config'),
   ]);
 
@@ -97,7 +99,7 @@ export async function buildBackup(db: DatabaseHandle, schemaVersion: number): Pr
     formatVersion: BACKUP_FORMAT_VERSION,
     exportedAt: new Date().toISOString(),
     schema: schemaVersion,
-    data: { collections, lists, items, config },
+    data: { collections, lists, items, vaults, config },
   };
 }
 
@@ -106,6 +108,7 @@ export async function applyBackup(db: DatabaseHandle, snapshot: BackupSnapshot):
     await db.runAsync('DELETE FROM items');
     await db.runAsync('DELETE FROM lists');
     await db.runAsync('DELETE FROM collections');
+    await db.runAsync('DELETE FROM vaults');
     await db.runAsync('DELETE FROM config');
 
     for (const collection of snapshot.data.collections ?? []) {
@@ -150,6 +153,20 @@ export async function applyBackup(db: DatabaseHandle, snapshot: BackupSnapshot):
         item.pictures,
         item.amount_minor,
         item.quantity
+      );
+    }
+
+    for (const row of snapshot.data.vaults ?? []) {
+      await db.runAsync(
+        'INSERT INTO vaults (list_id, salt, kdf_iterations, kdf_digest, kdf_version, verifier, payload, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+        row.list_id,
+        row.salt,
+        row.kdf_iterations,
+        row.kdf_digest,
+        row.kdf_version,
+        row.verifier,
+        row.payload,
+        row.updated_at
       );
     }
 

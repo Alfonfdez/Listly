@@ -15,7 +15,7 @@ export default defineConfig({
   },
   test: {
     environment: 'happy-dom',
-    setupFiles: ['./tests/helpers/configStub.ts', './tests/database/fileSystemMock.ts'],
+    setupFiles: ['./tests/helpers/configStub.ts', './tests/database/fileSystemMock.ts', './tests/database/quickCryptoMock.ts'],
     include: ['tests/**/*.test.{ts,tsx}'],
   },
 });

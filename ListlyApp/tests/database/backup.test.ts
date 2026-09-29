@@ -51,6 +51,7 @@ function makeSnapshot(overrides: Partial<BackupSnapshot> = {}): BackupSnapshot {
       collections: [],
       lists: [LIST_ROW],
       items: [ITEM_ROW],
+      vaults: [],
       config: [{ key: 'theme', value: 'dark' }],
     },
     ...overrides,
@@ -121,7 +122,7 @@ describe('backup service', () => {
     expect(snapshot.app).toBe('Listly');
     expect(snapshot.kind).toBe('backup');
     expect(snapshot.formatVersion).toBe(BACKUP_FORMAT_VERSION);
-    expect(snapshot.schema).toBe(8);
+    expect(snapshot.schema).toBe(9);
     expect(snapshot.data.lists).toHaveLength(1);
     expect(snapshot.data.items).toHaveLength(1);
 
@@ -138,6 +139,67 @@ describe('backup service', () => {
     const config = await configRepo.get();
     expect(config.theme).toBe('dark');
     expect(config.showNotes).toBe(false);
+  });
+
+  it('exports a locked list encrypted and restores the vault on import', async () => {
+    const { listRepo } = await import('../../src/database/repositories/listRepo');
+    const { itemRepo } = await import('../../src/database/repositories/itemRepo');
+    const { vaultRepo } = await import('../../src/database/repositories/vaultRepo');
+    const { exportBackup, importBackup } = await import('../../src/database/backupService');
+
+    const list = await listRepo.create({ name: 'Secrets', color: '#F472B6', icon: 'lock-closed-outline' });
+    await itemRepo.create({ list_id: list.id, name: 'PIN', checked: 0, note: '1234', pictures: null, position: 0 });
+    await vaultRepo.lock(list.id, 'secret123', await vaultRepo.readPlainItems(list.id));
+
+    const json = await exportBackup();
+    const snapshot = JSON.parse(json) as BackupSnapshot;
+    expect(snapshot.data.vaults).toHaveLength(1);
+    expect(snapshot.data.vaults?.[0].payload).not.toContain('PIN');
+    expect(snapshot.data.items.some(i => i.list_id === list.id)).toBe(false);
+
+    await listRepo.delete(list.id);
+    await importBackup(json);
+
+    expect(await vaultRepo.exists(list.id)).toBe(true);
+    const unlocked = await vaultRepo.unlock(list.id, 'secret123');
+    expect(unlocked.map(i => i.name)).toEqual(['PIN']);
+    expect(unlocked[0].note).toBe('1234');
+  });
+
+  it('imports a legacy backup without vaults', async () => {
+    const { listRepo } = await import('../../src/database/repositories/listRepo');
+    const { vaultRepo } = await import('../../src/database/repositories/vaultRepo');
+    const { importBackup } = await import('../../src/database/backupService');
+
+    const legacy = {
+      app: 'Listly',
+      kind: 'backup',
+      formatVersion: BACKUP_FORMAT_VERSION,
+      exportedAt: '2026-01-01T00:00:00.000Z',
+      schema: 8,
+      data: {
+        collections: [],
+        lists: [
+          {
+            id: 1,
+            name: 'Legacy',
+            color: '#22D3EE',
+            icon: 'cart-outline',
+            created_at: '2026-01-01 00:00:00',
+            position: 0,
+            pinned: 0,
+            kind: 'standard',
+            collection_id: null,
+          },
+        ],
+        items: [],
+        config: [],
+      },
+    };
+
+    await importBackup(JSON.stringify(legacy));
+    expect((await listRepo.list()).map(l => l.name)).toEqual(['Legacy']);
+    expect(await vaultRepo.listIds()).toEqual([]);
   });
 
   it('preserves pinned flags through export and import', async () => {

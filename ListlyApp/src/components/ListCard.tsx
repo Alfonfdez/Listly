@@ -5,7 +5,7 @@ import { TRANSPARENT } from '../constants/themes';
 import { withAlpha } from '../utils/color';
 import SelectionCheck from './SelectionCheck';
 import TypeBadge from './TypeBadge';
-import { TileShell, TileName, TileCollection, TileProgress, TileIcon, tileStyles } from './Tile';
+import { TileShell, TileName, TileCollection, TileProgress, TileLocked, TileIcon, tileStyles } from './Tile';
 import { useFontSize } from '../hooks/useFontSize';
 import type { ListWithCounts } from '../database/types';
 
@@ -16,9 +16,10 @@ interface Props {
   selected: boolean;
   onPress: () => void;
   reserveCollectionLine?: boolean;
+  locked?: boolean;
 }
 
-function ListCardInner({ list, collection, selectMode, selected, onPress, reserveCollectionLine = false }: Props) {
+function ListCardInner({ list, collection, selectMode, selected, onPress, reserveCollectionLine = false, locked = false }: Props) {
   const fs = useFontSize();
 
   return (
@@ -32,11 +33,15 @@ function ListCardInner({ list, collection, selectMode, selected, onPress, reserv
       {selectMode ? <SelectionCheck selected={selected} style={tileStyles.check} iconSize={14} /> : null}
       {!selectMode ? <TypeBadge type="list" style={tileStyles.typeBadge} /> : null}
       <TileIcon icon={list.icon} color={list.color} />
-      <TileName name={list.name} pinned={list.pinned} fontSize={fs(14)} />
+      <TileName name={list.name} pinned={list.pinned} locked={locked} fontSize={fs(14)} />
       {!selectMode ? (
         <TileCollection collection={collection} reserveLine={reserveCollectionLine} />
       ) : null}
-      <TileProgress completed={list.completed} total={list.total} fontSize={fs(12)} />
+      {locked ? (
+        <TileLocked fontSize={fs(12)} />
+      ) : (
+        <TileProgress completed={list.completed} total={list.total} fontSize={fs(12)} />
+      )}
     </TileShell>
   );
 }

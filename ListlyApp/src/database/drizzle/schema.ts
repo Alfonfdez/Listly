@@ -41,3 +41,14 @@ export const config = sqliteTable('config', {
   key: text('key').primaryKey(),
   value: text('value').notNull(),
 });
+
+export const vaults = sqliteTable('vaults', {
+  list_id: integer('list_id').primaryKey(),
+  salt: text('salt').notNull(),
+  kdf_iterations: integer('kdf_iterations').notNull(),
+  kdf_digest: text('kdf_digest').notNull(),
+  kdf_version: integer('kdf_version').notNull(),
+  verifier: text('verifier').notNull(),
+  payload: text('payload').notNull(),
+  updated_at: text('updated_at').notNull().default(sql`(datetime('now', 'localtime'))`),
+});

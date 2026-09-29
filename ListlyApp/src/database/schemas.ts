@@ -45,6 +45,17 @@ export const itemSchema = z.object({
   quantity: z.number().int(),
 });
 
+export const vaultSchema = z.object({
+  list_id: z.number().int(),
+  salt: z.string(),
+  kdf_iterations: z.number().int(),
+  kdf_digest: z.string(),
+  kdf_version: z.number().int(),
+  verifier: z.string(),
+  payload: z.string(),
+  updated_at: z.string(),
+});
+
 export const configSchema = z.object({
   theme: themeSchema,
   language: languageSchema,

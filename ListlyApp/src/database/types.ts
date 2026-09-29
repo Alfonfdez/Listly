@@ -1,12 +1,13 @@
 import type { z } from 'zod';
 
-import { collectionSchema, configSchema, itemSchema, listSchema } from './schemas';
+import { collectionSchema, configSchema, itemSchema, listSchema, vaultSchema } from './schemas';
 import type { ListKind } from '../constants/types';
 
 export type List = z.infer<typeof listSchema>;
 export type Item = z.infer<typeof itemSchema>;
 export type Config = z.infer<typeof configSchema>;
 export type Collection = z.infer<typeof collectionSchema>;
+export type Vault = z.infer<typeof vaultSchema>;
 
 export interface ListWithCounts {
   id: number;

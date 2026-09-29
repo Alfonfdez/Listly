@@ -1,11 +1,11 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import Sortable, { type SortableGridRenderItem } from 'react-native-sortables';
 import { useFocusEffect, useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
-import { type IconName, type NavigationProp, type RootStackParamList } from '../constants/types';
+import { type IconName, type NavigationProp, type RootStackParamList, COPY_FEEDBACK_MS } from '../constants/types';
 import type { Item } from '../database/types';
-import { itemRepository as itemRepo } from '../database';
+import { itemRepository as itemRepo, vaultRepository as vaultRepo } from '../database';
 import { logError, runSafelyAsync, ERROR_SCOPE } from '../utils/errors';
 import { useApp } from '../context/AppContext';
 import { useConfig } from '../context/ConfigContext';
@@ -15,7 +15,7 @@ import { useDragOrder } from '../hooks/useDragOrder';
 import { useLabels } from '../hooks/useLabels';
 import { uniqueNormalizedNames } from '../utils/validation';
 import { filterItemsByQuery } from '../utils/search';
-import { parseItemPhotos } from '../utils/itemPhotos';
+import { parseItemPhotos, serializeItemPhotos } from '../utils/itemPhotos';
 import { isOn } from '../utils/flags';
 import { sumTotals } from '../utils/numeric';
 import { HIT_SLOP } from '../components/componentStyles';
@@ -37,20 +37,37 @@ import { useItemEditing } from '../hooks/useItemEditing';
 import { useBatchItemActions } from '../hooks/useBatchItemActions';
 import OptionPickerModal from '../components/settings/OptionPickerModal';
 import ListPickerModal from '../components/ListPickerModal';
+import LockListModal from '../components/LockListModal';
+import VaultUnlockView from '../components/VaultUnlockView';
+import InfoModal from '../components/InfoModal';
+import { useVaultSession } from '../hooks/useVaultSession';
+import { isVaultAvailable } from '../utils/vaultCrypto';
 
 export default function ListDetailScreen() {
   const route = useRoute<RouteProp<RootStackParamList, 'ListDetail'>>();
   const navigation = useNavigation<NavigationProp<'ListDetail'>>();
   const { listId, notice } = route.params;
 
-  const { lists, itemsByListId, refresh } = useApp();
+  const { lists, itemsByListId, refresh, lockedListIds } = useApp();
   const { activeColors: c } = useConfig();
   const fs = useFontSize();
   const labels = useLabels();
 
   const list = useMemo(() => lists.find(l => l.id === listId), [lists, listId]);
-  const items = useMemo(() => itemsByListId.get(listId) ?? [], [itemsByListId, listId]);
-  const hasOtherLists = useMemo(() => lists.some(l => l.id !== listId), [lists, listId]);
+  const locked = lockedListIds.has(listId);
+  const vault = useVaultSession(listId);
+  const [lockModalVisible, setLockModalVisible] = useState(false);
+  const [passphraseChanged, setPassphraseChanged] = useState(false);
+  const [vaultInfoVisible, setVaultInfoVisible] = useState(false);
+  const vaultReady = useMemo(() => isVaultAvailable(), []);
+
+  const repoItems = useMemo(() => itemsByListId.get(listId) ?? [], [itemsByListId, listId]);
+  const items = useMemo(
+    () => (vault.unlocked ? (vault.items as unknown as Item[]) : repoItems),
+    [vault.unlocked, vault.items, repoItems]
+  );
+  const hasPhotos = useMemo(() => items.some(i => parseItemPhotos(i.pictures).length > 0), [items]);
+  const hasOtherLists = useMemo(() => lists.some(l => l.id !== listId && !lockedListIds.has(l.id)), [lists, listId, lockedListIds]);
 
   const [searchActive, setSearchActive] = useState(false);
   const [query, setQuery] = useState('');
@@ -66,15 +83,26 @@ export default function ListDetailScreen() {
     closeDeleteConfirm,
     confirmDelete,
   } = useSelectMode({
-    deleteMany: (ids) => itemRepo.deleteMany(ids as number[]),
+    deleteMany: (ids) =>
+      vault.unlocked ? vault.deleteMany(ids as number[]) : itemRepo.deleteMany(ids as number[]),
     afterDelete: refresh,
   });
 
+  const relock = vault.relock;
   useFocusEffect(
     useCallback(() => {
       void refresh();
-    }, [refresh])
+      return () => {
+        relock();
+      };
+    }, [refresh, relock])
   );
+
+  useEffect(() => {
+    if (!passphraseChanged) return;
+    const timer = setTimeout(() => setPassphraseChanged(false), COPY_FEEDBACK_MS);
+    return () => clearTimeout(timer);
+  }, [passphraseChanged]);
 
   useSelectSearchHeader({
     navigation,
@@ -96,10 +124,14 @@ export default function ListDetailScreen() {
     filteredItems,
     useCallback((ids: number[]) => {
       void (async () => {
+        if (vault.unlocked) {
+          await vault.reorder(ids);
+          return;
+        }
         await runSafelyAsync(itemRepo.reorder(listId, ids), ERROR_SCOPE.reorderItems);
         await refresh();
       })();
-    }, [listId, refresh])
+    }, [listId, refresh, vault])
   );
 
   const {
@@ -148,8 +180,7 @@ export default function ListDetailScreen() {
     clearCompleted,
   } = useBatchItemActions({ listId, refresh });
 
-  const done = items.filter(i => isOn(i.checked)).length;
-  const total = items.length;
+  const done = items.filter(i => isOn(i.checked)).length;  const total = items.length;
   const pct = total > 0 ? Math.round((done / total) * 100) : 0;
   const numeric = list?.kind === 'numeric';
   const totals = useMemo(
@@ -160,8 +191,66 @@ export default function ListDetailScreen() {
     [numeric, items]
   );
 
+  const handleSaveEdit = useCallback(
+    async (name: string, note: string | null, photos: string[], amountMinor: number | null, quantity: number) => {
+      if (vault.unlocked) {
+        if (!editing) return;
+        await vault.updateItem(editing.id, {
+          name,
+          note,
+          pictures: serializeItemPhotos(photos),
+          amount_minor: amountMinor,
+          quantity,
+        });
+        setEditing(null);
+        return;
+      }
+      await saveEdit(name, note, photos, amountMinor, quantity);
+    },
+    [vault, editing, setEditing, saveEdit]
+  );
+
+  const handleDeleteItem = useCallback(async () => {
+    if (vault.unlocked) {
+      if (!editing) return;
+      await vault.deleteItem(editing.id);
+      setEditing(null);
+      return;
+    }
+    await deleteItem();
+  }, [vault, editing, setEditing, deleteItem]);
+
+  const handleCompleteAll = useCallback(async () => {
+    if (vault.unlocked) {
+      await vault.setAllChecked(true);
+      return;
+    }
+    await completeAll();
+  }, [vault, completeAll]);
+
+  const handleUncompleteAll = useCallback(async () => {
+    if (vault.unlocked) {
+      await vault.setAllChecked(false);
+      return;
+    }
+    await uncompleteAll();
+  }, [vault, uncompleteAll]);
+
+  const handleClearCompleted = useCallback(async () => {
+    if (vault.unlocked) {
+      closeClearCompleted();
+      await vault.deleteCompleted();
+      return;
+    }
+    await clearCompleted();
+  }, [vault, closeClearCompleted, clearCompleted]);
+
   const toggle = useCallback(
     async (item: Item) => {
+      if (vault.unlocked) {
+        await vault.toggleItem(item.id);
+        return;
+      }
       try {
         await itemRepo.toggle(item.id);
       } catch (error) {
@@ -169,7 +258,7 @@ export default function ListDetailScreen() {
       }
       void refresh();
     },
-    [refresh]
+    [refresh, vault]
   );
 
   const renderItem = useCallback<SortableGridRenderItem<Item>>(
@@ -190,6 +279,32 @@ export default function ListDetailScreen() {
     return <NotFoundScreen />;
   }
 
+  if (locked && !vault.unlocked) {
+    if (!vaultReady) {
+      return (
+        <ScreenShell>
+          <EmptyState
+            icon="lock-closed-outline"
+            message={labels.vault_unsupported_title}
+            hint={labels.vault_unsupported_message}
+          />
+        </ScreenShell>
+      );
+    }
+    return (
+      <ScreenShell>
+        <VaultUnlockView
+          wrongPassphrase={vault.wrongPassphrase}
+          onUnlock={vault.unlock}
+          onRemoveLock={async (passphrase) => {
+            await vault.removeLock(passphrase);
+            await refresh();
+          }}
+        />
+      </ScreenShell>
+    );
+  }
+
   const header = (
     <DetailHeader
       icon={list.icon as IconName}
@@ -201,8 +316,9 @@ export default function ListDetailScreen() {
       progressPercent={pct}
       totals={totals}
       trailing={
-        items.length > 0 ? (
-          <View style={styles.copyGroup}>
+        <View style={styles.copyGroup}>
+          {!locked && items.length > 0 ? (
+            <>
             <TouchableOpacity
               onPress={() => copyList(false)}
               style={styles.copyButton}
@@ -229,7 +345,7 @@ export default function ListDetailScreen() {
                 color={copiedAction === 'all' ? c.green : list.color}
               />
             </TouchableOpacity>
-            {hasOtherLists ? (
+            {hasOtherLists && !locked ? (
               <TouchableOpacity
                 onPress={openCopyPicker}
                 style={styles.copyButton}
@@ -245,6 +361,17 @@ export default function ListDetailScreen() {
                 />
               </TouchableOpacity>
             ) : null}
+              </>
+            ) : null}
+            <TouchableOpacity
+              onPress={() => (vaultReady ? setLockModalVisible(true) : setVaultInfoVisible(true))}
+              style={styles.copyButton}
+              accessibilityRole="button"
+              accessibilityLabel={locked ? labels.list_change_passphrase : labels.list_lock_action}
+              hitSlop={HIT_SLOP}
+            >
+              <Ionicons name={locked ? 'key-outline' : 'lock-closed-outline'} size={20} color={list.color} />
+            </TouchableOpacity>
             {copiedAction ? (
               <Text style={[styles.copiedLabel, { color: c.green, fontSize: fs(12) }]}>
                 {copiedAction === 'to-list' && copiedToName
@@ -255,7 +382,6 @@ export default function ListDetailScreen() {
               </Text>
             ) : null}
           </View>
-        ) : null
       }
     />
   );
@@ -283,6 +409,14 @@ export default function ListDetailScreen() {
             {labels.list_merged(list.name)}
           </Text>
         ) : null}
+        {passphraseChanged ? (
+          <Text
+            style={[styles.mergeNotice, { color: c.green, fontSize: fs(12) }]}
+            accessibilityLiveRegion="polite"
+          >
+            {labels.vault_passphrase_changed}
+          </Text>
+        ) : null}
         {items.length > 0 && !selectMode && !searchActive ? (
           <>
             <View style={styles.batchRow}>
@@ -305,7 +439,7 @@ export default function ListDetailScreen() {
                 ) : null}
                 <Ionicons name="chevron-down" size={14} color={c.textSecondary} />
               </TouchableOpacity>
-              {hasOtherLists ? (
+              {hasOtherLists && !locked ? (
                 <TouchableOpacity
                   onPress={openMergePicker}
                   style={[styles.batchButton, { borderColor: c.warning }]}
@@ -321,7 +455,7 @@ export default function ListDetailScreen() {
             </View>
             <View style={styles.batchRow}>
               <TouchableOpacity
-                onPress={() => void completeAll()}
+                onPress={() => void handleCompleteAll()}
                 disabled={done === total}
                 style={[styles.batchButton, { borderColor: c.border }]}
                 accessibilityRole="button"
@@ -333,7 +467,7 @@ export default function ListDetailScreen() {
                 </Text>
               </TouchableOpacity>
               <TouchableOpacity
-                onPress={() => void uncompleteAll()}
+                onPress={() => void handleUncompleteAll()}
                 disabled={done === 0}
                 style={[styles.batchButton, { borderColor: c.border }]}
                 accessibilityRole="button"
@@ -384,7 +518,8 @@ export default function ListDetailScreen() {
           existingNames={existingNames}
           position={maxPosition}
           numeric={numeric}
-          onAdded={refresh}
+          onAdded={vault.unlocked ? () => undefined : refresh}
+          onSubmitOverride={vault.unlocked ? vault.addItem : undefined}
         />
       ) : (
         <SelectionActionBar
@@ -412,9 +547,9 @@ export default function ListDetailScreen() {
         initialQuantity={editing?.quantity ?? 0}
         onCancel={() => setEditing(null)}
         onSave={(name, note, photos, amountMinor, quantity) =>
-          void saveEdit(name, note, photos, amountMinor, quantity)
+          void handleSaveEdit(name, note, photos, amountMinor, quantity)
         }
-        onDelete={() => void deleteItem()}
+        onDelete={() => void handleDeleteItem()}
       />
 
       <ConfirmModal
@@ -435,7 +570,7 @@ export default function ListDetailScreen() {
         cancelLabel={labels.common_cancel}
         confirmLabel={labels.item_delete}
         onCancel={closeClearCompleted}
-        onConfirm={() => void clearCompleted()}
+        onConfirm={() => void handleClearCompleted()}
         destructive
       />
 
@@ -488,6 +623,32 @@ export default function ListDetailScreen() {
         }}
         destructive
         confirmDisabled={mergeBusy}
+      />
+
+      <LockListModal
+        visible={lockModalVisible}
+        hasPhotos={hasPhotos}
+        mode={locked ? 'change' : 'lock'}
+        onCancel={() => setLockModalVisible(false)}
+        onConfirm={async (passphrase, currentPassphrase) => {
+          if (locked) {
+            await vault.changePassphrase(currentPassphrase, passphrase);
+            setLockModalVisible(false);
+            setPassphraseChanged(true);
+            return;
+          }
+          await vaultRepo.lock(listId, passphrase, await vaultRepo.readPlainItems(listId));
+          setLockModalVisible(false);
+          await refresh();
+        }}
+      />
+
+      <InfoModal
+        visible={vaultInfoVisible}
+        title={labels.vault_unsupported_title}
+        message={labels.vault_unsupported_message}
+        closeLabel={labels.common_close}
+        onClose={() => setVaultInfoVisible(false)}
       />
     </ScreenShell>
   );

@@ -8,6 +8,7 @@ interface AppStubState {
   listsByCollectionId: Map<number, ListWithCounts[]>;
   baseLists: ListWithCounts[];
   itemsByListId: Map<number, Item[]>;
+  lockedListIds: Set<number>;
   loading: boolean;
   refresh: ReturnType<typeof vi.fn>;
   reset: () => void;
@@ -26,6 +27,7 @@ function createStub(): AppStubState {
     listsByCollectionId: new Map(),
     baseLists: [],
     itemsByListId: EMPTY_MAP,
+    lockedListIds: new Set<number>(),
     loading: false,
     refresh: vi.fn(async () => {}),
     reset: () => {
@@ -34,6 +36,7 @@ function createStub(): AppStubState {
       state.listsByCollectionId = new Map();
       state.baseLists = [];
       state.itemsByListId = EMPTY_MAP;
+      state.lockedListIds = new Set<number>();
       state.loading = false;
       state.refresh.mockClear();
     },
@@ -52,6 +55,7 @@ export function buildAppMock() {
     listsByCollectionId: s.listsByCollectionId,
     baseLists: s.baseLists,
     itemsByListId: s.itemsByListId,
+    lockedListIds: s.lockedListIds,
     loading: s.loading,
     refresh: s.refresh,
   };
@@ -85,6 +89,10 @@ export function setBaseLists(data: ListWithCounts[]): void {
 
 export function setItemsByListId(map: Map<number, Item[]>): void {
   currentStub().itemsByListId = map;
+}
+
+export function setLockedListIds(ids: Iterable<number>): void {
+  currentStub().lockedListIds = new Set(ids);
 }
 
 export function setLoading(value: boolean): void {

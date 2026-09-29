@@ -13,6 +13,7 @@ const EXPECTED_COLUMNS: Record<string, string[]> = {
   lists: ['id', 'name', 'color', 'icon', 'created_at', 'position', 'pinned', 'kind', 'collection_id'],
   collections: ['id', 'name', 'color', 'icon', 'created_at', 'position', 'pinned'],
   items: ['id', 'list_id', 'name', 'checked', 'note', 'position', 'created_at', 'updated_at', 'pictures', 'amount_minor', 'quantity'],
+  vaults: ['list_id', 'salt', 'kdf_iterations', 'kdf_digest', 'kdf_version', 'verifier', 'payload', 'updated_at'],
   config: ['key', 'value'],
 };
 
