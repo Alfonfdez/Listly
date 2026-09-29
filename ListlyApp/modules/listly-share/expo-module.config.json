@@ -1,0 +1,9 @@
+{
+  "platforms": ["apple", "android"],
+  "apple": {
+    "modules": ["ListlyShareModule"]
+  },
+  "android": {
+    "modules": ["expo.modules.listlyshare.ListlyShareModule"]
+  }
+}

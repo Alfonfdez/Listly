@@ -53,6 +53,7 @@ Settings screen:
 - Config gains `listLayout`, `showNotes`, `showPhotos` (persisted in the `config` table); `ConfigContext` writes through `configRepo.save` and exposes `reload()`.
 - List layout drives Home + Lists; note/photo toggles hide those fields everywhere.
 - Backup format `{ app: 'Listly', kind: 'backup', formatVersion: 1, schema, data: { lists, items, config } }`; native uses `expo-sharing` + `expo-document-picker`, web uses Blob download + file input.
+- Export UX (local `listly-share` module): Android saves the backup to the public **Downloads** folder and shows a *saved* alert with Share/Done (falling back to the share sheet), iOS reports the true share outcome, web downloads; success feedback only when the export actually succeeded. Requires a development/release build (not Expo Go).
 - `clearDataKeepSettings()` / `resetDatabase()` clean data (and photo files), optionally restoring default settings.
 - Drawer separator between Lists and Settings; seed data removed (fresh installs start empty).
 - Spec: spec/features/005-settings-screen/.

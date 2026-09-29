@@ -98,9 +98,9 @@ const platform: VaultPlatformCrypto = {
     const crypto = quick();
     const iv = new Uint8Array(crypto.randomBytes(AES_IV_BYTES));
     const cipher = crypto.createCipheriv('aes-256-gcm', key, iv);
-    const encrypted = Buffer.concat([cipher.update(plaintext), cipher.final()]);
+    const encrypted = crypto.Buffer.concat([cipher.update(plaintext), cipher.final()]);
     const tag = cipher.getAuthTag();
-    return bytesToBase64(new Uint8Array(Buffer.concat([iv, encrypted, tag])));
+    return bytesToBase64(new Uint8Array(crypto.Buffer.concat([iv, encrypted, tag])));
   },
 
   async decrypt(key: Uint8Array, payload: string): Promise<Uint8Array> {
@@ -110,8 +110,8 @@ const platform: VaultPlatformCrypto = {
     const tag = combined.subarray(combined.length - AES_TAG_BYTES);
     const ciphertext = combined.subarray(AES_IV_BYTES, combined.length - AES_TAG_BYTES);
     const decipher = crypto.createDecipheriv('aes-256-gcm', key, iv);
-    decipher.setAuthTag(Buffer.from(tag) as unknown as Parameters<typeof decipher.setAuthTag>[0]);
-    return new Uint8Array(Buffer.concat([decipher.update(ciphertext), decipher.final()]));
+    decipher.setAuthTag(crypto.Buffer.from(tag) as unknown as Parameters<typeof decipher.setAuthTag>[0]);
+    return new Uint8Array(crypto.Buffer.concat([decipher.update(ciphertext), decipher.final()]));
   },
 };
 

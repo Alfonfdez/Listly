@@ -1,13 +1,14 @@
 import { useCallback, useState } from 'react';
-import { ScrollView, StyleSheet, Text } from 'react-native';
+import { Alert, ScrollView } from 'react-native';
 import { useApp } from '../../context/AppContext';
 import { useConfig } from '../../context/ConfigContext';
-import { useFontSize } from '../../hooks/useFontSize';
 import { useLabels } from '../../hooks/useLabels';
 import { FACTORY_RESET_CONFIRMATION } from '../../constants/types';
+import { ShareResult } from '../../constants/shareResult';
+import { isAndroidPlatform } from '../../utils/platform';
 import { clearDataKeepSettings, resetDatabase } from '../../database/database';
 import { BackupValidationError, exportBackup, importBackup } from '../../database/backupService';
-import { pickBackupFile, saveBackupFile } from '../../utils/backupIO';
+import { pickBackupFile, saveBackupFile, saveBackupToDownloads } from '../../utils/backupIO';
 import ScreenShell from '../../components/ScreenShell';
 import ConfirmModal from '../../components/ConfirmModal';
 import ConfirmWithTextModal from '../../components/settings/ConfirmWithTextModal';
@@ -15,32 +16,57 @@ import SettingsSection from '../../components/settings/SettingsSection';
 import SettingsRow from '../../components/settings/SettingsRow';
 import { settingsStyles } from '../../components/settings/settingsStyles';
 
-type StatusMessage = { kind: 'success' | 'error'; text: string };
 type ConfirmAction = 'import' | 'deleteAll' | 'reset';
 
 export default function DataScreen() {
   const { activeColors: c, reload } = useConfig();
   const { refresh } = useApp();
-  const fs = useFontSize();
   const labels = useLabels();
 
-  const [status, setStatus] = useState<StatusMessage | null>(null);
   const [pendingImport, setPendingImport] = useState<string | null>(null);
   const [confirmAction, setConfirmAction] = useState<ConfirmAction | null>(null);
   const [typedResetVisible, setTypedResetVisible] = useState(false);
   const [busy, setBusy] = useState(false);
 
+  const runShareFlow = useCallback(
+    async (json: string) => {
+      const result = await saveBackupFile(json);
+      if (result === ShareResult.SAVED) {
+        Alert.alert(labels.settings_export_success);
+      }
+    },
+    [labels]
+  );
+
   const handleExport = useCallback(async () => {
-    setStatus(null);
     try {
       const json = await exportBackup();
-      await saveBackupFile(json);
-      setStatus({ kind: 'success', text: labels.settings_export_success });
+      if (isAndroidPlatform()) {
+        const savedToDownloads = await saveBackupToDownloads(json);
+        if (!savedToDownloads) {
+          await runShareFlow(json);
+          return;
+        }
+        Alert.alert(labels.settings_export_downloaded_title, labels.settings_export_downloaded_message, [
+          {
+            text: labels.settings_export_share_action,
+            onPress: () => {
+              runShareFlow(json).catch((error) => {
+                console.error('Failed to share data:', error);
+                Alert.alert(labels.settings_export_error);
+              });
+            },
+          },
+          { text: labels.settings_export_done_action },
+        ]);
+        return;
+      }
+      await runShareFlow(json);
     } catch (error) {
-      console.error('Export failed:', error);
-      setStatus({ kind: 'error', text: labels.settings_export_error });
+      console.error('Failed to export data:', error);
+      Alert.alert(labels.settings_export_error);
     }
-  }, [labels]);
+  }, [labels, runShareFlow]);
 
   const handleImport = useCallback(async () => {
     try {
@@ -50,27 +76,26 @@ export default function DataScreen() {
       setConfirmAction('import');
     } catch (error) {
       console.error('Import failed:', error);
-      setStatus({ kind: 'error', text: labels.settings_import_error });
+      Alert.alert(labels.settings_import_error);
     }
   }, [labels]);
 
   const runImport = useCallback(async () => {
     if (!pendingImport || busy) return;
     setBusy(true);
-    setStatus(null);
     try {
       await importBackup(pendingImport);
       await refresh();
       await reload();
-      setStatus({ kind: 'success', text: labels.settings_import_success });
+      Alert.alert(labels.settings_import_success);
     } catch (error) {
       if (error instanceof BackupValidationError) {
         const text =
           error.code === 'newer_version' ? labels.settings_import_newer : labels.settings_import_invalid;
-        setStatus({ kind: 'error', text });
+        Alert.alert(text);
       } else {
         console.error('Import failed:', error);
-        setStatus({ kind: 'error', text: labels.settings_import_error });
+        Alert.alert(labels.settings_import_error);
       }
     } finally {
       setPendingImport(null);
@@ -82,14 +107,13 @@ export default function DataScreen() {
   const runDeleteAll = useCallback(async () => {
     if (busy) return;
     setBusy(true);
-    setStatus(null);
     try {
       await clearDataKeepSettings();
       await refresh();
-      setStatus({ kind: 'success', text: labels.settings_delete_all_success });
+      Alert.alert(labels.settings_delete_all_success);
     } catch (error) {
       console.error('Delete all failed:', error);
-      setStatus({ kind: 'error', text: labels.settings_delete_all_error });
+      Alert.alert(labels.settings_delete_all_error);
     } finally {
       setConfirmAction(null);
       setBusy(false);
@@ -99,15 +123,14 @@ export default function DataScreen() {
   const runFactoryReset = useCallback(async () => {
     if (busy) return;
     setBusy(true);
-    setStatus(null);
     try {
       await resetDatabase();
       await refresh();
       await reload();
-      setStatus({ kind: 'success', text: labels.settings_factory_reset_success });
+      Alert.alert(labels.settings_factory_reset_success);
     } catch (error) {
       console.error('Factory reset failed:', error);
-      setStatus({ kind: 'error', text: labels.settings_factory_reset_error });
+      Alert.alert(labels.settings_factory_reset_error);
     } finally {
       setTypedResetVisible(false);
       setBusy(false);
@@ -176,14 +199,6 @@ export default function DataScreen() {
             showChevron={false}
             onPress={() => setConfirmAction('reset')}
           />
-          {status ? (
-            <Text
-              accessibilityRole="alert"
-              style={[styles.status, { color: status.kind === 'success' ? c.green : c.red, fontSize: fs(13) }]}
-            >
-              {status.text}
-            </Text>
-          ) : null}
         </SettingsSection>
       </ScrollView>
 
@@ -219,10 +234,3 @@ export default function DataScreen() {
     </ScreenShell>
   );
 }
-
-const styles = StyleSheet.create({
-  status: {
-    marginTop: 4,
-    fontWeight: '500',
-  },
-});
