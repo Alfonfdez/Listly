@@ -32,7 +32,7 @@ export default function DataScreen() {
     async (json: string) => {
       const result = await saveBackupFile(json);
       if (result === ShareResult.SAVED) {
-        Alert.alert(labels.settings_export_success);
+        Alert.alert(labels.settings_export_success_title, labels.settings_export_success_message);
       }
     },
     [labels]
@@ -53,7 +53,7 @@ export default function DataScreen() {
             onPress: () => {
               runShareFlow(json).catch((error) => {
                 console.error('Failed to share data:', error);
-                Alert.alert(labels.settings_export_error);
+                Alert.alert(labels.settings_export_error_title, labels.settings_export_error_message);
               });
             },
           },
@@ -64,7 +64,7 @@ export default function DataScreen() {
       await runShareFlow(json);
     } catch (error) {
       console.error('Failed to export data:', error);
-      Alert.alert(labels.settings_export_error);
+      Alert.alert(labels.settings_export_error_title, labels.settings_export_error_message);
     }
   }, [labels, runShareFlow]);
 
@@ -76,7 +76,7 @@ export default function DataScreen() {
       setConfirmAction('import');
     } catch (error) {
       console.error('Import failed:', error);
-      Alert.alert(labels.settings_import_error);
+      Alert.alert(labels.settings_import_error_title, labels.settings_import_error_message);
     }
   }, [labels]);
 
@@ -87,15 +87,17 @@ export default function DataScreen() {
       await importBackup(pendingImport);
       await refresh();
       await reload();
-      Alert.alert(labels.settings_import_success);
+      Alert.alert(labels.settings_import_success_title, labels.settings_import_success_message);
     } catch (error) {
       if (error instanceof BackupValidationError) {
-        const text =
-          error.code === 'newer_version' ? labels.settings_import_newer : labels.settings_import_invalid;
-        Alert.alert(text);
+        const [title, message] =
+          error.code === 'newer_version'
+            ? [labels.settings_import_newer_title, labels.settings_import_newer_message]
+            : [labels.settings_import_invalid_title, labels.settings_import_invalid_message];
+        Alert.alert(title, message);
       } else {
         console.error('Import failed:', error);
-        Alert.alert(labels.settings_import_error);
+        Alert.alert(labels.settings_import_error_title, labels.settings_import_error_message);
       }
     } finally {
       setPendingImport(null);

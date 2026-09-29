@@ -108,7 +108,7 @@ describe('DataScreen', () => {
     await user.press(view.getByLabelText('Export data'));
 
     await waitFor(() => expect(ioMocks.saveBackupFile).toHaveBeenCalledWith('{"app":"Listly"}'));
-    expect(alertSpy).toHaveBeenCalledWith('Backup exported.');
+    expect(alertSpy).toHaveBeenCalledWith('Export complete', 'Your data has been saved to a backup file.');
   });
 
   it('shows no success feedback when the share sheet is dismissed', async () => {
@@ -119,7 +119,7 @@ describe('DataScreen', () => {
     await user.press(view.getByLabelText('Export data'));
 
     await waitFor(() => expect(ioMocks.saveBackupFile).toHaveBeenCalled());
-    expect(alertSpy).not.toHaveBeenCalledWith('Backup exported.');
+    expect(alertSpy).not.toHaveBeenCalledWith('Export complete', 'Your data has been saved to a backup file.');
   });
 
   it('reports an export failure', async () => {
@@ -129,7 +129,7 @@ describe('DataScreen', () => {
 
     await user.press(view.getByLabelText('Export data'));
 
-    await waitFor(() => expect(alertSpy).toHaveBeenCalledWith('Could not export the backup.'));
+    await waitFor(() => expect(alertSpy).toHaveBeenCalledWith('Export failed', 'Could not export your data.'));
   });
 
   it('saves to Downloads on Android and offers Share/Done', async () => {
@@ -173,7 +173,7 @@ describe('DataScreen', () => {
     await user.press(view.getByLabelText('Export data'));
 
     await waitFor(() => expect(ioMocks.saveBackupFile).toHaveBeenCalledWith('{"app":"Listly"}'));
-    expect(alertSpy).toHaveBeenCalledWith('Backup exported.');
+    expect(alertSpy).toHaveBeenCalledWith('Export complete', 'Your data has been saved to a backup file.');
   });
 
   it('imports a picked backup after confirmation', async () => {
@@ -183,13 +183,15 @@ describe('DataScreen', () => {
     const view = await render(<DataScreen />);
 
     await user.press(view.getByLabelText('Import data'));
-    expect(await view.findByText('Replace all data?')).toBeTruthy();
+    expect(await view.findByText('Import data?')).toBeTruthy();
     await user.press(view.getByLabelText('Import'));
 
     await waitFor(() => expect(backupMocks.importBackup).toHaveBeenCalledWith('{"app":"Listly"}'));
     expect(getAppStub().refresh).toHaveBeenCalled();
     expect(getConfigStub().reload).toHaveBeenCalled();
-    await waitFor(() => expect(alertSpy).toHaveBeenCalledWith('Backup imported.'));
+    await waitFor(() =>
+      expect(alertSpy).toHaveBeenCalledWith('Import complete', 'Your data has been restored from the backup.')
+    );
   });
 
   it('reports an invalid backup file', async () => {
@@ -204,7 +206,7 @@ describe('DataScreen', () => {
     await user.press(view.getByLabelText('Import'));
 
     await waitFor(() =>
-      expect(alertSpy).toHaveBeenCalledWith('The selected file is not a valid Listly backup.')
+      expect(alertSpy).toHaveBeenCalledWith('Invalid backup', 'The selected file is not a valid Listly backup.')
     );
   });
 
@@ -220,7 +222,7 @@ describe('DataScreen', () => {
     await user.press(view.getByLabelText('Import'));
 
     await waitFor(() =>
-      expect(alertSpy).toHaveBeenCalledWith('This backup was created with a newer version of Listly.')
+      expect(alertSpy).toHaveBeenCalledWith('Newer backup', 'This backup was created with a newer version of Listly. Update the app to import it.')
     );
   });
 
@@ -231,7 +233,7 @@ describe('DataScreen', () => {
 
     await user.press(view.getByLabelText('Import data'));
 
-    expect(view.queryByText('Replace all data?')).toBeNull();
+    expect(view.queryByText('Import data?')).toBeNull();
     expect(backupMocks.importBackup).not.toHaveBeenCalled();
   });
 

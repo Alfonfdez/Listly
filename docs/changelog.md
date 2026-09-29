@@ -829,6 +829,16 @@ pm run test:all green.
 - Added error logging to the vault entry points so failures are no longer swallowed: the lock/change `onConfirm`, `onUnlock` and `onRemoveLock` now `logError(ERROR_SCOPE.lockList|changePassphrase|unlockList|removeLock, error)` and rethrow (the user still sees the generic message; the real error reaches the toast/console).
 - `tests/database/quickCryptoMock.ts` mock gained `Buffer`. `npm run test:all` green (62 files, 544 tests); typecheck + lint clean.
 
+[2026-09-29] ~ | ListlyApp/src/i18n/en.ts, src/i18n/es.ts, src/screens/settings/DataScreen.tsx, tests/screens/settings/DataScreen.test.tsx
+- Aligned the Settings > Data export/import feedback with Finly (en/es): every result is now a **title + message** `Alert` instead of a single-line message.
+  - `settings_export_success_title/_message` ("Export complete" / "Your data has been saved to a backup file."), `settings_export_error_title/_message` ("Export failed" / "Could not export your data.").
+  - `settings_import_confirm_title/_message` ("Import data?" / "This will replace all current lists, collections, items, and settings with the contents of the backup. This cannot be undone.").
+  - `settings_import_success_title/_message`, `settings_import_error_title/_message`, `settings_import_invalid_title/_message` ("Invalid backup"), `settings_import_newer_title/_message` ("Newer backup" / "…Update the app to import it.").
+  - `backup_dialog_title` → "Listly backup" / "Copia de seguridad Listly"; Downloads alert ES title "Copia guardada" and done action "Listo".
+- `DataScreen` now calls `Alert.alert(title, message)` for all export/import outcomes. Tests updated to the new title+message calls. `npm run test:all` green (62 files, 544 tests); typecheck + lint clean.
+- Note: the new/aligned keys must be carried into the pending 9-language pass.
+
+
 
 
 
