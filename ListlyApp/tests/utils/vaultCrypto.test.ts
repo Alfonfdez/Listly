@@ -4,6 +4,7 @@ import {
   KDF_DIGEST,
   KDF_ITERATIONS,
   VaultCryptoError,
+  isWrongPassphrase,
   newSalt,
   seal,
   unseal,
@@ -142,6 +143,15 @@ describe('vaultCrypto seal/unseal', () => {
     const b = await newSalt(testPlatform);
     expect(a).toHaveLength(32);
     expect(a).not.toBe(b);
+  });
+});
+
+describe('isWrongPassphrase', () => {
+  it('recognizes only the wrong-passphrase vault error', () => {
+    expect(isWrongPassphrase(new VaultCryptoError(VAULT_ERROR.wrongPassphrase))).toBe(true);
+    expect(isWrongPassphrase(new VaultCryptoError(VAULT_ERROR.tampered))).toBe(false);
+    expect(isWrongPassphrase(new Error('wrong'))).toBe(false);
+    expect(isWrongPassphrase(null)).toBe(false);
   });
 });
 

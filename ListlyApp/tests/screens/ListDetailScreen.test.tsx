@@ -199,6 +199,8 @@ describe('ListDetailScreen', () => {
     vaultRepositoryMock.changePassphrase.mockResolvedValue(undefined);
     vaultRepositoryMock.lock.mockReset();
     vaultRepositoryMock.lock.mockResolvedValue(undefined);
+    vaultRepositoryMock.removeLock.mockReset();
+    vaultRepositoryMock.removeLock.mockResolvedValue(undefined);
     vaultRepositoryMock.readPlainItems.mockReset();
     vaultRepositoryMock.readPlainItems.mockResolvedValue([]);
     vaultAvailability.available = true;
@@ -1104,6 +1106,22 @@ it('disables reordering while searching', async () => {
     expect(vaultRepositoryMock.unlock).toHaveBeenCalledWith(1, 'nope123');
   });
 
+  it('shows the wrong-passphrase message when removing the lock with a bad passphrase', async () => {
+    setLockedListIds([1]);
+    setItemsByListId(new Map());
+    const { VaultCryptoError, VAULT_ERROR } = await import('../../src/utils/vaultCrypto');
+    vaultRepositoryMock.removeLock.mockRejectedValueOnce(new VaultCryptoError(VAULT_ERROR.wrongPassphrase));
+    const user = userEvent.setup();
+    const view = await render(<ListDetailScreen />);
+    await view.findByText('Locked list');
+
+    await user.type(view.getByLabelText('Passphrase'), 'nope123');
+    await user.press(view.getByLabelText('Remove lock'));
+
+    expect(await view.findByText('Wrong passphrase')).toBeTruthy();
+    expect(vaultRepositoryMock.removeLock).toHaveBeenCalledWith(1, 'nope123');
+  });
+
   it('unlocks an encrypted list into an in-memory session', async () => {
     setLockedListIds([1]);
     setItemsByListId(new Map());
@@ -1157,6 +1175,60 @@ it('disables reordering while searching', async () => {
     await waitFor(() =>
       expect(vaultRepositoryMock.changePassphrase).toHaveBeenCalledWith(1, 'secret123', 'newsecret')
     );
+  });
+
+  it('shows a wrong current passphrase inline without logging it as an error', async () => {
+    setLockedListIds([1]);
+    setItemsByListId(new Map());
+    vaultRepositoryMock.unlock.mockResolvedValueOnce([{ ...ITEMS[0], id: 10, list_id: 1 }]);
+    const { VaultCryptoError, VAULT_ERROR } = await import('../../src/utils/vaultCrypto');
+    vaultRepositoryMock.changePassphrase.mockRejectedValueOnce(
+      new VaultCryptoError(VAULT_ERROR.wrongPassphrase)
+    );
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    const user = userEvent.setup();
+    const view = await render(<ListDetailScreen />);
+    await view.findByText('Locked list');
+    await user.type(view.getByLabelText('Passphrase'), 'secret123');
+    await user.press(view.getByLabelText('Unlock'));
+    await view.findByText('Milk');
+
+    await user.press(view.getByLabelText('Change passphrase'));
+    await user.type(view.getByLabelText('Current passphrase'), 'wrongpw');
+    await user.type(view.getByLabelText('Passphrase'), 'newsecret');
+    await user.type(view.getByLabelText('Confirm passphrase'), 'newsecret');
+    await user.press(view.getByLabelText('I understand this passphrase cannot be recovered'));
+    await user.press(view.getByLabelText('Change'));
+
+    expect(await view.findByText('Current passphrase is incorrect')).toBeTruthy();
+    expect(vaultRepositoryMock.changePassphrase).toHaveBeenCalledWith(1, 'wrongpw', 'newsecret');
+    expect(errorSpy.mock.calls.map((call) => String(call[0])).some((line) => line.includes('change passphrase'))).toBe(false);
+    errorSpy.mockRestore();
+  });
+
+  it('still logs an unexpected change-passphrase failure', async () => {
+    setLockedListIds([1]);
+    setItemsByListId(new Map());
+    vaultRepositoryMock.unlock.mockResolvedValueOnce([{ ...ITEMS[0], id: 10, list_id: 1 }]);
+    vaultRepositoryMock.changePassphrase.mockRejectedValueOnce(new Error('boom'));
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    const user = userEvent.setup();
+    const view = await render(<ListDetailScreen />);
+    await view.findByText('Locked list');
+    await user.type(view.getByLabelText('Passphrase'), 'secret123');
+    await user.press(view.getByLabelText('Unlock'));
+    await view.findByText('Milk');
+
+    await user.press(view.getByLabelText('Change passphrase'));
+    await user.type(view.getByLabelText('Current passphrase'), 'secret123');
+    await user.type(view.getByLabelText('Passphrase'), 'newsecret');
+    await user.type(view.getByLabelText('Confirm passphrase'), 'newsecret');
+    await user.press(view.getByLabelText('I understand this passphrase cannot be recovered'));
+    await user.press(view.getByLabelText('Change'));
+
+    expect(await view.findByText('Something went wrong. Please try again.')).toBeTruthy();
+    expect(errorSpy.mock.calls.map((call) => String(call[0])).some((line) => line.includes('change passphrase'))).toBe(true);
+    errorSpy.mockRestore();
   });
 
   it('hides copy-to-list and merge while a list is locked', async () => {

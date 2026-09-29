@@ -26,6 +26,8 @@ export default function VaultUnlockView({ onUnlock, onRemoveLock, wrongPassphras
     setBusy(true);
     try {
       await action(passphrase);
+    } catch {
+      // Failures are logged by the caller; wrong passphrases are surfaced through the prop.
     } finally {
       setBusy(false);
     }

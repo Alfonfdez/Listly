@@ -141,6 +141,10 @@ export class VaultCryptoError extends Error {
   }
 }
 
+export function isWrongPassphrase(error: unknown): boolean {
+  return error instanceof VaultCryptoError && error.code === VAULT_ERROR.wrongPassphrase;
+}
+
 export interface VaultPlatformCrypto {
   randomBytes(length: number): Promise<Uint8Array>;
   pbkdf2(passphrase: string, salt: string, iterations: number, digest: string): Promise<Uint8Array>;

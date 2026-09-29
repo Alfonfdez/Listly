@@ -42,7 +42,7 @@ import VaultUnlockView from '../components/VaultUnlockView';
 import InfoModal from '../components/InfoModal';
 import { useVaultSession } from '../hooks/useVaultSession';
 import { useItemStore } from '../hooks/useItemStore';
-import { isVaultAvailable } from '../utils/vaultCrypto';
+import { isVaultAvailable, isWrongPassphrase } from '../utils/vaultCrypto';
 
 export default function ListDetailScreen() {
   const route = useRoute<RouteProp<RootStackParamList, 'ListDetail'>>();
@@ -235,8 +235,9 @@ export default function ListDetailScreen() {
           }}
           onRemoveLock={async (passphrase) => {
             try {
-              await vault.removeLock(passphrase);
-              await refresh();
+              if (await vault.removeLock(passphrase)) {
+                await refresh();
+              }
             } catch (error) {
               logError(ERROR_SCOPE.removeLock, error);
               throw error;
@@ -584,7 +585,9 @@ export default function ListDetailScreen() {
             setLockModalVisible(false);
             await refresh();
           } catch (error) {
-            logError(locked ? ERROR_SCOPE.changePassphrase : ERROR_SCOPE.lockList, error);
+            if (!isWrongPassphrase(error)) {
+              logError(locked ? ERROR_SCOPE.changePassphrase : ERROR_SCOPE.lockList, error);
+            }
             throw error;
           }
         }}
