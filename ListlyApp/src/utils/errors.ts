@@ -5,6 +5,7 @@ export const ERROR_SCOPE = {
   saveConfig: 'save config',
   reloadConfig: 'reload config',
   saveDatabase: 'save database',
+  initDatabase: 'initialize database',
   addItem: 'add item',
   updateItem: 'update item',
   toggleItem: 'toggle item',
@@ -34,6 +35,11 @@ export const ERROR_SCOPE = {
   removeLock: 'remove lock',
   saveLockedList: 'save locked list',
   changePassphrase: 'change passphrase',
+  saveEntity: 'save entity',
+  exportBackup: 'export backup',
+  importBackup: 'import backup',
+  deleteAllData: 'delete all data',
+  factoryReset: 'factory reset',
 } as const;
 
 export type ErrorScope = (typeof ERROR_SCOPE)[keyof typeof ERROR_SCOPE];

@@ -49,7 +49,7 @@ export default function ListsScreenBase({
     closeDeleteConfirm,
     confirmDelete,
   } = useSelectMode({
-    deleteMany: (ids) => listRepo.deleteMany(ids as number[]),
+    deleteMany: (ids) => listRepo.deleteMany(ids),
     afterDelete: refresh,
   });
 

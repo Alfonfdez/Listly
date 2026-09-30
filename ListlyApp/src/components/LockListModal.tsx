@@ -6,6 +6,7 @@ import { useFontSize } from '../hooks/useFontSize';
 import { useLabels } from '../hooks/useLabels';
 import { useResetOnOpen } from '../hooks/useResetOnOpen';
 import { isWrongPassphrase } from '../utils/vaultCrypto';
+import { MIN_PASSPHRASE_LENGTH } from '../constants/types';
 import { BUTTON_BORDER_RADIUS } from './componentStyles';
 import ModalShell from './ModalShell';
 import ModalFooter from './ModalFooter';
@@ -48,7 +49,7 @@ export default function LockListModal({ visible, hasPhotos, mode = 'lock', onCan
       setError(labels.vault_wrong_current);
       return;
     }
-    if (passphrase.length < 6) {
+    if (passphrase.length < MIN_PASSPHRASE_LENGTH) {
       setError(labels.vault_passphrase_too_short);
       return;
     }

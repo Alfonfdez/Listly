@@ -55,6 +55,8 @@ export const FACTORY_RESET_CONFIRMATION = 'DELETE';
 export const DEBOUNCE_MS = 300;
 export const COPY_FEEDBACK_MS = 1500;
 export const PHOTO_QUALITY = 0.7;
+export const TOAST_DURATION_MS = 3000;
+export const MIN_PASSPHRASE_LENGTH = 6;
 
 export const MERGE_NOTICE = 'merged' as const;
 

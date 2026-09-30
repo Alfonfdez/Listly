@@ -77,7 +77,8 @@ export function utf8Encode(str: string): Uint8Array<ArrayBuffer> {
   return new Uint8Array(bytes);
 }
 
-export function utf8Decode(bytes: Uint8Array): string {  let out = '';
+export function utf8Decode(bytes: Uint8Array): string {
+  let out = '';
   let i = 0;
   while (i < bytes.length) {
     const b0 = bytes[i++];
