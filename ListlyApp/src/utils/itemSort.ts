@@ -1,6 +1,6 @@
 import type { Item } from '../database/types';
 
-export type ItemSortKey = 'manual' | 'name' | 'created';
+type ItemSortKey = 'manual' | 'name' | 'created';
 export type SortDirection = 'asc' | 'desc';
 export type ItemSortValue = 'manual' | 'name-asc' | 'name-desc' | 'created-asc' | 'created-desc';
 

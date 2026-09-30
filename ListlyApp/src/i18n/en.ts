@@ -235,7 +235,6 @@ export const en = {
   select_unpin: 'Unpin',
   home_pinned: 'Pinned',
   list_lock_action: 'Lock list',
-  list_locked_badge: 'Locked',
   list_lock_title: 'Lock this list',
   list_lock_message:
     'Items will be encrypted with a passphrase. If you forget it, the items are lost forever — there is no recovery.',
@@ -253,9 +252,6 @@ export const en = {
   list_unlock_action: 'Unlock',
   vault_wrong_passphrase: 'Wrong passphrase',
   list_remove_lock: 'Remove lock',
-  list_remove_lock_title: 'Remove lock?',
-  list_remove_lock_message: 'The items will be decrypted and stored without protection.',
-  list_remove_lock_confirm: 'Remove',
   list_locked_progress: 'Locked',
   home_locked: 'Locked list',
   list_change_passphrase: 'Change passphrase',

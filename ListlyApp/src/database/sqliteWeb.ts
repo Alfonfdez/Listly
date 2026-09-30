@@ -24,7 +24,7 @@ export function onPersistenceError(listener: PersistenceErrorListener): () => vo
   };
 }
 
-export function initSqlJsEngine(locateFile?: (file: string) => string): Promise<SqlJsStatic> {
+function initSqlJsEngine(locateFile?: (file: string) => string): Promise<SqlJsStatic> {
   if (!sqlPromise) {
     sqlPromise = (locateFile ? initSqlJs({ locateFile }) : initSqlJs()).then((sql) => {
       sqlReady = sql;

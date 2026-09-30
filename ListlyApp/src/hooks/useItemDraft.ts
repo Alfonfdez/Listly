@@ -12,7 +12,7 @@ export interface ItemDraftSeed {
   quantity: number;
 }
 
-export interface ItemDraftPayload {
+interface ItemDraftPayload {
   name: string;
   note: string | null;
   photos: string[];

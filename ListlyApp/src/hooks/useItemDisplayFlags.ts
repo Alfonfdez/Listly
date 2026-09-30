@@ -1,6 +1,6 @@
 import { useConfig } from '../context/ConfigContext';
 
-export interface ItemDisplayFlags {
+interface ItemDisplayFlags {
   showNotes: boolean;
   showPhotos: boolean;
   editShowNotes: boolean;

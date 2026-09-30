@@ -9,7 +9,7 @@ export const countsSelection = {
   completed: sql<number>`COALESCE(SUM(CASE WHEN ${items.checked} = 1 THEN 1 ELSE 0 END), 0)`,
 };
 
-export function nextPositionSql(positionColumn: AnyColumn): SQL<number> {
+function nextPositionSql(positionColumn: AnyColumn): SQL<number> {
   return sql<number>`COALESCE(MAX(${positionColumn}), -1) + 1`;
 }
 
