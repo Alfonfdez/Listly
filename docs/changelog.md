@@ -912,6 +912,16 @@ pm run test:all green.
 - Verified on web at 375px (0 console errors): Home loads collections + standalone lists with counts and the locked badge; add item → progress updates; delete item → progress reverts. Release APK rebuilt and smoke-tested on device.
 - Docs: `spec/constitution/2-tech-stack.md` tree (`access.ts`, `appData`) + `docs/harnesses.md`.
 
+[2026-09-30] ~ | ListlyApp/src/hooks/{useListsViewData,useListsSelection,useListsDrag}.ts, src/components/ListsView.tsx
+- Refactor (Tier 1, behavior-preserving): `ListsView`'s logic is extracted into three hooks, leaving the component as wiring + JSX (474 → ~360 lines incl. JSX).
+  - `useListsViewData({ mode, collectionId, query, lists, collections, listsByCollectionId, baseLists, itemsByListId, refresh })` owns the per-mode list scoping, the list/collection query filters, and the collections `useDragOrder` (+ `collectionRepo.reorder` / `ERROR_SCOPE.reorderCollections`).
+  - `useListsSelection({ lists, collections, selectedIds, selectedCollectionIds, refresh })` owns the selected-item derivation, the all-pinned check, and `handlePinPress` (the `listRepo`/`collectionRepo.setPinned` loop with the pin/unpin scope).
+  - `useListsDrag({ refresh, inCollectionDetail, filteredLists })` pairs `useCollectionDropZones` with the lists `useDragOrder`, returning the drop-zone state/handlers plus the optimistic list order.
+- `ListsScreenBase` / `CollectionDetailScreen` / `HomeScreen` / `ListsScreen` / `CollectionsScreen` unchanged; the 19-prop API is kept (the prop-object consolidation stays deferred to a later Tier-2 item). `useCollectionDropZones` itself is unmodified.
+- Tests: new `tests/hooks/useListsViewData.test.ts` (6), `useListsSelection.test.ts` (5), `useListsDrag.test.ts` (4); the existing `ListsView`/screen suites pass unchanged as the end-to-end guard. `npm run test:all` green (73 files, 601 tests); typecheck + lint clean.
+- Verified on web at 375px (0 console errors): Home (collections + lists sections), search filter, select mode (tiles → checkboxes, Pin/Unpin a mixed list+collection selection), Collections screen, and Collection detail (empty state + remove target). Release APK rebuilt.
+
+
 
 
 

@@ -1,17 +1,14 @@
-import { useCallback, useMemo, useState, type ReactNode } from 'react';
+import { useCallback, useState, type ReactNode } from 'react';
 import { ActivityIndicator, ScrollView, StyleSheet, View, useWindowDimensions } from 'react-native';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import Sortable, { type SortableGridRenderItem } from 'react-native-sortables';
 import { useApp } from '../context/AppContext';
 import { useConfig } from '../context/ConfigContext';
-import { listRepository as listRepo, collectionRepository as collectionRepo } from '../database';
-import { runSafelyAsync, logError, ERROR_SCOPE } from '../utils/errors';
 import type { CollectionWithCounts, ListWithCounts } from '../database/types';
 import { useLabels } from '../hooks/useLabels';
-import { useDragOrder } from '../hooks/useDragOrder';
-import { useCollectionDropZones } from '../hooks/useCollectionDropZones';
-import { filterListsByQuery } from '../utils/search';
-import { isOn } from '../utils/flags';
+import { useListsViewData } from '../hooks/useListsViewData';
+import { useListsSelection } from '../hooks/useListsSelection';
+import { useListsDrag } from '../hooks/useListsDrag';
 import { LIST_VIEW_MODES, LIST_LAYOUTS, type NavigationProp, type ListViewMode, type ListLayout } from '../constants/types';
 import { ICONS } from '../constants/icons';
 import ScreenShell from './ScreenShell';
@@ -97,54 +94,43 @@ export default function ListsView({
     }, [refresh])
   );
 
-  const scopeLists = useMemo(() => {
-    if (mode === LIST_VIEW_MODES.collection && collectionId !== undefined) {
-      return listsByCollectionId.get(collectionId) ?? [];
-    }
-    if (mode === LIST_VIEW_MODES.home) return baseLists;
-    if (mode === LIST_VIEW_MODES.collections) return [];
-    return lists;
-  }, [mode, collectionId, listsByCollectionId, baseLists, lists]);
-
-  const filteredLists = useMemo(
-    () => filterListsByQuery(scopeLists, itemsByListId, query),
-    [scopeLists, itemsByListId, query]
-  );
-
-  const filteredCollections = useMemo(() => {
-    const needle = query.trim().toLowerCase();
-    if (!needle) return collections;
-    return collections.filter(col => col.name.toLowerCase().includes(needle));
-  }, [collections, query]);
+  const { filteredLists, displayCollections, handleCollectionsDragEnd } = useListsViewData({
+    mode,
+    collectionId,
+    query,
+    lists,
+    collections,
+    listsByCollectionId,
+    baseLists,
+    itemsByListId,
+    refresh,
+  });
 
   const inCollectionDetail = mode === LIST_VIEW_MODES.collection;
 
   const {
+    displayLists,
+    handleDragEnd,
     hoverCollectionId,
     removeTargetActive,
     removeHover,
     handleListsDragStart,
     handleCollectionsDragStart,
-    handleListsDragEnd,
     handleZoneEnter,
     handleZoneLeave,
     handleZoneDrop,
     handleRemoveZoneEnter,
     handleRemoveZoneLeave,
     handleRemoveZoneDrop,
-  } = useCollectionDropZones({ refresh, inCollectionDetail });
+  } = useListsDrag({ refresh, inCollectionDetail, filteredLists });
 
-  const { display: displayLists, onDragEnd: handleDragEnd } = useDragOrder(filteredLists, handleListsDragEnd);
-
-  const { display: displayCollections, onDragEnd: handleCollectionsDragEnd } = useDragOrder(
-    filteredCollections,
-    useCallback((ids: number[]) => {
-      void (async () => {
-        await runSafelyAsync(collectionRepo.reorder(ids), ERROR_SCOPE.reorderCollections);
-        await refresh();
-      })();
-    }, [refresh])
-  );
+  const { allSelectedPinned, handlePinPress } = useListsSelection({
+    lists,
+    collections,
+    selectedIds,
+    selectedCollectionIds,
+    refresh,
+  });
 
   const handleTilePress = useCallback(
     (item: ListWithCounts) => {
@@ -167,44 +153,6 @@ export default function ListsView({
     },
     [selectMode, onToggleCollection, navigation]
   );
-
-  const selectedListItems = useMemo(
-    () => lists.filter(l => selectedIds.has(l.id)),
-    [lists, selectedIds]
-  );
-
-  const selectedCollectionItems = useMemo(
-    () => collections.filter(col => selectedCollectionIds.has(col.id)),
-    [collections, selectedCollectionIds]
-  );
-
-  const hasPinSelection = selectedListItems.length + selectedCollectionItems.length > 0;
-  const allSelectedPinned = useMemo(
-    () =>
-      hasPinSelection &&
-      selectedListItems.every(l => isOn(l.pinned)) &&
-      selectedCollectionItems.every(col => isOn(col.pinned)),
-    [hasPinSelection, selectedListItems, selectedCollectionItems]
-  );
-
-  const handlePinPress = useCallback(() => {
-    if (!hasPinSelection) return;
-    const nextPinned = !allSelectedPinned;
-    const scope = allSelectedPinned ? ERROR_SCOPE.unpinLists : ERROR_SCOPE.pinLists;
-    void (async () => {
-      try {
-        for (const l of selectedListItems) {
-          await listRepo.setPinned(l.id, nextPinned);
-        }
-        for (const col of selectedCollectionItems) {
-          await collectionRepo.setPinned(col.id, nextPinned);
-        }
-        await refresh();
-      } catch (error) {
-        logError(scope, error);
-      }
-    })();
-  }, [hasPinSelection, allSelectedPinned, selectedListItems, selectedCollectionItems, refresh]);
 
   const renderItem = useCallback<SortableGridRenderItem<ListWithCounts>>(
     ({ item }) => {
