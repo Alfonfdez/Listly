@@ -7,7 +7,7 @@ import type { CollectionWithCounts, Item, ListWithCounts } from '../../src/datab
 const { reorder } = vi.hoisted(() => ({ reorder: vi.fn(async () => {}) }));
 
 vi.mock('../../src/database', () => ({
-  collectionRepository: { reorder },
+  collectionRepo: { reorder },
 }));
 
 function list(id: number, name: string, collectionId: number | null = null): ListWithCounts {

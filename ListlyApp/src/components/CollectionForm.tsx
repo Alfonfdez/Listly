@@ -1,7 +1,7 @@
 import { useLabels } from '../hooks/useLabels';
 import { MAX_COLLECTION_NAME_LENGTH, type IconName } from '../constants/types';
 import { validateCollectionName } from '../utils/validation';
-import { collectionRepository as collectionRepo } from '../database';
+import { collectionRepo } from '../database';
 import EntityForm from './EntityForm';
 
 interface Props {

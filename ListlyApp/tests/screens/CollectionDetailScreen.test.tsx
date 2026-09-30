@@ -36,12 +36,12 @@ const { collectionRepositoryMock, selectMocks, nav } = vi.hoisted(() => ({
 }));
 
 vi.mock('../../src/database', () => ({
-  collectionRepository: collectionRepositoryMock,
-  listRepository: {
+  collectionRepo: collectionRepositoryMock,
+  listRepo: {
     deleteMany: vi.fn(),
     setPinned: vi.fn(async () => {}),
   },
-  itemRepository: {},
+  itemRepo: {},
 }));
 
 vi.mock('../../src/hooks/useSelectMode', () => ({

@@ -1,5 +1,5 @@
 import { useCallback, useMemo } from 'react';
-import { itemRepository as itemRepo } from '../database';
+import { itemRepo } from '../database';
 import type { Item } from '../database/types';
 import { runSafelyAsync, ERROR_SCOPE } from '../utils/errors';
 import type { useVaultSession } from './useVaultSession';

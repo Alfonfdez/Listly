@@ -1,6 +1,6 @@
 import { useCallback, useRef, useState } from 'react';
 import type { DragStartParams } from 'react-native-sortables';
-import { listRepository as listRepo } from '../database';
+import { listRepo } from '../database';
 import { logError, runSafelyAsync, ERROR_SCOPE } from '../utils/errors';
 
 interface Options {

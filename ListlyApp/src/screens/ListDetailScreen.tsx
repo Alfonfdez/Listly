@@ -5,7 +5,7 @@ import Sortable, { type SortableGridRenderItem } from 'react-native-sortables';
 import { useFocusEffect, useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
 import { type IconName, type NavigationProp, type RootStackParamList, COPY_FEEDBACK_MS } from '../constants/types';
 import type { Item } from '../database/types';
-import { vaultRepository as vaultRepo } from '../database';
+import { vaultRepo } from '../database';
 import { logError, ERROR_SCOPE } from '../utils/errors';
 import { useApp } from '../context/AppContext';
 import { useConfig } from '../context/ConfigContext';

@@ -13,7 +13,7 @@ vi.mock('../../src/hooks/useItemPhotos', () => ({
   }),
 }));
 
-vi.mock('../../src/database', () => ({ itemRepository: { create: vi.fn() } }));
+vi.mock('../../src/database', () => ({ itemRepo: { create: vi.fn() } }));
 
 const baseProps = {
   listId: 1,

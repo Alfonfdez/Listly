@@ -38,9 +38,9 @@ const { collectionRepositoryMock } = vi.hoisted(() => ({
 }));
 
 vi.mock('../../src/database', () => ({
-  collectionRepository: collectionRepositoryMock,
-  listRepository: { deleteMany: vi.fn() },
-  itemRepository: {},
+  collectionRepo: collectionRepositoryMock,
+  listRepo: { deleteMany: vi.fn() },
+  itemRepo: {},
 }));
 
 vi.mock('../../src/context/AppContext', () => ({

@@ -15,12 +15,12 @@ vi.mock('../../src/context/AppContext', () => ({
 }));
 
 vi.mock('../../src/database', () => ({
-  listRepository: {
+  listRepo: {
     deleteMany: vi.fn(async () => {}),
     setPinned: vi.fn(async () => {}),
   },
-  itemRepository: {},
-  collectionRepository: {
+  itemRepo: {},
+  collectionRepo: {
     deleteMany: vi.fn(async () => {}),
     setPinned: vi.fn(async () => {}),
   },

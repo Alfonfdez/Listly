@@ -1,5 +1,5 @@
 import { useCallback, useRef, useState } from 'react';
-import { vaultRepository as vaultRepo } from '../database';
+import { vaultRepo } from '../database';
 import type { UnlockedItems, VaultItemRecord } from '../database/repositories/vaultRepo';
 import { isWrongPassphrase } from '../utils/vaultCrypto';
 import { dbTimestamp } from '../utils/formatters';

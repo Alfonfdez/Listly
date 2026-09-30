@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { listRepository as listRepo, collectionRepository as collectionRepo } from '../database';
+import { listRepo, collectionRepo } from '../database';
 import { logError, ERROR_SCOPE } from '../utils/errors';
 import { isOn } from '../utils/flags';
 import type { CollectionWithCounts, ListWithCounts } from '../database/types';

@@ -3,7 +3,7 @@ import { useNavigation, useRoute, type RouteProp } from '@react-navigation/nativ
 import { useApp } from '../context/AppContext';
 import { useLabels } from '../hooks/useLabels';
 import { COLLECTION_DELETE_MODES, type CollectionDeleteMode, type IconName, type NavigationProp, type RootStackParamList } from '../constants/types';
-import { collectionRepository as collectionRepo } from '../database';
+import { collectionRepo } from '../database';
 import { logError, ERROR_SCOPE } from '../utils/errors';
 import ScreenShell from '../components/ScreenShell';
 import NotFoundScreen from '../components/NotFoundScreen';

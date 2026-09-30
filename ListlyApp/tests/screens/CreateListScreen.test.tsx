@@ -47,7 +47,7 @@ const { listRepositoryMock } = vi.hoisted(() => ({
 }));
 
 vi.mock('../../src/database', () => ({
-  listRepository: listRepositoryMock,
+  listRepo: listRepositoryMock,
 }));
 
 vi.mock('../../src/context/AppContext', () => ({

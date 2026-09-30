@@ -20,15 +20,15 @@ const dbMocks = vi.hoisted(() => ({
 }));
 
 vi.mock('../../src/database', () => ({
-  collectionRepository: {
+  collectionRepo: {
     deleteMany: dbMocks.deleteManyCollections,
     reorder: vi.fn(),
   },
-  listRepository: {
+  listRepo: {
     deleteMany: dbMocks.deleteManyLists,
     reorder: vi.fn(),
   },
-  itemRepository: {},
+  itemRepo: {},
 }));
 
 const COLLECTIONS: CollectionWithCounts[] = [

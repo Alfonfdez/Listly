@@ -14,7 +14,7 @@ const itemRepoMock = vi.hoisted(() => ({
   deleteCompleted: vi.fn(async () => {}),
 }));
 
-vi.mock('../../src/database', () => ({ itemRepository: itemRepoMock }));
+vi.mock('../../src/database', () => ({ itemRepo: itemRepoMock }));
 
 type Vault = Parameters<typeof useItemStore>[0]['vault'];
 

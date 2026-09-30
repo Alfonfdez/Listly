@@ -933,6 +933,13 @@ pm run test:all green.
 - Cleanups: `useItemSort` self-import (`'../hooks/useLabels'` → `'./useLabels'`), dropped a redundant `ids as number[]` cast in `ListsScreenBase`, reflowed `utf8Decode`'s body off the signature line.
 - No user-visible behavior change. `npm run test:all` green (73 files, 601 tests); typecheck + lint clean. Verified on web at 375px (0 console errors): app load, lock modal, Settings > Data export (backup downloads). Release APK rebuilt.
 
+[2026-09-30] ~ | ListlyApp/src/database/index.ts, +18 consumers, repositories/shared.ts, +13 test files
+- Refactor (Tier 2, repo ergonomics): `src/database/index.ts` now re-exports the repositories under their **canonical** names (`listRepo`, `itemRepo`, `collectionRepo`, `configRepo`, `vaultRepo`) instead of the `*Repository` aliases, and the 18 consumer modules import them directly (dropping every `listX as listRepo` alias). No behavior change; the alias layer that forced a rename-then-alias round trip is gone.
+- `repositories/shared.ts` `reorderPositions` now uses the `write()` access helper instead of importing `withTransaction` directly (consistent with every other repo).
+- Tests: the `vi.mock('../../src/database', …)` object keys in 13 test files were updated to the canonical names (local `*RepositoryMock` variable names kept); `ListsView.test` updates its imported symbols accordingly. `npm run test:all` green (73 files, 601 tests) and stable across two runs; typecheck + lint clean. Grep guard: no `*Repository` references remain outside the mock variable names.
+- Verified on web at 375px (0 console errors): Home loads lists + collections, list item add/delete via the renamed repos. Release APK rebuilt.
+
+
 
 
 

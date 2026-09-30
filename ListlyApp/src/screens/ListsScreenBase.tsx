@@ -1,6 +1,6 @@
 import { useCallback, useMemo, useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
-import { collectionRepository as collectionRepo, listRepository as listRepo } from '../database';
+import { collectionRepo, listRepo } from '../database';
 import { logError, ERROR_SCOPE, type ErrorScope } from '../utils/errors';
 import type { Config } from '../database/types';
 import { useApp } from '../context/AppContext';
