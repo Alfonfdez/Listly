@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { filterListsByQuery } from '../utils/search';
 import { LIST_VIEW_MODES, type ListViewMode } from '../constants/types';
-import { collectionRepository as collectionRepo } from '../database';
+import { collectionRepo } from '../database';
 import { runSafelyAsync, ERROR_SCOPE } from '../utils/errors';
 import { useDragOrder } from './useDragOrder';
 import type { CollectionWithCounts, Item, ListWithCounts } from '../database/types';

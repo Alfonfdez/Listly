@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { itemRepository as itemRepo } from '../database';
+import { itemRepo } from '../database';
 import { logError, ERROR_SCOPE } from '../utils/errors';
 import { COPY_FEEDBACK_MS, MERGE_NOTICE, type NavigationProp } from '../constants/types';
 import type { ListWithCounts } from '../database/types';

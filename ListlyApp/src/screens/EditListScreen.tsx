@@ -3,7 +3,7 @@ import { useNavigation, useRoute, type RouteProp } from '@react-navigation/nativ
 import { useApp } from '../context/AppContext';
 import { useLabels } from '../hooks/useLabels';
 import { LIST_KINDS, type IconName, type ListKind, type NavigationProp, type RootStackParamList } from '../constants/types';
-import { listRepository as listRepo } from '../database';
+import { listRepo } from '../database';
 import { logError, ERROR_SCOPE } from '../utils/errors';
 import ScreenShell from '../components/ScreenShell';
 import NotFoundScreen from '../components/NotFoundScreen';

@@ -16,11 +16,11 @@ vi.mock('../../src/context/AppContext', () => ({
 }));
 
 vi.mock('../../src/database', () => ({
-  listRepository: {
+  listRepo: {
     deleteMany: vi.fn(async () => {}),
     setPinned: vi.fn(async () => {}),
   },
-  itemRepository: {},
+  itemRepo: {},
 }));
 
 const selectMocks = vi.hoisted(() => ({

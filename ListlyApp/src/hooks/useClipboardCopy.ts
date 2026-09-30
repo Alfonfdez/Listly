@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import * as Clipboard from 'expo-clipboard';
-import { itemRepository as itemRepo } from '../database';
+import { itemRepo } from '../database';
 import { logError, runSafelyAsync, ERROR_SCOPE } from '../utils/errors';
 import { buildListCopyText } from '../utils/copyList';
 import { COPY_FEEDBACK_MS } from '../constants/types';

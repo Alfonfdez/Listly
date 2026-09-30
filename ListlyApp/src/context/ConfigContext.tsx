@@ -4,7 +4,7 @@ import { type ColorPalette, darkColors, lightColors } from '../constants/themes'
 import { THEMES, type Theme } from '../constants/types';
 import { setLanguage } from '../i18n';
 import { DEFAULT_CONFIG } from '../database/configDefaults';
-import { configRepository as configRepo } from '../database';
+import { configRepo } from '../database';
 import type { Config } from '../database/types';
 import { logError, ERROR_SCOPE } from '../utils/errors';
 import { useRequiredContext } from '../hooks/useRequiredContext';

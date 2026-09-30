@@ -5,7 +5,7 @@ import { useConfig } from '../context/ConfigContext';
 import { useLabels } from '../hooks/useLabels';
 import { useSelectMode } from '../hooks/useSelectMode';
 import { useSelectSearchHeader } from '../hooks/useSelectSearchHeader';
-import { listRepository as listRepo } from '../database';
+import { listRepo } from '../database';
 import { LIST_VIEW_MODES, type IconName, type NavigationProp, type RootStackParamList } from '../constants/types';
 import ScreenShell from '../components/ScreenShell';
 import NotFoundScreen from '../components/NotFoundScreen';

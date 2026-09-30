@@ -2,7 +2,7 @@ import { useCallback, type ReactNode } from 'react';
 import { useLabels } from '../hooks/useLabels';
 import { MAX_LIST_NAME_LENGTH, type IconName } from '../constants/types';
 import { validateListName } from '../utils/validation';
-import { listRepository as listRepo } from '../database';
+import { listRepo } from '../database';
 import EntityForm from './EntityForm';
 
 interface Props {

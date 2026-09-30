@@ -1,5 +1,6 @@
 import { and, eq, inArray, sql, type AnyColumn, type SQL } from 'drizzle-orm';
-import { withTransaction, type DrizzleDb } from '../drizzle/engine';
+import { write } from '../access';
+import type { DrizzleDb } from '../drizzle/engine';
 import { collections, items, lists } from '../drizzle/schema';
 import { deleteItemPhotos, duplicateItemPhotos, parseItemPhotos, serializeItemPhotos } from '../../utils/itemPhotos';
 import { dbTimestamp } from '../../utils/formatters';
@@ -38,7 +39,7 @@ export async function reorderPositions(
   orderedIds: number[],
   updateOne: (db: DrizzleDb, id: number, index: number) => Promise<unknown>
 ): Promise<void> {
-  await withTransaction(async db => {
+  await write(async db => {
     for (let i = 0; i < orderedIds.length; i++) {
       await updateOne(db, orderedIds[i], i);
     }

@@ -9,8 +9,8 @@ const { setPinnedList, setPinnedCollection } = vi.hoisted(() => ({
 }));
 
 vi.mock('../../src/database', () => ({
-  listRepository: { setPinned: setPinnedList },
-  collectionRepository: { setPinned: setPinnedCollection },
+  listRepo: { setPinned: setPinnedList },
+  collectionRepo: { setPinned: setPinnedCollection },
 }));
 
 function list(id: number, pinned: 0 | 1 = 0): ListWithCounts {

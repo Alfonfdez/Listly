@@ -11,7 +11,7 @@ const vaultRepoMock = vi.hoisted(() => ({
   changePassphrase: vi.fn(async () => {}),
 }));
 
-vi.mock('../../src/database', () => ({ vaultRepository: vaultRepoMock }));
+vi.mock('../../src/database', () => ({ vaultRepo: vaultRepoMock }));
 
 function record(id: number, position: number): UnlockedItems[number] {
   return {

@@ -5,7 +5,7 @@ import ListsView, { type ListsViewVariant, type ListViewMode } from '../../src/c
 import { buildAppMock, setItemsByListId, setLists, setBaseLists, setCollections, setListsByCollectionId, resetAppStub } from '../helpers/appStub';
 import { resetStub } from '../helpers/configStub';
 import { getZoneHandlers, resetZoneHandlers, fireGridDragEnd, fireGridDragStart, lastGrid } from '../mocks/react-native-sortables';
-import { listRepository, collectionRepository } from '../../src/database';
+import { listRepo, collectionRepo } from '../../src/database';
 import type { CollectionWithCounts, Item, ListWithCounts } from '../../src/database/types';
 
 vi.mock('expo-sqlite', () => ({ openDatabaseSync: vi.fn() }));
@@ -16,9 +16,9 @@ vi.mock('../../src/context/AppContext', () => ({
 }));
 
 vi.mock('../../src/database', () => ({
-  listRepository: { deleteMany: vi.fn(async () => {}), reorder: vi.fn(async () => {}), moveToCollection: vi.fn(async () => {}), removeFromCollection: vi.fn(async () => {}), setPinned: vi.fn(async () => {}) },
-  itemRepository: {},
-  collectionRepository: { deleteMany: vi.fn(async () => {}), reorder: vi.fn(async () => {}), setPinned: vi.fn(async () => {}) },
+  listRepo: { deleteMany: vi.fn(async () => {}), reorder: vi.fn(async () => {}), moveToCollection: vi.fn(async () => {}), removeFromCollection: vi.fn(async () => {}), setPinned: vi.fn(async () => {}) },
+  itemRepo: {},
+  collectionRepo: { deleteMany: vi.fn(async () => {}), reorder: vi.fn(async () => {}), setPinned: vi.fn(async () => {}) },
 }));
 
 const nav = { navigate: vi.fn() };
@@ -89,14 +89,14 @@ describe('ListsView', () => {
     resetStub();
     resetAppStub();
     resetZoneHandlers();
-    vi.mocked(listRepository.moveToCollection).mockClear();
-    vi.mocked(listRepository.removeFromCollection).mockClear();
-    vi.mocked(listRepository.reorder).mockClear();
-    vi.mocked(listRepository.deleteMany).mockClear();
-    vi.mocked(collectionRepository.reorder).mockClear();
-    vi.mocked(collectionRepository.deleteMany).mockClear();
-    vi.mocked(listRepository.setPinned).mockClear();
-    vi.mocked(collectionRepository.setPinned).mockClear();
+    vi.mocked(listRepo.moveToCollection).mockClear();
+    vi.mocked(listRepo.removeFromCollection).mockClear();
+    vi.mocked(listRepo.reorder).mockClear();
+    vi.mocked(listRepo.deleteMany).mockClear();
+    vi.mocked(collectionRepo.reorder).mockClear();
+    vi.mocked(collectionRepo.deleteMany).mockClear();
+    vi.mocked(listRepo.setPinned).mockClear();
+    vi.mocked(collectionRepo.setPinned).mockClear();
     nav.navigate.mockClear();
     setLists(LISTS);
     setBaseLists(LISTS);
@@ -359,11 +359,11 @@ const onToggleItem = vi.fn();
       getZoneHandlers()[0].onItemEnter?.();
       getZoneHandlers()[0].onItemDrop?.();
     });
-    expect(listRepository.moveToCollection).toHaveBeenCalledWith(1, 10);
-    expect(listRepository.reorder).not.toHaveBeenCalled();
-    expect(collectionRepository.reorder).not.toHaveBeenCalled();
+    expect(listRepo.moveToCollection).toHaveBeenCalledWith(1, 10);
+    expect(listRepo.reorder).not.toHaveBeenCalled();
+    expect(collectionRepo.reorder).not.toHaveBeenCalled();
     fireGridDragEnd({ key: '1', data: [{ ...LISTS[0] }, { ...LISTS[1] }] });
-    expect(listRepository.reorder).not.toHaveBeenCalled();
+    expect(listRepo.reorder).not.toHaveBeenCalled();
   });
 
   it('enables dragging a single list on Home so it can be dropped into a collection', async () => {
@@ -378,8 +378,8 @@ const onToggleItem = vi.fn();
       getZoneHandlers()[0].onItemEnter?.();
       getZoneHandlers()[0].onItemDrop?.();
     });
-    expect(listRepository.moveToCollection).toHaveBeenCalledWith(1, 10);
-    expect(listRepository.reorder).not.toHaveBeenCalled();
+    expect(listRepo.moveToCollection).toHaveBeenCalledWith(1, 10);
+    expect(listRepo.reorder).not.toHaveBeenCalled();
   });
 
   it('keeps the >1 guard for a single list outside Home', async () => {
@@ -430,11 +430,11 @@ const onToggleItem = vi.fn();
       getZoneHandlers()[0].onItemEnter?.();
       getZoneHandlers()[0].onItemDrop?.();
     });
-    expect(listRepository.removeFromCollection).toHaveBeenCalledWith(1);
-    expect(listRepository.reorder).not.toHaveBeenCalled();
+    expect(listRepo.removeFromCollection).toHaveBeenCalledWith(1);
+    expect(listRepo.reorder).not.toHaveBeenCalled();
     expect(view.queryByHintText('Drop to remove this list from the collection')).toBeNull();
     fireGridDragEnd({ key: '1', data: [{ ...LISTS[0] }, { ...LISTS[1] }] });
-    expect(listRepository.reorder).not.toHaveBeenCalled();
+    expect(listRepo.reorder).not.toHaveBeenCalled();
   });
 
   it('still reorders members in collection detail when released outside the target', async () => {
@@ -442,8 +442,8 @@ const onToggleItem = vi.fn();
     const view = await renderView({ mode: 'collection', collectionId: 10 });
     await view.findByText('Groceries');
     fireGridDragEnd({ key: '2', data: [{ ...LISTS[1] }, { ...LISTS[0] }] });
-    expect(listRepository.removeFromCollection).not.toHaveBeenCalled();
-    expect(listRepository.reorder).toHaveBeenCalledWith([2, 1]);
+    expect(listRepo.removeFromCollection).not.toHaveBeenCalled();
+    expect(listRepo.reorder).toHaveBeenCalledWith([2, 1]);
   });
 
   it('pins the selected lists when Pin is pressed in select mode', async () => {
@@ -453,7 +453,7 @@ const onToggleItem = vi.fn();
     expect(within(pin).getByText('star')).toBeTruthy();
     expect(within(pin).queryByText('star-outline')).toBeNull();
     fireEvent.press(pin);
-    expect(listRepository.setPinned).toHaveBeenCalledWith(1, true);
+    expect(listRepo.setPinned).toHaveBeenCalledWith(1, true);
   });
 
   it('shows Unpin and unpins when every selected item is already pinned', async () => {
@@ -464,7 +464,7 @@ const onToggleItem = vi.fn();
     expect(within(unpin).getByText('star-outline')).toBeTruthy();
     expect(within(unpin).queryByText('star')).toBeNull();
     fireEvent.press(unpin);
-    expect(listRepository.setPinned).toHaveBeenCalledWith(1, false);
+    expect(listRepo.setPinned).toHaveBeenCalledWith(1, false);
   });
 
   it('pins a selected collection when Pin is pressed', async () => {
@@ -474,6 +474,6 @@ const onToggleItem = vi.fn();
     const pin = view.getByLabelText('Pin');
     expect(within(pin).getByText('star')).toBeTruthy();
     fireEvent.press(pin);
-    expect(collectionRepository.setPinned).toHaveBeenCalledWith(10, true);
+    expect(collectionRepo.setPinned).toHaveBeenCalledWith(10, true);
   });
 });

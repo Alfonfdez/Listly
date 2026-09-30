@@ -4,7 +4,7 @@ import { useLabels } from '../hooks/useLabels';
 import { LIST_ICONS } from '../constants/listIcons';
 import { QUICK_COLORS } from '../constants/listColors';
 import type { IconName, NavigationProp } from '../constants/types';
-import { collectionRepository as collectionRepo } from '../database';
+import { collectionRepo } from '../database';
 import ScreenShell from '../components/ScreenShell';
 import CollectionForm from '../components/CollectionForm';
 

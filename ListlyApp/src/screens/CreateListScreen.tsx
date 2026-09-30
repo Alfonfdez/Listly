@@ -5,7 +5,7 @@ import { useLabels } from '../hooks/useLabels';
 import { LIST_ICONS } from '../constants/listIcons';
 import { QUICK_COLORS } from '../constants/listColors';
 import { LIST_KINDS, type IconName, type ListKind, type NavigationProp, type RootStackParamList } from '../constants/types';
-import { listRepository as listRepo } from '../database';
+import { listRepo } from '../database';
 import { makeListCopyName } from '../utils/copyList';
 import { logError, ERROR_SCOPE } from '../utils/errors';
 import ScreenShell from '../components/ScreenShell';

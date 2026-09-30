@@ -9,7 +9,7 @@ const { reorder, moveToCollection, removeFromCollection } = vi.hoisted(() => ({
 }));
 
 vi.mock('../../src/database', () => ({
-  listRepository: {
+  listRepo: {
     reorder,
     moveToCollection,
     removeFromCollection,

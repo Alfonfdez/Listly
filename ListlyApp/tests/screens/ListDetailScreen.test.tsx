@@ -78,9 +78,9 @@ vi.mock('../../src/utils/vaultCrypto', async () => {
 });
 
 vi.mock('../../src/database', () => ({
-  itemRepository: itemRepositoryMock,
-  listRepository: listRepositoryMock,
-  vaultRepository: vaultRepositoryMock,
+  itemRepo: itemRepositoryMock,
+  listRepo: listRepositoryMock,
+  vaultRepo: vaultRepositoryMock,
 }));
 
 vi.mock('expo-clipboard', () => ({
