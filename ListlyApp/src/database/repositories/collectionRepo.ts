@@ -9,7 +9,7 @@ import { dbTimestamp } from '../../utils/formatters';
 import { COLLECTION_DELETE_MODES, type CollectionDeleteMode } from '../../constants/types';
 import { countRows, countsSelection, deletePhotosOfItems, picturesOfLists, nextPosition, reorderPositions } from './shared';
 
-export type NewCollection = Omit<Collection, 'id' | 'created_at' | 'position' | 'pinned'>;
+type NewCollection = Omit<Collection, 'id' | 'created_at' | 'position' | 'pinned'>;
 
 export const collectionRepo = {
   async list(): Promise<Collection[]> {

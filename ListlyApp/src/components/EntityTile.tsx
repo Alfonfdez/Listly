@@ -20,8 +20,8 @@ import { useFontSize } from '../hooks/useFontSize';
 import { useLabels } from '../hooks/useLabels';
 import type { Flag } from '../utils/flags';
 
-export type EntityKind = 'list' | 'collection';
-export type EntityLayout = 'card' | 'row';
+type EntityKind = 'list' | 'collection';
+type EntityLayout = 'card' | 'row';
 
 export interface TileEntity {
   id: number;

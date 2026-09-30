@@ -7,7 +7,7 @@ interface DrizzleRunResult {
   changes: number;
 }
 
-export type SqliteProxyCallback = (
+type SqliteProxyCallback = (
   sql: string,
   params: unknown[],
   method: ProxyMethod

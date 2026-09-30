@@ -1,7 +1,7 @@
 export const KDF_ITERATIONS = 600_000;
 export const KDF_DIGEST = 'sha512';
 export const KDF_VERSION = 1;
-export const ZERO_SALT_BYTES = 16;
+const ZERO_SALT_BYTES = 16;
 export const AES_IV_BYTES = 12;
 export const AES_TAG_BYTES = 16;
 
@@ -111,14 +111,6 @@ export function bytesToHex(bytes: Uint8Array): string {
   return out;
 }
 
-export function hexToBytes(hex: string): Uint8Array {
-  const out = new Uint8Array(hex.length / 2);
-  for (let i = 0; i < out.length; i++) {
-    out[i] = Number.parseInt(hex.slice(i * 2, i * 2 + 2), 16);
-  }
-  return out;
-}
-
 export function webCryptoHashName(digest: string): string {
   return WEB_CRYPTO_DIGEST[digest.replace(/-/g, '').toLowerCase()] ?? 'SHA-256';
 }
@@ -129,7 +121,7 @@ export const VAULT_ERROR = {
   unsupported: 'unsupported',
 } as const;
 
-export type VaultErrorCode = (typeof VAULT_ERROR)[keyof typeof VAULT_ERROR];
+type VaultErrorCode = (typeof VAULT_ERROR)[keyof typeof VAULT_ERROR];
 
 export class VaultCryptoError extends Error {
   readonly code: VaultErrorCode;

@@ -921,6 +921,13 @@ pm run test:all green.
 - Tests: new `tests/hooks/useListsViewData.test.ts` (6), `useListsSelection.test.ts` (5), `useListsDrag.test.ts` (4); the existing `ListsView`/screen suites pass unchanged as the end-to-end guard. `npm run test:all` green (73 files, 601 tests); typecheck + lint clean.
 - Verified on web at 375px (0 console errors): Home (collections + lists sections), search filter, select mode (tiles → checkboxes, Pin/Unpin a mixed list+collection selection), Collections screen, and Collection detail (empty state + remove target). Release APK rebuilt.
 
+[2026-09-30] ~ | ListlyApp/src/utils/vaultCryptoCore.ts, src/context/ToastContext.tsx, src/i18n/{en,es}.ts, + narrowed exports
+- Refactor (Tier 2, dead code): removed the unused `hexToBytes` helper (`vaultCryptoCore.ts`) and the unused `useToast` context hook (`ToastContext.tsx` — the toast is driven by `subscribeToErrors`; the context/provider stay).
+- Removed 4 unused i18n keys from `en`/`es`: `list_locked_badge`, `list_remove_lock_title`, `list_remove_lock_message`, `list_remove_lock_confirm` (verified unreferenced, incl. dynamic `labels[...]` paths).
+- Dropped the `export` keyword on same-file-only symbols (kept as locals): `ItemDraftPayload`, `ItemDisplayFlags`, `ItemSortKey`, `ListNameError`, `CollectionNameError`, `NewCollection`, `nextPositionSql`, `BackupValidationCode`, `SqliteProxyCallback`, `initSqlJsEngine`, `ZERO_SALT_BYTES`, `VaultErrorCode`, `EntityKind`, `EntityLayout`, `SECTION_TITLE_STYLE`, `SECTION_SUBTITLE_STYLE`.
+- No behavior change. `npm run test:all` green (73 files, 601 tests); typecheck + lint clean.
+
+
 
 
 

@@ -19,8 +19,8 @@ function validateName(
 }
 
 export type ItemNameError = `item_${NameErrorCode}`;
-export type ListNameError = `list_${NameErrorCode}`;
-export type CollectionNameError = `collection_${NameErrorCode}`;
+type ListNameError = `list_${NameErrorCode}`;
+type CollectionNameError = `collection_${NameErrorCode}`;
 
 export function validateItemName(
   value: string,

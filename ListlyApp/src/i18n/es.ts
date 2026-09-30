@@ -238,7 +238,6 @@ export const es: Translations = {
   select_unpin: 'Desfijar',
   home_pinned: 'Destacado',
   list_lock_action: 'Bloquear lista',
-  list_locked_badge: 'Bloqueada',
   list_lock_title: 'Bloquear esta lista',
   list_lock_message:
     'Los elementos se cifrarán con una contraseña. Si la olvidas, los elementos se pierden para siempre: no hay recuperación.',
@@ -256,9 +255,6 @@ export const es: Translations = {
   list_unlock_action: 'Desbloquear',
   vault_wrong_passphrase: 'Contraseña incorrecta',
   list_remove_lock: 'Quitar bloqueo',
-  list_remove_lock_title: '¿Quitar el bloqueo?',
-  list_remove_lock_message: 'Los elementos se descifrarán y se guardarán sin protección.',
-  list_remove_lock_confirm: 'Quitar',
   list_locked_progress: 'Bloqueada',
   home_locked: 'Lista bloqueada',
   list_change_passphrase: 'Cambiar contraseña',

@@ -55,7 +55,7 @@ const snapshotSchema = z.object({
 
 export type BackupSnapshot = z.infer<typeof snapshotSchema>;
 
-export type BackupValidationCode = 'invalid_json' | 'invalid_format' | 'newer_version';
+type BackupValidationCode = 'invalid_json' | 'invalid_format' | 'newer_version';
 
 export class BackupValidationError extends Error {
   readonly code: BackupValidationCode;

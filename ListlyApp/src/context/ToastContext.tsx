@@ -2,7 +2,6 @@ import { createContext, useCallback, useEffect, useMemo, useRef, useState, type 
 import { StyleSheet, View } from 'react-native';
 import { useLabels } from '../hooks/useLabels';
 import { subscribeToErrors } from '../utils/errors';
-import { useRequiredContext } from '../hooks/useRequiredContext';
 import Toast from '../components/Toast';
 
 interface ToastContextType {
@@ -10,10 +9,6 @@ interface ToastContextType {
 }
 
 const ToastContext = createContext<ToastContextType | null>(null);
-
-export function useToast() {
-  return useRequiredContext(ToastContext, 'useToast', 'ToastProvider');
-}
 
 const TOAST_DURATION_MS = 3000;
 
