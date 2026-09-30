@@ -70,7 +70,7 @@ acceptance criteria in a real browser.
 
 | Harness | Tooling | Status | Covers |
 |---------|---------|--------|--------|
-| Bootstrap + app config | Expo SDK 57 + Metro | In use | `app.json`/`tsconfig`/`metro.config.js` (wasm assetExts for sql.js) |
+| Bootstrap + app config | Expo SDK 57 (`expo@57.0.26`) + Metro | In use | `app.json`/`tsconfig`/`metro.config.js` (wasm assetExts for sql.js) |
 | Pure-logic unit tests | Vitest + happy-dom | In use | Formatters, search/filter, color utilities |
 | DB contract suite | Vitest + sql.js (real SQLite in Node) | In use | One shared engine (native parity via expo-sqlite mock + web via sql.js/IndexedDB), Drizzle repo contract, DB drift vs types |
 | Type-checking | `tsc --noEmit` (strict, no `any`) | In use | Whole codebase types |

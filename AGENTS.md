@@ -11,7 +11,7 @@
 - If asked for a commit message, the agent only returns the summary in standard git format. Never executes commit, push, pull, fetch, or checkout — the developer does it manually.
 
 ## TECH STACK
-- React Native 0.86.3 + Expo SDK 57
+- React Native 0.86.3 + Expo SDK 57 (`expo@57.0.26`)
 - TypeScript strict mode, no `any`
 - Drizzle ORM (query builder over a shared `DatabaseHandle`; no `drizzle-kit`, migrations stay on `PRAGMA user_version`)
 - Zod 4 (`src/database/schemas.ts`) — single source of truth for row shapes, `z.infer` types, read-path validation
