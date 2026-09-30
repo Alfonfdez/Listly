@@ -1,7 +1,7 @@
 # Tech Stack
 
 ## Languages and tools
-- **React Native** (Expo managed workflow, SDK 57) — main framework for iOS and Android, also targeting web via `react-native-web`.
+- **React Native** (Expo managed workflow, SDK 57 — `expo@57.0.26`, RN 0.86.3) — main framework for iOS and Android, also targeting web via `react-native-web`.
 - **TypeScript** — strict mode, no `any`.
 - **React Navigation** (native-stack + drawer) — screen navigation.
 - **Drizzle ORM** — typed SQL query builder over a shared `DatabaseHandle` (no `drizzle-kit`, migrations stay on `PRAGMA user_version`).

@@ -951,6 +951,11 @@ pm run test:all green.
 [2026-09-30] docs | AGENTS.md, docs/harnesses.md
 - Documented the **generated-native-project gotcha**: `android/` is gitignored and Expo bakes `assets/*` + the `app.json` icon/splash into native resources only during `expo prebuild`, so changing assets requires `npx expo prebuild --platform android` before `gradlew assembleRelease` (otherwise the APK keeps stale icons/splash). Also noted the web favicon is only injected by `npx expo export --platform web`, and that the icon artwork lives in `scripts/gen-assets.mjs`. No code change.
 
+[2026-09-30] ~ | ListlyApp/package.json, package-lock.json
+- Chore (deps): bumped `expo` `~57.0.25` → `~57.0.26` and `expo-document-picker` `~57.0.2` → `~57.0.3` to the SDK 57 expected versions (`npx expo install --check` now reports "Dependencies are up to date"). Patch bumps only; no app code change.
+- `npm run test:all` green (73 files, 601 tests); native project regenerated via `npx expo prebuild --platform android` and the release APK rebuilt.
+
+
 
 
 
