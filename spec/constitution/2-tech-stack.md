@@ -103,7 +103,7 @@ ListlyApp/
 |   +-- hooks/                        <- useFontSize, useLabels, useSelectMode, useSelectSearchHeader,
 |   |                                   useDragOrder, useItemSort, useItemPhotos, useColorSelection,
 |   |                                   useClipboardCopy, useMergeFlow, useItemEditing, useBatchItemActions,
-|   |                                   useItemStore, useItemDraft, useItemDisplayFlags, useCollectionDropZones, useVaultSession,
+|   |                                   useItemStore, useItemDraft, useItemDisplayFlags, useListsViewData, useListsSelection, useListsDrag, useCollectionDropZones, useVaultSession,
 |   |                                   useRequiredContext, useResetOnOpen
 |   |
 |   +-- constants/
