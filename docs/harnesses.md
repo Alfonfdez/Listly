@@ -17,6 +17,8 @@ All commands run from the `ListlyApp/` directory (created when feature 001 is im
 | Typecheck | `npm run typecheck` |
 | Lint | `npm run lint` |
 | Web E2E (spec criteria) | `npx expo start --web` then run the `verification-loop` skill (Playwright, 375px viewport) |
+| Android release APK | `npx expo prebuild --platform android` then `cd android && ./gradlew assembleRelease` (see note below) |
+| Web production favicon/build | `npx expo export --platform web` (favicon + `index.html` are only generated here) |
 | Mobile E2E (Maestro flows) | Deferred — added when native-only criteria appear (see below) |
 
 ### Windows / PowerShell notes (host is win32, PowerShell 5.1)
@@ -32,6 +34,13 @@ All commands run from the `ListlyApp/` directory (created when feature 001 is im
   Get-NetTCPConnection -LocalPort 8081 -State Listen | ForEach-Object { Stop-Process -Id $_.OwningProcess -Force }
   ```
   and remove the PID file if one was written. Confirm the port is free afterwards. Never leave port 8081 occupied between verifications.
+
+### Android assets / icons (generated native project)
+
+- `ListlyApp/android/` is **generated** (gitignored). Expo bakes `assets/*` and the `app.json` icon/splash config into native resources (`res/mipmap-*/ic_launcher*.webp`, `res/drawable-*/splashscreen_logo.png`) **only during `expo prebuild`**.
+- **After changing anything under `assets/` (or the icon/splash config in `app.json`), run `npx expo prebuild --platform android` before the next `gradlew assembleRelease`** — otherwise the APK ships stale icons/splash (Gradle does not regenerate them). On device, uninstall the old app first so the launcher doesn't keep the cached icon.
+- The web favicon is **not** served by `expo start --web`; it is injected during `npx expo export --platform web` (writes `dist/favicon.ico` + the `<link rel="icon">` in `dist/index.html`).
+- The icon artwork is authored as SVG in `ListlyApp/scripts/gen-assets.mjs` (regenerates all six `assets/*.png`; `sharp` is intentionally not a project dependency).
 
 ### Current suite baseline
 
