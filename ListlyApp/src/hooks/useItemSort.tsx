@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { Ionicons } from '@expo/vector-icons';
 import { useConfig } from '../context/ConfigContext';
-import { useLabels } from '../hooks/useLabels';
+import { useLabels } from './useLabels';
 import {
   DEFAULT_ITEM_SORT,
   itemSortValue,

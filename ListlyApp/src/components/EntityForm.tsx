@@ -5,6 +5,7 @@ import { useFontSize } from '../hooks/useFontSize';
 import { useLabels } from '../hooks/useLabels';
 import { LIST_ICONS } from '../constants/listIcons';
 import { DEBOUNCE_MS, type IconName } from '../constants/types';
+import { logError, ERROR_SCOPE } from '../utils/errors';
 import type { Translations } from '../i18n/en';
 import { useColorSelection } from '../hooks/useColorSelection';
 import ColorGrid from './ColorGrid';
@@ -101,6 +102,8 @@ export default function EntityForm<TError extends StringTranslationKey>({
         return;
       }
       await onSubmit({ name: trimmed, icon: icon ?? initialIcon, color: selectedColor ?? initialColor });
+    } catch (error) {
+      logError(ERROR_SCOPE.saveEntity, error);
     } finally {
       setSubmitting(false);
     }

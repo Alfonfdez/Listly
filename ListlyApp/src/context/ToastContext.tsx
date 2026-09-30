@@ -2,6 +2,7 @@ import { createContext, useCallback, useEffect, useMemo, useRef, useState, type 
 import { StyleSheet, View } from 'react-native';
 import { useLabels } from '../hooks/useLabels';
 import { subscribeToErrors } from '../utils/errors';
+import { TOAST_DURATION_MS } from '../constants/types';
 import Toast from '../components/Toast';
 
 interface ToastContextType {
@@ -9,8 +10,6 @@ interface ToastContextType {
 }
 
 const ToastContext = createContext<ToastContextType | null>(null);
-
-const TOAST_DURATION_MS = 3000;
 
 export function ToastProvider({ children }: { children: ReactNode }) {
   const labels = useLabels();

@@ -927,6 +927,13 @@ pm run test:all green.
 - Dropped the `export` keyword on same-file-only symbols (kept as locals): `ItemDraftPayload`, `ItemDisplayFlags`, `ItemSortKey`, `ListNameError`, `CollectionNameError`, `NewCollection`, `nextPositionSql`, `BackupValidationCode`, `SqliteProxyCallback`, `initSqlJsEngine`, `ZERO_SALT_BYTES`, `VaultErrorCode`, `EntityKind`, `EntityLayout`, `SECTION_TITLE_STYLE`, `SECTION_SUBTITLE_STYLE`.
 - No behavior change. `npm run test:all` green (73 files, 601 tests); typecheck + lint clean.
 
+[2026-09-30] ~ | ListlyApp/src/constants/types.ts, src/utils/errors.ts, src/screens/settings/DataScreen.tsx, App.tsx, src/components/{LockListModal,EntityForm}.tsx, src/hooks/useItemSort.tsx, src/screens/ListsScreenBase.tsx, src/utils/vaultCryptoCore.ts
+- Refactor (Tier 2, consistency): constants and error handling unified. Added `MIN_PASSPHRASE_LENGTH` (6) and `TOAST_DURATION_MS` (3000) to `constants/types.ts`, replacing the inline `6` in `LockListModal` and the local `TOAST_DURATION_MS` in `ToastContext`.
+- Error bus: added `ERROR_SCOPE` entries `initDatabase`, `saveEntity`, `exportBackup`, `importBackup`, `deleteAllData`, `factoryReset`. `DataScreen`'s 6 `console.error` calls now route through `logError` (user-facing `Alert`s unchanged); `App.tsx`'s init failure uses `logError(initDatabase)`; `EntityForm.submit` gained a `catch` + `logError(saveEntity)` so a rejecting `onSubmit` (invoked via `void submit()`) is logged instead of becoming an unhandled rejection.
+- Cleanups: `useItemSort` self-import (`'../hooks/useLabels'` → `'./useLabels'`), dropped a redundant `ids as number[]` cast in `ListsScreenBase`, reflowed `utf8Decode`'s body off the signature line.
+- No user-visible behavior change. `npm run test:all` green (73 files, 601 tests); typecheck + lint clean. Verified on web at 375px (0 console errors): app load, lock modal, Settings > Data export (backup downloads). Release APK rebuilt.
+
+
 
 
 

@@ -6,6 +6,7 @@ import { useLabels } from '../../hooks/useLabels';
 import { FACTORY_RESET_CONFIRMATION } from '../../constants/types';
 import { ShareResult } from '../../constants/shareResult';
 import { isAndroidPlatform } from '../../utils/platform';
+import { logError, ERROR_SCOPE } from '../../utils/errors';
 import { clearDataKeepSettings, resetDatabase } from '../../database/database';
 import { BackupValidationError, exportBackup, importBackup } from '../../database/backupService';
 import { pickBackupFile, saveBackupFile, saveBackupToDownloads } from '../../utils/backupIO';
@@ -52,7 +53,7 @@ export default function DataScreen() {
             text: labels.settings_export_share_action,
             onPress: () => {
               runShareFlow(json).catch((error) => {
-                console.error('Failed to share data:', error);
+                logError(ERROR_SCOPE.exportBackup, error);
                 Alert.alert(labels.settings_export_error_title, labels.settings_export_error_message);
               });
             },
@@ -63,7 +64,7 @@ export default function DataScreen() {
       }
       await runShareFlow(json);
     } catch (error) {
-      console.error('Failed to export data:', error);
+      logError(ERROR_SCOPE.exportBackup, error);
       Alert.alert(labels.settings_export_error_title, labels.settings_export_error_message);
     }
   }, [labels, runShareFlow]);
@@ -75,7 +76,7 @@ export default function DataScreen() {
       setPendingImport(json);
       setConfirmAction('import');
     } catch (error) {
-      console.error('Import failed:', error);
+      logError(ERROR_SCOPE.importBackup, error);
       Alert.alert(labels.settings_import_error_title, labels.settings_import_error_message);
     }
   }, [labels]);
@@ -96,7 +97,7 @@ export default function DataScreen() {
             : [labels.settings_import_invalid_title, labels.settings_import_invalid_message];
         Alert.alert(title, message);
       } else {
-        console.error('Import failed:', error);
+        logError(ERROR_SCOPE.importBackup, error);
         Alert.alert(labels.settings_import_error_title, labels.settings_import_error_message);
       }
     } finally {
@@ -114,7 +115,7 @@ export default function DataScreen() {
       await refresh();
       Alert.alert(labels.settings_delete_all_success);
     } catch (error) {
-      console.error('Delete all failed:', error);
+      logError(ERROR_SCOPE.deleteAllData, error);
       Alert.alert(labels.settings_delete_all_error);
     } finally {
       setConfirmAction(null);
@@ -131,7 +132,7 @@ export default function DataScreen() {
       await reload();
       Alert.alert(labels.settings_factory_reset_success);
     } catch (error) {
-      console.error('Factory reset failed:', error);
+      logError(ERROR_SCOPE.factoryReset, error);
       Alert.alert(labels.settings_factory_reset_error);
     } finally {
       setTypedResetVisible(false);

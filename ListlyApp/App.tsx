@@ -9,6 +9,7 @@ import { ToastProvider } from './src/context/ToastContext';
 import ErrorBoundary from './src/components/ErrorBoundary';
 import { THEMES } from './src/constants/types';
 import { isWeb } from './src/utils/platform';
+import { logError, ERROR_SCOPE } from './src/utils/errors';
 import { initDatabase } from './src/database/database';
 
 if (!isWeb) {
@@ -41,7 +42,7 @@ export default function App() {
       try {
         await initDatabase();
       } catch (error) {
-        console.error('Failed to initialize database:', error);
+        logError(ERROR_SCOPE.initDatabase, error);
       } finally {
         if (active) {
           setReady(true);
