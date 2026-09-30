@@ -904,6 +904,15 @@ pm run test:all green.
 - Tests: `tests/hooks/useItemDisplayFlags.test.ts`, `tests/components/ItemRow.perKind.test.tsx` (new), plus kind-aware cases in `AddItemBar`/`ItemFormModal`, `PersonalizationScreen` (8 toggles), `schemas`/`dbDrift`/`backup` (round-trip + legacy defaults) and the config stub. `npm run test:all` green (69 files, 584 tests); typecheck + lint clean.
 - Spec: new `spec/features/028-per-kind-optional-fields/` (1-spec / 2-plan / 3-tasks), roadmap 028 entry, and a clarifying bullet in 015's 1-spec.
 
+[2026-09-30] ~ | ListlyApp/src/database/access.ts, repositories/{listRepo,itemRepo,collectionRepo,configRepo,vaultRepo,appData}.ts, src/context/AppContext.tsx
+- Refactor (Tier 1, behavior-preserving): the database access boundary is consolidated. New `src/database/access.ts` exports `read(task)` (resolves the Drizzle handle) and `write(task)` (runs `withTransaction`); every repository method now opens with `read(async db => …)` / `write(async db => …)` instead of the repeated `const db = await getDrizzle()` (24 sites) and `withTransaction(async db => …)` boilerplate. Identical SQL, queries and transaction scope — only the handle acquisition is centralized. `getDrizzle`/`withTransaction` (and their singleton/serialization semantics) are unchanged.
+- New `repositories/appData.ts` `loadAppData()` returns `{ lists, itemsByListId, collections, listsByCollectionId, baseLists, lockedListIds }`, moving the derive/grouping logic out of `AppContext` (which now calls the one loader for both the initial load and `refresh`).
+- Fixed the `vaultRepo.removeLock` signature/multi-statement formatting artifact.
+- Tests: existing repos/backup/contract/screen suites unchanged and green; new `tests/database/access.test.ts` (read passes the db through; write delegates to `withTransaction`). `npm run test:all` green (70 files, 586 tests); typecheck + lint clean.
+- Verified on web at 375px (0 console errors): Home loads collections + standalone lists with counts and the locked badge; add item → progress updates; delete item → progress reverts. Release APK rebuilt and smoke-tested on device.
+- Docs: `spec/constitution/2-tech-stack.md` tree (`access.ts`, `appData`) + `docs/harnesses.md`.
+
+
 
 
 

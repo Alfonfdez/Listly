@@ -1,5 +1,5 @@
 import { sql } from 'drizzle-orm';
-import { getDrizzle, withTransaction } from '../drizzle/engine';
+import { read, write } from '../access';
 import { config } from '../drizzle/schema';
 import { DEFAULT_CONFIG, DB_KEY_MAP, decodeConfigValue, sanitizeConfig, toConfigRows } from '../configDefaults';
 import type { Config } from '../types';
@@ -17,15 +17,14 @@ function parseConfig(rows: { key: string; value: string }[]): Config {
 
 export const configRepo = {
   async get(): Promise<Config> {
-    const db = await getDrizzle();
-    const rows = await db.select({ key: config.key, value: config.value }).from(config).all();
+    const rows = await read(async db => db.select({ key: config.key, value: config.value }).from(config).all());
     return sanitizeConfig(rows.length > 0 ? parseConfig(rows) : DEFAULT_CONFIG);
   },
 
   async save(partial: Partial<Config>): Promise<void> {
     const rows = toConfigRows(partial);
     if (rows.length === 0) return;
-    await withTransaction(async (db) => {
+    await write(async db => {
       for (const row of rows) {
         await db
           .insert(config)
