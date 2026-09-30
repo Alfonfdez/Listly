@@ -88,12 +88,13 @@ ListlyApp/
 |   |   +-- types.ts                  <- DatabaseHandle + z.infer re-exports
 |   |   +-- schemas.ts                <- Zod 4 schemas — single source of truth for row shapes (incl. vaults)
 |   |   +-- validate.ts               <- parseRows / parseRowOrNull read-path validation
+|   |   +-- access.ts                 <- read/write helpers (getDrizzle / withTransaction wrappers)
 |   |   +-- configDefaults.ts         <- DEFAULT_CONFIG + DB_KEY_MAP + decodeConfigValue
 |   |   +-- backup.ts / backupService.ts <- backup format + export/import (incl. encrypted vaults)
 |   |   +-- constants.ts              <- DATABASE_NAME / DB_STORE_NAME
 |   |   +-- drizzle/                  <- schema.ts, proxy.ts, engine.ts (serialized transactions)
 |   |   +-- migrations/               <- 001_initial (canonical schema), 003_list_position, 004_item_pictures
-|   |   +-- repositories/             <- listRepo, itemRepo, configRepo, collectionRepo, vaultRepo, shared
+|   |   +-- repositories/             <- listRepo, itemRepo, configRepo, collectionRepo, vaultRepo, shared, appData
 |   |
 |   +-- i18n/
 |   |   +-- index.ts                  <- t() / setLanguage / getLabels

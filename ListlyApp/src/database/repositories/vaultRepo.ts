@@ -1,5 +1,5 @@
 import { asc, eq } from 'drizzle-orm';
-import { getDrizzle, withTransaction } from '../drizzle/engine';
+import { read, write } from '../access';
 import { items, vaults } from '../drizzle/schema';
 import type { Vault } from '../types';
 import { itemSchema, vaultSchema } from '../schemas';
@@ -47,14 +47,14 @@ function sealedOf(row: Vault): SealedVault {
 }
 
 async function readVault(listId: number): Promise<Vault | null> {
-  const db = await getDrizzle();
-  return parseRowOrNull(vaultSchema, 'vaults', await db.select().from(vaults).where(eq(vaults.list_id, listId)).get());
+  return read(async db =>
+    parseRowOrNull(vaultSchema, 'vaults', await db.select().from(vaults).where(eq(vaults.list_id, listId)).get())
+  );
 }
 
 export const vaultRepo = {
   async listIds(): Promise<number[]> {
-    const db = await getDrizzle();
-    const rows = await db.select({ list_id: vaults.list_id }).from(vaults).all();
+    const rows = await read(async db => db.select({ list_id: vaults.list_id }).from(vaults).all());
     return rows.map(row => row.list_id);
   },
 
@@ -67,15 +67,16 @@ export const vaultRepo = {
   },
 
   async readPlainItems(listId: number): Promise<UnlockedItems> {
-    const db = await getDrizzle();
-    const rows = await db.select().from(items).where(eq(items.list_id, listId)).orderBy(asc(items.position)).all();
-    return parseRows(itemSchema, 'items', rows);
+    return read(async db => {
+      const rows = await db.select().from(items).where(eq(items.list_id, listId)).orderBy(asc(items.position)).all();
+      return parseRows(itemSchema, 'items', rows);
+    });
   },
 
   async lock(listId: number, passphrase: string, unlocked: UnlockedItems): Promise<void> {
     const sealed = await vaultCrypto.seal(passphrase, serializeItems(unlocked), KDF_ITERATIONS, KDF_DIGEST);
     const updatedAt = dbTimestamp();
-    await withTransaction(async tx => {
+    await write(async tx => {
       await tx.delete(vaults).where(eq(vaults.list_id, listId)).run();
       await tx
         .insert(vaults)
@@ -101,7 +102,6 @@ export const vaultRepo = {
   },
 
   async saveUnlocked(listId: number, passphrase: string, unlocked: UnlockedItems): Promise<void> {
-    const db = await getDrizzle();
     const row = await readVault(listId);
     if (!row) throw new Error(VAULT_NOT_FOUND);
     const sealed = await vaultCrypto.seal(
@@ -110,15 +110,16 @@ export const vaultRepo = {
       row.kdf_iterations,
       row.kdf_digest
     );
-    await db
-      .update(vaults)
-      .set({ salt: sealed.salt, verifier: sealed.verifier, payload: sealed.payload, updated_at: dbTimestamp() })
-      .where(eq(vaults.list_id, listId))
-      .run();
+    await read(async db => {
+      await db
+        .update(vaults)
+        .set({ salt: sealed.salt, verifier: sealed.verifier, payload: sealed.payload, updated_at: dbTimestamp() })
+        .where(eq(vaults.list_id, listId))
+        .run();
+    });
   },
 
   async changePassphrase(listId: number, currentPassphrase: string, newPassphrase: string): Promise<void> {
-    const db = await getDrizzle();
     const row = await readVault(listId);
     if (!row) throw new Error(VAULT_NOT_FOUND);
     const sealed = sealedOf(row);
@@ -127,22 +128,25 @@ export const vaultRepo = {
     }
     const json = await vaultCrypto.unseal(sealed, currentPassphrase);
     const resealed = await vaultCrypto.seal(newPassphrase, json, row.kdf_iterations, row.kdf_digest);
-    await db
-      .update(vaults)
-      .set({
-        salt: resealed.salt,
-        verifier: resealed.verifier,
-        payload: resealed.payload,
-        updated_at: dbTimestamp(),
-      })
-      .where(eq(vaults.list_id, listId))
-      .run();
+    await read(async db => {
+      await db
+        .update(vaults)
+        .set({
+          salt: resealed.salt,
+          verifier: resealed.verifier,
+          payload: resealed.payload,
+          updated_at: dbTimestamp(),
+        })
+        .where(eq(vaults.list_id, listId))
+        .run();
+    });
   },
 
-  async removeLock(listId: number, passphrase: string): Promise<void> {    const row = await readVault(listId);
+  async removeLock(listId: number, passphrase: string): Promise<void> {
+    const row = await readVault(listId);
     if (!row) throw new Error(VAULT_NOT_FOUND);
     const unlocked = deserializeItems(await vaultCrypto.unseal(sealedOf(row), passphrase));
-    await withTransaction(async tx => {
+    await write(async tx => {
       for (const item of unlocked) {
         await tx
           .insert(items)
