@@ -50,6 +50,20 @@ cd ListlyApp
 npx expo start
 ```
 
+## ANDROID BUILD
+```bash
+cd ListlyApp/android
+./gradlew assembleRelease   # APK → app/build/outputs/apk/release/app-release.apk
+```
+- `ListlyApp/android/` is a **generated** native project (gitignored). Expo copies `assets/*` and the `app.json` icon/splash config into native resources (`res/mipmap-*/ic_launcher*.webp`, `res/drawable-*/splashscreen_logo.png`) **only during `expo prebuild`**.
+- **After changing `assets/` or the icon/splash config in `app.json`, run `npx expo prebuild --platform android` before building** — otherwise the APK keeps the stale icons/splash (Gradle won't regenerate them). Full sequence:
+  ```bash
+  cd ListlyApp
+  npx expo prebuild --platform android
+  cd android && ./gradlew assembleRelease
+  ```
+- Web favicon is injected only at export time: `npx expo export --platform web` (dev `expo start --web` serves no favicon).
+
 ## LINT
 ```bash
 npx expo lint

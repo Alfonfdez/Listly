@@ -2,6 +2,18 @@
 
 All image assets live in `ListlyApp/assets/`. Expo reads them from `app.json` and uses them across platforms.
 
+## The mark
+
+The Listly mark is **three list rows** (a bullet dot + a rounded bar each), with the **middle row checked** (an outlined dot containing a checkmark) and a cyan gradient; the other two rows use the dark slate fill. Colors come from the light theme (`#0891B2` / `#22D3EE` gradient, `#1E293B` bars) on a **white** background, in the same spirit as Finly's gradient-on-white icon.
+
+The mark is defined as SVG and rasterized by a small generator at `ListlyApp/scripts/gen-assets.mjs` (writes all six files). `sharp` is intentionally **not** a project dependency (icons change rarely) — run the script from a directory that resolves `sharp`:
+
+```bash
+# from FinlyApp (which has sharp installed):
+node ../../Listly-app/Listly/ListlyApp/scripts/gen-assets.mjs
+# or temporarily: npm i -D sharp && node scripts/gen-assets.mjs
+```
+
 ## Asset reference
 
 | File | Purpose | Dimensions | Safe zone / Notes |
@@ -22,7 +34,7 @@ All image assets live in `ListlyApp/assets/`. Expo reads them from `app.json` an
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/android-icon-foreground.png",
-        "backgroundColor": "#0F172A",
+        "backgroundColor": "#FFFFFF",
         "monochromeImage": "./assets/android-icon-monochrome.png"
       }
     },

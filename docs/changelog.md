@@ -939,6 +939,21 @@ pm run test:all green.
 - Tests: the `vi.mock('../../src/database', …)` object keys in 13 test files were updated to the canonical names (local `*RepositoryMock` variable names kept); `ListsView.test` updates its imported symbols accordingly. `npm run test:all` green (73 files, 601 tests) and stable across two runs; typecheck + lint clean. Grep guard: no `*Repository` references remain outside the mock variable names.
 - Verified on web at 375px (0 console errors): Home loads lists + collections, list item add/delete via the renamed repos. Release APK rebuilt.
 
+[2026-09-30] + | ListlyApp/assets/*, scripts/gen-assets.mjs, app.json, docs/assets.md
+- Feature (assets): replaced the placeholder Expo "A" icon with a **Listly brand mark** — three list rows (bullet + bar), the middle row checked, in the light-theme cyan gradient (`#0891B2`→`#22D3EE`) with dark-slate (`#1E293B`) bars on a **white** background (Finly-style). Regenerated all six Expo assets at 1024×1024: `icon.png` + `favicon.png` (white square), `android-icon-foreground.png` (transparent, inside the 675 safe zone), `android-icon-background.png` (flat white), `android-icon-monochrome.png` (white silhouette with the check masked out), `splash-icon.png` (transparent, inside the 288 safe zone).
+- `app.json`: Android adaptive icon `backgroundColor` `#0F172A` → `#FFFFFF` (matches the white icon background). Splash background stays `#0F172A`.
+- New `scripts/gen-assets.mjs` regenerates every file from the SVG mark (`sharp` intentionally not a project dependency); `docs/assets.md` documents the mark + generator.
+- Release APK rebuilt with the new icon; web dev server verified (0 console errors).
+
+[2026-09-30] + | ListlyApp/src/navigation/AppNavigator.tsx
+- Feature (drawer): the drawer header now shows the **Listly icon next to the app name** (`assets/icon.png` 36×36, rounded 8) beside the primary-colored `Listly` title — Finly parity. Added the `Image` import and `drawerLogo` style; the header becomes a row (`gap: 12`). Verified on web at 375px, 0 console errors.
+
+[2026-09-30] docs | AGENTS.md, docs/harnesses.md
+- Documented the **generated-native-project gotcha**: `android/` is gitignored and Expo bakes `assets/*` + the `app.json` icon/splash into native resources only during `expo prebuild`, so changing assets requires `npx expo prebuild --platform android` before `gradlew assembleRelease` (otherwise the APK keeps stale icons/splash). Also noted the web favicon is only injected by `npx expo export --platform web`, and that the icon artwork lives in `scripts/gen-assets.mjs`. No code change.
+
+
+
+
 
 
 
