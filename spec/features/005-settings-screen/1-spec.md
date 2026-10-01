@@ -45,6 +45,7 @@
 - `clearDataKeepSettings()` deletes all items and lists (and their photo files) but keeps settings.
 - `resetDatabase()` additionally deletes all config rows, restoring defaults.
 - After import/reset the screen refreshes app data (`useApp().refresh`) and reloads config (`ConfigContext.reload`).
+- Both destructive actions use the same two-step guard: a plain confirmation, then a second modal that requires typing `DELETE` before the confirm button enables (`delete all lists` and `factory reset` alike).
 - Export feedback is a native `Alert`: on **Android** it first saves the backup to the public **Downloads** folder and shows a *saved* alert with **Share** / **Done** (falling back to the share sheet when the Downloads write is unsupported); otherwise it opens the share sheet and shows success **only when the share actually completed** (a dismissed sheet shows nothing). Import/delete-all/factory-reset also show success/error alerts. Confirmation modals gate import, delete-all, and factory reset. `Alert` is a no-op on web, so this feedback is native-only and covered by tests rather than the browser loop.
 
 ### 7. Drawer separator and seed removal
@@ -73,7 +74,7 @@
 - [x] Export downloads/shares a valid `listly-backup-YYYY-MM-DD.json`; on Android it is saved to the public Downloads folder with a *saved* alert offering Share/Done, and success feedback is shown only when the export actually succeeded.
 - [x] Import restores lists, items, and config after confirmation and reports success.
 - [x] An invalid or newer-version backup is rejected with a specific message and no data change.
-- [x] Delete all lists removes lists/items but keeps settings; factory reset also restores defaults.
+- [x] Delete all lists removes lists/items but keeps settings (guarded by a confirmation + typing `DELETE`); factory reset also restores defaults (same two-step guard).
 - [x] A fresh install (and the app after reset) starts with no lists or items.
 - [x] The drawer shows a separator between Lists and Settings.
 - [x] `npm run test:all` passes.

@@ -50,7 +50,7 @@ export const LIST_KINDS = {
 
 export type ListKind = keyof typeof LIST_KINDS;
 
-export const FACTORY_RESET_CONFIRMATION = 'DELETE';
+export const DESTRUCTIVE_CONFIRMATION = 'DELETE';
 
 export const DEBOUNCE_MS = 300;
 export const COPY_FEEDBACK_MS = 1500;

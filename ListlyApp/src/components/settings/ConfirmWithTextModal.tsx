@@ -88,6 +88,5 @@ const styles = StyleSheet.create({
     borderRadius: BUTTON_BORDER_RADIUS,
     paddingHorizontal: 12,
     paddingVertical: 10,
-    textAlign: 'center',
   },
 });
