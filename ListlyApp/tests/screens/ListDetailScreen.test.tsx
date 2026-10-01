@@ -116,6 +116,11 @@ vi.mock('../../src/hooks/useSelectMode', () => ({
   }),
 }));
 
+const keyboardHeight = vi.hoisted(() => ({ value: 0 }));
+vi.mock('../../src/hooks/useKeyboardHeight', () => ({
+  useKeyboardHeight: () => keyboardHeight.value,
+}));
+
 vi.mock('@react-navigation/native', async () => {
   const React = await import('react');
   return {
@@ -164,6 +169,7 @@ describe('ListDetailScreen', () => {
   beforeEach(() => {
     resetStub();
     resetAppStub();
+    keyboardHeight.value = 0;
     itemRepositoryMock.create.mockReset();
     itemRepositoryMock.update.mockReset();
     itemRepositoryMock.delete.mockReset();
@@ -229,8 +235,22 @@ describe('ListDetailScreen', () => {
     await waitFor(() => expect(itemRepositoryMock.toggle).toHaveBeenCalledWith(2));
   });
 
-  it('adds a new item at the end of the list', async () => {
-    const user = userEvent.setup();
+  it('adds a bottom padding gap equal to the keyboard height (Android)', async () => {
+    keyboardHeight.value = 320;
+    const view = await render(<ListDetailScreen />);
+    await view.findByText('Milk');
+
+    expect(flattenStyle(view.getByTestId('list-body').props.style).paddingBottom).toBe(320);
+  });
+
+  it('leaves no bottom gap when the keyboard is hidden', async () => {
+    const view = await render(<ListDetailScreen />);
+    await view.findByText('Milk');
+
+    expect(flattenStyle(view.getByTestId('list-body').props.style).paddingBottom).toBeUndefined();
+  });
+
+  it('adds a new item at the end of the list', async () => {    const user = userEvent.setup();
     const view = await render(<ListDetailScreen />);
     await view.findByText('Milk');
     await user.type(view.getByLabelText('Add an item...'), '  Tea  ');
