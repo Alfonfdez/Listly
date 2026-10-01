@@ -18,6 +18,7 @@ interface Props {
   existingNames: ReadonlySet<string>;
   position: number;
   numeric?: boolean;
+  photosAllowed?: boolean;
   onAdded: () => void | Promise<void>;
   onSubmitOverride?: (data: {
     name: string;
@@ -33,6 +34,7 @@ export default function AddItemBar({
   existingNames,
   position,
   numeric = false,
+  photosAllowed = true,
   onAdded,
   onSubmitOverride,
 }: Props) {
@@ -40,10 +42,11 @@ export default function AddItemBar({
   const fs = useFontSize();
   const labels = useLabels();
   const flags = useItemDisplayFlags(numeric);
+  const showPhotos = flags.showPhotos && photosAllowed;
 
   const draft = useItemDraft({ existingNames, numeric });
   const [noteExpanded, setNoteExpanded] = useState(false);
-  const canAddDetails = flags.showNotes || flags.showPhotos;
+  const canAddDetails = flags.showNotes || showPhotos;
 
   useEffect(() => {
     if (!canAddDetails) setNoteExpanded(false);
@@ -56,7 +59,7 @@ export default function AddItemBar({
       const data = {
         name: payload.name,
         note: payload.note,
-        pictures: serializeItemPhotos(payload.photos),
+        pictures: photosAllowed ? serializeItemPhotos(payload.photos) : null,
         amount_minor: payload.amountMinor,
         quantity: payload.quantity,
       };
@@ -140,7 +143,7 @@ export default function AddItemBar({
               style={[styles.input, styles.noteInput, { backgroundColor: c.surface, borderColor: c.border }]}
             />
           ) : null}
-          {flags.showPhotos ? (
+          {showPhotos ? (
             <ItemPhotosField
               photos={draft.photos}
               onTakePhoto={draft.handleTakePhoto}

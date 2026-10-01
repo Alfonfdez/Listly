@@ -80,12 +80,18 @@ export default function LockListModal({ visible, hasPhotos, mode = 'lock', onCan
     { backgroundColor: c.background, borderColor: c.border, color: c.text, fontSize: fs(15) },
   ];
 
+  // Photos are not encrypted in v1, so a plaintext list that contains photos
+  // cannot be locked. Changing the passphrase of an already-locked list is never
+  // blocked (a locked list cannot hold photos, and a legacy one should still be
+  // able to rotate its passphrase).
+  const blockedByPhotos = hasPhotos && mode === 'lock';
+
   return (
     <ModalShell visible={visible} onClose={onCancel} maxWidth={380} padding={20}>
       <Text style={[styles.title, { color: c.text, fontSize: fs(18) }]}>
         {mode === 'change' ? labels.list_change_passphrase_title : labels.list_lock_title}
       </Text>
-      {hasPhotos ? (
+      {blockedByPhotos ? (
         <Text style={[styles.message, { color: c.red, fontSize: fs(14) }]}>
           {labels.vault_photos_not_allowed}
         </Text>
@@ -149,10 +155,10 @@ export default function LockListModal({ visible, hasPhotos, mode = 'lock', onCan
       )}
       <ModalFooter
         cancelLabel={labels.common_cancel}
-        confirmLabel={hasPhotos ? undefined : mode === 'change' ? labels.list_change_passphrase_confirm : labels.list_lock_confirm}
+        confirmLabel={blockedByPhotos ? undefined : mode === 'change' ? labels.list_change_passphrase_confirm : labels.list_lock_confirm}
         onCancel={onCancel}
         onConfirm={() => void submit()}
-        confirmDisabled={busy || hasPhotos}
+        confirmDisabled={busy || blockedByPhotos}
       />
     </ModalShell>
   );

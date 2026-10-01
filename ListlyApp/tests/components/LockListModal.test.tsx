@@ -91,4 +91,18 @@ describe('LockListModal', () => {
     await user.press(view.getByLabelText('Change'));
     await waitFor(() => expect(PROPS.onConfirm).toHaveBeenCalledWith('newsecret', 'oldsecret'));
   });
+
+  it('change mode is not blocked by photos', async () => {
+    const user = userEvent.setup();
+    PROPS.mode = 'change';
+    PROPS.hasPhotos = true;
+    const view = await render(<LockListModal {...PROPS} />);
+    expect(view.queryByText('Remove the photos from this list before locking it.')).toBeNull();
+    await user.type(view.getByLabelText('Current passphrase'), 'oldsecret');
+    await user.type(view.getByLabelText('Passphrase'), 'newsecret');
+    await user.type(view.getByLabelText('Confirm passphrase'), 'newsecret');
+    await user.press(view.getByLabelText('I understand this passphrase cannot be recovered'));
+    await user.press(view.getByLabelText('Change'));
+    await waitFor(() => expect(PROPS.onConfirm).toHaveBeenCalledWith('newsecret', 'oldsecret'));
+  });
 });

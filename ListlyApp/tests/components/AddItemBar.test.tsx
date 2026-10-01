@@ -36,6 +36,16 @@ describe('AddItemBar', () => {
     expect(view.getByLabelText('Add photo')).toBeTruthy();
   });
 
+  it('hides the photo section when the list is locked (photosAllowed false)', async () => {
+    const user = userEvent.setup();
+    const view = await render(<AddItemBar {...baseProps} photosAllowed={false} />);
+
+    await user.press(view.getByLabelText('Toggle details'));
+
+    expect(view.getByLabelText('Note')).toBeTruthy();
+    expect(view.queryByLabelText('Add photo')).toBeNull();
+  });
+
   it('hides the note field but keeps photos when showNotes is off', async () => {
     setConfig({ showNotes: false });
     const user = userEvent.setup();

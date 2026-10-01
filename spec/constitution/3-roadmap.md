@@ -278,7 +278,7 @@ Lock a list with a passphrase so its items are encrypted at rest (real confident
 - Unlock decrypts into memory for the open session and re-locks on leaving the screen; edits are re-encrypted; *Remove lock* restores plaintext rows. No recovery (lost passphrase = permanent loss); photos are disallowed in locked lists (v1).
 - Cross-list actions (copy-to-list / merge / duplicate) are unavailable for a locked list; backup exports the vault encrypted and omits locked items from plaintext.
 - KDF is native (`react-native-quick-crypto`) on device and `crypto.subtle` on web; requires a development build (no Expo Go). Crypto spike verified: PBKDF2 sha512 600k ≈ 165 ms on the emulator. In Expo Go the native crypto is loaded lazily so the app runs normally and vault actions show an explanatory message (see `docs/locked-lists.md`).
-- An unlocked locked list renders as a normal list (bottom-pinned add bar, search, select, sort, batch toolbar, edit/delete), with every write re-encrypted via `saveUnlocked`; a locked list offers *Change passphrase* (current + new ×2, fresh salt, same KDF config, items unchanged) instead of *Lock list*.
+- An unlocked locked list renders as a normal list (bottom-pinned add bar, search, select, sort, batch toolbar, edit/delete), with every write re-encrypted via `saveUnlocked`; a locked list offers *Change passphrase* (current + new ×2, fresh salt, same KDF config, items unchanged) instead of *Lock list*. The photo affordance is hidden in the add bar and edit modal whenever the list is locked (so photos can't enter a locked list), and *Change passphrase* is never photo-blocked — the photos guard applies only to locking a plaintext-with-photos list.
 - Spec: spec/features/027-locked-lists/.
 
 ## 028-per-kind-optional-fields

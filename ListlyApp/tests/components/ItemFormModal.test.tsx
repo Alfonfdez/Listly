@@ -51,6 +51,20 @@ describe('ItemFormModal', () => {
     expect(view.getByLabelText('Add photo')).toBeTruthy();
   });
 
+  it('hides the photo field when photos are not allowed (locked list)', async () => {
+    const view = await render(<ItemFormModal {...baseProps} photosAllowed={false} />);
+    expect(view.getByLabelText('Note')).toBeTruthy();
+    expect(view.queryByLabelText('Add photo')).toBeNull();
+  });
+
+  it('saves no photos when photos are not allowed', async () => {
+    const onSave = vi.fn();
+    const user = userEvent.setup();
+    const view = await render(<ItemFormModal {...baseProps} initialPhotos={['a']} photosAllowed={false} onSave={onSave} />);
+    await user.press(view.getByLabelText('Save'));
+    expect(onSave).toHaveBeenCalledWith('Milk', 'whole', [], null, 0);
+  });
+
   it('keeps the numeric edit fields when only the standard edit toggles are off', async () => {
     setConfig({ editShowNotes: false, editShowPhotos: false, editShowNotesNumeric: true, editShowPhotosNumeric: true });
     const view = await render(<ItemFormModal {...baseProps} numeric />);

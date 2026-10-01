@@ -975,33 +975,9 @@ pm run test:all green.
 - Fix: on Collection detail the **"Remove from collection" target stayed visible** when a member list was long-pressed and released **without** a completed reorder — `Sortable.Grid`'s `onDragEnd` does not fire on that release path. `useCollectionDropZones` now exposes `resetDragState()` and `handleActiveItemDropped` (wired to the grid's `onActiveItemDropped`), which clears the target + hover state; `ListsView` also resets on `ScrollView` scroll-begin and on screen blur (safety net). Also clears a stuck hovered zone on drag end (feature 018 symmetry). Spec 019 already requires the target to hide when the drag ends, so no spec change.
 - Tests: `useCollectionDropZones.test.ts` (drop without reorder clears the target/hover, no reorder) and `ListsView.test.tsx` (target hides on release without a drop). `npm run test:all` green (75 files, 618 tests); typecheck + lint clean.
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+[2026-10-01] fix | ListlyApp/src/components/{AddItemBar,ItemFormModal,LockListModal}.tsx, src/screens/ListDetailScreen.tsx
+- Fix: the "no photos in locked lists (v1)" rule was enforced only at lock time, so photos could enter a locked list (lock first → unlock → add an item with a photo), after which lock/change-passphrase got blocked — leaving an incoherent state.
+- `AddItemBar` and `ItemFormModal` gain a `photosAllowed` prop; `ListDetailScreen` passes `photosAllowed={!locked}`, so the photo affordance is hidden (and photos are stripped from the payload) whenever the list is locked — even in an unlocked session. Photos can no longer enter a locked list.
+- `LockListModal`: the photos block now applies to **lock** mode only (`blockedByPhotos = hasPhotos && mode === 'lock'`); *Change passphrase* is never photo-blocked, so an already-locked list (including a legacy locked-with-photos one) can always rotate its passphrase.
+- Spec 027: requirement + acceptance criteria clarified (rule enforced at add/edit; change-passphrase not photo-blocked); roadmap note. Pre-existing locked-with-photos data is left as-is (no migration).
+- Tests: `AddItemBar`/`ItemFormModal` hide photos when `photosAllowed=false` (and save none); `LockListModal` change mode not blocked by photos; `ListDetailScreen` hides the add-bar photo affordance in an unlocked locked list. `npm run test:all` green (75 files, 623 tests); typecheck + lint clean.
