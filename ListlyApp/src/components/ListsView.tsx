@@ -116,6 +116,8 @@ export default function ListsView({
     removeHover,
     handleListsDragStart,
     handleCollectionsDragStart,
+    handleActiveItemDropped,
+    resetDragState,
     handleZoneEnter,
     handleZoneLeave,
     handleZoneDrop,
@@ -123,6 +125,14 @@ export default function ListsView({
     handleRemoveZoneLeave,
     handleRemoveZoneDrop,
   } = useListsDrag({ refresh, inCollectionDetail, filteredLists });
+
+  // Safety net: never leave the remove target / hovered zone visible after the
+  // screen loses focus (a drag gesture interrupted by navigation).
+  useFocusEffect(
+    useCallback(() => {
+      return () => resetDragState();
+    }, [resetDragState])
+  );
 
   const { allSelectedPinned, handlePinPress } = useListsSelection({
     lists,
@@ -299,7 +309,11 @@ export default function ListsView({
 
         <Sortable.MultiZoneProvider>
           {hasContent ? (
-            <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+            <ScrollView
+              contentContainerStyle={styles.scrollContent}
+              showsVerticalScrollIndicator={false}
+              onScrollBeginDrag={resetDragState}
+            >
               {inHome && displayCollections.length > 0 && (
                 <SectionTitle icon={ICONS.collection} label={labels.collection_section_title} />
               )}
@@ -332,6 +346,7 @@ export default function ListsView({
                   rowGap={isGrid ? GRID_GAP : 10}
                   onDragEnd={handleDragEnd}
                   onDragStart={handleListsDragStart}
+                  onActiveItemDropped={handleActiveItemDropped}
                 />
               )}
             </ScrollView>

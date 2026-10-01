@@ -4,7 +4,7 @@ import type { ReactNode } from 'react';
 import ListsView, { type ListsViewVariant, type ListViewMode } from '../../src/components/ListsView';
 import { buildAppMock, setItemsByListId, setLists, setBaseLists, setCollections, setListsByCollectionId, resetAppStub } from '../helpers/appStub';
 import { resetStub } from '../helpers/configStub';
-import { getZoneHandlers, resetZoneHandlers, fireGridDragEnd, fireGridDragStart, lastGrid } from '../mocks/react-native-sortables';
+import { getZoneHandlers, resetZoneHandlers, fireGridDragEnd, fireGridDragStart, fireGridActiveItemDropped, lastGrid } from '../mocks/react-native-sortables';
 import { listRepo, collectionRepo } from '../../src/database';
 import type { CollectionWithCounts, Item, ListWithCounts } from '../../src/database/types';
 
@@ -427,6 +427,24 @@ const onToggleItem = vi.fn();
       getZoneHandlers()[0].onItemEnter?.();
     });
     expect(view.getByHintText('Drop to remove this list from the collection')).toBeTruthy();
+  });
+
+  it('hides the remove target when a member drag is released without a drop', async () => {
+    resetZoneHandlers();
+    setListsByCollectionId(new Map([[10, LISTS]]));
+    const view = await renderView({ mode: 'collection', collectionId: 10 });
+    await view.findByText('Groceries');
+
+    await act(async () => {
+      fireGridDragStart({ key: '1', fromIndex: 0, indexToKey: ['1', '2'], keyToIndex: {} });
+    });
+    // revealed while dragging (hint only present when active)
+    expect(view.getByHintText('Drop to remove this list from the collection')).toBeTruthy();
+
+    await act(async () => {
+      fireGridActiveItemDropped({ key: '1' });
+    });
+    expect(view.queryByHintText('Drop to remove this list from the collection')).toBeNull();
   });
 
   it('does not render the remove target outside collection detail', async () => {

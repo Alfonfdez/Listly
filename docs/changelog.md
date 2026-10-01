@@ -971,6 +971,11 @@ pm run test:all green.
 - Fix: right after **creating a list** (e.g. via the color picker), its new card could land in the **wrong grid cell** (a lone card offset in the second column) until the next `refresh()` re-laid it out. The `react-native-sortables` grid kept a stale measured container size when the item set grew, so its absolutely-positioned items used old coordinates. The lists and collections `Sortable.Grid`s now get a `key` derived from the **sorted item ids**, so the grid remounts and re-measures whenever the item set changes (add/remove/move-out); a pure reorder keeps the same id set, so there is no remount/flicker on drag.
 - `npm run test:all` green (75 files, 616 tests); typecheck + lint clean. Verified on device (Android): the created list's card flows into the grid immediately, no manual refresh needed.
 
+[2026-10-01] fix | ListlyApp/src/hooks/useCollectionDropZones.ts, src/hooks/useListsDrag.ts, src/components/ListsView.tsx
+- Fix: on Collection detail the **"Remove from collection" target stayed visible** when a member list was long-pressed and released **without** a completed reorder — `Sortable.Grid`'s `onDragEnd` does not fire on that release path. `useCollectionDropZones` now exposes `resetDragState()` and `handleActiveItemDropped` (wired to the grid's `onActiveItemDropped`), which clears the target + hover state; `ListsView` also resets on `ScrollView` scroll-begin and on screen blur (safety net). Also clears a stuck hovered zone on drag end (feature 018 symmetry). Spec 019 already requires the target to hide when the drag ends, so no spec change.
+- Tests: `useCollectionDropZones.test.ts` (drop without reorder clears the target/hover, no reorder) and `ListsView.test.tsx` (target hides on release without a drop). `npm run test:all` green (75 files, 618 tests); typecheck + lint clean.
+
+
 
 
 
