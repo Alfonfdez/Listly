@@ -48,6 +48,29 @@ describe('EntityTile', () => {
     expect(view.getByText('list-outline')).toBeTruthy();
   });
 
+  it('shows a numeric badge on a numeric list card', async () => {
+    const view = await renderTile({ ...LIST, listKind: 'numeric' });
+
+    expect(view.getByText('calculator-outline')).toBeTruthy();
+    expect(view.getByLabelText('Numeric')).toBeTruthy();
+    expect(view.getByText('list-outline')).toBeTruthy();
+  });
+
+  it('shows a numeric badge on a numeric list row', async () => {
+    const view = await renderTile({ ...LIST, listKind: 'numeric' }, { layout: 'row' });
+
+    expect(view.getByText('calculator-outline')).toBeTruthy();
+    expect(view.getByLabelText('Numeric')).toBeTruthy();
+  });
+
+  it('does not show a numeric badge on a standard list or a collection', async () => {
+    const standard = await renderTile(LIST);
+    expect(standard.queryByText('calculator-outline')).toBeNull();
+
+    const collection = await renderTile(COLLECTION);
+    expect(collection.queryByText('calculator-outline')).toBeNull();
+  });
+
   it('renders a list row with name, icon and progress', async () => {
     const view = await renderTile(LIST, { layout: 'row' });
 

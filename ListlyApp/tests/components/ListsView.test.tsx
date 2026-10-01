@@ -121,6 +121,22 @@ describe('ListsView', () => {
     expect(view.getByText('Work Tasks')).toBeTruthy();
   });
 
+  it('marks numeric lists with the numeric badge', async () => {
+    const numericList: ListWithCounts = {
+      ...LISTS[0],
+      id: 99,
+      name: 'Shopping',
+      kind: 'numeric',
+    };
+    setLists([numericList]);
+    setBaseLists([numericList]);
+
+    const view = await renderView();
+    expect(await view.findByText('Shopping')).toBeTruthy();
+    expect(view.getByLabelText('Numeric')).toBeTruthy();
+    expect(view.getByText('calculator-outline')).toBeTruthy();
+  });
+
   it('shows the search bar when search is active and filters by query', async () => {
     const view = await renderView({ searchActive: true, query: 'Coffee' });
     expect(await view.findByPlaceholderText('Search lists and items...')).toBeTruthy();

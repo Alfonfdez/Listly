@@ -10,6 +10,7 @@
 ### 1. List kind
 - `lists.kind` is `'standard'` (default) or `'numeric'`.
 - Create List shows a *Type* selector (**Standard** / **Numeric**); Edit List can change an existing list's kind.
+- A numeric list is **visually distinguishable** wherever lists render as tiles (Home, Lists, Collection detail): its tile shows a small kind badge (`calculator-outline`) next to the type badge, in the list color, with the accessible label `list_kind_numeric`. Standard lists and collections show no such badge.
 - Changing the kind never deletes item data: numeric fields are simply ignored/hidden on a standard list.
 
 ### 2. Numeric item fields
@@ -58,6 +59,7 @@
 - [x] The list detail shows **Total** (all items) and **Done** (checked items only), both computed from `amount × quantity`.
 - [x] Totals are computed in integer minor units (no floating-point drift) and formatted with 2 decimals.
 - [x] A standard list renders exactly as before (no Amount/Quantity/Total rows).
+- [x] A numeric list's tile shows a kind badge (Home / Lists / Collection detail, card and row layouts); standard lists and collections do not.
 - [x] Duplicate / copy-to-list / merge carry `kind` and the numeric fields.
 - [x] Backups round-trip the new fields; older backups import with the lenient defaults (`standard` / null / 0).
 - [x] New labels exist in en and es.

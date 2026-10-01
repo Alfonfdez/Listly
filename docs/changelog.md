@@ -962,6 +962,12 @@ pm run test:all green.
 - Tests: new `tests/hooks/useKeyboardHeight.test.ts` and `tests/components/SortablePressable.test.tsx`; `useDragOrder.test.ts` gains the "item leaves the set" regression; `ListDetailScreen.test.tsx` asserts the keyboard gap; `EntityTile.test.tsx` asserts the pressed opacity clears. `npm run test:all` green (75 files, 612 tests); typecheck + lint clean.
 - Verified on device (Android): keyboard gap works; release APK rebuilt.
 
+[2026-10-01] + | ListlyApp/src/components/NumericBadge.tsx, src/components/{EntityTile,Tile}.tsx, src/constants/icons.ts, src/components/ListsView.tsx
+- Feature (026 numeric lists, indicator): numeric lists are now **visually distinguishable on tiles** (Home, Lists, Collection detail). New `NumericBadge` (22px circle, `calculator-outline` in the primary color, accessible label `list_kind_numeric`) renders next to the type badge on list cards and rows; `TileEntity` gains `listKind` (fed from `ListWithCounts.kind` in `ListsView`). Standard lists and collections show no badge. `Tile`'s `typeBadge` style became a row so the two badges sit side by side.
+- Tests: `EntityTile.test.tsx` (numeric badge on card + row; absent on standard/collection) and `ListsView.test.tsx` (numeric list passes its kind through). `npm run test:all` green (75 files, 616 tests); typecheck + lint clean.
+- Spec: requirement + acceptance criterion added to `spec/features/026-numeric-lists/1-spec.md`; roadmap 026 bullet. Verified on web at 375px, en + es, grid + list layouts (0 console errors).
+
+
 
 
 
