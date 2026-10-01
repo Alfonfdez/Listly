@@ -276,6 +276,13 @@ export default function ListsView({
 
   const sortEnabled = !selectMode && !searching && displayLists.length > (inHome || inCollectionDetail ? 0 : 1);
 
+  // Remount the sortable grids when the item *set* changes (added/removed/moved
+  // out), so they re-measure cleanly. The key is derived from the sorted ids, so
+  // a pure reorder (same set) does not remount; a stale measurement after adding
+  // an item otherwise leaves cards in the wrong grid cell.
+  const listsSetKey = [...displayLists.map(item => item.id)].sort((a, b) => a - b).join('-');
+  const collectionsSetKey = [...displayCollections.map(item => item.id)].sort((a, b) => a - b).join('-');
+
   return (
     <ScreenShell>
       <View style={styles.content}>
@@ -298,7 +305,7 @@ export default function ListsView({
               )}
               {showCollectionsSection && (
                 <Sortable.Grid
-                  key={isCollectionsGrid ? `collections-${columns}` : 'collections-list'}
+                  key={(isCollectionsGrid ? `collections-${columns}` : 'collections-list') + `-${collectionsSetKey}`}
                   data={displayCollections}
                   renderItem={renderCollection}
                   keyExtractor={item => String(item.id)}
@@ -315,7 +322,7 @@ export default function ListsView({
               )}
               {showListsSection && (
                 <Sortable.Grid
-                  key={isGrid ? `grid-${columns}` : LIST_LAYOUTS.list}
+                  key={(isGrid ? `grid-${columns}` : LIST_LAYOUTS.list) + `-${listsSetKey}`}
                   data={displayLists}
                   renderItem={renderItem}
                   keyExtractor={item => String(item.id)}
