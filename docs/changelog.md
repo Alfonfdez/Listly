@@ -967,6 +967,11 @@ pm run test:all green.
 - Tests: `EntityTile.test.tsx` (numeric badge on card + row; absent on standard/collection) and `ListsView.test.tsx` (numeric list passes its kind through). `npm run test:all` green (75 files, 616 tests); typecheck + lint clean.
 - Spec: requirement + acceptance criterion added to `spec/features/026-numeric-lists/1-spec.md`; roadmap 026 bullet. Verified on web at 375px, en + es, grid + list layouts (0 console errors).
 
+[2026-10-01] fix | ListlyApp/src/components/ListsView.tsx
+- Fix: right after **creating a list** (e.g. via the color picker), its new card could land in the **wrong grid cell** (a lone card offset in the second column) until the next `refresh()` re-laid it out. The `react-native-sortables` grid kept a stale measured container size when the item set grew, so its absolutely-positioned items used old coordinates. The lists and collections `Sortable.Grid`s now get a `key` derived from the **sorted item ids**, so the grid remounts and re-measures whenever the item set changes (add/remove/move-out); a pure reorder keeps the same id set, so there is no remount/flicker on drag.
+- `npm run test:all` green (75 files, 616 tests); typecheck + lint clean. Verified on device (Android): the created list's card flows into the grid immediately, no manual refresh needed.
+
+
 
 
 
