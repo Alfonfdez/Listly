@@ -7,7 +7,7 @@
 - **Drizzle ORM** — typed SQL query builder over a shared `DatabaseHandle` (no `drizzle-kit`, migrations stay on `PRAGMA user_version`).
 - **Zod 4** — `src/database/schemas.ts` is the single source of truth for row shapes; types derive via `z.infer`; every stored row is validated at the storage boundary.
 - **SQLite** (expo-sqlite) — local persistence on native. **sql.js (WASM) + IndexedDB** — the same SQLite schema and repositories on web.
-- **@expo/vector-icons** (Ionicons) — icon library used throughout the app.
+- **@expo/vector-icons** (Ionicons) — icon library used throughout the app (requires the **expo-font** peer dependency, declared explicitly).
 - **React Context** — global app state (AppContext, ConfigContext, ToastContext).
 - **react-native-reanimated** (+ **react-native-worklets**) — animations and gesture-driven transitions.
 - **react-native-gesture-handler** — gesture support (required by navigation, drawer, and drag-reorder).
@@ -17,7 +17,7 @@
 - **reanimated-color-picker** — the quick/custom color picker modal.
 - **expo-image-picker** + **expo-file-system** — item photos (pick, copy to storage, clean up).
 - **expo-sharing** + **expo-document-picker** + local **listly-share** module — backup export/import on native (true share-sheet outcome on iOS, public Downloads on Android).
-- **expo-clipboard** — copying a list's contents to the clipboard.
+- **expo-clipboard** — copying a list's contents to the clipboard (numeric lists include amounts, quantities, line totals, and the Total/Done sums).
 - **expo-splash-screen** / **expo-status-bar** — startup splash and status-bar theming.
 - **react-native-quick-crypto** (+ **react-native-nitro-modules**) — locked-list encryption (PBKDF2 key derivation + AES-256-GCM). Web uses `crypto.subtle`. **Requires a development/release build; not available in Expo Go.**
 
@@ -134,3 +134,7 @@ See **`4-design-system.md`** for colors, typography, icons, and layout conventio
 - i18n: all user-facing strings go through the translation system (i18n/).
 - Persistence: one SQLite engine on all platforms — expo-sqlite on native, sql.js (WASM) + IndexedDB on web — selected per platform by `engine.ts` / `engine.web.ts`. Repositories are written with Drizzle over the shared `DatabaseHandle`.
 - Crypto: locked-list keys are derived on demand and never persisted; native builds use `react-native-quick-crypto`, web uses `crypto.subtle`.
+
+## Release
+- Official artifacts are **EAS Builds** (`ListlyApp/eas.json`, profiles `development`/`preview`/`production`; `cli.appVersionSource: "local"`). EAS manages the Android release keystore so consecutive releases share a signature and update in place.
+- `expo.version` / `android.versionCode` / `ios.buildNumber` live in `app.json`; bump them per release (`versionCode` strictly increasing). The native `android/` folder is CNG-generated (gitignored); `expo prebuild` regenerates it. `npx expo-doctor` must pass before building.

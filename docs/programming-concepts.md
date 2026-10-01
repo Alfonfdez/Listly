@@ -107,6 +107,27 @@ const handleToggle = useCallback((id: number) => {
 }, []);
 ```
 
+## useRef
+**Definition:** React hook that returns a mutable box (`.current`) whose changes do **not** trigger a re-render.
+**Explanation:** Used to hold values that must survive renders without causing one — DOM/native handles, timers, or "latest value" memory. In Listly it keeps the amount typed before focusing an input so it can be restored on blur without re-rendering.
+**Example:**
+```tsx
+const amountBeforeFocus = useRef('');
+// read/write without re-rendering:
+amountBeforeFocus.current = '0.00';
+```
+
+## useEffect
+**Definition:** React hook for running side effects after a render (and cleaning them up).
+**Explanation:** Runs after the component renders, and again when its dependency array changes; the returned function cleans up (timers, subscriptions). Used in Listly to seed a modal when it opens and to clear timeout handles.
+**Example:**
+```tsx
+useEffect(() => {
+  if (!visible) return;
+  applySeed(initialRef.current);
+}, [visible, applySeed]);
+```
+
 # Navigation
 
 ## React Navigation (Stack Navigator)
@@ -229,16 +250,24 @@ await db.runAsync(
 
 ## Centralized language checks
 **Definition:** Patterns for storing the active language and looking up translations from a single i18n module.
-**Explanation:** All user-facing strings go through `src/i18n/`. Each language (en/es) is a flat object of keys; `t()` returns the language object so components read `t.hello_world`. Key naming is `lowercase.with.dots`.
+**Explanation:** All user-facing strings go through `src/i18n/`. Listly ships nine languages (`en, es, ca, gl, eu, fr, de, pt, it`); each is a flat object of keys and `t()` returns the active language object so components read `t.hello_world`. Key naming is `lowercase.with.dots`.
 **Example:**
 ```tsx
 // src/i18n/en.ts
 export default { home_empty: 'No lists yet', settings_title: 'Settings' };
 
 // Component
-import { useApp } from '../context/AppContext';
-const t = useApp().t;
+const t = useLabels();
 <Text>{t.home_empty}</Text>
+```
+
+## Typed translation packs (key-parity via the type system)
+**Definition:** Deriving one language's shape as a TypeScript type and declaring every other language against it.
+**Explanation:** Each pack is typed as `Translations` (derived from `en`), so a missing/extra/renamed key is a **compile error**, not a runtime fallback. A parity test backs the types at runtime too (same keys, matching function arity, no empty strings).
+**Example:**
+```ts
+export type Translations = typeof en;
+export const es: Translations = { /* must match en exactly */ };
 ```
 
 # UI Components
@@ -283,6 +312,24 @@ const t = useApp().t;
 <SafeAreaView style={{ flex: 1 }}>
   <Text>Safe content</Text>
 </SafeAreaView>
+```
+
+## Keyboard avoidance (keyboard height)
+**Definition:** Adjusting the layout so the on-screen keyboard does not cover inputs or the bottom bar.
+**Explanation:** Mobile keyboards overlay the app; the bottom add-bar/list must lift by the keyboard's height. Listly measures the keyboard (via the OS keyboard events) and offsets content/actions accordingly.
+**Example:**
+```tsx
+// track the keyboard height and apply it as bottom padding/offset
+const { height } = useKeyboardHeight();
+<View style={{ paddingBottom: height }} />
+```
+
+## Debounce (delaying an action)
+**Definition:** Waiting for a pause in rapid events before running an action, instead of firing on every one.
+**Explanation:** Used on name/search inputs and duplicate checks so the app does not validate/query on every keystroke — only after the user stops typing briefly.
+**Example:**
+```ts
+const checkDuplicate = useDebounced(check, 300); // runs 300ms after the last change
 ```
 
 # Design Principles
@@ -531,3 +578,87 @@ export async function runExclusive<T>(task: () => Promise<T>): Promise<T> {
 export const VAULT_ERROR = { wrongPassphrase: 'wrong_passphrase', tampered: 'tampered', unsupported: 'unsupported' } as const;
 export type VaultErrorCode = (typeof VAULT_ERROR)[keyof typeof VAULT_ERROR];
 ```
+
+# JavaScript utilities
+
+## `Set` (uniqueness and O(1) membership)
+**Definition:** A collection of unique values with fast `has`/`add` lookups.
+**Explanation:** Used to deduplicate and to test membership in constant time (e.g. `existingNames` for duplicate detection, selected item ids). Preferred over an array when you only need "is it present?".
+**Example:**
+```ts
+const existingNames = new Set(items.map(i => i.name.toLowerCase()));
+existingNames.has('milk'); // true
+```
+
+## `Array.prototype.reduce` (folding a list into one value)
+**Definition:** Array method that walks a list accumulating a single result.
+**Explanation:** Used to sum line totals and build strings/lookups without a manual loop. `reduce` is where money math happens, so it stays integer-only.
+**Example:**
+```ts
+const total = items.reduce((sum, i) => sum + i.amount_minor * i.quantity, 0);
+```
+
+## Regular expressions (pattern matching)
+**Definition:** A syntax for describing text patterns used to search, validate, or transform strings.
+**Explanation:** Listly uses small regexes to sanitize numeric input (strip non-digits/dots) and to search lists/items case-insensitively.
+**Example:**
+```ts
+const allowed = raw.replace(/[^0-9.]/g, ''); // keep only digits and dots
+```
+
+# Release and build (EAS)
+
+## EAS Build
+**Definition:** Expo's cloud build service that produces signed, installable iOS/Android artifacts.
+**Explanation:** Instead of building locally, `eas build` uploads the project, builds on Expo's servers, and returns an APK/AAB download. It manages the Android release keystore so every release shares one signature (updates install in place). Configured in `ListlyApp/eas.json`.
+**Example:**
+```bash
+cd ListlyApp
+npx eas-cli build --platform android --profile preview     # installable APK
+npx eas-cli build --platform android --profile production  # store AAB
+```
+
+## CNG (Continuous Native Generation) and `expo prebuild`
+**Definition:** Generating the native `android/` and `ios/` projects from `app.json` + config plugins instead of committing them.
+**Explanation:** The native folders are **build artifacts** (gitignored). `expo prebuild` (re)creates them, folding in the icon/splash config and native modules. Editing generated files by hand is not durable — they are overwritten on the next prebuild.
+**Example:**
+```bash
+npx expo prebuild --platform android   # regenerate native project
+```
+
+## Debug vs release signing
+**Definition:** Which keystore signs the APK, and therefore whether it can update another install.
+**Explanation:** Android refuses to install an APK whose signature differs from the installed app. A local `gradlew assembleRelease` is signed with the **debug** key; an EAS build is signed with **EAS's release key** — different signatures, so switching between them needs one uninstall. Consistent EAS-signed releases update in place.
+**Example:**
+```bash
+# inspect an APK's signer
+apksigner verify --print-certs app-release.apk
+```
+
+## `versionCode` vs `versionName`
+**Definition:** Android's two version numbers: an integer build number and a human-readable name.
+**Explanation:** `versionCode` (`android.versionCode`) must strictly increase or the store rejects the upload and in-place updates fail; `versionName` (`expo.version`) is what users see. EAS reads both from `app.json` when `cli.appVersionSource` is `"local"`.
+**Example:**
+```jsonc
+// app.json
+"version": "1.0.0",          // versionName
+"android": { "versionCode": 1 }
+```
+
+## Build profiles (`development` / `preview` / `production`)
+**Definition:** Named presets in `eas.json` describing how a build is produced.
+**Explanation:** `development` (dev client, internal), `preview` (internal APK for testers), `production` (`distribution: store`, AAB for the Play Store). Picking a profile selects distribution, build type, and Node version.
+**Example:**
+```jsonc
+// eas.json
+"production": { "distribution": "store", "android": { "buildType": "app-bundle" } }
+```
+
+## `expo doctor` (pre-build health check)
+**Definition:** A tool that validates a project against Expo's expectations before building.
+**Explanation:** EAS runs it as part of a build; missing **peer dependencies** (e.g. `expo-font`, required by `@expo/vector-icons`) fail the check and abort the build. Run `npx expo-doctor` locally to catch these early.
+**Example:**
+```bash
+npx expo-doctor   # → "21/21 checks passed"
+```
+
