@@ -172,6 +172,7 @@ export default function ListsView({
             completed: item.completed,
             total: item.total,
             locked: lockedListIds.has(item.id),
+            listKind: item.kind,
             collection,
           }}
           layout={isGrid ? 'card' : 'row'}

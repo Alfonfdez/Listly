@@ -4,6 +4,7 @@ import { TRANSPARENT } from '../constants/themes';
 import { withAlpha } from '../utils/color';
 import SelectionCheck from './SelectionCheck';
 import TypeBadge from './TypeBadge';
+import NumericBadge from './NumericBadge';
 import {
   TileShell,
   TileName,
@@ -19,6 +20,7 @@ import { useConfig } from '../context/ConfigContext';
 import { useFontSize } from '../hooks/useFontSize';
 import { useLabels } from '../hooks/useLabels';
 import type { Flag } from '../utils/flags';
+import type { ListKind } from '../constants/types';
 
 type EntityKind = 'list' | 'collection';
 type EntityLayout = 'card' | 'row';
@@ -33,6 +35,7 @@ export interface TileEntity {
   completed: number;
   total: number;
   locked?: boolean;
+  listKind?: ListKind;
   collection?: { name: string; color: string };
 }
 
@@ -89,7 +92,12 @@ export default function EntityTile({
       {isCard ? (
         <>
           {selectMode ? <SelectionCheck selected={selected} style={tileStyles.check} iconSize={14} /> : null}
-          {!selectMode ? <TypeBadge type={entity.kind} style={tileStyles.typeBadge} /> : null}
+          {!selectMode ? (
+            <View style={tileStyles.typeBadge}>
+              {entity.listKind === 'numeric' ? <NumericBadge /> : null}
+              <TypeBadge type={entity.kind} />
+            </View>
+          ) : null}
           <TileIcon icon={entity.icon} color={entity.color} />
           <TileName name={entity.name} pinned={entity.pinned} locked={entity.locked} fontSize={fs(14)} />
           {showCollection ? (
@@ -117,6 +125,7 @@ export default function EntityTile({
             {showCollection && entity.collection ? <TileCollection collection={entity.collection} /> : null}
           </View>
           {progress}
+          {!selectMode && entity.listKind === 'numeric' ? <NumericBadge /> : null}
           {!selectMode ? <TypeBadge type={entity.kind} /> : null}
         </>
       )}

@@ -163,6 +163,9 @@ export const tileStyles = StyleSheet.create({
     position: 'absolute',
     top: 8,
     right: 8,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
   },
   rowCheck: {
     position: 'absolute',
