@@ -57,6 +57,23 @@ describe('useCollectionDropZones', () => {
     expect(result.current.removeTargetActive).toBe(false);
   });
 
+  it('clears the drag UI when the active item is dropped (drag end without a reorder)', async () => {
+    const refresh = vi.fn(async () => {});
+    const { result } = await renderHook(() => useCollectionDropZones({ refresh, inCollectionDetail: true }));
+
+    await act(() => result.current.handleListsDragStart(dragStart('1')));
+    await act(() => result.current.handleZoneEnter(10));
+    expect(result.current.removeTargetActive).toBe(true);
+    expect(result.current.hoverCollectionId).toBe(10);
+
+    await act(() => result.current.handleActiveItemDropped());
+
+    expect(result.current.removeTargetActive).toBe(false);
+    expect(result.current.hoverCollectionId).toBeNull();
+    expect(result.current.removeHover).toBe(false);
+    expect(reorder).not.toHaveBeenCalled();
+  });
+
   it('tracks the hovered collection only while dragging a list', async () => {
     const refresh = vi.fn(async () => {});
     const { result } = await renderHook(() => useCollectionDropZones({ refresh, inCollectionDetail: false }));

@@ -11,6 +11,7 @@ interface GridProps {
   rowGap?: number;
   onDragEnd?: (params: unknown) => void;
   onDragStart?: (params: unknown) => void;
+  onActiveItemDropped?: (params: unknown) => void;
   children?: ReactNode;
 }
 
@@ -102,6 +103,10 @@ export function fireGridDragEnd(params: unknown) {
 
 export function fireGridDragStart(params: unknown) {
   lastGridProps?.onDragStart?.(params);
+}
+
+export function fireGridActiveItemDropped(params: unknown = {}) {
+  lastGridProps?.onActiveItemDropped?.(params);
 }
 
 export function getZoneHandlers() {

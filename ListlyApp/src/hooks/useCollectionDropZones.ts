@@ -17,6 +17,15 @@ export function useCollectionDropZones({ refresh, inCollectionDetail }: Options)
   const zoneDropHandledRef = useRef(false);
   const pendingMoveRef = useRef<Promise<void> | null>(null);
 
+  // Clears all drag-UI state without touching persistence. Used when a drag
+  // ends (drop or release) so the remove target / hovered zone can never stick.
+  const resetDragState = useCallback(() => {
+    setRemoveTargetActive(false);
+    setRemoveHover(false);
+    setHoverCollectionId(null);
+    hoverCollectionIdRef.current = null;
+  }, []);
+
   const handleListsDragEnd = useCallback(
     (ids: number[]) => {
       setRemoveTargetActive(false);
@@ -26,6 +35,8 @@ export function useCollectionDropZones({ refresh, inCollectionDetail }: Options)
         return;
       }
       if (hoverCollectionIdRef.current !== null) {
+        setHoverCollectionId(null);
+        hoverCollectionIdRef.current = null;
         void refresh();
         return;
       }
@@ -36,6 +47,13 @@ export function useCollectionDropZones({ refresh, inCollectionDetail }: Options)
     },
     [refresh]
   );
+
+  // The library does not always fire `onDragEnd` (e.g. a long-press released
+  // without a completed reorder). This drop signal clears the drag UI outright.
+  const handleActiveItemDropped = useCallback(() => {
+    resetDragState();
+  }, [resetDragState]);
+
   const handleListsDragStart = useCallback(
     (params: DragStartParams) => {
       draggingListRef.current = Number(params.key);
@@ -117,6 +135,8 @@ export function useCollectionDropZones({ refresh, inCollectionDetail }: Options)
     handleListsDragStart,
     handleCollectionsDragStart,
     handleListsDragEnd,
+    handleActiveItemDropped,
+    resetDragState,
     handleZoneEnter,
     handleZoneLeave,
     handleZoneDrop,
