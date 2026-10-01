@@ -1,5 +1,5 @@
 import { describe, expect, it, beforeEach, vi } from 'vitest';
-import { render, userEvent } from '@testing-library/react-native';
+import { act, render, userEvent } from '@testing-library/react-native';
 import ItemFormModal from '../../src/components/ItemFormModal';
 import { resetStub, setConfig } from '../helpers/configStub';
 
@@ -92,5 +92,60 @@ describe('ItemFormModal', () => {
 
     expect(view.getByLabelText('Name').props.value).toBe('Bread');
     expect(setPhotosMock).toHaveBeenCalledTimes(1);
+  });
+
+  it('blanks a zero amount on focus so the user can type immediately', async () => {
+    const view = await render(
+      <ItemFormModal {...baseProps} numeric initialAmountMinor={0} initialQuantity={1} initialNote="" />
+    );
+    expect(view.getByLabelText('Amount').props.value).toBe('0.00');
+    await act(async () => {
+      view.getByLabelText('Amount').props.onFocus();
+    });
+    expect(view.getByLabelText('Amount').props.value).toBe('');
+  });
+
+  it('keeps a non-zero amount on focus', async () => {
+    const view = await render(
+      <ItemFormModal {...baseProps} numeric initialAmountMinor={120} initialQuantity={1} initialNote="" />
+    );
+    expect(view.getByLabelText('Amount').props.value).toBe('1.20');
+    await act(async () => {
+      view.getByLabelText('Amount').props.onFocus();
+    });
+    expect(view.getByLabelText('Amount').props.value).toBe('1.20');
+  });
+
+  it('restores the zero amount when focused then blurred without typing', async () => {
+    const view = await render(
+      <ItemFormModal {...baseProps} numeric initialAmountMinor={0} initialQuantity={1} initialNote="" />
+    );
+    await act(async () => {
+      view.getByLabelText('Amount').props.onFocus();
+    });
+    expect(view.getByLabelText('Amount').props.value).toBe('');
+    await act(async () => {
+      view.getByLabelText('Amount').props.onBlur();
+    });
+    expect(view.getByLabelText('Amount').props.value).toBe('0.00');
+  });
+
+  it('persists the amount typed after focusing a zero field', async () => {
+    const onSave = vi.fn();
+    const user = userEvent.setup();
+    const view = await render(
+      <ItemFormModal
+        {...baseProps}
+        numeric
+        initialAmountMinor={0}
+        initialQuantity={1}
+        initialNote=""
+        onSave={onSave}
+      />
+    );
+    view.getByLabelText('Amount').props.onFocus();
+    await user.type(view.getByLabelText('Amount'), '2.50');
+    await user.press(view.getByLabelText('Save'));
+    expect(onSave).toHaveBeenCalledWith('Milk', null, [], 250, 1);
   });
 });

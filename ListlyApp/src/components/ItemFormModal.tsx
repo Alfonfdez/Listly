@@ -117,6 +117,8 @@ export default function ItemFormModal({
             <ItemAmountField
               value={draft.amount}
               onChangeText={draft.onAmountChange}
+              onFocus={draft.onAmountFocus}
+              onBlur={draft.onAmountBlur}
               style={[styles.input, styles.amountInput, { backgroundColor: c.background, borderColor: c.border }]}
             />
           </FormField>

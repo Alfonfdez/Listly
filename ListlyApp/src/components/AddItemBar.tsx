@@ -123,6 +123,8 @@ export default function AddItemBar({
           <ItemAmountField
             value={draft.amount}
             onChangeText={draft.onAmountChange}
+            onFocus={draft.onAmountFocus}
+            onBlur={draft.onAmountBlur}
             style={[styles.input, styles.amountInput, { backgroundColor: c.surface, borderColor: c.border }]}
           />
           <ItemQuantityField value={draft.quantity} onChange={draft.setQuantity} />

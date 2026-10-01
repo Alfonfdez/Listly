@@ -329,6 +329,15 @@ Include amounts, quantities and sums when copying a numeric list to the clipboar
 - Standard lists are unchanged. `buildListCopyText` takes an options object `{ withNotes, numeric?, labels? }` and stays pure (labels injected by `useClipboardCopy` via `useLabels`).
 - Spec: spec/features/032-numeric-copy-amounts/.
 
+## 033-amount-blank-on-focus
+Status: done.
+
+Stop forcing users to delete a pre-filled `0.00` before typing an amount when editing a numeric item:
+- Focusing the **Amount** field of a numeric item clears it when the current text is empty or parses to `0` (empty, `0`, `0.00`); a non-zero amount is left untouched so it can be edited in place.
+- Blurring an untouched (cleared) field restores the previous text, so a `0` amount stays `0` and a `null` amount stays empty; typing keeps the typed value and saves it.
+- Logic lives in `useItemDraft` (shared by the edit modal and the add bar); `ItemAmountField` only forwards `onFocus`/`onBlur`. Quantity (a stepper) is unchanged; no way to clear an amount to "no amount".
+- Spec: spec/features/033-amount-blank-on-focus/.
+
 ## Future scope (not scheduled)
 - Per-list currency symbol (the numeric list is currency-agnostic for now).
 - A third "pending" (all − done) total.
