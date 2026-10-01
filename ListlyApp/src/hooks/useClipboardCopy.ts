@@ -3,6 +3,7 @@ import * as Clipboard from 'expo-clipboard';
 import { itemRepo } from '../database';
 import { logError, runSafelyAsync, ERROR_SCOPE } from '../utils/errors';
 import { buildListCopyText } from '../utils/copyList';
+import { useLabels } from './useLabels';
 import { COPY_FEEDBACK_MS } from '../constants/types';
 import type { Item, ListWithCounts } from '../database/types';
 
@@ -13,6 +14,7 @@ interface Options {
 }
 
 export function useClipboardCopy({ list, items, refresh }: Options) {
+  const labels = useLabels();
   const [copiedAction, setCopiedAction] = useState<'all' | 'names' | 'to-list' | null>(null);
   const [copiedToName, setCopiedToName] = useState<string | null>(null);
   const [copyPickerVisible, setCopyPickerVisible] = useState(false);
@@ -28,11 +30,15 @@ export function useClipboardCopy({ list, items, refresh }: Options) {
   const copyList = useCallback(
     (withNotes: boolean) => {
       if (!list) return;
-      const text = buildListCopyText(list.name, items, withNotes);
+      const text = buildListCopyText(list.name, items, {
+        withNotes,
+        numeric: list.kind === 'numeric',
+        labels: { total: labels.list_total_label, done: labels.list_done_total_label },
+      });
       void Clipboard.setStringAsync(text).catch(error => logError(ERROR_SCOPE.copyToClipboard, error));
       startFeedback(withNotes ? 'all' : 'names');
     },
-    [list, items, startFeedback]
+    [list, items, labels, startFeedback]
   );
 
   const copyToList = useCallback(

@@ -320,6 +320,15 @@ Prepare the v1.0.0 release: version metadata, EAS Build scaffolding, and signing
 - CI simplified to Finly parity (test-only: `npm ci` + `npm run test:all`).
 - Spec: this roadmap entry (release tooling/docs, not an app feature folder).
 
+## 032-numeric-copy-amounts
+Status: done.
+
+Include amounts, quantities and sums when copying a numeric list to the clipboard:
+- Numeric item lines become `[✅ ]<name> — <amount> × <quantity> = <lineTotal>` (segment always shown, incl. quantity 1; a null amount renders as `0.00`).
+- A non-empty numeric list ends with a blank line then `Total:` (all items) and `Done:` (checked only), using the existing localized `list_total_label` / `list_done_total_label`. Empty numeric lists omit the footer.
+- Standard lists are unchanged. `buildListCopyText` takes an options object `{ withNotes, numeric?, labels? }` and stays pure (labels injected by `useClipboardCopy` via `useLabels`).
+- Spec: spec/features/032-numeric-copy-amounts/.
+
 ## Future scope (not scheduled)
 - Per-list currency symbol (the numeric list is currency-agnostic for now).
 - A third "pending" (all − done) total.
