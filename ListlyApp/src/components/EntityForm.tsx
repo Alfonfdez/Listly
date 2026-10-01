@@ -121,7 +121,11 @@ export default function EntityForm<TError extends StringTranslationKey>({
   };
 
   return (
-    <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
+    <ScrollView
+      style={styles.scroll}
+      contentContainerStyle={styles.container}
+      keyboardShouldPersistTaps="handled"
+    >
       <FormField label={nameLabel} error={error ? labels[error] : null} style={styles.field}>
         <TextInput
           value={name}
@@ -213,6 +217,9 @@ export default function EntityForm<TError extends StringTranslationKey>({
 }
 
 const styles = StyleSheet.create({
+  scroll: {
+    flex: 1,
+  },
   container: {
     padding: 16,
     paddingBottom: 32,

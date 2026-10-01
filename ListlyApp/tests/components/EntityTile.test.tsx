@@ -1,5 +1,5 @@
 import { describe, expect, it, vi, beforeEach } from 'vitest';
-import { render, fireEvent } from '@testing-library/react-native';
+import { render, fireEvent, userEvent } from '@testing-library/react-native';
 import { type ComponentProps } from 'react';
 import { resetStub } from '../helpers/configStub';
 import EntityTile, { type TileEntity } from '../../src/components/EntityTile';
@@ -131,4 +131,33 @@ describe('EntityTile', () => {
     expect(tile.props.accessibilityRole).toBe('checkbox');
     expect(tile.props.accessibilityState).toEqual({ checked: true });
   });
+
+  it('clears the pressed opacity when the gesture ends', async () => {
+    const user = userEvent.setup();
+    const view = await renderTile(LIST);
+
+    const tile = view.getByLabelText('Groceries');
+    await user.press(tile);
+
+    expect(flattenStyle(tile.props.style).opacity).toBeUndefined();
+  });
+
+  it('clears the pressed opacity when the tile is tapped', async () => {
+    const onPress = vi.fn();
+    const view = await renderTile(LIST, { onPress });
+
+    await userEvent.setup().press(view.getByLabelText('Groceries'));
+    expect(onPress).toHaveBeenCalled();
+    expect(flattenStyle(view.getByLabelText('Groceries').props.style).opacity).toBeUndefined();
+  });
 });
+
+function flattenStyle(style: unknown): Record<string, unknown> {
+  if (Array.isArray(style)) {
+    return style.reduce((acc: Record<string, unknown>, s) => ({ ...acc, ...flattenStyle(s) }), {});
+  }
+  if (style && typeof style === 'object') {
+    return { ...(style as Record<string, unknown>) };
+  }
+  return {};
+}

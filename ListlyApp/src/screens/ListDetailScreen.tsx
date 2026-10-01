@@ -42,6 +42,7 @@ import VaultUnlockView from '../components/VaultUnlockView';
 import InfoModal from '../components/InfoModal';
 import { useVaultSession } from '../hooks/useVaultSession';
 import { useItemStore } from '../hooks/useItemStore';
+import { useKeyboardHeight } from '../hooks/useKeyboardHeight';
 import { isVaultAvailable, isWrongPassphrase } from '../utils/vaultCrypto';
 
 export default function ListDetailScreen() {
@@ -53,6 +54,7 @@ export default function ListDetailScreen() {
   const { activeColors: c } = useConfig();
   const fs = useFontSize();
   const labels = useLabels();
+  const keyboardHeight = useKeyboardHeight();
 
   const list = useMemo(() => lists.find(l => l.id === listId), [lists, listId]);
   const locked = lockedListIds.has(listId);
@@ -333,149 +335,156 @@ export default function ListDetailScreen() {
 
   return (
     <ScreenShell>
-      <ScrollView contentContainerStyle={styles.listContent} showsVerticalScrollIndicator={false}>
-        {searchActive && !selectMode ? (
-          <SearchBar
-            placeholder={labels.item_search_placeholder}
-            value={query}
-            onChangeText={setQuery}
-            onClose={() => { setQuery(''); setSearchActive(false); }}
-            autoFocus
-          />
-        ) : null}
-        {header}
-        {mergeNoticeVisible && list ? (
-          <Text
-            style={[styles.mergeNotice, { color: c.green, fontSize: fs(12) }]}
-            accessibilityLiveRegion="polite"
-          >
-            {labels.list_merged(list.name)}
-          </Text>
-        ) : null}
-        {passphraseChanged ? (
-          <Text
-            style={[styles.mergeNotice, { color: c.green, fontSize: fs(12) }]}
-            accessibilityLiveRegion="polite"
-          >
-            {labels.vault_passphrase_changed}
-          </Text>
-        ) : null}
-        {items.length > 0 && !selectMode && !searchActive ? (
-          <>
-            <View style={styles.batchRow}>
-              <TouchableOpacity
-                onPress={openSortModal}
-                style={[styles.batchButton, { borderColor: sortActive ? c.primary : c.border }]}
-                accessibilityRole="button"
-                accessibilityLabel={sortLabel}
-              >
-                <Ionicons name="swap-vertical" size={16} color={sortActive ? c.primary : c.textSecondary} />
-                <Text style={[styles.batchText, { color: sortActive ? c.primary : c.text, fontSize: fs(13) }]}>
-                  {sortModeLabel}
-                </Text>
-                {sortActive ? (
-                  <Ionicons
-                    name={sortDirection === 'asc' ? 'arrow-up' : 'arrow-down'}
-                    size={14}
-                    color={c.primary}
-                  />
-                ) : null}
-                <Ionicons name="chevron-down" size={14} color={c.textSecondary} />
-              </TouchableOpacity>
-              {hasOtherLists && !locked ? (
+      <View testID="list-body" style={[styles.body, keyboardHeight > 0 && { paddingBottom: keyboardHeight }]}>
+        <ScrollView
+          style={styles.list}
+          contentContainerStyle={styles.listContent}
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
+        >
+          {searchActive && !selectMode ? (
+            <SearchBar
+              placeholder={labels.item_search_placeholder}
+              value={query}
+              onChangeText={setQuery}
+              onClose={() => { setQuery(''); setSearchActive(false); }}
+              autoFocus
+            />
+          ) : null}
+          {header}
+          {mergeNoticeVisible && list ? (
+            <Text
+              style={[styles.mergeNotice, { color: c.green, fontSize: fs(12) }]}
+              accessibilityLiveRegion="polite"
+            >
+              {labels.list_merged(list.name)}
+            </Text>
+          ) : null}
+          {passphraseChanged ? (
+            <Text
+              style={[styles.mergeNotice, { color: c.green, fontSize: fs(12) }]}
+              accessibilityLiveRegion="polite"
+            >
+              {labels.vault_passphrase_changed}
+            </Text>
+          ) : null}
+          {items.length > 0 && !selectMode && !searchActive ? (
+            <>
+              <View style={styles.batchRow}>
                 <TouchableOpacity
-                  onPress={openMergePicker}
-                  style={[styles.batchButton, { borderColor: c.warning }]}
+                  onPress={openSortModal}
+                  style={[styles.batchButton, { borderColor: sortActive ? c.primary : c.border }]}
                   accessibilityRole="button"
-                  accessibilityLabel={labels.list_merge_into}
+                  accessibilityLabel={sortLabel}
                 >
-                  <Ionicons name="git-merge-outline" size={16} color={c.warning} />
-                  <Text style={[styles.batchText, { color: c.warning, fontSize: fs(13) }]}>
-                    {labels.list_merge_into}
+                  <Ionicons name="swap-vertical" size={16} color={sortActive ? c.primary : c.textSecondary} />
+                  <Text style={[styles.batchText, { color: sortActive ? c.primary : c.text, fontSize: fs(13) }]}>
+                    {sortModeLabel}
+                  </Text>
+                  {sortActive ? (
+                    <Ionicons
+                      name={sortDirection === 'asc' ? 'arrow-up' : 'arrow-down'}
+                      size={14}
+                      color={c.primary}
+                    />
+                  ) : null}
+                  <Ionicons name="chevron-down" size={14} color={c.textSecondary} />
+                </TouchableOpacity>
+                {hasOtherLists && !locked ? (
+                  <TouchableOpacity
+                    onPress={openMergePicker}
+                    style={[styles.batchButton, { borderColor: c.warning }]}
+                    accessibilityRole="button"
+                    accessibilityLabel={labels.list_merge_into}
+                  >
+                    <Ionicons name="git-merge-outline" size={16} color={c.warning} />
+                    <Text style={[styles.batchText, { color: c.warning, fontSize: fs(13) }]}>
+                      {labels.list_merge_into}
+                    </Text>
+                  </TouchableOpacity>
+                ) : null}
+              </View>
+              <View style={styles.batchRow}>
+                <TouchableOpacity
+                  onPress={() => void completeAll()}
+                  disabled={done === total}
+                  style={[styles.batchButton, { borderColor: c.border }]}
+                  accessibilityRole="button"
+                  accessibilityLabel={labels.item_complete_all_a11y}
+                >
+                  <Ionicons name="checkmark-done-outline" size={16} color={done === total ? c.textSecondary : c.primary} />
+                  <Text style={[styles.batchText, { color: done === total ? c.textSecondary : c.primary, fontSize: fs(13) }]}>
+                    {labels.item_complete_all}
                   </Text>
                 </TouchableOpacity>
-              ) : null}
-            </View>
-            <View style={styles.batchRow}>
-              <TouchableOpacity
-                onPress={() => void completeAll()}
-                disabled={done === total}
-                style={[styles.batchButton, { borderColor: c.border }]}
-                accessibilityRole="button"
-                accessibilityLabel={labels.item_complete_all_a11y}
-              >
-                <Ionicons name="checkmark-done-outline" size={16} color={done === total ? c.textSecondary : c.primary} />
-                <Text style={[styles.batchText, { color: done === total ? c.textSecondary : c.primary, fontSize: fs(13) }]}>
-                  {labels.item_complete_all}
-                </Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                onPress={() => void uncompleteAll()}
-                disabled={done === 0}
-                style={[styles.batchButton, { borderColor: c.border }]}
-                accessibilityRole="button"
-                accessibilityLabel={labels.item_uncomplete_all_a11y}
-              >
-                <Ionicons name="square-outline" size={16} color={done === 0 ? c.textSecondary : list.color} />
-                <Text style={[styles.batchText, { color: done === 0 ? c.textSecondary : list.color, fontSize: fs(13) }]}>
-                  {labels.item_uncomplete_all}
-                </Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                onPress={openClearCompleted}
-                disabled={done === 0}
-                style={[styles.batchButton, { borderColor: c.border }]}
-                accessibilityRole="button"
-                accessibilityLabel={labels.item_clear_completed_a11y}
-              >
-                <Ionicons name="close-circle-outline" size={16} color={done === 0 ? c.textSecondary : c.red} />
-                <Text style={[styles.batchText, { color: done === 0 ? c.textSecondary : c.red, fontSize: fs(13) }]}>
-                  {labels.item_clear_completed}
-                </Text>
-              </TouchableOpacity>
-            </View>
-          </>
-        ) : null}
-        {displayItems.length === 0 ? (
-          noResults ? (
-            <EmptyState icon="search-outline" message={labels.home_no_results} />
+                <TouchableOpacity
+                  onPress={() => void uncompleteAll()}
+                  disabled={done === 0}
+                  style={[styles.batchButton, { borderColor: c.border }]}
+                  accessibilityRole="button"
+                  accessibilityLabel={labels.item_uncomplete_all_a11y}
+                >
+                  <Ionicons name="square-outline" size={16} color={done === 0 ? c.textSecondary : list.color} />
+                  <Text style={[styles.batchText, { color: done === 0 ? c.textSecondary : list.color, fontSize: fs(13) }]}>
+                    {labels.item_uncomplete_all}
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={openClearCompleted}
+                  disabled={done === 0}
+                  style={[styles.batchButton, { borderColor: c.border }]}
+                  accessibilityRole="button"
+                  accessibilityLabel={labels.item_clear_completed_a11y}
+                >
+                  <Ionicons name="close-circle-outline" size={16} color={done === 0 ? c.textSecondary : c.red} />
+                  <Text style={[styles.batchText, { color: done === 0 ? c.textSecondary : c.red, fontSize: fs(13) }]}>
+                    {labels.item_clear_completed}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            </>
+          ) : null}
+          {displayItems.length === 0 ? (
+            noResults ? (
+              <EmptyState icon="search-outline" message={labels.home_no_results} />
+            ) : (
+              <EmptyState icon={list.icon as IconName} message={labels.item_empty} hint={labels.item_empty_hint} color={list.color} />
+            )
           ) : (
-            <EmptyState icon={list.icon as IconName} message={labels.item_empty} hint={labels.item_empty_hint} color={list.color} />
-          )
+            <Sortable.Grid
+              data={displayItems}
+              keyExtractor={item => String(item.id)}
+              renderItem={renderItem}
+              columns={1}
+              sortEnabled={!selectMode && query === '' && items.length > 1 && !sortActive}
+              rowGap={8}
+              onDragEnd={handleDragEnd}
+            />
+          )}
+        </ScrollView>
+
+        {!selectMode ? (
+          <AddItemBar
+            listId={listId}
+            existingNames={existingNames}
+            position={maxPosition}
+            numeric={numeric}
+            onAdded={() => undefined}
+            onSubmitOverride={store.add}
+          />
         ) : (
-          <Sortable.Grid
-            data={displayItems}
-            keyExtractor={item => String(item.id)}
-            renderItem={renderItem}
-            columns={1}
-            sortEnabled={!selectMode && query === '' && items.length > 1 && !sortActive}
-            rowGap={8}
-            onDragEnd={handleDragEnd}
+          <SelectionActionBar
+            selectedCount={selectedIds.size}
+            countLabel={labels.select_selected(selectedIds.size)}
+            deleteLabel={labels.select_delete}
+            cancelLabel={labels.common_cancel}
+            onDelete={openDeleteConfirm}
+            onCancel={exitSelectMode}
+            deleteAccessibilityLabel={labels.select_delete}
+            cancelAccessibilityLabel={labels.select_exit_mode}
           />
         )}
-      </ScrollView>
-
-      {!selectMode ? (
-        <AddItemBar
-          listId={listId}
-          existingNames={existingNames}
-          position={maxPosition}
-          numeric={numeric}
-          onAdded={() => undefined}
-          onSubmitOverride={store.add}
-        />
-      ) : (
-        <SelectionActionBar
-          selectedCount={selectedIds.size}
-          countLabel={labels.select_selected(selectedIds.size)}
-          deleteLabel={labels.select_delete}
-          cancelLabel={labels.common_cancel}
-          onDelete={openDeleteConfirm}
-          onCancel={exitSelectMode}
-          deleteAccessibilityLabel={labels.select_delete}
-          cancelAccessibilityLabel={labels.select_exit_mode}
-        />
-      )}
+      </View>
 
       <ItemFormModal
         visible={editing !== null}
@@ -605,6 +614,12 @@ export default function ListDetailScreen() {
 }
 
 const styles = StyleSheet.create({
+  body: {
+    flex: 1,
+  },
+  list: {
+    flex: 1,
+  },
   listContent: {
     flexGrow: 1,
     paddingHorizontal: 12,

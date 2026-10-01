@@ -36,12 +36,25 @@ const Grid = (props: GridProps) => {
 
 interface TouchableProps {
   onTap?: () => void;
+  onTouchesDown?: () => void;
+  onTouchesUp?: () => void;
+  onLongPress?: () => void;
   children?: ReactNode;
   [key: string]: unknown;
 }
 
-const Touchable = ({ onTap, children, ...viewProps }: TouchableProps) =>
-  React.createElement(Pressable, { onPress: onTap, ...viewProps }, children);
+const Touchable = ({ onTap, onTouchesDown, onTouchesUp, onLongPress, children, ...viewProps }: TouchableProps) =>
+  React.createElement(
+    Pressable,
+    {
+      onPress: onTap,
+      onPressIn: onTouchesDown,
+      onPressOut: onTouchesUp,
+      onLongPress,
+      ...viewProps,
+    },
+    children
+  );
 
 const PassThrough = ({ children }: { children?: ReactNode }) => children as ReactNode;
 

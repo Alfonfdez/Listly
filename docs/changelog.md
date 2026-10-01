@@ -955,6 +955,14 @@ pm run test:all green.
 - Chore (deps): bumped `expo` `~57.0.25` → `~57.0.26` and `expo-document-picker` `~57.0.2` → `~57.0.3` to the SDK 57 expected versions (`npx expo install --check` now reports "Dependencies are up to date"). Patch bumps only; no app code change.
 - `npm run test:all` green (73 files, 601 tests); native project regenerated via `npx expo prebuild --platform android` and the release APK rebuilt.
 
+[2026-10-01] fix | ListlyApp/src/hooks/useKeyboardHeight.ts, src/screens/ListDetailScreen.tsx, src/components/{EntityForm,SortablePressable}.tsx, src/hooks/useDragOrder.ts
+- Fix: on Android the software keyboard **covered the List detail add-item bar**, so the typed text was invisible. New `useKeyboardHeight()` hook (Android-only; `keyboardDidShow`/`keyboardDidHide` via `Keyboard.addListener`, `0` when hidden / on iOS+web). `ListDetailScreen` wraps the scroll + bottom bar in a `flex:1` body and applies `paddingBottom: keyboardHeight` (gap opens with the keyboard, closes when it hides); the `ScrollView` gains `flex:1` + `keyboardShouldPersistTaps="handled"`. `EntityForm` (Create/Edit List & Collection) `ScrollView` gains `flex:1` so its submit button stays reachable under `adjustResize`.
+- Fix: a **fast tap on a list/collection card could leave it stuck at the pressed opacity** (looked "selected"), when the sortable drag gesture stole the touch and `onTouchesUp` never fired. `SortablePressable` now always clears the pressed state: reset on `onTap`/`onLongPress` plus a `PRESSED_MAX_MS` (600ms) safety timeout, with cleanup on unmount.
+- Fix: after **dragging lists into a collection**, returning to Home left a large **empty gap** where the lists used to be. `useDragOrder` kept a stale optimistic order after items left the visible set; it now drops the order whenever the item set changes (added/removed/moved out), so `display` falls back to the canonical order and the sortable grid re-lays-out.
+- Tests: new `tests/hooks/useKeyboardHeight.test.ts` and `tests/components/SortablePressable.test.tsx`; `useDragOrder.test.ts` gains the "item leaves the set" regression; `ListDetailScreen.test.tsx` asserts the keyboard gap; `EntityTile.test.tsx` asserts the pressed opacity clears. `npm run test:all` green (75 files, 612 tests); typecheck + lint clean.
+- Verified on device (Android): keyboard gap works; release APK rebuilt.
+
+
 
 
 

@@ -55,4 +55,22 @@ describe('useDragOrder', () => {
 
     expect(onReorder).not.toHaveBeenCalled();
   });
+
+  it('drops a stale optimistic order when an item leaves the set (moved out)', async () => {
+    const onReorder = vi.fn();
+    const { result, rerender } = await renderHook(
+      ({ items }: { items: Item[] }) => useDragOrder(items, onReorder),
+      { initialProps: { items: [item(1), item(2), item(3)] } }
+    );
+
+    await act(() => result.current.onDragEnd(dragParams([item(3), item(1), item(2)])));
+    expect(result.current.display.map(i => i.id)).toEqual([3, 1, 2]);
+
+    // item 1 is dragged into a collection → it leaves the visible set
+    await act(async () => {
+      rerender({ items: [item(2), item(3)] });
+    });
+
+    expect(result.current.display.map(i => i.id)).toEqual([2, 3]);
+  });
 });

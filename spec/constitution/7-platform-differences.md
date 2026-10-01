@@ -15,6 +15,7 @@ Listly targets **iOS, Android, and web** with one codebase. This file collects h
 - Web shows scrollbars; style them consistently with the theme (thumb + track via injected CSS).
 - Modals: on web prefer centered max-width popups; on mobile full-screen/slide. Keep the same component API.
 - `keyboardShouldPersistTaps="handled"` where a modal/screen has a ScrollView and inputs, so the first tap isn't swallowed (Android behavior found in Finly).
+- **Android bottom-pinned inputs / keyboard:** the Android activity uses `windowSoftInputMode="adjustResize"` (the window shrinks to the keyboard). Screens whose input/action bar is pinned to the bottom (e.g. the List detail add-item bar) wrap the scroll area in a `flex: 1` body and add `paddingBottom` equal to the keyboard height via `useKeyboardHeight()` (Android-only; `0` on iOS/web so those platforms are unaffected), so the bar stays visible while typing and the gap closes when the keyboard hides. Form screens keep the scroll area `flex: 1` so the submit button stays reachable.
 - Never rely on `Platform.OS === 'web'` inline: use `src/utils/platform.ts` constants (`isWeb`, `isNative`, `isIOS`, `isAndroid`).
 
 ## Native-only features
