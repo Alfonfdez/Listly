@@ -54,10 +54,12 @@ export function ItemNameField({
 interface ItemAmountFieldProps {
   value: string;
   onChangeText: (text: string) => void;
+  onFocus?: () => void;
+  onBlur?: () => void;
   style: StyleProp<TextStyle>;
 }
 
-export function ItemAmountField({ value, onChangeText, style }: ItemAmountFieldProps) {
+export function ItemAmountField({ value, onChangeText, onFocus, onBlur, style }: ItemAmountFieldProps) {
   const { activeColors: c } = useConfig();
   const fs = useFontSize();
   const labels = useLabels();
@@ -66,6 +68,8 @@ export function ItemAmountField({ value, onChangeText, style }: ItemAmountFieldP
     <TextInput
       value={value}
       onChangeText={onChangeText}
+      onFocus={onFocus}
+      onBlur={onBlur}
       keyboardType="decimal-pad"
       placeholder={labels.item_amount_label}
       placeholderTextColor={c.textSecondary}

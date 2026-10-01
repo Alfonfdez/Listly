@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { useItemPhotos } from './useItemPhotos';
 import { validateItemName, type ItemNameError } from '../utils/validation';
 import { clampQuantity, formatMinor, lineTotalMinor, parseAmountInput, sanitizeAmountText } from '../utils/numeric';
@@ -41,6 +41,8 @@ export function useItemDraft({ existingNames, numeric = false, validateOnChange 
   const [quantity, setQuantity] = useState(DEFAULT_QUANTITY);
   const [error, setError] = useState<ItemNameError | null>(null);
   const { photos, setPhotos, handleTakePhoto, handlePickFromGallery, handleRemovePhoto } = useItemPhotos();
+  const amountBeforeFocus = useRef('');
+  const amountTouched = useRef(false);
 
   const amountMinor = parseAmountInput(amount);
   const lineTotal = lineTotalMinor(amountMinor, quantity);
@@ -54,7 +56,26 @@ export function useItemDraft({ existingNames, numeric = false, validateOnChange 
   );
 
   const onAmountChange = useCallback((text: string) => {
+    amountTouched.current = true;
     setAmount(sanitizeAmountText(text));
+  }, []);
+
+  const onAmountFocus = useCallback(() => {
+    amountTouched.current = false;
+    setAmount(current => {
+      amountBeforeFocus.current = current;
+      return parseAmountInput(current) === 0 ? '' : current;
+    });
+  }, []);
+
+  const onAmountBlur = useCallback(() => {
+    if (amountTouched.current) return;
+    setAmount(current => {
+      if (current === '' && amountBeforeFocus.current !== '') {
+        return amountBeforeFocus.current;
+      }
+      return current;
+    });
   }, []);
 
   const validate = useCallback((): ItemNameError | null => {
@@ -71,6 +92,8 @@ export function useItemDraft({ existingNames, numeric = false, validateOnChange 
       setAmount(seed.amountMinor === null ? '' : formatMinor(seed.amountMinor));
       setQuantity(seed.quantity);
       setError(null);
+      amountBeforeFocus.current = '';
+      amountTouched.current = false;
     },
     [setPhotos]
   );
@@ -103,6 +126,8 @@ export function useItemDraft({ existingNames, numeric = false, validateOnChange 
     setQuantity,
     onNameChange,
     onAmountChange,
+    onAmountFocus,
+    onAmountBlur,
     handleTakePhoto,
     handlePickFromGallery,
     handleRemovePhoto,

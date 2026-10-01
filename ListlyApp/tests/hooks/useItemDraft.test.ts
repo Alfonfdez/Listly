@@ -121,4 +121,80 @@ describe('useItemDraft', () => {
     });
     expect(lazy.result.current.error).toBeNull();
   });
+
+  describe('amount focus/blur (blank-when-zero)', () => {
+    async function seeded(amountMinor: number | null) {
+      const hook = await renderHook(() => useItemDraft({ existingNames: new Set(), numeric: true }));
+      await act(async () => {
+        hook.result.current.applySeed({ name: 'Milk', note: '', photos: [], amountMinor, quantity: 1 });
+      });
+      return hook;
+    }
+
+    it('clears the field on focus when the amount is zero', async () => {
+      const { result } = await seeded(0);
+      expect(result.current.amount).toBe('0.00');
+      await act(async () => {
+        result.current.onAmountFocus();
+      });
+      expect(result.current.amount).toBe('');
+    });
+
+    it('clears the field on focus when the amount is empty (null)', async () => {
+      const { result } = await seeded(null);
+      expect(result.current.amount).toBe('');
+      await act(async () => {
+        result.current.onAmountFocus();
+      });
+      expect(result.current.amount).toBe('');
+    });
+
+    it('keeps the value on focus when the amount is non-zero', async () => {
+      const { result } = await seeded(120);
+      expect(result.current.amount).toBe('1.20');
+      await act(async () => {
+        result.current.onAmountFocus();
+      });
+      expect(result.current.amount).toBe('1.20');
+    });
+
+    it('restores the previous amount on blur when nothing was typed', async () => {
+      const { result } = await seeded(0);
+      await act(async () => {
+        result.current.onAmountFocus();
+      });
+      expect(result.current.amount).toBe('');
+      await act(async () => {
+        result.current.onAmountBlur();
+      });
+      expect(result.current.amount).toBe('0.00');
+    });
+
+    it('keeps a typed value on blur and preserves it in the payload', async () => {
+      const { result } = await seeded(0);
+      await act(async () => {
+        result.current.onAmountFocus();
+      });
+      await act(async () => {
+        result.current.onAmountChange('2.50');
+      });
+      await act(async () => {
+        result.current.onAmountBlur();
+      });
+      expect(result.current.amount).toBe('2.50');
+      expect(result.current.buildPayload()).toMatchObject({ amountMinor: 250 });
+    });
+
+    it('leaves a null amount null after focus + untouched blur', async () => {
+      const { result } = await seeded(null);
+      await act(async () => {
+        result.current.onAmountFocus();
+      });
+      await act(async () => {
+        result.current.onAmountBlur();
+      });
+      expect(result.current.amount).toBe('');
+      expect(result.current.buildPayload()).toMatchObject({ amountMinor: 0 });
+    });
+  });
 });
