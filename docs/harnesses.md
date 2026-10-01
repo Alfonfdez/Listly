@@ -17,7 +17,9 @@ All commands run from the `ListlyApp/` directory (created when feature 001 is im
 | Typecheck | `npm run typecheck` |
 | Lint | `npm run lint` |
 | Web E2E (spec criteria) | `npx expo start --web` then run the `verification-loop` skill (Playwright, 375px viewport) |
-| Android release APK | `npx expo prebuild --platform android` then `cd android && ./gradlew assembleRelease` (see note below) |
+| Android release APK (official) | `cd ListlyApp && npx eas-cli build --platform android --profile preview` (EAS-managed signing — see note below) |
+| Android store AAB (official) | `cd ListlyApp && npx eas-cli build --platform android --profile production --no-wait` |
+| Android local dev APK | `npx expo prebuild --platform android` then `cd android && ./gradlew assembleRelease` (debug-signed, smoke tests only) |
 | Web production favicon/build | `npx expo export --platform web` (favicon + `index.html` are only generated here) |
 | Mobile E2E (Maestro flows) | Deferred — added when native-only criteria appear (see below) |
 
@@ -41,6 +43,13 @@ All commands run from the `ListlyApp/` directory (created when feature 001 is im
 - **After changing anything under `assets/` (or the icon/splash config in `app.json`), run `npx expo prebuild --platform android` before the next `gradlew assembleRelease`** — otherwise the APK ships stale icons/splash (Gradle does not regenerate them). On device, uninstall the old app first so the launcher doesn't keep the cached icon.
 - The web favicon is **not** served by `expo start --web`; it is injected during `npx expo export --platform web` (writes `dist/favicon.ico` + the `<link rel="icon">` in `dist/index.html`).
 - The icon artwork is authored as SVG in `ListlyApp/scripts/gen-assets.mjs` (regenerates all six `assets/*.png`; `sharp` is intentionally not a project dependency).
+
+### Release signing (EAS) — why updates install over the old build
+
+- The **official** artifacts are EAS builds (`ListlyApp/eas.json`, `cli.appVersionSource: "local"`). EAS generates the Android upload/release keystore on the first production build and **stores it on Expo's servers for the project's `projectId`**, so every later release shares one signature → an update installs in place (no uninstall).
+- **Back the keystore up offline** once: `npx eas-cli credentials` → Android → download the keystore + passwords. Keystores are gitignored (`.gitignore`, `.easignore`) — never commit one.
+- **Bump `android.versionCode`** (and `ios.buildNumber`) in `app.json` for every release — `versionCode` must strictly increase or the store rejects the upload.
+- A local `gradlew assembleRelease` APK is signed with the **debug** keystore (`android/app/build.gradle` uses `signingConfigs.debug`), so it has a *different* signature than the EAS build; it is only for local smoke tests. Switching from a debug-signed APK to an EAS APK on a device requires one uninstall.
 
 ### Current suite baseline
 

@@ -8,17 +8,19 @@
     "userInterfaceStyle": "automatic",
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.listly.app"
+      "bundleIdentifier": "com.listly.app",
+      "buildNumber": "1.0.0"
     },
     "android": {
       "adaptiveIcon": {
-        "backgroundColor": "#FFFFFF",
+        "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/android-icon-foreground.png",
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
       },
       "predictiveBackGestureEnabled": false,
-      "package": "com.listly.app"
+      "package": "com.listly.app",
+      "versionCode": 1
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -35,6 +37,12 @@
       "expo-sqlite",
       "expo-sharing",
       "react-native-quick-crypto"
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "5ecab19f-a756-4fc6-92f4-63a4b9b496ce"
+      }
+    },
+    "owner": "alfonfdez"
   }
 }

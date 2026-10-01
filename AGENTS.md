@@ -50,18 +50,29 @@ cd ListlyApp
 npx expo start
 ```
 
-## ANDROID BUILD
+## ANDROID BUILD & RELEASE (EAS)
+The **official** artifact is an EAS Build; local `gradlew` is a dev smoke-test path only.
+
 ```bash
-cd ListlyApp/android
-./gradlew assembleRelease   # APK → app/build/outputs/apk/release/app-release.apk
+cd ListlyApp
+npx eas-cli login                     # once
+npx eas-cli init                      # once — writes extra.eas.projectId into app.json
+npx eas-cli build --platform android --profile preview   # installable APK (internal)
+npx eas-cli build --platform android --profile production --no-wait  # store AAB
+```
+- `ListlyApp/eas.json` defines three profiles (`development`, `preview`, `production`) with `cli.appVersionSource: "local"` — EAS reads `version` / `android.versionCode` / `ios.buildNumber` straight from `app.json`.
+- **Bump `android.versionCode` (and `ios.buildNumber`) for every release**: `versionCode` must strictly increase or Google Play rejects the upload; it is what makes an update install *over* the previous one.
+- **Signing keys are managed by EAS** (generated on the first production build and stored on Expo's servers for the project's `projectId`), so consecutive releases share one signature and update in place — no uninstall. Keep an offline backup: `npx eas-cli credentials` → Android → download the keystore + passwords. Never commit a keystore (`.jks`/`.p12`/`.key` are gitignored; `.easignore` also excludes them).
+- A locally built `gradlew assembleRelease` APK is signed with the **debug** keystore (`app/build.gradle` uses `signingConfigs.debug`), so it has a different signature than the EAS release — use it only for local smoke tests, and expect to uninstall the debug APK before installing an EAS build.
+
+### Local dev build (icons/splash regeneration)
+```bash
+cd ListlyApp
+npx expo prebuild --platform android
+cd android && ./gradlew assembleRelease   # APK → app/build/outputs/apk/release/app-release.apk
 ```
 - `ListlyApp/android/` is a **generated** native project (gitignored). Expo copies `assets/*` and the `app.json` icon/splash config into native resources (`res/mipmap-*/ic_launcher*.webp`, `res/drawable-*/splashscreen_logo.png`) **only during `expo prebuild`**.
-- **After changing `assets/` or the icon/splash config in `app.json`, run `npx expo prebuild --platform android` before building** — otherwise the APK keeps the stale icons/splash (Gradle won't regenerate them). Full sequence:
-  ```bash
-  cd ListlyApp
-  npx expo prebuild --platform android
-  cd android && ./gradlew assembleRelease
-  ```
+- **After changing `assets/` or the icon/splash config in `app.json`, run `npx expo prebuild --platform android` before building** — otherwise the APK keeps the stale icons/splash (Gradle won't regenerate them).
 - Web favicon is injected only at export time: `npx expo export --platform web` (dev `expo start --web` serves no favicon).
 
 ## LINT
@@ -84,9 +95,9 @@ npx expo lint
 - Repositories: list, item, config (grows with each feature).
 
 ## I18N
-- Languages: English, Spanish (en/es). The set grows per feature.
+- Languages: English, Spanish, Catalan, Galician, Basque, French, German, Portuguese, Italian (en, es, ca, gl, eu, fr, de, pt, it).
 - `t()` returns the language object.
-- All UI strings go through `src/i18n/`.
+- All UI strings go through `src/i18n/`; every pack is typed against `en`'s `Translations`, so key parity is enforced at typecheck (plus `tests/i18n/parity.test.ts`).
 - i18n key naming: `lowercase.with.dots`.
 
 ## PROJECT STRUCTURE

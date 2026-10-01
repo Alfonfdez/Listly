@@ -309,6 +309,17 @@ Ship a full multilingual README for the project (mirroring Finly), documenting t
 - Small app change for parity + the screenshot: the drawer shows `v{Constants.expoConfig?.version}` (`v1.0.0`) right-aligned at the bottom, via the new `expo-constants` dependency.
 - Spec: this roadmap entry (the README is a docs deliverable, not a feature folder).
 
+## 031-release-pipeline
+Status: done.
+
+Prepare the v1.0.0 release: version metadata, EAS Build scaffolding, and signing-key strategy (mirrors Finly):
+- `app.json` gains `android.versionCode` (`1`) and `ios.buildNumber` (`"1.0.0"`), read by EAS via `cli.appVersionSource: "local"`; `android.adaptiveIcon.backgroundColor` aligned to Finly (`#E6F4FE`).
+- `ListlyApp/eas.json` (development / preview / production profiles; production = store AAB) and a root `.easignore`. `npx eas-cli init` creates Listly's own `extra.eas.projectId`.
+- Signing: the official artifact is an EAS Build, which generates and stores the Android release keystore for the project so later versions share one signature and update in place, with no uninstall. Back the key up with `eas credentials`; keystores are never committed.
+- Declared `expo-font` (`~57.0.4`) so `expo doctor` passes 21/21 (peer dependency required by `@expo/vector-icons`; missing it fails the EAS build).
+- CI simplified to Finly parity (test-only: `npm ci` + `npm run test:all`).
+- Spec: this roadmap entry (release tooling/docs, not an app feature folder).
+
 ## Future scope (not scheduled)
 - Per-list currency symbol (the numeric list is currency-agnostic for now).
 - A third "pending" (all − done) total.

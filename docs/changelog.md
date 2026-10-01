@@ -1000,3 +1000,16 @@ pm run test:all green.
 - Docs/release: added the full **multilingual README** (English + 8 translations, nine files total mirroring Finly) with a language bar, an info table, a feature list (features 001-029), a screenshot gallery, a tech-stack table, and Development/Testing/Database/Android-build/Methodology sections. All screenshots are real 375x812 captures of the web build in **dark mode** under `images/screenshots/`.
 - App (small, for the screenshot + Finly parity): the drawer now shows the app version (`v{Constants.expoConfig?.version}` = `v1.0.0`) right-aligned at the bottom, mirroring Finly. Added the `expo-constants` dependency to read the version.
 - No behavior change beyond the drawer version label; docs-only otherwise. `npm run test:all` green (76 files, 652 tests); typecheck + lint clean.
+
+[2026-10-01] chore | ListlyApp/app.json, ListlyApp/eas.json (new), .easignore (new), .github/workflows/ci.yml, AGENTS.md, docs/harnesses.md, README.md
+- Release v1.0.0 scaffolding (mirrors Finly). `app.json`: added `android.versionCode: 1` and `ios.buildNumber: "1.0.0"` (both read by EAS via `cli.appVersionSource: "local"`); `android.adaptiveIcon.backgroundColor` `#FFFFFF` -> `#E6F4FE` (splash stays `#0F172A`).
+- Added `ListlyApp/eas.json` (development/preview/production profiles, `appVersionSource: local`, production = store AAB) and root `.easignore` (keystores, generated `android/`+`ios/`, dev artifacts excluded).
+- Signing: the official artifact is an **EAS Build** — EAS generates and stores the Android release keystore for the project `projectId`, so future versions share one signature and update in place (no uninstall). Back it up once with `eas credentials`; never commit a keystore (`.gitignore`/`.easignore` already exclude them). The local `gradlew assembleRelease` path stays for smoke tests but is debug-signed. Run `npx eas-cli init` once to create Listly's own `extra.eas.projectId`.
+- CI simplified to Finly parity: `ci.yml` drops the scaffold-era "Check app exists" guard and just runs `npm ci` + `npm run test:all`.
+- Docs: AGENTS.md gains an EAS release section (official vs local build, versionCode bump rule, key backup, debug-vs-EAS signature) and the I18N section is refreshed to the nine languages; `docs/harnesses.md` documents the official EAS commands + a release-signing note; README build section rewritten to EAS profiles.
+- Config/docs only, no app behavior change. `npm run test:all` green (76 files, 652 tests); typecheck + lint clean.
+
+[2026-10-01] fix | ListlyApp/package.json, ListlyApp/app.json (EAS project link), spec/features/031-release-pipeline/*
+- Fix: the first EAS build failed `expo doctor` with "Missing peer dependency: expo-font (required by @expo/vector-icons)" - `expo-font` resolved only transitively via `expo`, which works in Expo Go but can crash a standalone/release build. Declared it explicitly (`expo-font ~57.0.4`, mirrors Finly) so all 21 doctor checks pass.
+- `eas init` linked the project to Expo (`@alfonfdez/listly`, `extra.eas.projectId` + `owner` in `app.json`); the failed first build was canceled.
+- Docs: roadmap 031 + the 031 spec/plan/tasks note the doctor gate and the expo-font requirement. `npx expo-doctor` now reports 21/21; `npm run test:all` green (76 files, 652 tests).
