@@ -35,7 +35,7 @@
 - A wrong passphrase is rejected with a clear error (verified without exposing whether decryption returned garbage).
 - The unlocked session lasts while the list screen is open and is **re-locked automatically when the user leaves the screen**: the in-memory items and derived key are discarded, and the list returns to the locked state.
 - While unlocked, the list behaves like a normal list (view, toggle, add, edit, delete, reorder, sort, copy clipboard, etc.), except that edits are persisted **encrypted**: every write re-encrypts the vault payload rather than inserting plaintext rows.
-- Photos remain disallowed while unlocked in a locked list (consistent with §1).
+- Photos remain disallowed while unlocked in a locked list (consistent with §1): the add bar and the edit-item modal hide the photo affordance whenever the list is locked (`locked`, regardless of the unlocked session), so a photo can never enter a locked list — the v1 rule is enforced at the add/edit step, not only at lock time.
 
 ### 4. Removing the lock
 - An *Unlock permanently* / *Remove lock* action (from the locked/unlocked list) requires the passphrase, then decrypts and re-inserts the items as plaintext rows and deletes the vault row in one transaction; the list becomes a normal list again.
@@ -78,6 +78,8 @@
 
 - [x] A list can be locked with a passphrase (min 6 chars, entered twice, unrecoverable warning acknowledged), whether or not it has items; the *Lock list* action is always available for a non-locked list.
 - [x] A list containing photos cannot be locked (blocked with a clear message).
+- [x] The add bar and the edit-item modal hide the photo affordance whenever the list is **locked** (even while unlocked in a session), so photos cannot enter a locked list.
+- [x] *Change passphrase* is never blocked by photos (a locked list can always rotate its passphrase).
 - [x] Locking encrypts the items and deletes the plaintext item rows in one transaction; the vault row stores salt, iterations, digest, verifier, and ciphertext.
 - [x] A locked list shows a lock badge and hides its progress everywhere it appears, and its items are excluded from search and from all totals.
 - [x] Opening a locked list shows a passphrase lock screen; the correct passphrase unlocks it, a wrong passphrase is clearly rejected.

@@ -469,6 +469,7 @@ export default function ListDetailScreen() {
             existingNames={existingNames}
             position={maxPosition}
             numeric={numeric}
+            photosAllowed={!locked}
             onAdded={() => undefined}
             onSubmitOverride={store.add}
           />
@@ -495,6 +496,7 @@ export default function ListDetailScreen() {
         existingNames={editingExclusiveNames}
         allowDelete
         numeric={numeric}
+        photosAllowed={!locked}
         initialAmountMinor={editing?.amount_minor ?? null}
         initialQuantity={editing?.quantity ?? 0}
         onCancel={() => setEditing(null)}

@@ -20,6 +20,7 @@ interface Props {
   existingNames: ReadonlySet<string>;
   allowDelete: boolean;
   numeric?: boolean;
+  photosAllowed?: boolean;
   initialAmountMinor?: number | null;
   initialQuantity?: number;
   onCancel: () => void;
@@ -36,6 +37,7 @@ export default function ItemFormModal({
   existingNames,
   allowDelete,
   numeric = false,
+  photosAllowed = true,
   initialAmountMinor = null,
   initialQuantity = 0,
   onCancel,
@@ -46,6 +48,7 @@ export default function ItemFormModal({
   const fs = useFontSize();
   const labels = useLabels();
   const flags = useItemDisplayFlags(numeric);
+  const showPhotos = flags.editShowPhotos && photosAllowed;
 
   const draft = useItemDraft({ existingNames, numeric, validateOnChange: true });
   const { applySeed } = draft;
@@ -75,7 +78,13 @@ export default function ItemFormModal({
   const submit = () => {
     if (draft.validate()) return;
     const payload = draft.buildPayload();
-    onSave(payload.name, payload.note, payload.photos, payload.amountMinor, payload.quantity);
+    onSave(
+      payload.name,
+      payload.note,
+      photosAllowed ? payload.photos : [],
+      payload.amountMinor,
+      payload.quantity
+    );
   };
 
   const canSave = draft.error === null && draft.name.trim().length > 0;
@@ -128,7 +137,7 @@ export default function ItemFormModal({
         </FormField>
       ) : null}
 
-      {flags.editShowPhotos ? (
+      {showPhotos ? (
         <View style={styles.photoSection}>
           <ItemPhotosField
             photos={draft.photos}

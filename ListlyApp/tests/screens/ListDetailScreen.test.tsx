@@ -1159,6 +1159,23 @@ it('disables reordering while searching', async () => {
     expect(vaultRepositoryMock.unlock).toHaveBeenCalledWith(1, 'secret123');
   });
 
+  it('hides the photo affordance in the add bar of an unlocked locked list', async () => {
+    setLockedListIds([1]);
+    setItemsByListId(new Map());
+    vaultRepositoryMock.unlock.mockResolvedValueOnce([{ ...ITEMS[0], id: 10, list_id: 1 }]);
+    const user = userEvent.setup();
+    const view = await render(<ListDetailScreen />);
+    await view.findByText('Locked list');
+
+    await user.type(view.getByLabelText('Passphrase'), 'secret123');
+    await user.press(view.getByLabelText('Unlock'));
+    await view.findByText('Milk');
+
+    await user.press(view.getByLabelText('Toggle details'));
+    expect(view.getByLabelText('Note')).toBeTruthy();
+    expect(view.queryByLabelText('Add photo')).toBeNull();
+  });
+
   it('shows Change passphrase (not Lock list) for a locked list', async () => {
     setLockedListIds([1]);
     setItemsByListId(new Map());

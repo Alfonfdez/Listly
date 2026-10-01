@@ -17,7 +17,7 @@ The list's metadata (name, color, icon, kind, pinned, position, collection) stay
   only and **re-locks when you leave it**. Every edit while unlocked is re-encrypted.
 - *Change passphrase* re-seals with a fresh salt (same KDF settings) and keeps the items.
 - *Remove lock* decrypts and restores plaintext rows.
-- Photos are disallowed in locked lists (v1) so no unencrypted file can leak the contents.
+- Photos are disallowed in locked lists (v1) so no unencrypted file can leak the contents. The rule is enforced at the source: while a list is locked the add bar and edit-item modal hide the photo affordance (so photos can't enter the vault), and a plaintext list that already has photos can't be locked. *Change passphrase* is never photo-blocked (a locked list can always rotate its passphrase).
 
 ## Cryptography
 
