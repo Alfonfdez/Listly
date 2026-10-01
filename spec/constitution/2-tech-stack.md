@@ -98,7 +98,7 @@ ListlyApp/
 |   |
 |   +-- i18n/
 |   |   +-- index.ts                  <- t() / setLanguage / getLabels
-|   |   +-- en.ts / es.ts             <- translations (9 languages planned)
+|   |   +-- en.ts / es.ts / ca.ts / gl.ts / eu.ts / fr.ts / de.ts / pt.ts / it.ts   <- translations (9 languages)
 |   |
 |   +-- hooks/                        <- useFontSize, useLabels, useSelectMode, useSelectSearchHeader,
 |   |                                   useDragOrder, useItemSort, useItemPhotos, useColorSelection,

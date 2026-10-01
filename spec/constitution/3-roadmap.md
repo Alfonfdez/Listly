@@ -290,6 +290,15 @@ Configure the optional item fields (Notes, Photos) independently for standard an
 - Personalization groups the optional-field cards by kind (Standard lists / Numeric lists), eight checkboxes total.
 - Spec: spec/features/028-per-kind-optional-fields/.
 
+## 029-more-languages
+Status: done.
+
+Ship the app in the same nine languages as Finly (same order, same flags):
+- `LANGUAGES` = `en, es, ca, gl, eu, fr, de, pt, it`; the `language` config enum and `i18n/index` registry cover all nine.
+- New translation files `ca/gl/eu/fr/de/pt/it` (typed against `en`'s `Translations`, so key parity is enforced by typecheck + an i18n parity test). Shared strings are ported from Finly; Listly-only strings (collections, items, lists, vault, numeric) are translated.
+- Regional picker lists all nine in order; `lang_*` labels show each language in its own language. Native flags use emoji where available (en/es/fr/de/pt/it) and a neutral glyph for ca/gl/eu (no emoji flag); web renders SVG flags for all nine.
+- (README per language is planned as a later, separate change.)
+
 ## Future scope (not scheduled)
 - Per-list currency symbol (the numeric list is currency-agnostic for now).
 - A third "pending" (all − done) total.

@@ -1,8 +1,15 @@
 import { en, type Translations } from './en';
 import { es } from './es';
+import { ca } from './ca';
+import { gl } from './gl';
+import { eu } from './eu';
+import { fr } from './fr';
+import { de } from './de';
+import { pt } from './pt';
+import { it } from './it';
 import type { LanguageId } from '../constants/languages';
 
-const languages: Record<LanguageId, Translations> = { en, es };
+const languages: Record<LanguageId, Translations> = { en, es, ca, gl, eu, fr, de, pt, it };
 
 let currentLanguage: Translations = en;
 
