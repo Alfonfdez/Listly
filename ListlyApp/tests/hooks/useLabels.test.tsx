@@ -22,4 +22,10 @@ describe('useLabels', () => {
     const view = await render(<Probe />);
     expect(view.getByText('Settings')).toBeTruthy();
   });
+
+  it('returns the labels for a newly added language', async () => {
+    setConfig({ language: 'de' });
+    const view = await render(<Probe />);
+    expect(view.getByText('Einstellungen')).toBeTruthy();
+  });
 });

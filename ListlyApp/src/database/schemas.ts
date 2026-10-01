@@ -5,7 +5,17 @@ import { LIST_KINDS, LIST_LAYOUTS, TEXT_SIZES, THEMES } from '../constants/types
 
 const themeSchema = z.enum([THEMES.dark, THEMES.light, THEMES.system]);
 const textSizeSchema = z.enum([TEXT_SIZES.small, TEXT_SIZES.medium, TEXT_SIZES.large]);
-const languageSchema = z.enum([LANGUAGES.en, LANGUAGES.es]);
+const languageSchema = z.enum([
+  LANGUAGES.en,
+  LANGUAGES.es,
+  LANGUAGES.ca,
+  LANGUAGES.gl,
+  LANGUAGES.eu,
+  LANGUAGES.fr,
+  LANGUAGES.de,
+  LANGUAGES.pt,
+  LANGUAGES.it,
+]);
 const layoutSchema = z.enum([LIST_LAYOUTS.grid, LIST_LAYOUTS.list]);
 const listKindSchema = z.enum([LIST_KINDS.standard, LIST_KINDS.numeric]);
 

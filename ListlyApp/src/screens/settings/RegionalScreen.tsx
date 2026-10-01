@@ -19,6 +19,13 @@ export default function RegionalScreen() {
   const languageOptions: Option<LanguageId>[] = [
     { label: labels.lang_en, value: LANGUAGES.en, icon: <FlagIcon code={LANGUAGES.en} /> },
     { label: labels.lang_es, value: LANGUAGES.es, icon: <FlagIcon code={LANGUAGES.es} /> },
+    { label: labels.lang_ca, value: LANGUAGES.ca, icon: <FlagIcon code={LANGUAGES.ca} /> },
+    { label: labels.lang_gl, value: LANGUAGES.gl, icon: <FlagIcon code={LANGUAGES.gl} /> },
+    { label: labels.lang_eu, value: LANGUAGES.eu, icon: <FlagIcon code={LANGUAGES.eu} /> },
+    { label: labels.lang_fr, value: LANGUAGES.fr, icon: <FlagIcon code={LANGUAGES.fr} /> },
+    { label: labels.lang_de, value: LANGUAGES.de, icon: <FlagIcon code={LANGUAGES.de} /> },
+    { label: labels.lang_pt, value: LANGUAGES.pt, icon: <FlagIcon code={LANGUAGES.pt} /> },
+    { label: labels.lang_it, value: LANGUAGES.it, icon: <FlagIcon code={LANGUAGES.it} /> },
   ];
   const languageLabel =
     languageOptions.find(option => option.value === config.language)?.label ?? config.language;
