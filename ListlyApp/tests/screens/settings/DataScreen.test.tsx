@@ -237,7 +237,7 @@ describe('DataScreen', () => {
     expect(backupMocks.importBackup).not.toHaveBeenCalled();
   });
 
-  it('deletes all lists after a single confirmation', async () => {
+  it('requires typing DELETE in a second modal before deleting all lists', async () => {
     const user = userEvent.setup();
     const view = await render(<DataScreen />);
 
@@ -245,10 +245,30 @@ describe('DataScreen', () => {
     expect(await view.findByText('Delete all lists?')).toBeTruthy();
     await user.press(view.getByLabelText('Delete'));
 
+    expect(await view.findByText('Type DELETE to confirm')).toBeTruthy();
+    expect(dbMocks.clearDataKeepSettings).not.toHaveBeenCalled();
+
+    const input = view.getByLabelText('Type DELETE to confirm');
+    await user.type(input, 'DELETE');
+    await user.press(view.getByLabelText('Delete'));
+
     await waitFor(() => expect(dbMocks.clearDataKeepSettings).toHaveBeenCalled());
     expect(getAppStub().refresh).toHaveBeenCalled();
     expect(getConfigStub().reload).not.toHaveBeenCalled();
     await waitFor(() => expect(alertSpy).toHaveBeenCalledWith('All lists deleted.'));
+  });
+
+  it('cancels the typed delete-all modal without deleting', async () => {
+    const user = userEvent.setup();
+    const view = await render(<DataScreen />);
+
+    await user.press(view.getByLabelText('Delete all lists'));
+    await user.press(view.getByLabelText('Delete'));
+    await view.findByText('Type DELETE to confirm');
+    await user.press(view.getByLabelText('Cancel'));
+
+    expect(view.queryByText('Type DELETE to confirm')).toBeNull();
+    expect(dbMocks.clearDataKeepSettings).not.toHaveBeenCalled();
   });
 
   it('requires typing DELETE in a second modal before the factory reset runs', async () => {

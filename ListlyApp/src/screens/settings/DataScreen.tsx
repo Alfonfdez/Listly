@@ -3,7 +3,7 @@ import { Alert, ScrollView } from 'react-native';
 import { useApp } from '../../context/AppContext';
 import { useConfig } from '../../context/ConfigContext';
 import { useLabels } from '../../hooks/useLabels';
-import { FACTORY_RESET_CONFIRMATION } from '../../constants/types';
+import { DESTRUCTIVE_CONFIRMATION } from '../../constants/types';
 import { ShareResult } from '../../constants/shareResult';
 import { isAndroidPlatform } from '../../utils/platform';
 import { logError, ERROR_SCOPE } from '../../utils/errors';
@@ -26,6 +26,7 @@ export default function DataScreen() {
 
   const [pendingImport, setPendingImport] = useState<string | null>(null);
   const [confirmAction, setConfirmAction] = useState<ConfirmAction | null>(null);
+  const [typedDeleteAllVisible, setTypedDeleteAllVisible] = useState(false);
   const [typedResetVisible, setTypedResetVisible] = useState(false);
   const [busy, setBusy] = useState(false);
 
@@ -119,6 +120,7 @@ export default function DataScreen() {
       Alert.alert(labels.settings_delete_all_error);
     } finally {
       setConfirmAction(null);
+      setTypedDeleteAllVisible(false);
       setBusy(false);
     }
   }, [busy, refresh, labels]);
@@ -155,7 +157,10 @@ export default function DataScreen() {
             message: labels.settings_delete_all_confirm_message,
             confirmLabel: labels.settings_delete_confirm,
             destructive: true,
-            onConfirm: () => void runDeleteAll(),
+            onConfirm: () => {
+              setConfirmAction(null);
+              setTypedDeleteAllVisible(true);
+            },
           }
         : confirmAction === 'reset'
           ? {
@@ -221,13 +226,27 @@ export default function DataScreen() {
         />
       ) : null}
 
+      {typedDeleteAllVisible ? (
+        <ConfirmWithTextModal
+          visible
+          title={labels.settings_delete_all_confirm_title}
+          message={labels.settings_delete_all_confirm_message}
+          hint={labels.settings_factory_reset_confirm_hint(DESTRUCTIVE_CONFIRMATION)}
+          confirmationText={DESTRUCTIVE_CONFIRMATION}
+          cancelLabel={labels.common_cancel}
+          confirmLabel={labels.settings_delete_confirm}
+          onCancel={() => setTypedDeleteAllVisible(false)}
+          onConfirm={() => void runDeleteAll()}
+        />
+      ) : null}
+
       {typedResetVisible ? (
         <ConfirmWithTextModal
           visible
           title={labels.settings_factory_reset_confirm_title}
           message={labels.settings_factory_reset_confirm_message}
-          hint={labels.settings_factory_reset_confirm_hint(FACTORY_RESET_CONFIRMATION)}
-          confirmationText={FACTORY_RESET_CONFIRMATION}
+          hint={labels.settings_factory_reset_confirm_hint(DESTRUCTIVE_CONFIRMATION)}
+          confirmationText={DESTRUCTIVE_CONFIRMATION}
           cancelLabel={labels.common_cancel}
           confirmLabel={labels.settings_delete_confirm}
           onCancel={() => setTypedResetVisible(false)}

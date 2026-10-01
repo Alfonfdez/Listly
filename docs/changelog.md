@@ -988,3 +988,10 @@ pm run test:all green.
 - Flags: native shows emoji for en/es/fr/de/pt/it and a neutral glyph for ca/gl/eu (no emoji flag exists); web renders SVG flags for all nine (Senyera, Galician, Basque added). Regional lists all nine options in order.
 - Tests: new `tests/i18n/parity.test.ts` (every language has exactly the same keys as `en`, matching function arity, no empty strings, registry matches `LANGUAGES`); `useLabels` covers a new language. `npm run test:all` green (76 files, 651 tests); typecheck + lint clean.
 - Docs: `spec/constitution/2-tech-stack.md` i18n tree; roadmap `029-more-languages`. Per-language README is a later, separate change.
+
+[2026-10-01] fix | ListlyApp/src/screens/settings/DataScreen.tsx, src/components/settings/ConfirmWithTextModal.tsx, src/constants/types.ts
+- Fix: *Delete all lists* now uses the same **two-step safeguard** as *Factory reset* — a plain confirmation followed by a modal that requires typing `DELETE` before Delete enables. Previously only factory reset was guarded, so wiping every list took a single tap.
+- The typed-confirmation input in `ConfirmWithTextModal` is now **left-aligned** (was centered), matching the app's other inputs and Finly.
+- Renamed `FACTORY_RESET_CONFIRMATION` to a generic `DESTRUCTIVE_CONFIRMATION` (both actions share the same `DELETE` token). No i18n changes (the `settings_factory_reset_confirm_hint("DELETE")` copy is reused).
+- Tests: `DataScreen.test.tsx` delete-all now asserts the typed modal is required (and cancel skips it). `npm run test:all` green (76 files, 652 tests); typecheck + lint clean.
+- Spec 005: Data section bullet + acceptance criterion updated.
