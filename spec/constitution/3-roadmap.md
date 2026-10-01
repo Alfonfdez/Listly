@@ -297,7 +297,17 @@ Ship the app in the same nine languages as Finly (same order, same flags):
 - `LANGUAGES` = `en, es, ca, gl, eu, fr, de, pt, it`; the `language` config enum and `i18n/index` registry cover all nine.
 - New translation files `ca/gl/eu/fr/de/pt/it` (typed against `en`'s `Translations`, so key parity is enforced by typecheck + an i18n parity test). Shared strings are ported from Finly; Listly-only strings (collections, items, lists, vault, numeric) are translated.
 - Regional picker lists all nine in order; `lang_*` labels show each language in its own language. Native flags use emoji where available (en/es/fr/de/pt/it) and a neutral glyph for ca/gl/eu (no emoji flag); web renders SVG flags for all nine.
-- (README per language is planned as a later, separate change.)
+- The multilingual README (English + eight translations) ships under 030.
+
+## 030-multilingual-readme
+Status: done.
+
+Ship a full multilingual README for the project (mirroring Finly), documenting the released app:
+- Nine files at the repo root: `README.md` (English) + `README.{es,ca,gl,eu,fr,de,pt,it}.md`, each with a language bar linking the other eight and identical section headings.
+- Sections: intro + info table (platforms, version, languages, data, themes); a feature list covering features 001-029; a screenshot gallery; a tech-stack table; Development (requirements, first run, commands, testing, project layout, database, Android build, methodology); License.
+- `images/screenshots/` holds the real **375x812** captures of the web build in **dark mode** (Home empty/populated, drawer with the app version, create list, list detail, numeric list, add-item expanded, item edit, collections/lists/collection detail, lock + locked, select mode, settings hub/appearance/language/regional/personalization/data).
+- Small app change for parity + the screenshot: the drawer shows `v{Constants.expoConfig?.version}` (`v1.0.0`) right-aligned at the bottom, via the new `expo-constants` dependency.
+- Spec: this roadmap entry (the README is a docs deliverable, not a feature folder).
 
 ## Future scope (not scheduled)
 - Per-list currency symbol (the numeric list is currency-agnostic for now).

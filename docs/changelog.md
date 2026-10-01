@@ -995,3 +995,8 @@ pm run test:all green.
 - Renamed `FACTORY_RESET_CONFIRMATION` to a generic `DESTRUCTIVE_CONFIRMATION` (both actions share the same `DELETE` token). No i18n changes (the `settings_factory_reset_confirm_hint("DELETE")` copy is reused).
 - Tests: `DataScreen.test.tsx` delete-all now asserts the typed modal is required (and cancel skips it). `npm run test:all` green (76 files, 652 tests); typecheck + lint clean.
 - Spec 005: Data section bullet + acceptance criterion updated.
+
+[2026-10-01] + | ListlyApp/src/navigation/AppNavigator.tsx, ListlyApp/package.json, README.md + README.{es,ca,gl,eu,fr,de,pt,it}.md, images/screenshots/*
+- Docs/release: added the full **multilingual README** (English + 8 translations, nine files total mirroring Finly) with a language bar, an info table, a feature list (features 001-029), a screenshot gallery, a tech-stack table, and Development/Testing/Database/Android-build/Methodology sections. All screenshots are real 375x812 captures of the web build in **dark mode** under `images/screenshots/`.
+- App (small, for the screenshot + Finly parity): the drawer now shows the app version (`v{Constants.expoConfig?.version}` = `v1.0.0`) right-aligned at the bottom, mirroring Finly. Added the `expo-constants` dependency to read the version.
+- No behavior change beyond the drawer version label; docs-only otherwise. `npm run test:all` green (76 files, 652 tests); typecheck + lint clean.

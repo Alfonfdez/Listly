@@ -1,5 +1,6 @@
 import { Text, View, StyleSheet, Image } from 'react-native';
 import { memo, useEffect, useMemo, type ComponentType } from 'react';
+import Constants from 'expo-constants';
 import { Ionicons } from '@expo/vector-icons';
 import { NavigationContainer, useNavigation, CommonActions } from '@react-navigation/native';
 import {
@@ -121,6 +122,9 @@ function CustomDrawerContent(props: DrawerContentComponentProps) {
           )
         )}
       </DrawerContentScrollView>
+      <Text style={[styles.drawerVersion, { color: c.textSecondary, fontSize: fs(11) }]}>
+        v{Constants.expoConfig?.version}
+      </Text>
     </View>
   );
 }
@@ -235,6 +239,11 @@ const styles = StyleSheet.create({
     height: 1,
     marginVertical: 8,
     marginHorizontal: 16,
+  },
+  drawerVersion: {
+    textAlign: 'right',
+    paddingVertical: 12,
+    paddingRight: 16,
   },
   headerTitleRow: {
     flexDirection: 'row',
