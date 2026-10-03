@@ -44,6 +44,15 @@ Types: `feat`, `fix`, `refactor`, `docs`, `style`, `test`, `chore`
 - Description in English, imperative mood, lowercase, no period
 - Max 50 chars for subject line
 
+## CHANGELOG
+Every code/asset change appends an entry to `docs/changelog.md`. **Always use the script** (never hand-edit):
+```bash
+node scripts/append-changelog.mjs --type <type> --files "<paths>" --bullet "<line>"
+```
+- `--type`: `+` (added), `~` (modified), `-` (removed), or `feat`/`fix`/`docs`/`refactor`/`style`/`test`/`chore`.
+- `--bullet` repeatable (one line each); `--dry-run` to preview; `--date` optional.
+- The script guarantees a blank line between entries, CRLF, and refuses to write if the existing tail looks truncated. See the `changelog` skill.
+
 ## RUN
 ```bash
 cd ListlyApp

@@ -1028,3 +1028,17 @@ pm run test:all green.
 - `programming-concepts.md`: added `useRef`, `useEffect`, typed translation packs (key-parity), `Keyboard avoidance`, `Debounce`, `Set`, `Array.prototype.reduce`, `Regular expressions`, and a new **Release and build (EAS)** section (EAS Build, CNG/`expo prebuild`, debug vs release signing, `versionCode` vs `versionName`, build profiles, `expo doctor`); refreshed the i18n entry for the nine languages.
 - `2-tech-stack.md`: `@expo/vector-icons` notes the explicit `expo-font` peer dependency; `expo-clipboard` notes numeric-copy amounts/totals; new "Release" section (EAS profiles, version metadata, CNG, `expo-doctor`).
 - Docs only, no code change. `npm run test:all` green (76 files, 670 tests). Verified on web at 375px: numeric copy (032) with localized footer, amount blank-on-focus + save (033), locked-list screen, and language switch (es -> en), 0 console errors.
+
+[2026-10-02] fix | ListlyApp/scripts/gen-assets.mjs, ListlyApp/assets/{splash-icon,icon,favicon,android-icon-foreground,android-icon-monochrome}.png
+- Fix: the **splash screen icon looked tiny**. The splash PNG rendered the mark at `scale(0.42)`, so the logo filled only **23%** of the 1024 canvas (Finly's splash fills ~54%). Bumped the splash scale to `1.0` so the mark now fills **~55%** of the canvas width, matching Finly's weight; same filename and 1024x1024 canvas, so no `app.json`/config change.
+- Also fixed mark **centering**: the mark was authored ~43px left of the canvas center; the `dotX` anchor is now derived so the content midpoint sits exactly on `cx`. The splash is now `L232 R232 T298 B298` (was `L189 R276`).
+- Regenerated the five mark-bearing assets via `gen-assets.mjs` (splash-icon 12.0 KB -> 23.4 KB; icon/favicon/foreground/monochrome recentered). `android-icon-background.png` (flat color) is unchanged.
+- Assets + generation script only, no app code. `npm run test:all` green (76 files, 670 tests). Local release APK rebuilt (prebuild + assembleRelease) to verify the new splash on device.
+
+[2026-10-03] chore | scripts/append-changelog.mjs, .agents/skills/changelog/SKILL.md, AGENTS.md
+- Added `scripts/append-changelog.mjs`: a deterministic appender for `docs/changelog.md` (blank line between entries, CRLF, single trailing newline, and a guard that refuses to write when the existing tail looks truncated).
+- Rewrote the `changelog` skill and added an AGENTS.md CHANGELOG section to always use the script instead of hand-editing (the hand-edit approach had produced a missing blank line and a lost trailing period).
+
+[2026-10-03] chore | scripts/append-changelog.mjs, .agents/skills/changelog/SKILL.md
+- Made the appender shell-safe: added `--bullets-file <path>` and `--stdin` so bullets with backticks, `$`, or quotes pass through verbatim instead of being mangled by PowerShell quoting; `--stdin` accepts a full entry (`[date] type | files` header + bullets) or bullets-only paired with `--type`/`--files`.
+- Verified all three modes (repeated `--bullet`, `--bullets-file`, `--stdin`), plus `--dry-run` and the truncated-tail guard. Documented the shell-safe usage in the `changelog` skill.
