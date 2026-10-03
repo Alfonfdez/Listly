@@ -18,7 +18,7 @@ Tot funciona **al dispositiu**: les teves dades viuen en una base de dades SQLit
 
 - **Llistes** — crea tantes llistes com vulguis, cadascuna amb la seva icona i color, i tria entre dos tipus de llista: **Estàndard** (de verificació) o **Numèrica**, amb un import i una quantitat per element.
 - **Elements** — afegeix elements ràpidament des de la barra inferior, marca'ls i obre un element per afegir-hi una **nota** o una **foto** (galeria a totes les plataformes, càmera a iOS i Android).
-- **Llistes numèriques** — assigna a cada element un import i una quantitat; la capçalera de la llista mostra el **Total** i el subtotal **Fet**, i cada element mostra el seu total de línia (import × quantitat). Tocar l'import d'un element quan és buit o a `0.00` buida el camp per poder escriure un preu directament.
+- **Llistes numèriques** — assigna a cada element un import i una quantitat; la capçalera de la llista mostra una **barra de progrés per valor** juntament amb el **Total** i el subtotal **Fet**, i cada element mostra el seu total de línia (import × quantitat). Tocar l'import d'un element quan és buit o a `0.00` buida el camp per poder escriure un preu directament.
 - **Col·leccions** — agrupa llistes en col·leccions (carpetes) com *Casa* o *Feina*, i arrossega una llista sobre una col·lecció per moure-la-hi.
 - **Arrossegar i deixar anar** — reordena llistes i elements prement llargament i arrossegant; es desa mitjançant una columna `position`.
 - **Llistes blocades** — protegeix una llista amb una contrasenya; els seus elements s'encripten **al dispositiu** amb AES-256-GCM. Si oblides la contrasenya, no hi ha recuperació.
@@ -36,7 +36,7 @@ Tot funciona **al dispositiu**: les teves dades viuen en una base de dades SQLit
 ![Menú lateral](images/screenshots/03-hamburger.png)<br>*Menú lateral amb Inici, Col·leccions, Llistes i Ajustos — i la versió de l'app a baix.*<br><br>
 ![Crear llista](images/screenshots/04-create-list.png)<br>*Crear una llista: nom, tipus (Estàndard o Numèrica), icona i color.*<br><br>
 ![Detall de llista](images/screenshots/05-list-detail.png)<br>*Una llista estàndard amb elements marcats, una nota, el control d'ordre i accions per lots.*<br><br>
-![Llista numèrica](images/screenshots/06-numeric-list.png)<br>*Una llista numèrica amb Total i Fet, totals de línia i la fila d'import/cantitat.*<br><br>
+![Llista numèrica](images/screenshots/06-numeric-list-v2.png)<br>*Una llista numèrica amb barra de progrés per valor, Total i Fet, totals de línia i la fila d'import/cantitat.*<br><br>
 ![Afegir element ampliat](images/screenshots/07-add-item-expanded.png)<br>*La barra d'afegir ampliada per adjuntar una nota i fotos al nou element.*<br><br>
 ![Editar element](images/screenshots/08-item-edit.png)<br>*Editar un element: nom, nota i fotos.*<br><br>
 ![Col·leccions](images/screenshots/09b-collections.png)<br>*La pantalla de Col·leccions.*<br><br>
@@ -143,18 +143,32 @@ ListlyApp/
 - Els repositoris s'escriuen amb el query builder de Drizzle sobre el handle compartit; les files desades es validen amb esquemes Zod.
 - A la web els bytes exportats de SQLite es persisteixen a IndexedDB, així que les mateixes dades sobreviuen a les recàrregues.
 
-### Compilar un APK d'Android
+### Generar un APK / AAB d'Android (EAS Build)
 
-La carpeta nativa `android/` la genera Expo CNG (`expo prebuild`) i no es versiona:
+**Listly** fa servir EAS Build, que gestiona la clau de signatura d'Android perquè les versions consecutives comparteixin una mateixa signatura i s'actualitzin al lloc. Requereix un compte d'Expo i la CLI d'EAS:
+
+```bash
+npm install -g eas-cli
+eas login
+cd ListlyApp
+```
+
+| Perfil | Ordre | Resultat |
+|---|---|---|
+| Development | `eas build --profile development` | build de dev-client (intern) |
+| Preview | `eas build --platform android --profile preview` | APK instal·lable (intern) |
+| Production | `eas build --platform android --profile production --no-wait` | AAB publicable (botiga) |
+
+El perfil `production` d'`eas.json` fa servir `"distribution": "store"` i `"buildType": "app-bundle"`, i produeix un AAB per enviar a la botiga. `cli.appVersionSource` és `"local"`, així que les metadades de versió es llegeixen directament d'`app.json` — **augmenta `android.versionCode` (enter, estrictament creixent) i `ios.buildNumber` a cada versió**. EAS genera i desa la clau de signatura de release al primer build de producció; fes-ne una còpia amb `eas credentials` i no la pugis mai al repositori (les claus són al .gitignore).
+
+Per a una prova local ràpida pots seguir compilant un APK signat amb debug des de la carpeta nativa generada (fa servir una clau de signatura diferent, de debug — no per distribuir):
 
 ```bash
 cd ListlyApp
-npx expo prebuild --platform android
+npx expo prebuild --platform android   # regenera el projecte natiu després de canvis d'assets/config
 cd android
 ./gradlew assembleRelease   # APK → app/build/outputs/apk/release/app-release.apk
 ```
-
-Executa `npx expo prebuild --platform android` de nou sempre que canviïn `assets/` o la configuració d'icona/splash a `app.json`, si no l'APK conserva les icones antigues.
 
 ### Metodologia
 

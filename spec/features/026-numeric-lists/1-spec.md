@@ -26,7 +26,7 @@
   - **Total** — sum of `amount × quantity` over **all** items.
   - **Done** — sum of `amount × quantity` over **checked** items only.
 - Both are computed on read (never stored), summed in integer minor units and formatted with 2 decimals at display.
-- The existing `done/total` count and progress bar stay.
+- The existing `done/total` count and progress bar stay. (Feature 034 later adds a second, value-weighted progress bar between the count bar and these rows.)
 
 ### 4. Arithmetic correctness
 - All amounts are integers in minor units; multiplication/summation is done in integers and the result is only divided by 100 for display. No floating-point drift in totals.

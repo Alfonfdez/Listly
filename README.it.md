@@ -18,7 +18,7 @@ Tutto funziona **sul dispositivo**: i tuoi dati vivono in un database SQLite loc
 
 - **Liste** — crea tutte le liste che vuoi, ciascuna con la propria icona e il proprio colore, e scegli tra due tipi di lista: **Standard** (lista di controllo) o **Numerica**, con un importo e una quantità per elemento.
 - **Elementi** — aggiungi elementi rapidamente dalla barra inferiore, spuntali e apri un elemento per aggiungere una **nota** o una **foto** (galleria su tutte le piattaforme, fotocamera su iOS e Android).
-- **Liste numeriche** — assegna a ogni elemento un importo e una quantità; l'intestazione della lista mostra il **Totale** e il subtotale **Fatto**, e ogni elemento mostra il proprio totale di riga (importo × quantità). Toccando l'importo di un elemento quando è vuoto o a `0.00` il campo si svuota, così puoi digitare subito un prezzo.
+- **Liste numeriche** — assegna a ogni elemento un importo e una quantità; l'intestazione della lista mostra una **barra di avanzamento per valore** insieme al **Totale** e al subtotale **Fatto**, e ogni elemento mostra il proprio totale di riga (importo × quantità). Toccando l'importo di un elemento quando è vuoto o a `0.00` il campo si svuota, così puoi digitare subito un prezzo.
 - **Raccolte** — raggruppa le liste in raccolte (cartelle) come *Casa* o *Lavoro*, e trascina una lista su una raccolta per spostarla dentro.
 - **Trascina e rilascia** — riordina liste ed elementi con pressione prolungata e trascinamento; salvato tramite una colonna `position`.
 - **Liste bloccate** — proteggi una lista con una passphrase; i suoi elementi vengono cifrati **sul dispositivo** con AES-256-GCM. Se dimentichi la passphrase, non c'è recupero.
@@ -36,7 +36,7 @@ Tutto funziona **sul dispositivo**: i tuoi dati vivono in un database SQLite loc
 ![Menu laterale](images/screenshots/03-hamburger.png)<br>*Menu laterale con Home, Raccolte, Liste e Impostazioni — e la versione dell'app in basso.*<br><br>
 ![Crea lista](images/screenshots/04-create-list.png)<br>*Crea una lista: nome, tipo (Standard o Numerica), icona e colore.*<br><br>
 ![Dettaglio lista](images/screenshots/05-list-detail.png)<br>*Una lista standard con elementi spuntati, una nota, il controllo di ordinamento e le azioni in blocco.*<br><br>
-![Lista numerica](images/screenshots/06-numeric-list.png)<br>*Una lista numerica con Totale e Fatto, i totali di riga e la riga importo/quantità.*<br><br>
+![Lista numerica](images/screenshots/06-numeric-list-v2.png)<br>*Una lista numerica con una barra di avanzamento per valore, Totale e Fatto, i totali di riga e la riga importo/quantità.*<br><br>
 ![Aggiungi elemento espanso](images/screenshots/07-add-item-expanded.png)<br>*La barra di aggiunta espansa per allegare una nota e foto al nuovo elemento.*<br><br>
 ![Modifica elemento](images/screenshots/08-item-edit.png)<br>*Modifica di un elemento: nome, nota e foto.*<br><br>
 ![Raccolte](images/screenshots/09b-collections.png)<br>*La schermata Raccolte.*<br><br>
@@ -143,18 +143,32 @@ ListlyApp/
 - I repository sono scritti con il query builder di Drizzle sull'handle condiviso; le righe memorizzate sono validate con schemi Zod.
 - Sul web i byte SQLite esportati vengono persistiti in IndexedDB, quindi gli stessi dati sopravvivono ai ricaricamenti.
 
-### Compilare un APK Android
+### Generare un APK / AAB Android (EAS Build)
 
-La cartella nativa `android/` è generata da Expo CNG (`expo prebuild`) e non è versionata:
+**Listly** usa EAS Build, che gestisce la chiave di firma Android così le versioni successive condividono la stessa firma e si aggiornano sul posto. Richiede un account Expo e la CLI di EAS:
+
+```bash
+npm install -g eas-cli
+eas login
+cd ListlyApp
+```
+
+| Profilo | Comando | Output |
+|---|---|---|
+| Development | `eas build --profile development` | build dev-client (interno) |
+| Preview | `eas build --platform android --profile preview` | APK installabile (interno) |
+| Production | `eas build --platform android --profile production --no-wait` | AAB pubblicabile (store) |
+
+Il profilo `production` in `eas.json` usa `"distribution": "store"` e `"buildType": "app-bundle"`, producendo un AAB per l'invio allo store. `cli.appVersionSource` è `"local"`, quindi i metadati di versione sono letti direttamente da `app.json` — **incrementa `android.versionCode` (intero, strettamente crescente) e `ios.buildNumber` a ogni versione**. EAS genera e conserva la chiave di firma di release al primo build di produzione; fai un backup con `eas credentials` e non committarla mai (le chiavi sono nel .gitignore).
+
+Per un rapido test locale puoi comunque compilare un APK firmato in debug dalla cartella nativa generata (usa una chiave di firma diversa, di debug — non per la distribuzione):
 
 ```bash
 cd ListlyApp
-npx expo prebuild --platform android
+npx expo prebuild --platform android   # rigenera il progetto nativo dopo modifiche di assets/config
 cd android
 ./gradlew assembleRelease   # APK → app/build/outputs/apk/release/app-release.apk
 ```
-
-Esegui di nuovo `npx expo prebuild --platform android` ogni volta che cambiano `assets/` o la configurazione icona/splash in `app.json`, altrimenti l'APK mantiene le icone vecchie.
 
 ### Metodologia
 

@@ -31,7 +31,7 @@
 - `develop` — active development branch
 - Feature branches: `feature/NNN-description` off `develop`, merge back via PR
 - Never commit directly to `main` or `develop` — the GitHub branch rulesets require a PR (with approval) for every change.
-- The agent always suggests a branch name for each implementation (e.g., `fix/db-cleanup-bugs`, `feature/018-transactions-filter`)
+- The agent always suggests a branch name for each implementation (e.g., `fix/db-cleanup-bugs`, `feature/026-numeric-lists`)
 - The agent never creates or switches branches — the developer does. If the developer explicitly says "do not create a branch" for a task, follow that instruction.
 
 ## COMMIT CONVENTION
@@ -101,7 +101,7 @@ npx expo lint
 - Migrations run from `PRAGMA user_version` in `src/database/database.ts`, applying each step once inside a transaction.
 - Drizzle schema in `src/database/drizzle/schema.ts`; repositories written with the Drizzle query builder.
 - Every stored row is validated at the storage boundary with Zod (`src/database/schemas.ts`); `src/database/types.ts` re-exports the `z.infer` types.
-- Repositories: list, item, config (grows with each feature).
+- Repositories: list, item, config, collection, vault.
 
 ## I18N
 - Languages: English, Spanish, Catalan, Galician, Basque, French, German, Portuguese, Italian (en, es, ca, gl, eu, fr, de, pt, it).
@@ -117,10 +117,11 @@ ListlyApp/
     constants/     — Themes, types, colors, icons
     context/       — AppContext, ConfigContext (global state)
     database/      — Drizzle schema, Zod schemas, repos, migrations, types
-    i18n/          — Translations (en, es)
+    hooks/         — Custom hooks
+    i18n/          — Translations (en, es, ca, gl, eu, fr, de, pt, it)
     navigation/    — AppNavigator (Drawer + Stack)
     screens/       — Screen components (PascalCase)
-    utils/         — Formatters, platform.ts, language.ts
+    utils/         — Formatters, platform, validation, numeric
 ```
 
 ## NAMING CONVENTIONS

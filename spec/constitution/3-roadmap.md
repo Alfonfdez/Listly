@@ -265,7 +265,7 @@ Status: done.
 Lists whose items also carry a generic Amount and an integer Quantity (shopping, counting materials):
 - `lists.kind` (`'standard'` | `'numeric'`), chosen in Create List and changeable in Edit List. `items.amount_minor` (integer minor units, nullable) and `items.quantity` (INTEGER, default 0); schema `SCHEMA_VERSION` 8.
 - On a numeric list, `AddItemBar` / `ItemFormModal` / `ItemRow` show an Amount (2 decimals, cap 999,999.99), a Quantity stepper (0..99,999, starts at 1) and a read-only line total (`amount × quantity`); standard lists are unchanged.
-- The list detail header shows two read-only rows — **Total** (all items) and **Done** (checked items only) — summed in integer minor units (no float drift) and formatted with 2 decimals.
+- The list detail header shows two read-only rows — **Total** (all items) and **Done** (checked items only) — summed in integer minor units (no float drift) and formatted with 2 decimals. (Feature 034 later adds a value-weighted progress bar above these rows.)
 - Duplicate / copy-to-list / merge carry `kind` and the numeric fields (any kind into any kind); backups round-trip them with lenient defaults for older backups.
 - A numeric list's tile shows a kind badge (`calculator-outline`, accessible label `list_kind_numeric`) on Home / Lists / Collection detail, so the kind is visible without opening it; standard lists and collections show none.
 - `utils/numeric.ts` (parse/format/clamp/lineTotal/sumTotals); i18n en/es `list_kind*`, `item_amount_label`, `item_quantity_label`, `item_line_total_label`, `list_total_label`, `list_done_total_label`.
