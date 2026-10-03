@@ -18,11 +18,11 @@ Todo funciona **no dispositivo**: os teus datos viven nunha base de datos SQLite
 
 - **Listas** — crea tantas listas como queiras, cada unha coa súa icona e cor, e escolle entre dous tipos de lista: **Estándar** (de verificación) ou **Numérica**, cun importe e unha cantidade por elemento.
 - **Elementos** — engade elementos rapidamente desde a barra inferior, márcaos e abre un elemento para engadir unha **nota** ou unha **foto** (galería en todas as plataformas, cámara en iOS e Android).
-- **Listas numéricas** — asigna a cada elemento un importe e unha cantidade; a cabeceira da lista mostra o **Total** e o subtotal **Feito**, e cada elemento mostra o seu total de liña (importe × cantidade).
+- **Listas numéricas** — asigna a cada elemento un importe e unha cantidade; a cabeceira da lista mostra o **Total** e o subtotal **Feito**, e cada elemento mostra o seu total de liña (importe × cantidade). Tocar o importe dun elemento cando está baleiro ou a `0.00` baleira o campo para poder escribir un prezo directamente.
 - **Coleccións** — agrupa listas en coleccións (cartafoles) como *Casa* ou *Traballo*, e arrastra unha lista sobre unha colección para movela dentro.
 - **Arrastrar e soltar** — reordena listas e elementos premendo longo e arrastrando; gárdase mediante unha columna `position`.
 - **Listas bloqueadas** — protexe unha lista cunha contrasinal; os seus elementos cífranse **no dispositivo** con AES-256-GCM. Se esquecas a contrasinal, non hai recuperación.
-- **Duplicar, copiar e fusionar** — duplica unha lista enteira, copia unha lista con ou sen as notas, copia os elementos seleccionados a outra lista ou fusiona elementos noutra lista.
+- **Duplicar, copiar e fusionar** — duplica unha lista enteira, copia unha lista con ou sen as notas, copia os elementos seleccionados a outra lista ou fusiona elementos noutra lista. Ao copiar unha lista numérica tamén se inclúe o importe × cantidade = total de cada elemento e as sumas Total/Feito.
 - **Ordenación** — ordena unha lista manualmente, por nome ou polo momento en que se engadiu cada elemento, de forma ascendente ou descendente.
 - **Modo selección** — entra en modo selección desde a cabeceira para seleccionar varios elementos e eliminalos (ou seleccionar varias listas á vez) dunha soa vez.
 - **Busca** — filtra listas e elementos desde a busca da cabeceira en Inicio, Listas e dentro dunha lista.

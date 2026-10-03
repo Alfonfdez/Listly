@@ -95,7 +95,7 @@ Drag-to-reorder lists on Home and Lists:
 - Spec: spec/features/009-reorder-lists/.
 
 ## 010-bulk-select-delete
-Status: complete.
+Status: done.
 
 Bulk select/delete + header search:
 - Multi-select lists (long-press to enter select mode) with bottom action bar (count + delete + cancel).
@@ -307,7 +307,7 @@ Ship a full multilingual README for the project (mirroring Finly), documenting t
 - Sections: intro + info table (platforms, version, languages, data, themes); a feature list covering features 001-029; a screenshot gallery; a tech-stack table; Development (requirements, first run, commands, testing, project layout, database, Android build, methodology); License.
 - `images/screenshots/` holds the real **375x812** captures of the web build in **dark mode** (Home empty/populated, drawer with the app version, create list, list detail, numeric list, add-item expanded, item edit, collections/lists/collection detail, lock + locked, select mode, settings hub/appearance/language/regional/personalization/data).
 - Small app change for parity + the screenshot: the drawer shows `v{Constants.expoConfig?.version}` (`v1.0.0`) right-aligned at the bottom, via the new `expo-constants` dependency.
-- Spec: this roadmap entry (the README is a docs deliverable, not a feature folder).
+- Spec: spec/features/030-multilingual-readme/.
 
 ## 031-release-pipeline
 Status: done.
@@ -318,7 +318,7 @@ Prepare the v1.0.0 release: version metadata, EAS Build scaffolding, and signing
 - Signing: the official artifact is an EAS Build, which generates and stores the Android release keystore for the project so later versions share one signature and update in place, with no uninstall. Back the key up with `eas credentials`; keystores are never committed.
 - Declared `expo-font` (`~57.0.4`) so `expo doctor` passes 21/21 (peer dependency required by `@expo/vector-icons`; missing it fails the EAS build).
 - CI simplified to Finly parity (test-only: `npm ci` + `npm run test:all`).
-- Spec: this roadmap entry (release tooling/docs, not an app feature folder).
+- Spec: spec/features/031-release-pipeline/.
 
 ## 032-numeric-copy-amounts
 Status: done.

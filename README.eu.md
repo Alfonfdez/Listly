@@ -18,11 +18,11 @@ Dena **gailuan** exekutatzen da: zure datuak tokiko SQLite datu-basean bizi dira
 
 - **Zerrendak** — ahal adina zerrenda sortu, bakoitza bere ikono eta kolorearekin, eta aukeratu bi zerrenda motaren artean: **Estandarra** (kontrol-zerrenda) edo **Numerikoa**, elementu bakoitzeko zenbateko batekin eta kantitate batekin.
 - **Elementuak** — elementuak azkar gehitzen dira beheko barratik, markatu, eta ireki elementu bat **ohar** bat edo **argazki** bat gehitzeko (galeria plataforma guztietan, kamera iOS eta Android-en).
-- **Zerrenda numerikoak** — esleitu elementu bakoitzari zenbateko bat eta kantitate bat; zerrendaren goiburukoak **Guztira** eta **Eginda** azpitotala erakusten ditu, eta elementu bakoitzak bere lerro-totala (zenbatekoa × kantitatea).
+- **Zerrenda numerikoak** — esleitu elementu bakoitzari zenbateko bat eta kantitate bat; zerrendaren goiburukoak **Guztira** eta **Eginda** azpitotala erakusten ditu, eta elementu bakoitzak bere lerro-totala (zenbatekoa × kantitatea). Elementu baten zenbatekoa hutsik edo `0.00` denean ukitzean eremua husten da, prezioa zuzenean idatzi ahal izateko.
 - **Kolekzioak** — zerrendak kolekzio (karpeta)etan multzokatu, hala nola *Etxea* edo *Lana*, eta arrastatu zerrenda bat kolekzio baten gainera hara eramateko.
 - **Arrastatu eta jaregin** — berrantolatu zerrendak eta elementuak luze sakatuta eta arrastatuta; `position` zutabe baten bidez gordetzen da.
 - **Blokeatutako zerrendak** — babestu zerrenda bat pasahitz batekin; bere elementuak **gailuan** zifratzen dira AES-256-GCM-rekin. Pasahitza ahazten baduzu, ez dago berreskuratzerik.
-- **Bikoiztu, kopiatu eta batu** — bikoiztu zerrenda oso bat, kopiatu zerrenda bat oharrekin edo hauek gabe, kopiatu hautatutako elementuak beste zerrenda batera, edo batu elementuak beste zerrenda batean.
+- **Bikoiztu, kopiatu eta batu** — bikoiztu zerrenda oso bat, kopiatu zerrenda bat oharrekin edo hauek gabe, kopiatu hautatutako elementuak beste zerrenda batera, edo batu elementuak beste zerrenda batean. Zerrenda numeriko bat kopiatzean elementu bakoitzaren zenbatekoa × kantitatea = totala eta Guztira/Eginda baturak ere sartzen dira.
 - **Ordenatzea** — ordenatu zerrenda bat eskuz, izenaren arabera edo elementu bakoitza gehitu zen unekoaren arabera, gorantz edo beherantz.
 - **Hautapen modua** — sartu hautapen moduan goiburutik hainbat elementu hautatu eta ezabatzeko (edo hainbat zerrenda aldi berean hautatzeko) batean.
 - **Bilaketa** — iragazi zerrendak eta elementuak goiburuko bilaketatik Hasiera, Zerrendak eta zerrenda baten barruan.

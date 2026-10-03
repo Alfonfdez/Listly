@@ -18,11 +18,11 @@ Tot funciona **al dispositiu**: les teves dades viuen en una base de dades SQLit
 
 - **Llistes** — crea tantes llistes com vulguis, cadascuna amb la seva icona i color, i tria entre dos tipus de llista: **Estàndard** (de verificació) o **Numèrica**, amb un import i una quantitat per element.
 - **Elements** — afegeix elements ràpidament des de la barra inferior, marca'ls i obre un element per afegir-hi una **nota** o una **foto** (galeria a totes les plataformes, càmera a iOS i Android).
-- **Llistes numèriques** — assigna a cada element un import i una quantitat; la capçalera de la llista mostra el **Total** i el subtotal **Fet**, i cada element mostra el seu total de línia (import × quantitat).
+- **Llistes numèriques** — assigna a cada element un import i una quantitat; la capçalera de la llista mostra el **Total** i el subtotal **Fet**, i cada element mostra el seu total de línia (import × quantitat). Tocar l'import d'un element quan és buit o a `0.00` buida el camp per poder escriure un preu directament.
 - **Col·leccions** — agrupa llistes en col·leccions (carpetes) com *Casa* o *Feina*, i arrossega una llista sobre una col·lecció per moure-la-hi.
 - **Arrossegar i deixar anar** — reordena llistes i elements prement llargament i arrossegant; es desa mitjançant una columna `position`.
 - **Llistes blocades** — protegeix una llista amb una contrasenya; els seus elements s'encripten **al dispositiu** amb AES-256-GCM. Si oblides la contrasenya, no hi ha recuperació.
-- **Duplicar, copiar i fusionar** — duplica una llista sencera, copia una llista amb o sense les notes, copia els elements seleccionats a una altra llista o fusiona elements en una altra llista.
+- **Duplicar, copiar i fusionar** — duplica una llista sencera, copia una llista amb o sense les notes, copia els elements seleccionats a una altra llista o fusiona elements en una altra llista. En copiar una llista numèrica també s'inclou l'import × quantitat = total de cada element i les sumes Total/Fet.
 - **Ordenació** — ordena una llista manualment, per nom o pel moment en què es va afegir cada element, de manera ascendent o descendent.
 - **Mode selecció** — entra en mode selecció des de la capçalera per seleccionar diversos elements i eliminar-los (o seleccionar diverses llistes alhora) d'una sola vegada.
 - **Cerca** — filtra llistes i elements des de la cerca de la capçalera a Inici, Llistes i dins d'una llista.

@@ -23,7 +23,7 @@ node ../../Listly-app/Listly/ListlyApp/scripts/gen-assets.mjs
 | `android-icon-foreground.png` | Top layer of Android adaptive icon | 1024 × 1024 px | Keep artwork inside center **675 × 675 px** safe zone (Android crops edges) |
 | `android-icon-monochrome.png` | Android 13+ Material You wallpaper-themed icon | 1024 × 1024 px | Single-color flat version (white on transparent). Artwork inside center **675 × 675 px** safe zone |
 | `favicon.png` | Browser tab icon (web / PWA) | 1024 × 1024 px (Expo downsizes at export) | |
-| `splash-icon.png` | Centered logo during app boot (native splash) | 1024 × 1024 px | Keep artwork inside center **288 × 288 px** safe zone. Background color configured in `app.json` |
+| `splash-icon.png` | Centered logo during app boot (native splash) | 1024 × 1024 px | The mark is authored at `scale(1.0)` and fills ~55% of the canvas width, centered. Background color configured in `app.json` |
 
 ## app.json mapping
 
@@ -34,7 +34,8 @@ node ../../Listly-app/Listly/ListlyApp/scripts/gen-assets.mjs
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/android-icon-foreground.png",
-        "backgroundColor": "#FFFFFF",
+        "backgroundColor": "#E6F4FE",
+        "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
       }
     },
@@ -43,6 +44,8 @@ node ../../Listly-app/Listly/ListlyApp/scripts/gen-assets.mjs
     },
     "plugins": [
       "expo-sqlite",
+      "expo-sharing",
+      "react-native-quick-crypto",
       [
         "expo-splash-screen",
         {

@@ -18,11 +18,11 @@ Tudo funciona **no dispositivo**: os teus dados vivem numa base de dados SQLite 
 
 - **Listas** — cria tantas listas quantas quiseres, cada uma com o seu ícone e cor, e escolhe entre dois tipos de lista: **Padrão** (lista de verificação) ou **Numérica**, com um valor e uma quantidade por item.
 - **Itens** — adiciona itens rapidamente pela barra inferior, marca-os e abre um item para adicionar uma **nota** ou uma **foto** (galeria em todas as plataformas, câmara em iOS e Android).
-- **Listas numéricas** — atribui a cada item um valor e uma quantidade; o cabeçalho da lista mostra o **Total** e o subtotal **Feito**, e cada item mostra o seu total de linha (valor × quantidade).
+- **Listas numéricas** — atribui a cada item um valor e uma quantidade; o cabeçalho da lista mostra o **Total** e o subtotal **Feito**, e cada item mostra o seu total de linha (valor × quantidade). Tocar no valor de um item quando está vazio ou a `0.00` limpa o campo para poderes escrever um preço diretamente.
 - **Coleções** — agrupa listas em coleções (pastas) como *Casa* ou *Trabalho*, e arrasta uma lista para cima de uma coleção para a mover para lá.
 - **Arrastar e largar** — reordena listas e itens com toque longo e arrasto; guardado através de uma coluna `position`.
 - **Listas bloqueadas** — protege uma lista com uma palavra-passe; os seus itens são cifrados **no dispositivo** com AES-256-GCM. Se esqueceres a palavra-passe, não há recuperação.
-- **Duplicar, copiar e fundir** — duplica uma lista inteira, copia uma lista com ou sem as suas notas, copia os itens selecionados para outra lista, ou funde itens noutra lista.
+- **Duplicar, copiar e fundir** — duplica uma lista inteira, copia uma lista com ou sem as suas notas, copia os itens selecionados para outra lista, ou funde itens noutra lista. Ao copiar uma lista numérica também se inclui o valor × quantidade = total de cada item e as somas Total/Feito.
 - **Ordenação** — ordena uma lista manualmente, por nome ou pelo momento em que cada item foi adicionado, de forma ascendente ou descendente.
 - **Modo de seleção** — entra em modo de seleção pelo cabeçalho para selecionar vários itens e eliminá-los (ou selecionar várias listas de uma vez) de uma só vez.
 - **Pesquisa** — filtra listas e itens através da pesquisa do cabeçalho no Início, Listas e dentro de uma lista.

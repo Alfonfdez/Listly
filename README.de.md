@@ -18,11 +18,11 @@ Alles läuft **auf dem Gerät**: deine Daten liegen in einer lokalen SQLite-Date
 
 - **Listen** — erstelle so viele Listen wie du willst, jede mit eigenem Symbol und eigener Farbe, und wähle zwischen zwei Listenarten: **Standard** (Checkliste) oder **Numerisch**, mit einem Betrag und einer Menge pro Eintrag.
 - **Einträge** — füge Einträge schnell über die untere Leiste hinzu, hake sie ab und öffne einen Eintrag, um eine **Notiz** oder ein **Foto** anzuhängen (Galerie auf allen Plattformen, Kamera unter iOS und Android).
-- **Numerische Listen** — gib jedem Eintrag einen Betrag und eine Menge; der Listenkopf zeigt **Gesamt** und die Zwischensumme **Erledigt**, und jeder Eintrag zeigt seine Zeilensumme (Betrag × Menge).
+- **Numerische Listen** — gib jedem Eintrag einen Betrag und eine Menge; der Listenkopf zeigt **Gesamt** und die Zwischensumme **Erledigt**, und jeder Eintrag zeigt seine Zeilensumme (Betrag × Menge). Tippst du den Betrag eines Eintrags an, wenn er leer oder `0.00` ist, wird das Feld geleert, damit du einen Preis direkt eingeben kannst.
 - **Sammlungen** — gruppiere Listen in Sammlungen (Ordner) wie *Zuhause* oder *Arbeit*, und ziehe eine Liste auf eine Sammlung, um sie hineinzulegen.
 - **Drag & Drop** — sortiere Listen und Einträge per Langdrücken und Ziehen neu; gespeichert über eine Spalte `position`.
 - **Gesperrte Listen** — schütze eine Liste mit einer Passphrase; ihre Einträge werden **auf dem Gerät** mit AES-256-GCM verschlüsselt. Wenn du die Passphrase vergisst, gibt es keine Wiederherstellung.
-- **Duplizieren, Kopieren & Zusammenführen** — dupliziere eine ganze Liste, kopiere eine Liste mit oder ohne ihre Notizen, kopiere ausgewählte Einträge in eine andere Liste oder führe Einträge in eine andere Liste zusammen.
+- **Duplizieren, Kopieren & Zusammenführen** — dupliziere eine ganze Liste, kopiere eine Liste mit oder ohne ihre Notizen, kopiere ausgewählte Einträge in eine andere Liste oder führe Einträge in eine andere Liste zusammen. Beim Kopieren einer numerischen Liste werden auch Betrag × Menge = Zeilensumme je Eintrag sowie die Gesamt-/Erledigt-Summen übernommen.
 - **Sortierung** — sortiere eine Liste manuell, nach Name oder nach dem Zeitpunkt, an dem jeder Eintrag hinzugefügt wurde, auf- oder absteigend.
 - **Auswahlmodus** — wechsle über den Kopf in den Auswahlmodus, um mehrere Einträge auszuwählen und zu löschen (oder mehrere Listen auf einmal auszuwählen).
 - **Suche** — filtere Listen und Einträge über die Kopf-Suche auf Start, Listen und innerhalb einer Liste.

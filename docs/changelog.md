@@ -1042,3 +1042,8 @@ pm run test:all green.
 [2026-10-03] chore | scripts/append-changelog.mjs, .agents/skills/changelog/SKILL.md
 - Made the appender shell-safe: added `--bullets-file <path>` and `--stdin` so bullets with backticks, `$`, or quotes pass through verbatim instead of being mangled by PowerShell quoting; `--stdin` accepts a full entry (`[date] type | files` header + bullets) or bullets-only paired with `--type`/`--files`.
 - Verified all three modes (repeated `--bullet`, `--bullets-file`, `--stdin`), plus `--dry-run` and the truncated-tail guard. Documented the shell-safe usage in the `changelog` skill.
+
+[2026-10-03] docs | docs/assets.md, spec/constitution/3-roadmap.md, README.md, README.es.md, README.ca.md, README.gl.md, README.eu.md, README.fr.md, README.de.md, README.pt.md, README.it.md
+- Documentation sync before the v1.0.0 release. `docs/assets.md`: the `app.json` snippet now matches reality (`adaptiveIcon.backgroundColor` `#E6F4FE`, plus `backgroundImage`/`monochromeImage` and the `react-native-quick-crypto` plugin), and the splash row reflects the new larger/centered mark (~55% of the canvas) instead of the old 288x288 safe-zone note.
+- `spec/constitution/3-roadmap.md`: fixed `010` status `complete.` -> `done.`; corrected the `030` and `031` "not a feature folder" sentences to point at their real `spec/features/030-multilingual-readme/` and `spec/features/031-release-pipeline/` folders.
+- `README.md` + the eight translations: the numeric-lists bullet notes the amount field clears on focus when empty/`0.00` (033), and the copy/duplicate bullet notes numeric copy includes amount x quantity = line total plus the Total/Done sums (032). Nine-language parity maintained.
