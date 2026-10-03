@@ -48,6 +48,18 @@ export const collectionRepo = {
     );
   },
 
+  // See listRepo.reorderFromDrag — the collections twin (spec 021 "A2").
+  async reorderFromDrag(orderedIds: number[], draggedId: number, pin: boolean | null): Promise<void> {
+    await write(async db => {
+      if (pin !== null) {
+        await db.update(collections).set({ pinned: pin ? 1 : 0 }).where(eq(collections.id, draggedId)).run();
+      }
+      for (let i = 0; i < orderedIds.length; i++) {
+        await db.update(collections).set({ position: i }).where(eq(collections.id, orderedIds[i])).run();
+      }
+    });
+  },
+
   async setPinned(id: number, pinned: boolean): Promise<void> {
     await read(async db => {
       await db.update(collections).set({ pinned: pinned ? 1 : 0 }).where(eq(collections.id, id)).run();

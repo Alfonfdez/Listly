@@ -9,7 +9,7 @@ interface Options {
 }
 
 export function useListsDrag({ refresh, inCollectionDetail, filteredLists }: Options) {
-  const dropZones = useCollectionDropZones({ refresh, inCollectionDetail });
+  const dropZones = useCollectionDropZones({ refresh, inCollectionDetail, items: filteredLists });
   const { display: displayLists, onDragEnd: handleDragEnd } = useDragOrder(
     filteredLists,
     dropZones.handleListsDragEnd

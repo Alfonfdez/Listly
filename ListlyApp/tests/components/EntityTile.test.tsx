@@ -173,6 +173,17 @@ describe('EntityTile', () => {
     expect(onPress).toHaveBeenCalled();
     expect(flattenStyle(view.getByLabelText('Groceries').props.style).opacity).toBeUndefined();
   });
+
+  it('shows an accent border when pinZoneHint is set', async () => {
+    const plain = await renderTile(LIST);
+    const hinted = await renderTile(LIST, { pinZoneHint: true });
+
+    const plainBorder = flattenStyle(plain.getByLabelText('Groceries').props.style).borderColor;
+    const hintedBorder = flattenStyle(hinted.getByLabelText('Groceries').props.style).borderColor;
+
+    expect(hintedBorder).toBeTruthy();
+    expect(hintedBorder).not.toBe(plainBorder);
+  });
 });
 
 function flattenStyle(style: unknown): Record<string, unknown> {

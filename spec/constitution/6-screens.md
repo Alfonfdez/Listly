@@ -11,6 +11,7 @@ Listly 1.0 screens. Each maps to a feature spec (`spec/features/<NNN>-…/`) wit
 - Empty state when there are no collections and no lists.
 - Tapping a list → List detail; tapping a collection → Collection detail.
 - Select mode (header toggle) selects collections and standalone lists together for a combined delete.
+- Pinning (select-mode star action) floats items to the top of their section; the grid/list re-measures immediately so reordered cards never overlap. Dragging a card across the pinned boundary toggles its pin (drop at/above the block pins, drop below unpins) and keeps the dropped position; the pinned block is tinted as a drop hint.
 
 ## 2. Lists (007-home-and-nav-polish, 016-collections)
 - Drawer screen listing all lists as full-width rows (icon, name, progress).

@@ -55,7 +55,10 @@ interface Overrides {
   deleteConfirmVisible?: boolean;
 }
 
-function renderView(overrides: Overrides = {}) {
+let lastViewProps: Record<string, unknown> = {};
+let lastView: Awaited<ReturnType<typeof render>> | null = null;
+
+async function renderView(overrides: Overrides = {}) {
   const props = {
     variant: overrides.variant ?? 'grid',
     collectionsVariant: overrides.collectionsVariant ?? 'grid',
@@ -77,7 +80,18 @@ function renderView(overrides: Overrides = {}) {
     onConfirmDelete: vi.fn(),
     selectedCount: (overrides.selectedIds?.size ?? 0) + (overrides.selectedCollectionIds?.size ?? 0),
   };
-  return render(<ListsView {...props} />);
+  lastViewProps = props;
+  lastView = await render(<ListsView {...props} />);
+  return lastView;
+}
+
+// Re-render the last mounted ListsView (same instance) so it re-reads the
+// (mutated) app stub — used to simulate the post-pin refresh.
+async function rerenderView() {
+  if (!lastView) throw new Error('renderView must run first');
+  return lastView.rerender(
+    <ListsView {...(lastViewProps as unknown as Parameters<typeof ListsView>[0])} />
+  );
 }
 
 const COLLECTIONS: CollectionWithCounts[] = [
@@ -98,6 +112,7 @@ describe('ListsView', () => {
     vi.mocked(listRepo.setPinned).mockClear();
     vi.mocked(collectionRepo.setPinned).mockClear();
     nav.navigate.mockClear();
+    lastView = null;
     setLists(LISTS);
     setBaseLists(LISTS);
     setItemsByListId(new Map([[1, items(['Milk', 'Coffee beans'])]]));
@@ -509,5 +524,31 @@ const onToggleItem = vi.fn();
     expect(within(pin).getByText('star')).toBeTruthy();
     fireEvent.press(pin);
     expect(collectionRepo.setPinned).toHaveBeenCalledWith(10, true);
+  });
+
+  it('reflows to the pinned-first order after pinning (grid data follows the new sequence)', async () => {
+    const view = await renderView({ selectMode: true, selectedIds: new Set([2]) });
+    await view.findByText('Work Tasks');
+    const gridIds = () => (lastGrid()?.data as ListWithCounts[] | undefined)?.map(l => l.id);
+    expect(gridIds()).toEqual([1, 2]);
+
+    // Pin list 2. The repo pins it and the app refreshes with the pinned-first
+    // canonical order (desc(pinned), position, id) — 2 now floats above 1.
+    fireEvent.press(view.getByLabelText('Pin'));
+    expect(listRepo.setPinned).toHaveBeenCalledWith(2, true);
+
+    const pinnedFirst: ListWithCounts[] = [
+      { ...LISTS[1], pinned: 1 },
+      { ...LISTS[0] },
+    ];
+    setLists(pinnedFirst);
+    setBaseLists(pinnedFirst);
+    await act(async () => {
+      await rerenderView();
+    });
+
+    await waitFor(() => {
+      expect(gridIds()).toEqual([2, 1]);
+    });
   });
 });

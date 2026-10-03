@@ -32,7 +32,7 @@ describe('useDragOrder', () => {
 
     await act(() => result.current.onDragEnd(dragParams([item(3), item(1), item(2)])));
 
-    expect(onReorder).toHaveBeenCalledWith([3, 1, 2]);
+    expect(onReorder).toHaveBeenCalledWith([3, 1, 2], expect.objectContaining({ data: expect.any(Array) }));
     expect(result.current.display.map(i => i.id)).toEqual([3, 1, 2]);
   });
 
@@ -72,5 +72,25 @@ describe('useDragOrder', () => {
     });
 
     expect(result.current.display.map(i => i.id)).toEqual([2, 3]);
+  });
+
+  it('follows the incoming order when the sequence changes outside a drag (same set)', async () => {
+    const onReorder = vi.fn();
+    const { result, rerender } = await renderHook(
+      ({ items }: { items: Item[] }) => useDragOrder(items, onReorder),
+      { initialProps: { items: [item(1), item(2), item(3)] } }
+    );
+
+    // our own drag sets an optimistic order [3,1,2]
+    await act(() => result.current.onDragEnd(dragParams([item(3), item(1), item(2)])));
+    expect(result.current.display.map(i => i.id)).toEqual([3, 1, 2]);
+
+    // an EXTERNAL reorder (e.g. pin floats 2 to the top) arrives via items
+    await act(async () => {
+      rerender({ items: [item(2), item(3), item(1)] });
+    });
+
+    // the stale optimistic order is dropped → display follows the new items
+    expect(result.current.display.map(i => i.id)).toEqual([2, 3, 1]);
   });
 });

@@ -215,6 +215,41 @@ describe('listRepo.setPinned and ordering', () => {
     expect(restored?.collection_id).toBeNull();
     expect(restored?.pinned).toBe(1);
   });
+
+  it('reorderFromDrag pins an unpinned list dropped above the block and keeps the dropped order', async () => {
+    const a = await b.lists.create({ name: 'A', color: '#22D3EE', icon: 'cart-outline' });
+    const p = await b.lists.create({ name: 'P', color: '#34D399', icon: 'gift-outline' });
+    await b.lists.setPinned(p.id, true);
+    const z = await b.lists.create({ name: 'Z', color: '#F87171', icon: 'rocket-outline' });
+    // display: [P, A, Z] (pinned first). Drag Z above P and drop as the new first.
+    const order = [z.id, p.id, a.id];
+    await b.lists.reorderFromDrag(order, z.id, true);
+
+    expect((await b.lists.get(z.id))?.pinned).toBe(1);
+    expect((await b.lists.list()).map(l => l.name)).toEqual(['Z', 'P', 'A']);
+  });
+
+  it('reorderFromDrag unpins a pinned list dropped below the block', async () => {
+    const a = await b.lists.create({ name: 'A', color: '#22D3EE', icon: 'cart-outline' });
+    const p = await b.lists.create({ name: 'P', color: '#34D399', icon: 'gift-outline' });
+    await b.lists.setPinned(p.id, true);
+    const z = await b.lists.create({ name: 'Z', color: '#F87171', icon: 'rocket-outline' });
+    // display: [P, A, Z]. Drag P to the end and drop as last.
+    const order = [a.id, z.id, p.id];
+    await b.lists.reorderFromDrag(order, p.id, false);
+
+    expect((await b.lists.get(p.id))?.pinned).toBe(0);
+    expect((await b.lists.list()).map(l => l.name)).toEqual(['A', 'Z', 'P']);
+  });
+
+  it('reorderFromDrag with a null pin just reorders', async () => {
+    const a = await b.lists.create({ name: 'A', color: '#22D3EE', icon: 'cart-outline' });
+    const c = await b.lists.create({ name: 'C', color: '#F87171', icon: 'rocket-outline' });
+    await b.lists.reorderFromDrag([c.id, a.id], c.id, null);
+
+    expect((await b.lists.get(c.id))?.pinned).toBe(0);
+    expect((await b.lists.list()).map(l => l.name)).toEqual(['C', 'A']);
+  });
 });
 
 describe('listRepo.duplicate', () => {
