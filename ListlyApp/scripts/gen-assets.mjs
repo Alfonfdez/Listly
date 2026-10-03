@@ -29,7 +29,6 @@ const SIZE = 1024;
 // row block vertically centered on 512.
 function markSvg({ mono }) {
   const cx = SIZE / 2;
-  const rowW = 620;
   const barW = 400;
   const rowH = 92;
   const gap = 168;
@@ -38,7 +37,14 @@ function markSvg({ mono }) {
   const rows = [mid - gap, mid, mid + gap];
   const checked = 1;
 
-  const dotX = cx - rowW / 2 + dotR;
+  // Center the mark on the canvas horizontally. The visual left edge is the
+  // checked row's ring (dotR + 4 radius + 9 half-stroke); the right edge is the
+  // last bar's end. Place dotX so the content midpoint sits on `cx`.
+  const ringR = dotR + 4;
+  const ringStroke = 18;
+  const leftEdge = ringR + ringStroke / 2; // distance left of dotX
+  const rightEdge = dotR + 66 + barW; // distance right of dotX
+  const dotX = cx - (rightEdge - leftEdge) / 2;
   const barX = dotX + dotR + 66;
 
   const barFill = mono ? WHITE : `url(#g)`;
@@ -94,7 +100,9 @@ await render(wrap(scaled(mark(), 0.62), {}), 'android-icon-foreground.png');
 await render(wrap('', { background: WHITE }), 'android-icon-background.png');
 // monochrome — white silhouette (check masked out), inside the safe zone.
 await render(wrap(scaled(markMono(), 0.62), { mono: true }), 'android-icon-monochrome.png');
-// splash — transparent, inside the small 288 safe zone (~42%).
-await render(wrap(scaled(mark(), 0.42), {}), 'splash-icon.png');
+// splash — transparent. The mark is wide/short (landscape), so size by width:
+// scale 1.0 fills ~54% of the canvas width (matching Finly's splash weight) and
+// leaves a comfortable vertical margin. Previously 0.42, which looked tiny.
+await render(wrap(scaled(mark(), 1.0), {}), 'splash-icon.png');
 
 console.log('done →', OUT);
