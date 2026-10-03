@@ -58,3 +58,16 @@ export function sumTotals(
   }
   return total;
 }
+
+// Value-weighted progress (0..100): the share of the total money checked off.
+// Guards a non-positive total (returns 0).
+export function valueProgressPercent(totalMinor: number, doneMinor: number): number {
+  if (totalMinor <= 0) return 0;
+  return Math.max(0, Math.min(100, (doneMinor / totalMinor) * 100));
+}
+
+// Formats a percentage with two decimals and a dot separator (locale-agnostic,
+// matching the numeric UI): 13.958.. -> "13.96".
+export function formatPercent2(pct: number): string {
+  return (Math.round(pct * 100) / 100).toFixed(2);
+}

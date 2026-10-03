@@ -17,7 +17,7 @@ import { uniqueNormalizedNames } from '../utils/validation';
 import { filterItemsByQuery } from '../utils/search';
 import { parseItemPhotos } from '../utils/itemPhotos';
 import { isOn } from '../utils/flags';
-import { sumTotals } from '../utils/numeric';
+import { sumTotals, formatMinor, valueProgressPercent } from '../utils/numeric';
 import { HIT_SLOP } from '../components/componentStyles';
 import ScreenShell from '../components/ScreenShell';
 import EmptyState from '../components/EmptyState';
@@ -193,6 +193,17 @@ export default function ListDetailScreen() {
     [numeric, items]
   );
 
+  // Value-weighted progress bar for numeric lists (spec 034): shown only when
+  // there is a total value and something with value is checked.
+  const valueProgress = useMemo(() => {
+    if (!totals || totals.all <= 0 || totals.done <= 0) return undefined;
+    return {
+      percent: valueProgressPercent(totals.all, totals.done),
+      doneText: formatMinor(totals.done),
+      totalText: formatMinor(totals.all),
+    };
+  }, [totals]);
+
   const renderItem = useCallback<SortableGridRenderItem<Item>>(
     ({ item }) => (
       <ItemRow
@@ -258,8 +269,9 @@ export default function ListDetailScreen() {
       progressLabel={labels.home_progress(done, total)}
       onEdit={() => navigation.navigate('EditList', { listId })}
       editAccessibilityLabel={labels.list_edit_label}
-      progressPercent={pct}
-      totals={totals}
+        progressPercent={pct}
+        totals={totals}
+        valueProgress={valueProgress}
       trailing={
         <View style={styles.copyGroup}>
           {!locked && items.length > 0 ? (

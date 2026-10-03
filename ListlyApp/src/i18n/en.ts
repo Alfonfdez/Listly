@@ -139,6 +139,7 @@ export const en = {
   list_kind_numeric: 'Numeric',
   list_total_label: 'Total',
   list_done_total_label: 'Done',
+  list_value_progress_label: 'Value progress',
   list_create: 'Create',
   list_name_required: 'Name is required',
   list_name_duplicate: 'A list with this name already exists',

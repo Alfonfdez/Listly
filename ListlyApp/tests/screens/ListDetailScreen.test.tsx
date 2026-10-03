@@ -1030,6 +1030,39 @@ it('disables reordering while searching', async () => {
     expect(view.getByLabelText('Done: 5.00')).toBeTruthy();
   });
 
+  it('shows the value progress bar for a numeric list with checked value', async () => {
+    setLists([{ ...LIST, kind: 'numeric' }]);
+    setItemsByListId(
+      new Map([[1, [
+        { ...ITEMS[0], amount_minor: 250, quantity: 2, checked: 1 },
+        { ...ITEMS[1], amount_minor: 100, quantity: 1, checked: 0 },
+      ]]])
+    );
+    const view = await render(<ListDetailScreen />);
+    await view.findByText('Milk');
+
+    // done 5.00 / total 6.00 → 83.33 %
+    expect(view.getByText('5.00 / 6.00')).toBeTruthy();
+    expect(view.getByText('83.33 %')).toBeTruthy();
+  });
+
+  it('hides the value bar but reserves its slot when no checked value exists', async () => {
+    setLists([{ ...LIST, kind: 'numeric' }]);
+    setItemsByListId(
+      new Map([[1, [
+        { ...ITEMS[0], amount_minor: 250, quantity: 2, checked: 0 },
+        { ...ITEMS[1], amount_minor: 100, quantity: 1, checked: 1 },
+      ]]])
+    );
+    const view = await render(<ListDetailScreen />);
+    await view.findByText('Milk');
+
+    // done value = 0 (the only checked item has no value) → bar hidden
+    expect(view.queryByText('5.00 / 6.00')).toBeNull();
+    // slot reserved so the header height stays stable
+    expect(view.getByTestId('value-bar-slot')).toBeTruthy();
+  });
+
   it('does not show amount/quantity/totals for a standard list', async () => {
     setLists([{ ...LIST, kind: 'standard' }]);
     setItemsByListId(new Map([[1, [{ ...ITEMS[0], amount_minor: 250, quantity: 2 }]]]));

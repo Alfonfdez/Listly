@@ -141,6 +141,7 @@ export const ca: Translations = {
   list_kind_numeric: 'Numèrica',
   list_total_label: 'Total',
   list_done_total_label: 'Fet',
+  list_value_progress_label: 'Progrés de valor',
   list_create: 'Crea',
   list_name_required: 'El nom és obligatori',
   list_name_duplicate: 'Ja existeix una llista amb aquest nom',

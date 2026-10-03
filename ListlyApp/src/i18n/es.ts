@@ -142,6 +142,7 @@ export const es: Translations = {
   list_kind_numeric: 'Numérica',
   list_total_label: 'Total',
   list_done_total_label: 'Hecho',
+  list_value_progress_label: 'Progreso de valor',
   list_create: 'Crear',
   list_name_required: 'El nombre es obligatorio',
   list_name_duplicate: 'Ya existe una lista con este nombre',
