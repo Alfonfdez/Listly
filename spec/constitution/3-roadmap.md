@@ -340,6 +340,15 @@ Stop forcing users to delete a pre-filled `0.00` before typing an amount when ed
 - Logic lives in `useItemDraft` (shared by the edit modal and the add bar); `ItemAmountField` only forwards `onFocus`/`onBlur`. Quantity (a stepper) is unchanged; no way to clear an amount to "no amount".
 - Spec: spec/features/033-amount-blank-on-focus/.
 
+## 034-value-progress-bar
+Status: done.
+
+Add a second, value-weighted progress bar to numeric list headers:
+- Below the existing item-count bar, numeric lists show a value bar whose fill is `doneValue / totalValue` (sum of checked value over total value), with the numbers (`3.20 / 22.93`) and a right-aligned percentage to two decimals (dot separator). No currency symbol.
+- Shown only when the list is numeric and both total and done values are greater than zero; hidden otherwise (non-numeric, total 0, or done 0). The slot is **space-reserved** on numeric lists so toggling items never reflows the header.
+- Pure helpers `valueProgressPercent` / `formatPercent2` in `src/utils/numeric.ts`; no DB/repo changes. A11y label `list_value_progress_label`.
+- Spec: spec/features/034-value-progress-bar/.
+
 ## Future scope (not scheduled)
 - Per-list currency symbol (the numeric list is currency-agnostic for now).
 - A third "pending" (all − done) total.

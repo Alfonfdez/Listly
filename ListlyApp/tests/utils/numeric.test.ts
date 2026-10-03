@@ -3,10 +3,12 @@ import {
   clampAmountMinor,
   clampQuantity,
   formatMinor,
+  formatPercent2,
   lineTotalMinor,
   parseAmountInput,
   sanitizeAmountText,
   sumTotals,
+  valueProgressPercent,
 } from '../../src/utils/numeric';
 import { MAX_AMOUNT_MINOR, MAX_QUANTITY } from '../../src/constants/types';
 
@@ -77,5 +79,20 @@ describe('numeric utils', () => {
     expect(sanitizeAmountText('9999999')).toBe('999999');
     expect(sanitizeAmountText('12345678.99')).toBe('123456.99');
     expect(sanitizeAmountText('999999.999')).toBe('999999.99');
+  });
+
+  it('computes value progress percent with a positive-total guard', () => {
+    expect(valueProgressPercent(2293, 320)).toBeCloseTo(13.956, 3);
+    expect(valueProgressPercent(2293, 2293)).toBe(100);
+    expect(valueProgressPercent(2293, 0)).toBe(0);
+    expect(valueProgressPercent(0, 500)).toBe(0);
+    expect(valueProgressPercent(-10, 5)).toBe(0);
+  });
+
+  it('formats percent with two decimals and a dot', () => {
+    expect(formatPercent2(valueProgressPercent(2293, 320))).toBe('13.96');
+    expect(formatPercent2(100)).toBe('100.00');
+    expect(formatPercent2(0)).toBe('0.00');
+    expect(formatPercent2(100 / 3)).toBe('33.33');
   });
 });

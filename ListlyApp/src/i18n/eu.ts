@@ -141,6 +141,7 @@ export const eu: Translations = {
   list_kind_numeric: 'Zenbakizkoa',
   list_total_label: 'Guztira',
   list_done_total_label: 'Eginda',
+  list_value_progress_label: 'Balioaren aurrerapena',
   list_create: 'Sortu',
   list_name_required: 'Izena beharrezkoa da',
   list_name_duplicate: 'Izen hori duen zerrenda bat badago jada',

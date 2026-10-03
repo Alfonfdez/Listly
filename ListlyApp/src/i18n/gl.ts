@@ -141,6 +141,7 @@ export const gl: Translations = {
   list_kind_numeric: 'Numérica',
   list_total_label: 'Total',
   list_done_total_label: 'Feito',
+  list_value_progress_label: 'Progreso de valor',
   list_create: 'Crear',
   list_name_required: 'O nome é obrigatorio',
   list_name_duplicate: 'Xa existe unha lista con este nome',
