@@ -25,6 +25,12 @@
 ### 4. Star indicator
 - Pinned lists and collections render a filled `star` icon (theme token `c.star`, amber) inline after the name on both grid cards (`ListCard`, `CollectionCard`) and rows (`ListRow`, `CollectionRow`), also while in select mode so pinning/unpinning gives immediate visual feedback (the `SelectionCheck` badge sits in the corner, the star stays inline). Accessibility label `home_pinned`.
 
+### 5. Immediate reflow + cross-boundary pin toggle on drag (A2)
+- Pinning/unpinning reorders the items (pinned first) **without leaving select mode**; the grid/list must **re-measure and re-layout immediately** so the reordered cards never overlap or keep stale slots. The sortable grids are keyed on the **ordered** item ids (not the sorted set), so an order-only change remounts them; the key is **frozen during an active drag** so an in-flight reorder does not force a mid-gesture remount.
+- **Cross-boundary drop toggles the pin:** dragging a single item so it lands **at or above the pinned block** **pins** it; dragging a pinned item so it lands **below the block** **unpins** it; a move that stays within its group keeps the flag. The dropped order is preserved (no snap-back), and the change is applied atomically (position + `pinned`) and refreshed — the result is **deterministic** (no optimistic-order/refresh race).
+- While a **non-pinned** card is being dragged, the pinned block shows a **faint accent tint/border** hinting that dropping there pins it.
+- Applies to every lists/collections grid: Home, Lists (grid + list layouts), Collections, and Collection detail. Group drags (rare) fall back to a plain reorder without a pin toggle; items (which have no pin) are unaffected.
+
 ### 5. Backup
 - `pinned` is serialized on export and restored on import for both tables.
 - Backups from before this feature (schema 5, no `pinned` row) import successfully with `pinned: 0` (lenient `backupPinnedSchema` default), so data never downgrades.
@@ -37,7 +43,7 @@
 ## Non-functional requirements
 
 - **TypeScript strict**, no `any`; theme `star` token added to both palettes (dark `#F9A825`, light `#F59E0B`) exposed through `useConfig`; `ERROR_SCOPE.pinLists` / `ERROR_SCOPE.unpinLists`; no new dependencies.
-- **Tests**: repo tests (`setPinned` + pinned-first ordering for `list()`/`withCounts()`, `create` returns 0, move/remove keep the flag, unpin restores order); backup tests (pinned round-trip, legacy schema-5 backup imports unpinned); component tests (star on pinned cards/rows, hidden when unpinned and kept visible in select mode; action-bar pin button render/press/disabled); `ListsView` select-flow tests (Pin/Unpin labels, pin/unpin calls for lists and collections).
+- **Tests**: repo tests (`setPinned` + pinned-first ordering for `list()`/`withCounts()`, `create` returns 0, move/remove keep the flag, unpin restores order); backup tests (pinned round-trip, legacy schema-5 backup imports unpinned); component tests (star on pinned cards/rows, hidden when unpinned and kept visible in select mode; action-bar pin button render/press/disabled); `ListsView` select-flow tests (Pin/Unpin labels, pin/unpin calls for lists and collections); reflow regression (the grid follows the pinned-first order after refresh, and `useFrozenKey` holds the key during a drag).
 - **Verification**: `npm run test:all`; web loop at 375px (pin a list and a collection → both float to the top of their sections with an amber star; repeat → Unpin restores order; disabled at 0 selected; star persists across reload; Spanish labels; 0 console errors).
 
 ---
@@ -53,4 +59,9 @@
 - [x] `select_pin`, `select_unpin`, `home_pinned` exist in en and es.
 - [x] The action-bar star action is never clipped: the bar wraps its buttons on narrow screens with long labels (es) and scaled text.
 - [x] Pinning/unpinning from the select-mode action bar updates the amber star on the selected cards/rows immediately, without leaving select mode (lists and collections).
+- [x] Pinning/unpinning reflows the grid/list immediately (cards re-measure; no overlap or stale slots) in grid and list layouts and for collections, including Home, Lists, Collections, and Collection detail.
+- [x] Dragging a non-pinned item to or above the pinned block pins it and keeps it where it was dropped (no snap-back).
+- [x] Dragging a pinned item below the pinned block unpins it, keeping the dropped order.
+- [x] The pinned block shows a faint accent tint/border while a non-pinned card is being dragged.
+- [x] The drop result is deterministic (no random re-sort between drags).
 - [x] `npm run test:all` passes.

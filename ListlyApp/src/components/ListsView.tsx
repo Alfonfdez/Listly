@@ -9,6 +9,8 @@ import { useLabels } from '../hooks/useLabels';
 import { useListsViewData } from '../hooks/useListsViewData';
 import { useListsSelection } from '../hooks/useListsSelection';
 import { useListsDrag } from '../hooks/useListsDrag';
+import { useFrozenKey } from '../hooks/useFrozenKey';
+import { isOn } from '../utils/flags';
 import { LIST_VIEW_MODES, LIST_LAYOUTS, type NavigationProp, type ListViewMode, type ListLayout } from '../constants/types';
 import { ICONS } from '../constants/icons';
 import ScreenShell from './ScreenShell';
@@ -111,6 +113,8 @@ export default function ListsView({
   const {
     displayLists,
     handleDragEnd,
+    isDragging,
+    draggingId,
     hoverCollectionId,
     removeTargetActive,
     removeHover,
@@ -170,6 +174,15 @@ export default function ListsView({
         mode === LIST_VIEW_MODES.lists && item.collection_id != null
           ? collections.find(col => col.id === item.collection_id)
           : undefined;
+      // While dragging a NON-pinned list, tint the pinned block as a hint that
+      // dropping there pins it (spec 021 §5, A2).
+      const dragged = draggingId != null ? displayLists.find(l => l.id === draggingId) : undefined;
+      const pinZoneHint =
+        isDragging &&
+        dragged != null &&
+        !isOn(dragged.pinned) &&
+        displayLists.some(l => isOn(l.pinned)) &&
+        isOn(item.pinned);
       return (
         <EntityTile
           entity={{
@@ -190,10 +203,22 @@ export default function ListsView({
           selected={selectedIds.has(item.id)}
           onPress={() => handleTilePress(item)}
           reserveCollectionLine={mode === LIST_VIEW_MODES.lists}
+          pinZoneHint={pinZoneHint}
         />
       );
     },
-    [isGrid, selectMode, selectedIds, handleTilePress, mode, collections, lockedListIds]
+    [
+      isGrid,
+      selectMode,
+      selectedIds,
+      handleTilePress,
+      mode,
+      collections,
+      lockedListIds,
+      isDragging,
+      draggingId,
+      displayLists,
+    ]
   );
 
   const renderCollection = useCallback<SortableGridRenderItem<CollectionWithCounts>>(
@@ -234,6 +259,15 @@ export default function ListsView({
       hoverCollectionId,
     ]
   );
+
+  // Remount the sortable grids whenever the item **sequence** changes so they
+  // re-measure cleanly. The key is derived from the ordered ids (not the sorted
+  // set), because a pin/unpin reorders items without changing the set — a
+  // set-based key left the grid at stale measured positions and pinned cards
+  // overlapped the others. Keys are frozen while a drag is active (see helper).
+  // The hooks run before any early return (Rules of Hooks).
+  const listsKey = useFrozenKey(displayLists.map(item => item.id).join('-'), isDragging);
+  const collectionsKey = useFrozenKey(displayCollections.map(item => item.id).join('-'), isDragging);
 
   if (loading) {
     return (
@@ -286,13 +320,6 @@ export default function ListsView({
 
   const sortEnabled = !selectMode && !searching && displayLists.length > (inHome || inCollectionDetail ? 0 : 1);
 
-  // Remount the sortable grids when the item *set* changes (added/removed/moved
-  // out), so they re-measure cleanly. The key is derived from the sorted ids, so
-  // a pure reorder (same set) does not remount; a stale measurement after adding
-  // an item otherwise leaves cards in the wrong grid cell.
-  const listsSetKey = [...displayLists.map(item => item.id)].sort((a, b) => a - b).join('-');
-  const collectionsSetKey = [...displayCollections.map(item => item.id)].sort((a, b) => a - b).join('-');
-
   return (
     <ScreenShell>
       <View style={styles.content}>
@@ -319,7 +346,7 @@ export default function ListsView({
               )}
               {showCollectionsSection && (
                 <Sortable.Grid
-                  key={(isCollectionsGrid ? `collections-${columns}` : 'collections-list') + `-${collectionsSetKey}`}
+                  key={(isCollectionsGrid ? `collections-${columns}` : 'collections-list') + `-${collectionsKey}`}
                   data={displayCollections}
                   renderItem={renderCollection}
                   keyExtractor={item => String(item.id)}
@@ -336,7 +363,7 @@ export default function ListsView({
               )}
               {showListsSection && (
                 <Sortable.Grid
-                  key={(isGrid ? `grid-${columns}` : LIST_LAYOUTS.list) + `-${listsSetKey}`}
+                  key={(isGrid ? `grid-${columns}` : LIST_LAYOUTS.list) + `-${listsKey}`}
                   data={displayLists}
                   renderItem={renderItem}
                   keyExtractor={item => String(item.id)}

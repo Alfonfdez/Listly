@@ -1,5 +1,7 @@
 import { useMemo } from 'react';
+import type { SortableGridDragEndParams } from 'react-native-sortables';
 import { filterListsByQuery } from '../utils/search';
+import { resolvePinOnDrop } from '../utils/pinDrop';
 import { LIST_VIEW_MODES, type ListViewMode } from '../constants/types';
 import { collectionRepo } from '../database';
 import { runSafelyAsync, ERROR_SCOPE } from '../utils/errors';
@@ -52,13 +54,26 @@ export function useListsViewData({
   const { display: displayCollections, onDragEnd: handleCollectionsDragEnd } = useDragOrder(
     filteredCollections,
     useMemo(
-      () => (ids: number[]) => {
+      () => (ids: number[], params: SortableGridDragEndParams<CollectionWithCounts>) => {
         void (async () => {
-          await runSafelyAsync(collectionRepo.reorder(ids), ERROR_SCOPE.reorderCollections);
+          const hasDragMeta =
+            params != null &&
+            params.key != null &&
+            Number.isInteger(params.fromIndex) &&
+            Number.isInteger(params.toIndex);
+          if (hasDragMeta) {
+            const pin = resolvePinOnDrop(filteredCollections, params.fromIndex, params.toIndex);
+            await runSafelyAsync(
+              collectionRepo.reorderFromDrag(ids, Number(params.key), pin),
+              ERROR_SCOPE.reorderCollections
+            );
+          } else {
+            await runSafelyAsync(collectionRepo.reorder(ids), ERROR_SCOPE.reorderCollections);
+          }
           await refresh();
         })();
       },
-      [refresh]
+      [refresh, filteredCollections]
     )
   );
 

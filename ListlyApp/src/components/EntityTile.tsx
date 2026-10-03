@@ -25,6 +25,10 @@ import type { ListKind } from '../constants/types';
 type EntityKind = 'list' | 'collection';
 type EntityLayout = 'card' | 'row';
 
+// Faint accent tint (percent) applied to the pinned block while dragging a
+// non-pinned card — a hint that dropping there pins it.
+const PIN_HINT_TINT = 22;
+
 export interface TileEntity {
   id: number;
   kind: EntityKind;
@@ -47,6 +51,9 @@ interface Props {
   onPress: () => void;
   reserveCollectionLine?: boolean;
   dropTarget?: boolean;
+  // While dragging a non-pinned card, the pinned block is tinted to hint
+  // "drop here to pin" (spec 021 §5).
+  pinZoneHint?: boolean;
 }
 
 export default function EntityTile({
@@ -57,6 +64,7 @@ export default function EntityTile({
   onPress,
   reserveCollectionLine = false,
   dropTarget = false,
+  pinZoneHint = false,
 }: Props) {
   const { activeColors: c } = useConfig();
   const fs = useFontSize();
@@ -84,6 +92,7 @@ export default function EntityTile({
         isCard ? styles.card : styles.row,
         isCollection && styles.clip,
         { backgroundColor: withAlpha(entity.color, ALPHA_TINT) },
+        pinZoneHint && { borderColor: c.primary, backgroundColor: withAlpha(c.primary, PIN_HINT_TINT) },
       ]}
     >
       {isCollection ? (

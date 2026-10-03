@@ -284,6 +284,16 @@ export const es: Translations = { /* must match en exactly */ };
 />
 ```
 
+## Remount-to-remeasure (sortable grid keys)
+**Definition:** Giving a component a React `key` that changes to force it to remount (rebuild + re-measure) when its input fundamentally changes.
+**Explanation:** Absolute-positioned sortable grids (react-native-sortables) measure each item once and place it by coordinates. If the **data order** changes but the grid is not remounted, it keeps stale measured positions and items overlap. Deriving the `key` from the **ordered** item ids makes the grid re-measure on any sequence change (pin, reorder, add/remove). Because a drag produces its own optimistic order, the key is **frozen during an active drag** (a small `useFrozenKey` hook) so the gesture does not force a mid-drag remount/flicker.
+**Related — grouped reorder:** when a list is *sorted by a flag* (e.g. pinned-first) as well as a manual `position`, a naive reorder can silently revert a cross-group drop, because the `ORDER BY` re-sorts the rows. The fix is to make the drop **match the sort**: detect when a single-item drag crossed the group boundary and toggle that item's flag (drop into the top group ⇒ set the flag), then persist position + flag together in one transaction — "what you drop is what you get".
+**Example:**
+```tsx
+// key changes when the order changes → grid remounts/re-measures
+<Sortable.Grid key={`grid-${ids.join('-')}`} data={items} … />
+```
+
 ## Modal
 **Definition:** React Native component that displays content overlaid on the current screen.
 **Explanation:** Useful for dialogs, selectors, or forms without changing screens. In Listly, used for item creation, color/icon pickers, and confirmations.

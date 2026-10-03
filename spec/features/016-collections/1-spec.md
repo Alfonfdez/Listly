@@ -19,6 +19,8 @@
 
 ### 3. Home: Collections section and FAB chooser
 - Home renders a *Collections* section (uppercase section title) of `CollectionCard` tiles (icon, name, `N/total` progress across member lists) above the *Lists* section, only when collections exist; both sections are drag-reorderable and disabled during select mode or an active search.
+- Both sections' sortable grids are keyed on the **ordered** item ids so an order-only change (pin/unpin a collection, reorder) re-measures them cleanly, while the key is **frozen during an active drag** (see `021-pin-favorites` §5).
+- Collection reorder is **pin-group aware** too: dropping a collection across the pinned boundary toggles its pin (drop at/above the block pins; drop below unpins) and keeps the dropped order (`collectionRepo.reorderFromDrag`).
 - Home search filters collections by name and lists by name + item names.
 - The Home FAB no longer navigates directly: it opens an "Add" chooser modal with *Add collection* and *Add list* rows; *Add collection* opens Create Collection, *Add list* opens Create List.
 - Lists and Collection modes keep a direct FAB → Create list.

@@ -19,6 +19,8 @@
 - Both the grid (Home) and the rows (Lists) are draggable via the list's sortable container.
 - Dragging an item and releasing it persists the new order (write-through to `reorder`, then refresh).
 - While a search query is active, dragging is disabled (search filters the set).
+- The sortable grid is keyed on the **ordered** item ids so any change to the sequence (drag, pin/unpin, add/remove) re-measures it cleanly; the key is **frozen during an active drag** so the gesture's own optimistic reorder never forces a mid-drag remount (see `021-pin-favorites` §5 and `useFrozenKey`).
+- Reorder is **pin-group aware**: because pinned items always render first, a drag that crosses the pinned boundary **toggles the dragged item's pin** (drop at/above the block pins; drop below unpins) rather than silently reverting — the dropped position is preserved (`listRepo.reorderFromDrag`).
 
 ### 3. Tapping still works
 - Tapping a tile (grid) or a row still navigates to its list detail; the drag gesture and the tap/press coexist.

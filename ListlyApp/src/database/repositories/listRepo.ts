@@ -105,6 +105,22 @@ export const listRepo = {
     );
   },
 
+  // Drag reorder with an optional pin change for the dragged item (spec 021
+  // "A2": a cross-boundary drop toggles the pin). Positions are assigned
+  // following the dropped order and, because the pin is set to match where the
+  // item landed, `desc(pinned), position` renders exactly that order. Runs in
+  // one transaction so position + pin are consistent.
+  async reorderFromDrag(orderedIds: number[], draggedId: number, pin: boolean | null): Promise<void> {
+    await write(async db => {
+      if (pin !== null) {
+        await db.update(lists).set({ pinned: pin ? 1 : 0 }).where(eq(lists.id, draggedId)).run();
+      }
+      for (let i = 0; i < orderedIds.length; i++) {
+        await db.update(lists).set({ position: i }).where(eq(lists.id, orderedIds[i])).run();
+      }
+    });
+  },
+
   async setPinned(id: number, pinned: boolean): Promise<void> {
     await read(async db => {
       await db.update(lists).set({ pinned: pinned ? 1 : 0 }).where(eq(lists.id, id)).run();
