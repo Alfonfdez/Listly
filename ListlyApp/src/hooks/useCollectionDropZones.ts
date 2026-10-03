@@ -3,10 +3,12 @@ import type { DragStartParams, SortableGridDragEndParams } from 'react-native-so
 import { listRepo } from '../database';
 import { logError, runSafelyAsync, ERROR_SCOPE } from '../utils/errors';
 import { resolvePinOnDrop } from '../utils/pinDrop';
+import { readDragMeta } from '../utils/dragParams';
+import type { Flag } from '../utils/flags';
 
 interface PinnableItem {
   id: number;
-  pinned: 0 | 1;
+  pinned: Flag;
 }
 
 interface Options {
@@ -65,13 +67,9 @@ export function useCollectionDropZones({ refresh, inCollectionDetail, items = []
       }
       // A cross-boundary drop toggles the dragged item's pin (spec 021 "A2").
       // Requires valid drag metadata; otherwise fall back to a plain reorder.
-      const hasDragMeta =
-        params != null &&
-        params.key != null &&
-        Number.isInteger(params.fromIndex) &&
-        Number.isInteger(params.toIndex);
-      const draggedId = hasDragMeta ? Number(params.key) : draggingListRef.current;
-      const pin = hasDragMeta ? resolvePinOnDrop(items, params.fromIndex, params.toIndex) : null;
+      const meta = readDragMeta(params);
+      const draggedId = meta ? meta.draggedId : draggingListRef.current;
+      const pin = meta ? resolvePinOnDrop(items, meta.fromIndex, meta.toIndex) : null;
       void (async () => {
         try {
           if (draggedId !== null) {

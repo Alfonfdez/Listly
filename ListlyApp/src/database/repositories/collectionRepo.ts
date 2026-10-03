@@ -7,7 +7,7 @@ import { collectionSchema } from '../schemas';
 import { parseRowOrNull, parseRows } from '../validate';
 import { dbTimestamp } from '../../utils/formatters';
 import { COLLECTION_DELETE_MODES, type CollectionDeleteMode } from '../../constants/types';
-import { countRows, countsSelection, deletePhotosOfItems, picturesOfLists, nextPosition, reorderPositions } from './shared';
+import { countRows, countsSelection, deletePhotosOfItems, picturesOfLists, nextPosition, reorderPositions, reorderWithPin } from './shared';
 
 type NewCollection = Omit<Collection, 'id' | 'created_at' | 'position' | 'pinned'>;
 
@@ -50,14 +50,13 @@ export const collectionRepo = {
 
   // See listRepo.reorderFromDrag — the collections twin (spec 021 "A2").
   async reorderFromDrag(orderedIds: number[], draggedId: number, pin: boolean | null): Promise<void> {
-    await write(async db => {
-      if (pin !== null) {
-        await db.update(collections).set({ pinned: pin ? 1 : 0 }).where(eq(collections.id, draggedId)).run();
-      }
-      for (let i = 0; i < orderedIds.length; i++) {
-        await db.update(collections).set({ position: i }).where(eq(collections.id, orderedIds[i])).run();
-      }
-    });
+    await reorderWithPin(
+      orderedIds,
+      draggedId,
+      pin,
+      (db, id, pinned) => db.update(collections).set({ pinned }).where(eq(collections.id, id)).run(),
+      (db, id, index) => db.update(collections).set({ position: index }).where(eq(collections.id, id)).run()
+    );
   },
 
   async setPinned(id: number, pinned: boolean): Promise<void> {

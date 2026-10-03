@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { resolvePinOnDrop } from '../../src/utils/pinDrop';
+import { resolvePinOnDrop, shouldShowPinHint } from '../../src/utils/pinDrop';
 
 interface Row {
   id: number;
@@ -58,5 +58,44 @@ describe('resolvePinOnDrop', () => {
     expect(resolvePinOnDrop(items, -1, 0)).toBeNull();
     expect(resolvePinOnDrop(items, 0, 5)).toBeNull();
     expect(resolvePinOnDrop([], 0, 0)).toBeNull();
+  });
+
+  // Locks the fromIndex/toIndex semantics: indices refer to the PRE-DROP
+  // pinned-first array (as react-native-sortables reports them).
+  it('index matrix on [P,P,U,U] (pinnedCount 2)', () => {
+    const items = rows([1, 1], [2, 1], [3, 0], [4, 0]);
+    // unpinned item (index 2 or 3) dropped at index < 2 → pin
+    expect(resolvePinOnDrop(items, 2, 0)).toBe(true);
+    expect(resolvePinOnDrop(items, 2, 1)).toBe(true);
+    expect(resolvePinOnDrop(items, 3, 1)).toBe(true);
+    // unpinned item dropped at index >= 2 → unchanged
+    expect(resolvePinOnDrop(items, 2, 2)).toBeNull();
+    expect(resolvePinOnDrop(items, 2, 3)).toBeNull();
+    // pinned item (index 0 or 1) dropped at index >= 1 → unpin
+    expect(resolvePinOnDrop(items, 0, 1)).toBe(false);
+    expect(resolvePinOnDrop(items, 0, 3)).toBe(false);
+    // pinned item dropped at index 0 → unchanged (stays in the block)
+    expect(resolvePinOnDrop(items, 1, 0)).toBeNull();
+  });
+});
+
+describe('shouldShowPinHint', () => {
+  const items = rows([1, 1], [2, 1], [3, 0], [4, 0]);
+
+  it('shows on pinned cards while an unpinned card is dragged', () => {
+    const ctx = { isDragging: true, draggingId: 3, items };
+    expect(shouldShowPinHint({ pinned: 1 }, ctx)).toBe(true);
+    expect(shouldShowPinHint({ pinned: 0 }, ctx)).toBe(false); // unpinned card: no hint
+  });
+
+  it('does not show when not dragging or no card is pinned', () => {
+    expect(shouldShowPinHint({ pinned: 1 }, { isDragging: false, draggingId: 3, items })).toBe(false);
+    expect(shouldShowPinHint({ pinned: 1 }, { isDragging: true, draggingId: null, items })).toBe(false);
+    const nonePinned = rows([1, 0], [2, 0]);
+    expect(shouldShowPinHint({ pinned: 1 }, { isDragging: true, draggingId: 1, items: nonePinned })).toBe(false);
+  });
+
+  it('does not show while a pinned card is dragged', () => {
+    expect(shouldShowPinHint({ pinned: 1 }, { isDragging: true, draggingId: 1, items })).toBe(false);
   });
 });

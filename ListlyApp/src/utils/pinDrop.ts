@@ -1,4 +1,4 @@
-import { isOn } from './flags';
+import { isOn, type Flag } from './flags';
 
 // Decides the new `pinned` value for a single item dragged within a
 // pinned-first list/collection grid.
@@ -17,7 +17,7 @@ import { isOn } from './flags';
 // Returns the new pin flag when it changes, or `null` when it stays the same
 // (including group drags / out-of-range indices, which callers treat as a plain
 // reorder with no pin change).
-export function resolvePinOnDrop<T extends { pinned: 0 | 1 }>(
+export function resolvePinOnDrop<T extends { pinned: Flag }>(
   items: T[],
   fromIndex: number,
   toIndex: number
@@ -45,3 +45,18 @@ export function resolvePinOnDrop<T extends { pinned: 0 | 1 }>(
   if (pinnedCount >= items.length) return null;
   return toIndex >= pinnedCount - 1 ? false : null;
 }
+
+// Whether a card should show the pinned-block drop hint while a drag is active.
+// True only for a pinned card (the block) while a NON-pinned card is being
+// dragged and at least one card is pinned — i.e. dropping there would pin the
+// dragged item (spec 021 §5).
+export function shouldShowPinHint<T extends { id: number; pinned: Flag }>(
+  item: { pinned: Flag },
+  ctx: { isDragging: boolean; draggingId: number | null; items: T[] }
+): boolean {
+  if (!ctx.isDragging || ctx.draggingId == null) return false;
+  const dragged = ctx.items.find(i => i.id === ctx.draggingId);
+  if (dragged == null || isOn(dragged.pinned)) return false;
+  return ctx.items.some(i => isOn(i.pinned)) && isOn(item.pinned);
+}
+

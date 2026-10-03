@@ -7,7 +7,7 @@ import type { ListKind } from '../../constants/types';
 import { listSchema } from '../schemas';
 import { parseRowOrNull, parseRows } from '../validate';
 import { dbTimestamp } from '../../utils/formatters';
-import { countRows, countsSelection, deletePhotosOfItems, picturesOfLists, nextPosition, reorderPositions, copyItemsInto } from './shared';
+import { countRows, countsSelection, deletePhotosOfItems, picturesOfLists, nextPosition, reorderPositions, reorderWithPin, copyItemsInto } from './shared';
 
 export type NewList = Omit<List, 'id' | 'created_at' | 'position' | 'pinned' | 'collection_id' | 'kind'> & {
   collection_id?: number | null;
@@ -105,20 +105,15 @@ export const listRepo = {
     );
   },
 
-  // Drag reorder with an optional pin change for the dragged item (spec 021
-  // "A2": a cross-boundary drop toggles the pin). Positions are assigned
-  // following the dropped order and, because the pin is set to match where the
-  // item landed, `desc(pinned), position` renders exactly that order. Runs in
-  // one transaction so position + pin are consistent.
+  // Drag reorder with an optional pin change (spec 021 "A2"). See `reorderWithPin`.
   async reorderFromDrag(orderedIds: number[], draggedId: number, pin: boolean | null): Promise<void> {
-    await write(async db => {
-      if (pin !== null) {
-        await db.update(lists).set({ pinned: pin ? 1 : 0 }).where(eq(lists.id, draggedId)).run();
-      }
-      for (let i = 0; i < orderedIds.length; i++) {
-        await db.update(lists).set({ position: i }).where(eq(lists.id, orderedIds[i])).run();
-      }
-    });
+    await reorderWithPin(
+      orderedIds,
+      draggedId,
+      pin,
+      (db, id, pinned) => db.update(lists).set({ pinned }).where(eq(lists.id, id)).run(),
+      (db, id, index) => db.update(lists).set({ position: index }).where(eq(lists.id, id)).run()
+    );
   },
 
   async setPinned(id: number, pinned: boolean): Promise<void> {
