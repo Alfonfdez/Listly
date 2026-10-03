@@ -18,11 +18,11 @@ Everything runs **on-device**: your data lives in a local SQLite database (sql.j
 
 - **Lists** — create as many lists as you like, each with its own icon and color, and pick between two kinds of list: **Standard** checklists or **Numeric** lists with an amount and quantity per item.
 - **Items** — add items quickly from the bottom bar, check them off, and open an item to add a **note** or a **photo** (gallery on every platform, camera on iOS and Android).
-- **Numeric lists** — give each item an amount and a quantity; the list header shows the **Total** and the **Done** subtotal, and each item shows its line total (amount × quantity).
+- **Numeric lists** — give each item an amount and a quantity; the list header shows the **Total** and the **Done** subtotal, and each item shows its line total (amount × quantity). Tapping an item's amount when it is empty or `0.00` clears the field so you can type a price straight away.
 - **Collections** — group lists into collections (folders) such as *Home* or *Work*, and drag a list onto a collection to move it in.
 - **Drag & drop** — reorder lists and items by long-press and drag; persisted through a `position` column.
 - **Locked lists** — protect a list with a passphrase; its items are encrypted **on-device** with AES-256-GCM. If you forget the passphrase there is no recovery.
-- **Duplicate, copy & merge** — duplicate a whole list, copy a list with or without its notes, copy selected items into another list, or merge items into another list.
+- **Duplicate, copy & merge** — duplicate a whole list, copy a list with or without its notes, copy selected items into another list, or merge items into another list. Copying a numeric list also includes each item's amount × quantity = line total and the Total/Done sums.
 - **Sorting** — sort a list manually, by name, or by the time each item was added, ascending or descending.
 - **Select mode** — enter select mode from the header to multi-select items and delete them (or select many lists at once) in one go.
 - **Search** — filter lists and items from the header search on Home, Lists, and inside a list.

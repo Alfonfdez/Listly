@@ -18,11 +18,11 @@ Tout fonctionne **sur l'appareil** : vos données vivent dans une base de donné
 
 - **Listes** — créez autant de listes que vous voulez, chacune avec son icône et sa couleur, et choisissez entre deux types de liste : **Standard** (liste de vérification) ou **Numérique**, avec un montant et une quantité par élément.
 - **Éléments** — ajoutez des éléments rapidement depuis la barre inférieure, cochez-les et ouvrez un élément pour ajouter une **note** ou une **photo** (galerie sur toutes les plateformes, appareil photo sur iOS et Android).
-- **Listes numériques** — attribuez à chaque élément un montant et une quantité ; l'en-tête de la liste affiche le **Total** et le sous-total **Fait**, et chaque élément affiche son total de ligne (montant × quantité).
+- **Listes numériques** — attribuez à chaque élément un montant et une quantité ; l'en-tête de la liste affiche le **Total** et le sous-total **Fait**, et chaque élément affiche son total de ligne (montant × quantité). Toucher le montant d'un élément lorsqu'il est vide ou à `0.00` vide le champ pour saisir un prix directement.
 - **Collections** — regroupez les listes en collections (dossiers) comme *Maison* ou *Travail*, et faites glisser une liste sur une collection pour la déplacer dedans.
 - **Glisser-déposer** — réorganisez les listes et les éléments par appui long et glisser-déposer ; persisté via une colonne `position`.
 - **Listes verrouillées** — protégez une liste par une phrase secrète ; ses éléments sont chiffrés **sur l'appareil** avec AES-256-GCM. Si vous oubliez la phrase secrète, aucune récupération n'est possible.
-- **Dupliquer, copier et fusionner** — dupliquez une liste entière, copiez une liste avec ou sans ses notes, copiez les éléments sélectionnés dans une autre liste, ou fusionnez des éléments dans une autre liste.
+- **Dupliquer, copier et fusionner** — dupliquez une liste entière, copiez une liste avec ou sans ses notes, copiez les éléments sélectionnés dans une autre liste, ou fusionnez des éléments dans une autre liste. Copier une liste numérique inclut aussi le montant × quantité = total de chaque élément et les sommes Total/Fait.
 - **Tri** — triez une liste manuellement, par nom ou par date d'ajout de chaque élément, de façon croissante ou décroissante.
 - **Mode sélection** — entrez en mode sélection depuis l'en-tête pour sélectionner plusieurs éléments et les supprimer (ou sélectionner plusieurs listes à la fois) en une seule fois.
 - **Recherche** — filtrez les listes et les éléments depuis la recherche de l'en-tête sur Accueil, Listes et à l'intérieur d'une liste.

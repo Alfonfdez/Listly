@@ -18,11 +18,11 @@ Tutto funziona **sul dispositivo**: i tuoi dati vivono in un database SQLite loc
 
 - **Liste** — crea tutte le liste che vuoi, ciascuna con la propria icona e il proprio colore, e scegli tra due tipi di lista: **Standard** (lista di controllo) o **Numerica**, con un importo e una quantità per elemento.
 - **Elementi** — aggiungi elementi rapidamente dalla barra inferiore, spuntali e apri un elemento per aggiungere una **nota** o una **foto** (galleria su tutte le piattaforme, fotocamera su iOS e Android).
-- **Liste numeriche** — assegna a ogni elemento un importo e una quantità; l'intestazione della lista mostra il **Totale** e il subtotale **Fatto**, e ogni elemento mostra il proprio totale di riga (importo × quantità).
+- **Liste numeriche** — assegna a ogni elemento un importo e una quantità; l'intestazione della lista mostra il **Totale** e il subtotale **Fatto**, e ogni elemento mostra il proprio totale di riga (importo × quantità). Toccando l'importo di un elemento quando è vuoto o a `0.00` il campo si svuota, così puoi digitare subito un prezzo.
 - **Raccolte** — raggruppa le liste in raccolte (cartelle) come *Casa* o *Lavoro*, e trascina una lista su una raccolta per spostarla dentro.
 - **Trascina e rilascia** — riordina liste ed elementi con pressione prolungata e trascinamento; salvato tramite una colonna `position`.
 - **Liste bloccate** — proteggi una lista con una passphrase; i suoi elementi vengono cifrati **sul dispositivo** con AES-256-GCM. Se dimentichi la passphrase, non c'è recupero.
-- **Duplica, copia e unisci** — duplica un'intera lista, copia una lista con o senza le sue note, copia gli elementi selezionati in un'altra lista, oppure unisci elementi in un'altra lista.
+- **Duplica, copia e unisci** — duplica un'intera lista, copia una lista con o senza le sue note, copia gli elementi selezionati in un'altra lista, oppure unisci elementi in un'altra lista. Copiando una lista numerica vengono inclusi anche importo × quantità = totale di ogni elemento e le somme Totale/Fatto.
 - **Ordinamento** — ordina una lista manualmente, per nome o per il momento in cui è stato aggiunto ogni elemento, in modo crescente o decrescente.
 - **Modalità selezione** — entra in modalità selezione dall'intestazione per selezionare più elementi ed eliminarli (o selezionare più liste insieme) in un colpo solo.
 - **Ricerca** — filtra liste ed elementi dalla ricerca dell'intestazione su Home, Liste e all'interno di una lista.
