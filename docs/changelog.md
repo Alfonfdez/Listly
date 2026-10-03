@@ -1068,3 +1068,12 @@ pm run test:all green.
 - Feature (034 value progress bar): numeric list headers gain a **second progress bar** below the item-count bar showing value-weighted progress (`doneValue / totalValue`), with the numbers (`3.20 / 22.93`) and a right-aligned percentage to two decimals (e.g. `13.96 %`, dot separator, no currency symbol).
 - Shown only when the list is numeric and both the total and done values are > 0; hidden otherwise (non-numeric, total 0, or done 0). On numeric lists the slot is **space-reserved** so toggling items never reflows the header. Standard lists are unchanged. a11y label `list_value_progress_label` (added in all nine languages).
 - Pure helpers `valueProgressPercent` / `formatPercent2` in `src/utils/numeric.ts`; `DetailHeader` gains a `valueProgress` prop; no DB/repo changes. Tests: numeric helpers + `DetailHeader` + `ListDetailScreen`. `npm run test:all` green (80 files, 705 tests).
+
+[2026-10-03] docs | README.md, README.es.md, README.ca.md, README.gl.md, README.eu.md, README.fr.md, README.de.md, README.pt.md, README.it.md, images/screenshots/06-numeric-list-v2.png, spec/features/026-numeric-lists/1-spec.md
+- Docs: refreshed the numeric-list screenshot for the new value progress bar (spec 034) as `images/screenshots/06-numeric-list-v2.png` (375x812, dark mode); the previous PNG is kept so GitHub shows the updated image (a new filename is required to bust its cache).
+- Updated the nine READMEs: the screenshot filename now points to `-v2`, the caption mentions the value progress bar, and the numeric-lists feature bullet notes it. `spec/features/026-numeric-lists/1-spec.md` §3 references the value bar added by 034.
+
+[2026-10-03] docs | README.es.md, README.ca.md, README.gl.md, README.eu.md, README.fr.md, README.de.md, README.pt.md, README.it.md, AGENTS.md, spec/constitution/3-roadmap.md
+- Docs (pre-release sync): the eight translated READMEs (`es/ca/gl/eu/fr/de/pt/it`) now document the **EAS Build** workflow (profiles table, `appVersionSource: local`, versionCode/keystore notes, and the debug-signed local smoke test), matching the English README and `AGENTS.md` instead of the old `gradlew`-only instructions.
+- `AGENTS.md`: refreshed stale lines — branch example now Listly-domain, repositories list includes collection/vault, `i18n/` shows the nine languages, `utils/` no longer lists the removed `language.ts`, and the project structure adds `hooks/`.
+- `spec/constitution/3-roadmap.md`: the `026-numeric-lists` header bullet notes the value progress bar added by 034.

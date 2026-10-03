@@ -18,7 +18,7 @@ Dena **gailuan** exekutatzen da: zure datuak tokiko SQLite datu-basean bizi dira
 
 - **Zerrendak** — ahal adina zerrenda sortu, bakoitza bere ikono eta kolorearekin, eta aukeratu bi zerrenda motaren artean: **Estandarra** (kontrol-zerrenda) edo **Numerikoa**, elementu bakoitzeko zenbateko batekin eta kantitate batekin.
 - **Elementuak** — elementuak azkar gehitzen dira beheko barratik, markatu, eta ireki elementu bat **ohar** bat edo **argazki** bat gehitzeko (galeria plataforma guztietan, kamera iOS eta Android-en).
-- **Zerrenda numerikoak** — esleitu elementu bakoitzari zenbateko bat eta kantitate bat; zerrendaren goiburukoak **Guztira** eta **Eginda** azpitotala erakusten ditu, eta elementu bakoitzak bere lerro-totala (zenbatekoa × kantitatea). Elementu baten zenbatekoa hutsik edo `0.00` denean ukitzean eremua husten da, prezioa zuzenean idatzi ahal izateko.
+- **Zerrenda numerikoak** — esleitu elementu bakoitzari zenbateko bat eta kantitate bat; zerrendaren goiburukoak **balioaren aurrerapen-barra** bat eta **Guztira**/**Eginda** azpitotala erakusten ditu, eta elementu bakoitzak bere lerro-totala (zenbatekoa × kantitatea). Elementu baten zenbatekoa hutsik edo `0.00` denean ukitzean eremua husten da, prezioa zuzenean idatzi ahal izateko.
 - **Kolekzioak** — zerrendak kolekzio (karpeta)etan multzokatu, hala nola *Etxea* edo *Lana*, eta arrastatu zerrenda bat kolekzio baten gainera hara eramateko.
 - **Arrastatu eta jaregin** — berrantolatu zerrendak eta elementuak luze sakatuta eta arrastatuta; `position` zutabe baten bidez gordetzen da.
 - **Blokeatutako zerrendak** — babestu zerrenda bat pasahitz batekin; bere elementuak **gailuan** zifratzen dira AES-256-GCM-rekin. Pasahitza ahazten baduzu, ez dago berreskuratzerik.
@@ -36,7 +36,7 @@ Dena **gailuan** exekutatzen da: zure datuak tokiko SQLite datu-basean bizi dira
 ![Alboko menua](images/screenshots/03-hamburger.png)<br>*Alboko menua Hasiera, Kolekzioak, Zerrendak eta Ezarpenekin — eta apparen bertsioa behean.*<br><br>
 ![Zerrenda sortu](images/screenshots/04-create-list.png)<br>*Zerrenda sortu: izena, mota (Estandarra edo Numerikoa), ikonoa eta kolorea.*<br><br>
 ![Zerrenda-xehetasuna](images/screenshots/05-list-detail.png)<br>*Zerrenda estandar bat, markatutako elementuekin, ohar batekin, ordena-kontrolarekin eta lote-ekintzekin.*<br><br>
-![Zerrenda numerikoa](images/screenshots/06-numeric-list.png)<br>*Zerrenda numeriko bat Guztira eta Eginda-rekin, lerro-totalekin eta zenbateko/kantitate errenkadarekin.*<br><br>
+![Zerrenda numerikoa](images/screenshots/06-numeric-list-v2.png)<br>*Zerrenda numeriko bat balioaren aurrerapen-barra batekin, Guztira eta Eginda, lerro-totalekin eta zenbateko/kantitate errenkadarekin.*<br><br>
 ![Gehitu elementua zabalik](images/screenshots/07-add-item-expanded.png)<br>*Gehitzeko barra zabaldua, elementu berriari oharra eta argazkiak eransteko.*<br><br>
 ![Elementua editatu](images/screenshots/08-item-edit.png)<br>*Elementu bat editatzen: izena, oharra eta argazkiak.*<br><br>
 ![Kolekzioak](images/screenshots/09b-collections.png)<br>*Kolekzioen pantaila.*<br><br>
@@ -143,18 +143,32 @@ ListlyApp/
 - Biltegiak Drizzle-ren query builder-arekin idazten dira handle partekatuaren gainean; gordetako errenkadak Zod eskemen bidez balidatzen dira.
 - Webean SQLite-ren byte esportatuak IndexedDB-n persistitzen dira, beraz datu berak berriz kargatzean ere bizirik diraute.
 
-### Android APK bat konpilatu
+### Android APK / AAB bat sortu (EAS Build)
 
-`android/` karpeta natiboa Expo CNG-k (`expo prebuild`) sortzen du eta ez da bertsionatzen:
+**Listly**-k EAS Build erabiltzen du; honek Android-en sinadura-giltza kudeatzen du, beraz ondoz ondoko bertsioek sinadura bera partekatzen dute eta tokian bertan eguneratzen dira. Expo kontu bat eta EAS CLI behar ditu:
+
+```bash
+npm install -g eas-cli
+eas login
+cd ListlyApp
+```
+
+| Profila | Komandoa | Emaitza |
+|---|---|---|
+| Development | `eas build --profile development` | dev-client build-a (barnekoa) |
+| Preview | `eas build --platform android --profile preview` | instalagarria den APK-a (barnekoa) |
+| Production | `eas build --platform android --profile production --no-wait` | argitaragarria den AAB-a (denda) |
+
+`eas.json`-eko `production` profileak `"distribution": "store"` eta `"buildType": "app-bundle"` erabiltzen ditu, dendara bidaltzeko AAB bat sortuz. `cli.appVersionSource` `"local"` da, beraz bertsio-metadatuak zuzenean `app.json`-etik irakurtzen dira — **igo `android.versionCode` (osokoa, hertsiki gorakorra) eta `ios.buildNumber` bertsio bakoitzean**. EAS-ek release sinadura-giltza sortu eta gordetzen du lehen production build-ean; egin kopia bat `eas credentials`-ekin eta ez igo inoiz biltegira (giltzak .gitignore-n daude).
+
+Tokiko proba azkar bat egiteko, oraindik ere debug-ekin sinatutako APK bat konpila dezakezu sortutako karpeta natibotik (beste sinadura-giltza bat erabiltzen du, debug-ekoa — ez da banatzeko):
 
 ```bash
 cd ListlyApp
-npx expo prebuild --platform android
+npx expo prebuild --platform android   # assets/config aldaketen ondoren proiektu natiboa birsortu
 cd android
 ./gradlew assembleRelease   # APK → app/build/outputs/apk/release/app-release.apk
 ```
-
-Exekutatu `npx expo prebuild --platform android` berriro `assets/` edo `app.json`-eko ikono/splash konfigurazioa aldatzen diren bakoitzean, bestela APK-k ikono zaharkituak gordetzen ditu.
 
 ### Metodologia
 
