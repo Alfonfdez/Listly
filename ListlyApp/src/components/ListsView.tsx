@@ -10,7 +10,7 @@ import { useListsViewData } from '../hooks/useListsViewData';
 import { useListsSelection } from '../hooks/useListsSelection';
 import { useListsDrag } from '../hooks/useListsDrag';
 import { useFrozenKey } from '../hooks/useFrozenKey';
-import { isOn } from '../utils/flags';
+import { shouldShowPinHint } from '../utils/pinDrop';
 import { LIST_VIEW_MODES, LIST_LAYOUTS, type NavigationProp, type ListViewMode, type ListLayout } from '../constants/types';
 import { ICONS } from '../constants/icons';
 import ScreenShell from './ScreenShell';
@@ -176,13 +176,7 @@ export default function ListsView({
           : undefined;
       // While dragging a NON-pinned list, tint the pinned block as a hint that
       // dropping there pins it (spec 021 §5, A2).
-      const dragged = draggingId != null ? displayLists.find(l => l.id === draggingId) : undefined;
-      const pinZoneHint =
-        isDragging &&
-        dragged != null &&
-        !isOn(dragged.pinned) &&
-        displayLists.some(l => isOn(l.pinned)) &&
-        isOn(item.pinned);
+      const pinZoneHint = shouldShowPinHint(item, { isDragging, draggingId, items: displayLists });
       return (
         <EntityTile
           entity={{

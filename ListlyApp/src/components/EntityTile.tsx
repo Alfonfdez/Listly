@@ -1,5 +1,5 @@
 import { View, StyleSheet } from 'react-native';
-import { CARD_BORDER_RADIUS, ALPHA_TINT } from './componentStyles';
+import { CARD_BORDER_RADIUS, ALPHA_TINT, ALPHA_PIN_HINT } from './componentStyles';
 import { TRANSPARENT } from '../constants/themes';
 import { withAlpha } from '../utils/color';
 import SelectionCheck from './SelectionCheck';
@@ -24,10 +24,6 @@ import type { ListKind } from '../constants/types';
 
 type EntityKind = 'list' | 'collection';
 type EntityLayout = 'card' | 'row';
-
-// Faint accent tint (percent) applied to the pinned block while dragging a
-// non-pinned card — a hint that dropping there pins it.
-const PIN_HINT_TINT = 22;
 
 export interface TileEntity {
   id: number;
@@ -92,7 +88,7 @@ export default function EntityTile({
         isCard ? styles.card : styles.row,
         isCollection && styles.clip,
         { backgroundColor: withAlpha(entity.color, ALPHA_TINT) },
-        pinZoneHint && { borderColor: c.primary, backgroundColor: withAlpha(c.primary, PIN_HINT_TINT) },
+        pinZoneHint && { borderColor: c.primary, backgroundColor: withAlpha(c.primary, ALPHA_PIN_HINT) },
       ]}
     >
       {isCollection ? (

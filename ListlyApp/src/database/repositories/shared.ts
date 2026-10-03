@@ -46,6 +46,26 @@ export async function reorderPositions(
   });
 }
 
+// Drag reorder with an optional pin change for the dragged item (spec 021
+// "A2": a cross-boundary drop toggles the pin). Positions follow the dropped
+// order and the pin is set to match where the item landed, so
+// `desc(pinned), position` renders exactly that order. One transaction keeps
+// position + pin consistent. Shared by listRepo/collectionRepo.
+export async function reorderWithPin(
+  orderedIds: number[],
+  draggedId: number,
+  pin: boolean | null,
+  setPinned: (db: DrizzleDb, id: number, pinned: 0 | 1) => Promise<unknown>,
+  setPosition: (db: DrizzleDb, id: number, index: number) => Promise<unknown>
+): Promise<void> {
+  await write(async db => {
+    if (pin !== null) await setPinned(db, draggedId, pin ? 1 : 0);
+    for (let i = 0; i < orderedIds.length; i++) {
+      await setPosition(db, orderedIds[i], i);
+    }
+  });
+}
+
 export async function deletePhotosOfItems(rows: { pictures: string | null }[]): Promise<void> {
   await deleteItemPhotos(rows.flatMap(row => parseItemPhotos(row.pictures)));
 }

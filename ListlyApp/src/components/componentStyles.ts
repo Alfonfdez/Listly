@@ -24,6 +24,7 @@ export const ALPHA_SELECTED = 15;
 export const ALPHA_BADGE = 18;
 export const ALPHA_TRACK = 20;
 export const ALPHA_SUBTLE = 8;
+export const ALPHA_PIN_HINT = 22;
 
 export const GRID_GAP = 12;
 export const WIDE_BREAKPOINT = 900;
