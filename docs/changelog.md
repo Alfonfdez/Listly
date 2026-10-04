@@ -1082,3 +1082,7 @@ pm run test:all green.
 - Feature: copied lists now separate the title from the items with a **blank line** (`buildListCopyText`), so pasting shows the list name as a heading followed by the items. Applies to both copy actions and both list kinds; an empty list stays the bare name.
 - Feature: enlarged the **Android adaptive app icon**. The adaptive foreground (and its monochrome twin) now renders at `scale(1.0)` so the mark fills ~55% of the canvas width (was ~34% at `scale(0.62)`), leaving comfortable padding inside the Android 66% safe zone (a first pass at `scale(1.2)` made it touch the edges, so it was dialled back). Regenerated via `gen-assets.mjs`; requires a new prebuild/EAS build to appear on device.
 - Spec 017 gains the blank-line criterion; `docs/assets.md` notes the new foreground scale. `npm run test:all` green (80 files, 705 tests).
+
+[2026-10-04] ~ | ListlyApp/scripts/gen-assets.mjs, ListlyApp/assets/android-icon-foreground.png, ListlyApp/assets/android-icon-monochrome.png, docs/assets.md
+- Reduced the Android adaptive icon: the foreground and its monochrome twin now render at `scale(0.9)` (mark fills ~49% of the canvas width, was ~55% at `scale(1.0)`), leaving more padding inside the Android 66% safe zone. Regenerated via `gen-assets.mjs`; requires a new `expo prebuild`/EAS build to appear on device.
+- `docs/assets.md`: the foreground/monochrome rows now document `scale(0.9)` / ~49% canvas width.
