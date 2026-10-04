@@ -12,8 +12,9 @@
 - `sortItems(items, sort)` is pure and stable: `manual` returns the array unchanged (manual position order); `name` compares case-insensitively with numeric awareness (`localeCompare` `{ numeric: true, sensitivity: 'base' }`); `created` compares the `created_at` timestamp strings lexicographically (`YYYY-MM-DD HH:MM:SS` sorts correctly). On ties the input order (manual position) is preserved.
 
 ### 2. Sort toggle on List detail
-- A bounded sort pill (icon + current mode label + chevron) renders as the first chip of the toolbar's first row (feature 020), next to *Merge into…*, when the list has items and neither select mode nor search is active. It is primary-tinted when a non-manual sort is active and reflects the current direction with an arrow icon.
-- Tapping it opens the shared `OptionPickerModal` with five one-tap radio options: Manual, Name asc, Name desc, Created asc, Created desc (Manual has no direction). Cancel discards; a confirmation button (`common_select`) applies the temporary selection.
+- A compact sort pill renders as the first chip of the toolbar (feature 020), next to the All/None/Clear actions, when the list has items and neither select mode nor search is active. The chip is **icon-only** — a `swap-vertical` glyph plus a direction arrow when a non-manual sort is active and a `chevron-down` — with **no visible mode word**, so the row stays one line at 375px in every language. It is primary-tinted when a non-manual sort is active.
+- The full mode + direction are exposed as the button's accessibility label (`"Sort items: Manual"` / `"Sort items: Name Ascending"`), so the mode remains discoverable to screen readers and in the picker.
+- Tapping it opens the shared `OptionPickerModal` with five one-tap radio options: Manual, Name asc, Name desc, Created asc, Created desc (Manual has no direction), each with its mode + direction label. Cancel discards; a confirmation button (`common_select`) applies the temporary selection.
 
 ### 3. Sorting behavior
 - Selecting Manual (default) keeps the current manual order and enables drag-to-reorder as today.
@@ -44,9 +45,10 @@
 
 ## Acceptance criteria
 
-- [x] Manual (default) shows the list in manual position order with the pill reading Manual; drag-to-reorder keeps working.
+- [x] Manual (default) shows the list in manual position order; the pill is icon-only and drag-to-reorder keeps working.
 - [x] Selecting Name sorts items alphabetically (case-insensitive, numeric-aware) and the direction arrow flips the order.
 - [x] Selecting Created sorts by creation time and the direction arrow flips the order.
+- [x] The sort pill shows no mode word (icon + direction only); its a11y label carries the full "Sort items: <mode> <direction>".
 - [x] In Name/Created modes drag-reorder is disabled and no reorder is persisted.
 - [x] Searching keeps the active sort applied to the results; the pill is hidden while searching.
 - [x] The sort choice is local state and resets to Manual when leaving the list.

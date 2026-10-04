@@ -8,7 +8,7 @@
 ## Functional requirements
 
 ### 1. Batch toolbar (List detail only)
-- When the list has at least one item and neither select mode nor search is active, two rows of bounded chip buttons appear between the header and the items grid: the first row holds the item sort pill (feature 022) and *Merge into…* (feature 025, amber `warning` tint), and the second row holds **All**, **None**, and **Clear** (short visible labels; the full names *Complete all* / *Uncomplete all* / *Clear completed* are kept as accessibility labels). Each row wraps (`flexWrap`) so its chips fit narrow screens.
+- When the list has at least one item and neither select mode nor search is active, a **single non-wrapping row** of bounded chip buttons appears between the header and the items grid: the icon-only sort pill (feature 022) followed by **All**, **None**, and **Clear** (short visible labels; the full names *Complete all* / *Uncomplete all* / *Clear completed* are kept as accessibility labels). The three label pills share the row width evenly (`flex: 1`) so the row fits one line at 375px in every language. (*Merge into…*, feature 025, moved to the Edit List screen.)
 - **All** is disabled when every item is already checked; on press runs `itemRepo.setAllChecked(listId, true)` (checks every item of the list) and refreshes.
 - **None** is disabled when no item is checked; on press runs `itemRepo.setAllChecked(listId, false)` (unchecks every item of the list) and refreshes — an undo for an accidental "All".
 - **Clear** is disabled when no item is checked; on press opens a `ConfirmModal` titled `item_clear_completed_confirm(done)` ("Delete N completed item(s)?") with the `item_clear_completed_message` body and a destructive confirm button.
@@ -42,7 +42,7 @@
 - [x] **Clear completed** asks for confirmation showing the number of completed items, then deletes only those items.
 - [x] **Clear completed** is inert (disabled) when no item is checked.
 - [x] The toolbar is hidden when the list is empty, while searching, and in select mode.
-- [x] The three bulk actions use short visible labels (All / None / Clear) with the full names as accessibility labels, on their own row below the sort + Merge row, both rows fitting at 375px in en/es.
-- [x] The toolbar shows two rows — Row 1 = sort + *Merge into…*, Row 2 = All / None / Clear — and the *Merge into…* pill uses the amber `warning` token (distinct from the primary-blue view actions).
+- [x] The three bulk actions use short visible labels (All / None / Clear) with the full names as accessibility labels, on a single row with the icon-only sort pill, fitting one line at 375px in all nine languages.
+- [x] The toolbar is one non-wrapping row: sort pill (022) + All / None / Clear; *Merge into…* (025) lives on the Edit List screen.
 - [x] `item_complete_all`, `item_uncomplete_all`, `item_clear_completed` (+ `_a11y` variants), `item_clear_completed_confirm`, `item_clear_completed_message` exist in en and es.
 - [x] `npm run test:all` passes.

@@ -103,6 +103,7 @@ Bulk select/delete + header search:
 - Bulk delete with confirmation dialog, transactional, refresh after.
 - Single list/item delete via long-press in select mode.
 - The item batch toolbar shows two rows: Row 1 = item sort pill (022) + *Merge into…* (025, amber `warning` tint); Row 2 = All / None / Clear (full names as a11y labels). Both rows fit at 375px in en/es.
+  - Updated (025 + sort compaction): the toolbar is now a **single non-wrapping row** — icon-only sort pill (022) + All / None / Clear share the width evenly (`flex: 1` label pills), so it fits one line at 375px in all nine languages. *Merge into…* moved to Edit List (025).
 - Search toggle moved from inline ListsView to `headerRight` in the navigator for Home and Lists.
 - The bottom action bar wraps its count/buttons (button group right-aligned) so no action is clipped on narrow screens (375px) with long labels (es) or scaled text; button order is Delete → Pin → Cancel (destructive first, separated).
 - Spec: spec/features/010-bulk-select-delete/.
@@ -228,7 +229,7 @@ Pin/favorite lists and collections (star) so they stay on top:
 Status: done.
 
 Per-list sort toggle on List detail (Manual → Name → Created) with a direction arrow, kept in local state (not a settings option):
-- A bounded pill (`swap-vertical` + mode label + direction arrow + `chevron-down`) is the first chip of the toolbar's first row (next to *Merge into…*), and opens the shared `OptionPickerModal` with five one-tap options (Manual, Name asc/desc, Created asc/desc); the pill is primary-tinted and drag-reorder is disabled in non-manual modes.
+- A compact, icon-only sort pill (`swap-vertical` + direction arrow + `chevron-down`, no mode word) is the first chip of the toolbar; it opens the shared `OptionPickerModal` with five one-tap options (Manual, Name asc/desc, Created asc/desc); the pill is primary-tinted and drag-reorder is disabled in non-manual modes. The icon-only chip keeps the toolbar one line at 375px in all nine languages; the full mode + direction live in its a11y label.
 - Pure `src/utils/itemSort.ts` (`sortItems` stable, case-insensitive numeric-aware `localeCompare` for name, lexicographic for `created_at`); search keeps the active sort applied to filtered results; the choice resets to Manual on re-entry.
 - Schema `SCHEMA_VERSION 7`: `items.updated_at` added to DDL/Drizzle/Zod, stamped on create/update/toggle/setAllChecked/reorder; backup round-trips it and leniently defaults it to `created_at` for schema-6 imports.
 - i18n en/es keys `item_sort*`. Verified on web at 375px (all sort modes, search retention, drag persistence, reset-to-Manual, Spanish labels).
