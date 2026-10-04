@@ -100,11 +100,11 @@ ListlyApp/
 |   |   +-- index.ts                  <- t() / setLanguage / getLabels
 |   |   +-- en.ts / es.ts / ca.ts / gl.ts / eu.ts / fr.ts / de.ts / pt.ts / it.ts   <- translations (9 languages)
 |   |
-|   +-- hooks/                        <- useFontSize, useLabels, useSelectMode, useSelectSearchHeader,
-|   |                                   useDragOrder, useItemSort, useItemPhotos, useColorSelection,
-|   |                                   useClipboardCopy, useMergeFlow, useItemEditing, useBatchItemActions,
-|   |                                   useItemStore, useItemDraft, useItemDisplayFlags, useListsViewData, useListsSelection, useListsDrag, useCollectionDropZones, useVaultSession,
-|   |                                   useRequiredContext, useResetOnOpen
+|   +-- hooks/                        <- useFontSize, useLabels, useSelectMode, useSelectSearchHeader, useKeyboardHeight,
+|   |                                   useDragOrder, useItemSort, useItemPhotos, useColorSelection, useItemDisplayFlags,
+|   |                                   useClipboardCopy, useMergeFlow, useMergeNotice, useItemEditing, useBatchItemActions,
+|   |                                   useItemStore, useItemDraft, useListsViewData, useListsSelection, useListsDrag,
+|   |                                   useCollectionDropZones, useVaultSession, useFrozenKey, useRequiredContext, useResetOnOpen
 |   |
 |   +-- constants/
 |   |   +-- themes.ts                 <- dark + light palettes (ColorPalette)

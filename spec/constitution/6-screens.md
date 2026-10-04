@@ -22,15 +22,15 @@ Listly 1.0 screens. Each maps to a feature spec (`spec/features/<NNN>-…/`) wit
 - Drawer screen listing only collections (grid or list layout).
 - Search, drag-reorder, FAB → Create Collection, header select toggle.
 
-## 4. List detail (003-list-detail-screen, 008, 011, 012, 013, 017, 020)
-- Header block: list icon/name/color + N/total progress + edit pencil.
-- Copy buttons (names / names+notes) in the header when items exist, writing to the clipboard.
-- Batch toolbar under the header (when items exist, outside select/search modes): *Complete all* checks every item at once; *Clear completed* deletes the checked items after a confirmation dialog showing their count.
+## 4. List detail (003-list-detail-screen, 008, 011, 012, 013, 017, 020, 022, 034)
+- Header block: list icon/name/color + N/total progress (numeric lists add a value-weight progress bar carrying the Total/Done sums) + edit pencil; copy buttons (names / names+notes / copy-to-list) when items exist.
+- **Sticky top area**: the header (icon/name/buttons + progress bars), transient notices, and the batch toolbar stay pinned above the scrolling items and above the pinned add/selection bar; on Android the body keeps `paddingBottom = keyboard height` so the pinned area stays above the keyboard.
+- Batch toolbar (single non-wrapping row, when items exist, outside select/search modes): icon-only **sort** pill (022) + **All**, **None**, **Clear** (short labels; full names as a11y labels). *All* checks every item, *None* unchecks every item, *Clear* deletes the checked items after a confirmation dialog showing their count.
 - Item list: checkbox toggle, name (faded secondary color + faint green row wash when checked, no strikethrough), circular edit button, note preview, photo thumbnails.
 - Inline add bar with a details area (note + photos); edit/delete via modal.
 - Search/select toggles in the header (when items exist); long-press drag-reorders items.
 - Empty state when the list has no items.
-- Delete lives on Edit List (pencil → Edit List → Delete).
+- Delete and Merge live on Edit List (pencil → Edit List).
 
 ## 5. Collection detail (016-collections, 019-remove-list-from-collection)
 - Header block: tinted badge, colored name, N/total, edit pencil.

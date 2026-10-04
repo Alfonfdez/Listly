@@ -23,7 +23,7 @@ node ../../Listly-app/Listly/ListlyApp/scripts/gen-assets.mjs
 | `android-icon-foreground.png` | Top layer of Android adaptive icon | 1024 × 1024 px | Artwork authored at `scale(0.9)` (mark fills ~49% of the canvas width, comfortable padding inside the Android 66% safe zone) |
 | `android-icon-monochrome.png` | Android 13+ Material You wallpaper-themed icon | 1024 × 1024 px | Single-color flat version (white on transparent) at the same `scale(0.9)` as the foreground |
 | `favicon.png` | Browser tab icon (web / PWA) | 1024 × 1024 px (Expo downsizes at export) | |
-| `splash-icon.png` | Centered logo during app boot (native splash) | 1024 × 1024 px | The mark is authored at `scale(1.0)` and fills ~55% of the canvas width, centered. Background color configured in `app.json` |
+| `splash-icon.png` | Centered logo during app boot (native splash) | 1024 × 1024 px | The mark is authored at `scale(1.0)` and fills ~54% of the canvas width, centered. Background color configured in `app.json` |
 
 ## app.json mapping
 
