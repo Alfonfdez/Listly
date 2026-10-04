@@ -1,0 +1,50 @@
+import { StyleSheet, TouchableOpacity } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { useConfig } from '../context/ConfigContext';
+import { BLACK } from '../constants/themes';
+import { isWeb } from '../utils/platform';
+import { FAB_SIZE, FAB_SHADOW_COLOR, FAB_BOTTOM_OFFSET } from './componentStyles';
+
+interface Props {
+  onPress: () => void;
+  accessibilityLabel: string;
+}
+
+export default function Fab({ onPress, accessibilityLabel }: Props) {
+  const { activeColors: c } = useConfig();
+  return (
+    <TouchableOpacity
+      style={[styles.fab, { backgroundColor: c.primary }, isWeb ? fabShadowWeb : fabShadowNative]}
+      onPress={onPress}
+      accessibilityRole="button"
+      accessibilityLabel={accessibilityLabel}
+    >
+      <Ionicons name="add" size={28} color={c.background} />
+    </TouchableOpacity>
+  );
+}
+
+const styles = StyleSheet.create({
+  fab: {
+    position: 'absolute',
+    bottom: FAB_BOTTOM_OFFSET,
+    alignSelf: 'center',
+    width: FAB_SIZE,
+    height: FAB_SIZE,
+    borderRadius: FAB_SIZE / 2,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+});
+
+const fabShadowNative = {
+  elevation: 6,
+  shadowColor: BLACK,
+  shadowOffset: { width: 0, height: 3 },
+  shadowOpacity: 0.3,
+  shadowRadius: 4,
+};
+
+const fabShadowWeb = {
+  boxShadow: `0 3px 6px ${FAB_SHADOW_COLOR}`,
+};

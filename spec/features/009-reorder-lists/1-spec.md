@@ -1,0 +1,46 @@
+# 009 — Reorder lists
+
+- **Objective**
+  Let users reorder their lists by dragging, on the Home grid and the Lists row screen, persisting the order in the database via a new `lists.position` column.
+
+---
+
+## Functional requirements
+
+### 1. Data layer: `lists.position`
+- Migration adds `position INTEGER NOT NULL DEFAULT 0` to `lists`, backfills `position = id - 1`, and indexes `(position)`.
+- Drizzle schema, Zod `listSchema`, and `ListWithCounts` include `position`.
+- Seed lists carry explicit positions (0..5).
+- `listRepo.list()` and `listRepo.withCounts()` order by `position` (then `id` for stability).
+- `listRepo.create()` appends new lists at the end (`position = max + 1`).
+- New `listRepo.reorder(orderedIds: number[])` persists the new order atomically.
+
+### 2. Drag-to-reorder (Home grid + Lists rows)
+- Both the grid (Home) and the rows (Lists) are draggable via the list's sortable container.
+- Dragging an item and releasing it persists the new order (write-through to `reorder`, then refresh).
+- While a search query is active, dragging is disabled (search filters the set).
+- The sortable grid is keyed on the **ordered** item ids so any change to the sequence (drag, pin/unpin, add/remove) re-measures it cleanly; the key is **frozen during an active drag** so the gesture's own optimistic reorder never forces a mid-drag remount (see `021-pin-favorites` §5 and `useFrozenKey`).
+- Reorder is **pin-group aware**: because pinned items always render first, a drag that crosses the pinned boundary **toggles the dragged item's pin** (drop at/above the block pins; drop below unpins) rather than silently reverting — the dropped position is preserved (`listRepo.reorderFromDrag`).
+
+### 3. Tapping still works
+- Tapping a tile (grid) or a row still navigates to its list detail; the drag gesture and the tap/press coexist.
+
+---
+
+## Non-functional requirements
+
+- **Multilingual**: no new visible texts required (drag is gesture-based); reuse existing keys.
+- **Theme/text size**: tiles and rows keep their current styling (ListCard / ListRow).
+- **Tests**: `dbDrift` column list + zod keys updated for `position`; contract test for `create` position assignment and `reorder`; `ListsView`/screens tests updated for the sortable container and drag-persistence.
+- **Verification**: web loop at 375px (drag on Home grid and Lists rows, persistence across reload).
+
+---
+
+## Acceptance criteria
+
+- [x] Lists have an order: row lists and Home grid list them by `position`.
+- [x] Dragging a list on Home reorders it and other lists follow.
+- [x] Dragging a list on the Lists rows has the same effect.
+- [x] The new order persists after a reload (DB `position` writes).
+- [x] A list created afterwards is appended at the end.
+- [x] Tap still opens list detail; searching keeps filtering; all theme/text-size behavior is unchanged.

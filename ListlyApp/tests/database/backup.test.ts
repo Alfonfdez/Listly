@@ -1,0 +1,467 @@
+import { beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
+import {
+  BACKUP_FORMAT_VERSION,
+  parseBackup,
+  serializeBackup,
+  type BackupSnapshot,
+} from '../../src/database/backup';
+import { initSqlJsOnce, resetMockDatabase } from './sqliteMock';
+
+vi.mock('expo-sqlite', async () => {
+  const mod = await import('./sqliteMock');
+  return { openDatabaseSync: mod.openDatabaseSync };
+});
+
+await import('expo-sqlite');
+
+const LIST_ROW = {
+  id: 1,
+  name: 'Groceries',
+  color: '#22D3EE',
+  icon: 'cart-outline',
+  collection_id: null,
+  created_at: '2026-01-01 00:00:00',
+  position: 0,
+  pinned: 0 as const,
+  kind: 'standard' as const,
+};
+
+const ITEM_ROW = {
+  id: 1,
+  list_id: 1,
+  name: 'Milk',
+  checked: 0 as const,
+  note: null,
+  position: 0,
+  created_at: '2026-01-01 00:00:00',
+  updated_at: '2026-01-01 00:00:00',
+  pictures: null,
+  amount_minor: null,
+  quantity: 0,
+};
+
+function makeSnapshot(overrides: Partial<BackupSnapshot> = {}): BackupSnapshot {
+  return {
+    app: 'Listly',
+    kind: 'backup',
+    formatVersion: BACKUP_FORMAT_VERSION,
+    exportedAt: '2026-01-01T00:00:00.000Z',
+    schema: 7,
+    data: {
+      collections: [],
+      lists: [LIST_ROW],
+      items: [ITEM_ROW],
+      vaults: [],
+      config: [{ key: 'theme', value: 'dark' }],
+    },
+    ...overrides,
+  };
+}
+
+describe('backup format', () => {
+  it('round-trips through serialize and parse', () => {
+    const snapshot = makeSnapshot();
+    expect(parseBackup(serializeBackup(snapshot))).toEqual(snapshot);
+  });
+
+  it('rejects invalid JSON', () => {
+    expect(() => parseBackup('not json')).toThrowError(
+      expect.objectContaining({ code: 'invalid_json' })
+    );
+  });
+
+  it('rejects a payload that is not a Listly backup', () => {
+    expect(() => parseBackup('{}')).toThrowError(
+      expect.objectContaining({ code: 'invalid_format' })
+    );
+    expect(() => parseBackup(JSON.stringify(makeSnapshot({ app: 'Other' } as never)))).toThrowError(
+      expect.objectContaining({ code: 'invalid_format' })
+    );
+  });
+
+  it('rejects a malformed data payload', () => {
+    const snapshot = makeSnapshot();
+    const malformed = { ...snapshot, data: { ...snapshot.data, items: [{ id: 'x' }] } };
+    expect(() => parseBackup(JSON.stringify(malformed))).toThrowError(
+      expect.objectContaining({ code: 'invalid_format' })
+    );
+  });
+});
+
+describe('backup service', () => {
+  beforeAll(async () => {
+    await initSqlJsOnce();
+  });
+
+  beforeEach(async () => {
+    vi.resetModules();
+    resetMockDatabase();
+    const { initDatabase } = await import('../../src/database/database');
+    await initDatabase();
+  });
+
+  it('exports every table and restores it back', async () => {
+    const { listRepo } = await import('../../src/database/repositories/listRepo');
+    const { itemRepo } = await import('../../src/database/repositories/itemRepo');
+    const { configRepo } = await import('../../src/database/repositories/configRepo');
+    const { exportBackup, importBackup } = await import('../../src/database/backupService');
+
+    const list = await listRepo.create({ name: 'Groceries', color: '#22D3EE', icon: 'cart-outline' });
+    await itemRepo.create({
+      list_id: list.id,
+      name: 'Milk',
+      checked: 1,
+      note: 'whole',
+      pictures: null,
+      position: 0,
+    });
+    await configRepo.save({ theme: 'dark', showNotes: false, showNotesNumeric: false });
+
+    const json = await exportBackup();
+    const snapshot = JSON.parse(json) as BackupSnapshot;
+    expect(snapshot.app).toBe('Listly');
+    expect(snapshot.kind).toBe('backup');
+    expect(snapshot.formatVersion).toBe(BACKUP_FORMAT_VERSION);
+    expect(snapshot.schema).toBe(9);
+    expect(snapshot.data.lists).toHaveLength(1);
+    expect(snapshot.data.items).toHaveLength(1);
+
+    await listRepo.delete(list.id);
+    await configRepo.save({ theme: 'light', showNotes: true });
+
+    await importBackup(json);
+
+    const lists = await listRepo.list();
+    expect(lists.map(l => l.name)).toEqual(['Groceries']);
+    const items = await itemRepo.listByList(list.id);
+    expect(items).toHaveLength(1);
+    expect(items[0]).toMatchObject({ name: 'Milk', checked: 1, note: 'whole' });
+    const config = await configRepo.get();
+    expect(config.theme).toBe('dark');
+    expect(config.showNotes).toBe(false);
+    expect(config.showNotesNumeric).toBe(false);
+  });
+
+  it('imports a legacy backup without the numeric visibility keys with the defaults', async () => {
+    const { importBackup } = await import('../../src/database/backupService');
+    const { configRepo } = await import('../../src/database/repositories/configRepo');
+
+    const legacy = {
+      app: 'Listly',
+      kind: 'backup',
+      formatVersion: BACKUP_FORMAT_VERSION,
+      exportedAt: '2026-01-01T00:00:00.000Z',
+      schema: 9,
+      data: {
+        collections: [],
+        lists: [],
+        items: [],
+        config: [{ key: 'show_notes', value: 'false' }],
+      },
+    } as never;
+
+    await importBackup(JSON.stringify(legacy));
+
+    const config = await configRepo.get();
+    expect(config.showNotes).toBe(false);
+    expect(config.showNotesNumeric).toBe(true);
+    expect(config.showPhotosNumeric).toBe(true);
+    expect(config.editShowNotesNumeric).toBe(true);
+    expect(config.editShowPhotosNumeric).toBe(true);
+  });
+
+  it('exports a locked list encrypted and restores the vault on import', async () => {
+    const { listRepo } = await import('../../src/database/repositories/listRepo');
+    const { itemRepo } = await import('../../src/database/repositories/itemRepo');
+    const { vaultRepo } = await import('../../src/database/repositories/vaultRepo');
+    const { exportBackup, importBackup } = await import('../../src/database/backupService');
+
+    const list = await listRepo.create({ name: 'Secrets', color: '#F472B6', icon: 'lock-closed-outline' });
+    await itemRepo.create({ list_id: list.id, name: 'PIN', checked: 0, note: '1234', pictures: null, position: 0 });
+    await vaultRepo.lock(list.id, 'secret123', await vaultRepo.readPlainItems(list.id));
+
+    const json = await exportBackup();
+    const snapshot = JSON.parse(json) as BackupSnapshot;
+    expect(snapshot.data.vaults).toHaveLength(1);
+    expect(snapshot.data.vaults?.[0].payload).not.toContain('PIN');
+    expect(snapshot.data.items.some(i => i.list_id === list.id)).toBe(false);
+
+    await listRepo.delete(list.id);
+    await importBackup(json);
+
+    expect(await vaultRepo.exists(list.id)).toBe(true);
+    const unlocked = await vaultRepo.unlock(list.id, 'secret123');
+    expect(unlocked.map(i => i.name)).toEqual(['PIN']);
+    expect(unlocked[0].note).toBe('1234');
+  });
+
+  it('imports a legacy backup without vaults', async () => {
+    const { listRepo } = await import('../../src/database/repositories/listRepo');
+    const { vaultRepo } = await import('../../src/database/repositories/vaultRepo');
+    const { importBackup } = await import('../../src/database/backupService');
+
+    const legacy = {
+      app: 'Listly',
+      kind: 'backup',
+      formatVersion: BACKUP_FORMAT_VERSION,
+      exportedAt: '2026-01-01T00:00:00.000Z',
+      schema: 8,
+      data: {
+        collections: [],
+        lists: [
+          {
+            id: 1,
+            name: 'Legacy',
+            color: '#22D3EE',
+            icon: 'cart-outline',
+            created_at: '2026-01-01 00:00:00',
+            position: 0,
+            pinned: 0,
+            kind: 'standard',
+            collection_id: null,
+          },
+        ],
+        items: [],
+        config: [],
+      },
+    };
+
+    await importBackup(JSON.stringify(legacy));
+    expect((await listRepo.list()).map(l => l.name)).toEqual(['Legacy']);
+    expect(await vaultRepo.listIds()).toEqual([]);
+  });
+
+  it('preserves pinned flags through export and import', async () => {
+    const { listRepo } = await import('../../src/database/repositories/listRepo');
+    const { collectionRepo } = await import('../../src/database/repositories/collectionRepo');
+    const { exportBackup, importBackup } = await import('../../src/database/backupService');
+
+    const list = await listRepo.create({ name: 'Groceries', color: '#22D3EE', icon: 'cart-outline' });
+    await listRepo.setPinned(list.id, true);
+    const collection = await collectionRepo.create({ name: 'Shopping', color: '#A855F7', icon: 'folder-outline' });
+    await collectionRepo.setPinned(collection.id, true);
+
+    const json = await exportBackup();
+    const snapshot = JSON.parse(json) as BackupSnapshot;
+    expect(snapshot.data.lists[0].pinned).toBe(1);
+    expect(snapshot.data.collections[0].pinned).toBe(1);
+
+    await listRepo.setPinned(list.id, false);
+
+    await importBackup(json);
+
+    expect((await listRepo.list())[0]?.pinned).toBe(1);
+    expect((await collectionRepo.list())[0]?.pinned).toBe(1);
+  });
+
+  it('imports a legacy backup without pinned rows as unpinned', async () => {
+    const { listRepo } = await import('../../src/database/repositories/listRepo');
+    const { importBackup } = await import('../../src/database/backupService');
+
+    const legacy = {
+      app: 'Listly',
+      kind: 'backup',
+      formatVersion: BACKUP_FORMAT_VERSION,
+      exportedAt: '2026-01-01T00:00:00.000Z',
+      schema: 5,
+      data: {
+        collections: [],
+        lists: [
+          {
+            id: 1,
+            name: 'Groceries',
+            color: '#22D3EE',
+            icon: 'cart-outline',
+            collection_id: null,
+            created_at: '2026-01-01 00:00:00',
+            position: 0,
+          },
+        ],
+        items: [],
+        config: [],
+      },
+    } as never;
+
+    await importBackup(JSON.stringify(legacy));
+
+    const lists = await listRepo.list();
+    expect(lists.map(l => l.name)).toEqual(['Groceries']);
+    expect(lists[0]?.pinned).toBe(0);
+  });
+
+  it('round-trips list kind and numeric item fields', async () => {
+    const { listRepo } = await import('../../src/database/repositories/listRepo');
+    const { itemRepo } = await import('../../src/database/repositories/itemRepo');
+    const { exportBackup, importBackup } = await import('../../src/database/backupService');
+
+    const list = await listRepo.create({ name: 'Cart', color: '#22D3EE', icon: 'cart-outline', kind: 'numeric' });
+    await itemRepo.create({ list_id: list.id, name: 'Milk', checked: 0, note: null, pictures: null, position: 0, amount_minor: 199, quantity: 3 });
+
+    const json = await exportBackup();
+    const snapshot = JSON.parse(json) as BackupSnapshot;
+    expect(snapshot.data.lists[0]?.kind).toBe('numeric');
+    expect(snapshot.data.items[0]?.amount_minor).toBe(199);
+    expect(snapshot.data.items[0]?.quantity).toBe(3);
+
+    await listRepo.delete(list.id);
+    await importBackup(json);
+
+    const lists = await listRepo.list();
+    expect(lists[0]?.kind).toBe('numeric');
+    const items = await itemRepo.listByList(list.id);
+    expect(items[0]?.amount_minor).toBe(199);
+    expect(items[0]?.quantity).toBe(3);
+  });
+
+  it('imports a legacy backup without kind or numeric fields with the defaults', async () => {
+    const { listRepo } = await import('../../src/database/repositories/listRepo');
+    const { itemRepo } = await import('../../src/database/repositories/itemRepo');
+    const { importBackup } = await import('../../src/database/backupService');
+
+    const legacy = {
+      app: 'Listly',
+      kind: 'backup',
+      formatVersion: BACKUP_FORMAT_VERSION,
+      exportedAt: '2026-01-01T00:00:00.000Z',
+      schema: 7,
+      data: {
+        collections: [],
+        lists: [
+          { id: 1, name: 'Groceries', color: '#22D3EE', icon: 'cart-outline', collection_id: null, created_at: '2026-01-01 00:00:00', position: 0 },
+        ],
+        items: [
+          { id: 1, list_id: 1, name: 'Milk', checked: 0, note: null, position: 0, created_at: '2026-01-01 00:00:00', pictures: null },
+        ],
+        config: [],
+      },
+    } as never;
+
+    await importBackup(JSON.stringify(legacy));
+
+    const lists = await listRepo.list();
+    expect(lists[0]?.kind).toBe('standard');
+    const items = await itemRepo.listByList(1);
+    expect(items[0]?.amount_minor).toBeNull();
+    expect(items[0]?.quantity).toBe(0);
+  });
+
+  it('imports a legacy backup without updated_at defaulting to created_at', async () => {
+    const { listRepo } = await import('../../src/database/repositories/listRepo');
+    const { itemRepo } = await import('../../src/database/repositories/itemRepo');
+    const { importBackup } = await import('../../src/database/backupService');
+
+    const legacy = {
+      app: 'Listly',
+      kind: 'backup',
+      formatVersion: BACKUP_FORMAT_VERSION,
+      exportedAt: '2026-01-01T00:00:00.000Z',
+      schema: 6,
+      data: {
+        collections: [],
+        lists: [
+          {
+            id: 1,
+            name: 'Groceries',
+            color: '#22D3EE',
+            icon: 'cart-outline',
+            collection_id: null,
+            created_at: '2026-01-01 00:00:00',
+            position: 0,
+            pinned: 0,
+          },
+        ],
+        items: [
+          {
+            id: 1,
+            list_id: 1,
+            name: 'Milk',
+            checked: 0,
+            note: null,
+            position: 0,
+            created_at: '2026-05-05 05:05:05',
+            pictures: null,
+          },
+        ],
+        config: [],
+      },
+    } as never;
+
+    await importBackup(JSON.stringify(legacy));
+
+    const list = (await listRepo.list())[0];
+    expect(list).toBeDefined();
+    const items = await itemRepo.listByList(list!.id);
+    expect(items).toHaveLength(1);
+    expect(items[0]?.updated_at).toBe('2026-05-05 05:05:05');
+  });
+
+  it('rejects a backup from a newer schema version', async () => {
+    const { exportBackup, importBackup } = await import('../../src/database/backupService');
+    const snapshot = JSON.parse(await exportBackup()) as BackupSnapshot;
+    snapshot.schema = 999;
+    await expect(importBackup(JSON.stringify(snapshot))).rejects.toMatchObject({
+      code: 'newer_version',
+    });
+  });
+
+  it('rejects an invalid backup without touching the database', async () => {
+    const { listRepo } = await import('../../src/database/repositories/listRepo');
+    const { importBackup } = await import('../../src/database/backupService');
+    await listRepo.create({ name: 'Keep Me', color: '#22D3EE', icon: 'cart-outline' });
+
+    await expect(importBackup('{ broken')).rejects.toMatchObject({ code: 'invalid_json' });
+    expect((await listRepo.list()).map(l => l.name)).toEqual(['Keep Me']);
+  });
+});
+
+describe('database reset helpers', () => {
+  beforeAll(async () => {
+    await initSqlJsOnce();
+  });
+
+  beforeEach(async () => {
+    vi.resetModules();
+    resetMockDatabase();
+    const { initDatabase } = await import('../../src/database/database');
+    await initDatabase();
+  });
+
+  it('clearDataKeepSettings deletes lists and items but keeps settings', async () => {
+    const { listRepo } = await import('../../src/database/repositories/listRepo');
+    const { itemRepo } = await import('../../src/database/repositories/itemRepo');
+    const { configRepo } = await import('../../src/database/repositories/configRepo');
+    const { clearDataKeepSettings } = await import('../../src/database/database');
+
+    const list = await listRepo.create({ name: 'Groceries', color: '#22D3EE', icon: 'cart-outline' });
+    await itemRepo.create({
+      list_id: list.id,
+      name: 'Milk',
+      checked: 0,
+      note: null,
+      pictures: null,
+      position: 0,
+    });
+    await configRepo.save({ theme: 'dark' });
+
+    await clearDataKeepSettings();
+
+    expect(await listRepo.list()).toEqual([]);
+    expect(await itemRepo.listAll()).toEqual([]);
+    expect((await configRepo.get()).theme).toBe('dark');
+  });
+
+  it('resetDatabase clears data and restores the default config', async () => {
+    const { listRepo } = await import('../../src/database/repositories/listRepo');
+    const { configRepo } = await import('../../src/database/repositories/configRepo');
+    const { DEFAULT_CONFIG } = await import('../../src/database/configDefaults');
+    const { resetDatabase } = await import('../../src/database/database');
+
+    await listRepo.create({ name: 'Groceries', color: '#22D3EE', icon: 'cart-outline' });
+    await configRepo.save({ theme: 'dark', listsLayout: 'grid', showNotes: false });
+
+    await resetDatabase();
+
+    expect(await listRepo.list()).toEqual([]);
+    expect(await configRepo.get()).toEqual(DEFAULT_CONFIG);
+  });
+});

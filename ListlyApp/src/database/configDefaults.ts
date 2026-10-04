@@ -1,0 +1,65 @@
+import { LANGUAGES } from '../constants/languages';
+import { LIST_LAYOUTS, TEXT_SIZES, THEMES } from '../constants/types';
+import { configSchema } from './schemas';
+import type { Config } from './types';
+
+export const DEFAULT_CONFIG: Config = {
+  theme: THEMES.system,
+  language: LANGUAGES.en,
+  textSize: TEXT_SIZES.medium,
+  homeCollectionsLayout: LIST_LAYOUTS.grid,
+  homeListsLayout: LIST_LAYOUTS.grid,
+  collectionsLayout: LIST_LAYOUTS.grid,
+  collectionDetailLayout: LIST_LAYOUTS.grid,
+  listsLayout: LIST_LAYOUTS.list,
+  showNotes: true,
+  showPhotos: true,
+  editShowNotes: true,
+  editShowPhotos: true,
+  showNotesNumeric: true,
+  showPhotosNumeric: true,
+  editShowNotesNumeric: true,
+  editShowPhotosNumeric: true,
+};
+
+export const DB_KEY_MAP: Record<string, keyof Config> = {
+  theme: 'theme',
+  language: 'language',
+  text_size: 'textSize',
+  home_collections_layout: 'homeCollectionsLayout',
+  home_lists_layout: 'homeListsLayout',
+  collections_layout: 'collectionsLayout',
+  collection_detail_layout: 'collectionDetailLayout',
+  lists_layout: 'listsLayout',
+  show_notes: 'showNotes',
+  show_photos: 'showPhotos',
+  edit_show_notes: 'editShowNotes',
+  edit_show_photos: 'editShowPhotos',
+  show_notes_numeric: 'showNotesNumeric',
+  show_photos_numeric: 'showPhotosNumeric',
+  edit_show_notes_numeric: 'editShowNotesNumeric',
+  edit_show_photos_numeric: 'editShowPhotosNumeric',
+};
+
+const DB_KEY_OF: Record<string, string> = Object.fromEntries(
+  Object.entries(DB_KEY_MAP).map(([dbKey, configKey]) => [configKey, dbKey])
+);
+
+export function decodeConfigValue(key: keyof Config, raw: string): unknown {
+  if (typeof DEFAULT_CONFIG[key] === 'boolean') return raw === 'true' || raw === '1';
+  return raw;
+}
+
+export function toConfigRows(partial: Partial<Config>): { key: string; value: string }[] {
+  const rows: { key: string; value: string }[] = [];
+  for (const [key, value] of Object.entries(partial)) {
+    if (value === undefined) continue;
+    rows.push({ key: DB_KEY_OF[key] ?? key, value: String(value) });
+  }
+  return rows;
+}
+
+export function sanitizeConfig(config: Config): Config {
+  const result = configSchema.safeParse(config);
+  return result.success ? result.data : DEFAULT_CONFIG;
+}

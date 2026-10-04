@@ -1,0 +1,54 @@
+# 025 — Merge lists
+
+- **Objective**
+  Let the user merge one list into another: the source's items are appended to the target list and the source list is deleted.
+
+---
+
+## Functional requirements
+
+### 1. Merge action
+- Edit List (pencil → Edit List) shows a *Merge into…* action only when the list has items **and at least one other list exists in the app** (and the list is not locked). It is the second button of the bottom action stack, under the outlined-red *Delete list* button and above *Duplicate list* / *Save*, tinted with the amber `warning` token to signal a caution/destructive-but-data-preserving action.
+- Tapping it opens a list picker modal listing every other list (the source is excluded).
+- Selecting a target opens a destructive confirmation: "Merge N items into <Target> and delete <Source>?".
+- Confirming merges and takes the user to the target list with a *Merged into <Target>* toast (the navigation stack is reset so the deleted source's detail screen is no longer behind the target).
+
+### 2. Merge semantics
+- The source's items are appended at the end of the target in source `position` order, with full fidelity: `name`, `note`, `checked` state, and `pictures` (image files are deep-copied so the merged items own their own files).
+- The merge applies the same name-dedupe rule as 023: a source item whose name (case-insensitive) already exists in the target is skipped, and the target's matching item is never modified. Consequence for merge: note/photos carried only by a skipped source item are lost with the source's deletion.
+- The source list is then deleted inside the same transaction (including its item rows and all of the source's photo files, which are no longer needed since the merged copies own duplicates).
+- Cancelling the confirmation or the picker changes nothing.
+
+### 3. Guards
+- Merging a list into itself is impossible (the source is excluded from the picker).
+- An empty source list shows no *Merge into…* action (nothing to merge).
+- With only one list in the app there is no merge target, so the *Merge into…* action is hidden.
+- A locked list shows no *Merge into…* action.
+- The operation fails safely if either list no longer exists.
+
+### 4. i18n and error handling
+- New keys in en/es: `list_merge_into`, `list_merge_confirm`, `list_merge_confirm_title`, `list_merge_confirm_message`, `list_merged`, `list_merge_empty`.
+- The merge runs under a new `ERROR_SCOPE.mergeLists`; failures surface via the existing error path and leave both lists untouched (transaction).
+
+---
+
+## Non-functional requirements
+
+- **TypeScript strict**, no `any`; theme tokens + `fs()`; accessibility labels on the action, picker, and confirmation.
+- **Tests**: `itemRepo.mergeInto` (fidelity, append positions, source deleted, photo cleanup, rollback); guards (source ≠ target, empty source no action); flow (picker excludes self, confirmation, navigation + toast). `npm run test:all` green.
+- **Verification**: web loop at 375px (merge list B into list A: confirm appends B's items in order with checked state, B disappears, user lands on A with the toast; cancel changes nothing).
+
+---
+
+## Acceptance criteria
+
+- [x] Edit List shows a *Merge into…* action only when the list has items and another list exists to merge into.
+- [x] *Merge into…* sits under *Delete list* in the bottom action stack and is amber (`warning` token), distinct from the primary-blue *Duplicate list* / *Save* actions.
+- [x] The picker lists other lists, excludes the source, and lets the user pick a target.
+- [x] The confirmation states the item count and the target name, with Cancel and Merge.
+- [x] Confirming appends the source's items (name, note, checked, pictures) to the target in source order and deletes the source list in one transaction.
+- [x] Photo blobs are shared, not re-imported; only the photos of dedupe-skipped source items are cleaned up (merged items keep their shared photos).
+- [x] After merging, the app navigates to the target with a *Merged into <Target>* toast.
+- [x] Cancelling the picker or confirmation changes nothing.
+- [x] New labels exist in en and es.
+- [x] `npm run test:all` passes.

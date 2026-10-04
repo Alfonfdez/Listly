@@ -1,0 +1,54 @@
+import { sql } from 'drizzle-orm';
+import { integer, sqliteTable, text } from 'drizzle-orm/sqlite-core';
+
+export const collections = sqliteTable('collections', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  name: text('name').notNull(),
+  color: text('color').notNull(),
+  icon: text('icon').notNull(),
+  created_at: text('created_at').notNull().default(sql`(datetime('now', 'localtime'))`),
+  position: integer('position').notNull().default(0),
+  pinned: integer('pinned').notNull().default(0).$type<0 | 1>(),
+});
+
+export const lists = sqliteTable('lists', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  name: text('name').notNull(),
+  color: text('color').notNull(),
+  icon: text('icon').notNull(),
+  created_at: text('created_at').notNull().default(sql`(datetime('now', 'localtime'))`),
+  position: integer('position').notNull().default(0),
+  pinned: integer('pinned').notNull().default(0).$type<0 | 1>(),
+  kind: text('kind').notNull().default('standard').$type<'standard' | 'numeric'>(),
+  collection_id: integer('collection_id').references(() => collections.id),
+});
+
+export const items = sqliteTable('items', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  list_id: integer('list_id').notNull(),
+  name: text('name').notNull(),
+  checked: integer('checked').notNull().default(0),
+  note: text('note'),
+  position: integer('position').notNull().default(0),
+  created_at: text('created_at').notNull().default(sql`(datetime('now', 'localtime'))`),
+  updated_at: text('updated_at').notNull().default(sql`(datetime('now', 'localtime'))`),
+  pictures: text('pictures'),
+  amount_minor: integer('amount_minor'),
+  quantity: integer('quantity').notNull().default(0),
+});
+
+export const config = sqliteTable('config', {
+  key: text('key').primaryKey(),
+  value: text('value').notNull(),
+});
+
+export const vaults = sqliteTable('vaults', {
+  list_id: integer('list_id').primaryKey(),
+  salt: text('salt').notNull(),
+  kdf_iterations: integer('kdf_iterations').notNull(),
+  kdf_digest: text('kdf_digest').notNull(),
+  kdf_version: integer('kdf_version').notNull(),
+  verifier: text('verifier').notNull(),
+  payload: text('payload').notNull(),
+  updated_at: text('updated_at').notNull().default(sql`(datetime('now', 'localtime'))`),
+});

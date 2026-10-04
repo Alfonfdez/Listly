@@ -1,0 +1,141 @@
+import initSqlJs from 'sql.js';
+import type { Database, SqlJsStatic } from 'sql.js';
+import type { DatabaseBindValue, DatabaseHandle, DatabaseRunResult } from './types';
+import { DB_STORE_NAME } from './constants';
+
+export const DB_FILE_KEY = DB_STORE_NAME;
+
+export interface DatabaseStorage {
+  get(): Promise<Uint8Array | null>;
+  set(data: Uint8Array): Promise<void>;
+}
+
+let sqlReady: SqlJsStatic | null = null;
+let sqlPromise: Promise<SqlJsStatic> | null = null;
+
+type PersistenceErrorListener = (error: unknown) => void;
+
+let persistenceErrorListener: PersistenceErrorListener | null = null;
+
+export function onPersistenceError(listener: PersistenceErrorListener): () => void {
+  persistenceErrorListener = listener;
+  return () => {
+    if (persistenceErrorListener === listener) persistenceErrorListener = null;
+  };
+}
+
+function initSqlJsEngine(locateFile?: (file: string) => string): Promise<SqlJsStatic> {
+  if (!sqlPromise) {
+    sqlPromise = (locateFile ? initSqlJs({ locateFile }) : initSqlJs()).then((sql) => {
+      sqlReady = sql;
+      return sql;
+    });
+  }
+  return sqlPromise;
+}
+
+export function getSqlJsStatic(): SqlJsStatic | null {
+  return sqlReady;
+}
+
+export class SqlJsDatabase implements DatabaseHandle {
+  private readonly db: Database;
+  private readonly storage: DatabaseStorage | null;
+  private inTransaction = 0;
+  private persistQueue: Promise<void> = Promise.resolve();
+
+  constructor(db: Database, storage: DatabaseStorage | null = null) {
+    this.db = db;
+    this.storage = storage;
+    this.db.exec('PRAGMA foreign_keys = ON;');
+  }
+
+  async execAsync(source: string): Promise<void> {
+    this.db.exec(source);
+    await this.persistIfCommitted();
+  }
+
+  async runAsync(source: string, ...params: DatabaseBindValue[]): Promise<DatabaseRunResult> {
+    this.db.run(source, params);
+    const result: DatabaseRunResult = {
+      lastInsertRowId: this.lastInsertRowId(),
+      changes: this.db.getRowsModified(),
+    };
+    await this.persistIfCommitted();
+    return result;
+  }
+
+  async getFirstAsync<T>(source: string, ...params: DatabaseBindValue[]): Promise<T | null> {
+    const rows = this.all<T>(source, params);
+    return rows.length > 0 ? rows[0] : null;
+  }
+
+  async getAllAsync<T>(source: string, ...params: DatabaseBindValue[]): Promise<T[]> {
+    return this.all<T>(source, params);
+  }
+
+  async withTransactionAsync(task: () => Promise<void>): Promise<void> {
+    if (this.inTransaction > 0) {
+      throw new Error('Nested transaction detected; runExclusive serializes transactions');
+    }
+    this.inTransaction += 1;
+    this.db.exec('BEGIN');
+    try {
+      await task();
+      this.db.exec('COMMIT');
+    } catch (error) {
+      this.db.exec('ROLLBACK');
+      throw error;
+    } finally {
+      this.inTransaction -= 1;
+      await this.persistIfCommitted();
+    }
+  }
+
+  close(): void {
+    this.db.close();
+  }
+
+  private lastInsertRowId(): number {
+    const rows = this.db.exec('SELECT last_insert_rowid() AS id');
+    return rows.length > 0 ? (rows[0].values[0][0] as number) : 0;
+  }
+
+  private all<T>(source: string, params: DatabaseBindValue[]): T[] {
+    const stmt = this.db.prepare(source);
+    try {
+      stmt.bind(params);
+      const rows: T[] = [];
+      while (stmt.step()) {
+        rows.push(stmt.getAsObject() as T);
+      }
+      return rows;
+    } finally {
+      stmt.free();
+    }
+  }
+
+  private persistIfCommitted(): Promise<void> {
+    if (this.inTransaction > 0 || !this.storage) return Promise.resolve();
+    const bytes = this.db.export();
+    this.db.exec('PRAGMA foreign_keys = ON;');
+    const run = this.persistQueue.then(() => this.storage!.set(bytes));
+    this.persistQueue = run.then(
+      () => undefined,
+      () => undefined
+    );
+    return run.catch((error) => {
+      persistenceErrorListener?.(error);
+      throw error;
+    });
+  }
+}
+
+export async function createSqlJsDatabase(
+  bytes: Uint8Array | null,
+  storage: DatabaseStorage | null = null,
+  locateFile?: (file: string) => string
+): Promise<SqlJsDatabase> {
+  const SQL = await initSqlJsEngine(locateFile);
+  return new SqlJsDatabase(new SQL.Database(bytes ?? undefined), storage);
+}

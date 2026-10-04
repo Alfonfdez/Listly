@@ -1,0 +1,384 @@
+import { beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
+import type { DatabaseHandle } from '../../src/database/types';
+import { initSqlJsOnce, openDatabaseSync, resetMockDatabase } from './sqliteMock';
+import type { collectionRepo } from '../../src/database/repositories/collectionRepo';
+import type { listRepo } from '../../src/database/repositories/listRepo';
+import type { itemRepo } from '../../src/database/repositories/itemRepo';
+
+vi.mock('expo-sqlite', async () => {
+  const mod = await import('./sqliteMock');
+  return { openDatabaseSync: mod.openDatabaseSync };
+});
+
+vi.mock('../../src/utils/itemPhotos', async () => {
+  const actual = await vi.importActual<typeof import('../../src/utils/itemPhotos')>('../../src/utils/itemPhotos');
+  return {
+    ...actual,
+    deleteItemPhotos: vi.fn(async () => {}),
+    duplicateItemPhotos: vi.fn(async (photos: string[]) => photos.map(p => `copy-of-${p}`)),
+  };
+});
+
+await import('expo-sqlite');
+
+type Backend = {
+  collections: typeof collectionRepo;
+  lists: typeof listRepo;
+  items: typeof itemRepo;
+};
+
+async function createBackend(): Promise<Backend> {
+  vi.resetModules();
+  resetMockDatabase();
+  const db = openDatabaseSync('Listly.db') as unknown as DatabaseHandle;
+  await db.execAsync('PRAGMA foreign_keys = ON;');
+
+  const { createSchema } = await import('../../src/database/migrations/001_initial');
+  const { addListPositions } = await import('../../src/database/migrations/003_list_position');
+  await createSchema(db);
+  await addListPositions(db);
+
+  const { collectionRepo: collections } = await import('../../src/database/repositories/collectionRepo');
+  const { listRepo: lists } = await import('../../src/database/repositories/listRepo');
+  const { itemRepo: items } = await import('../../src/database/repositories/itemRepo');
+  return { collections, lists, items };
+}
+
+async function seedTwoCollections(b: Backend) {
+  const a = await b.collections.create({ name: 'A', color: '#A855F7', icon: 'folder-outline' });
+  const a1 = await b.lists.create({ name: 'A1', color: '#22D3EE', icon: 'cart-outline', collection_id: a.id });
+  const a2 = await b.lists.create({ name: 'A2', color: '#34D399', icon: 'gift-outline', collection_id: a.id });
+  const bcol = await b.collections.create({ name: 'B', color: '#F87171', icon: 'star-outline' });
+  const free = await b.lists.create({ name: 'Free', color: '#FBBF24', icon: 'rocket-outline', collection_id: null });
+  return { a, a1, a2, bcol, free };
+}
+
+describe('listRepo.moveToCollection', () => {
+  let b: Backend;
+
+  beforeAll(async () => {
+    await initSqlJsOnce();
+  });
+
+  beforeEach(async () => {
+    b = await createBackend();
+  });
+
+  it('moves a standalone list into a collection appending it at the end', async () => {
+    const { a, a1, a2, free } = await seedTwoCollections(b);
+    expect((await b.lists.get(free.id))?.collection_id).toBeNull();
+
+    await b.lists.moveToCollection(free.id, a.id);
+
+    const moved = await b.lists.get(free.id);
+    expect(moved?.collection_id).toBe(a.id);
+    expect(moved?.position).toBe(2);
+    expect((await b.lists.get(a1.id))?.position).toBe(0);
+    expect((await b.lists.get(a2.id))?.position).toBe(1);
+  });
+
+  it('keeps the free list as the first member when the collection is empty', async () => {
+    const { bcol, free } = await seedTwoCollections(b);
+
+    await b.lists.moveToCollection(free.id, bcol.id);
+
+    const moved = await b.lists.get(free.id);
+    expect(moved?.collection_id).toBe(bcol.id);
+    expect(moved?.position).toBe(0);
+  });
+
+  it('moves a list between collections appending it after existing members', async () => {
+    const { a, a1, a2, bcol, free } = await seedTwoCollections(b);
+    await b.lists.moveToCollection(free.id, bcol.id);
+
+    await b.lists.moveToCollection(a1.id, bcol.id);
+
+    const moved = await b.lists.get(a1.id);
+    expect(moved?.collection_id).toBe(bcol.id);
+    expect(moved?.position).toBe(1);
+    expect((await b.lists.get(free.id))?.position).toBe(0);
+    expect((await b.lists.get(a2.id))?.collection_id).toBe(a.id);
+    expect((await b.lists.get(a2.id))?.position).toBe(1);
+  });
+
+  it('serializes concurrent transactions instead of nesting BEGIN', async () => {
+    const { a, a1, a2, free } = await seedTwoCollections(b);
+
+    await Promise.all([
+      b.lists.moveToCollection(free.id, a.id),
+      b.lists.reorder([a1.id, a2.id, free.id]),
+    ]);
+
+    const moved = await b.lists.get(free.id);
+    expect(moved?.collection_id).toBe(a.id);
+    expect((await b.lists.get(a2.id))?.position).toBe(1);
+  });
+});
+
+describe('listRepo.removeFromCollection', () => {
+  let b: Backend;
+
+  beforeAll(async () => {
+    await initSqlJsOnce();
+  });
+
+  beforeEach(async () => {
+    b = await createBackend();
+  });
+
+  it('removes a member from its collection making it a standalone list at the end', async () => {
+    const { a, a1, a2, free } = await seedTwoCollections(b);
+    await b.lists.moveToCollection(free.id, a.id);
+    expect((await b.lists.get(free.id))?.collection_id).toBe(a.id);
+
+    await b.lists.removeFromCollection(a1.id);
+
+    expect((await b.lists.get(a1.id))?.collection_id).toBeNull();
+    expect((await b.lists.get(free.id))?.collection_id).toBe(a.id);
+    expect((await b.lists.get(free.id))?.position).toBe(2);
+    expect((await b.lists.get(a1.id))?.position).toBe(0);
+  });
+
+  it('removes the only member of a collection', async () => {
+    const { bcol, free } = await seedTwoCollections(b);
+    await b.lists.moveToCollection(free.id, bcol.id);
+
+    await b.lists.removeFromCollection(free.id);
+
+    expect((await b.lists.get(free.id))?.collection_id).toBeNull();
+    expect((await b.lists.get(free.id))?.position).toBe(0);
+  });
+
+it('appends the removed list after existing standalone lists', async () => {
+    const { a, a1, a2 } = await seedTwoCollections(b);
+
+    await b.lists.removeFromCollection(a1.id);
+
+    expect((await b.lists.get(a1.id))?.collection_id).toBeNull();
+    expect((await b.lists.get(a1.id))?.position).toBe(1);
+    expect((await b.lists.get(a2.id))?.collection_id).toBe(a.id);
+    expect((await b.lists.get(a2.id))?.position).toBe(1);
+  });
+});
+
+describe('listRepo.setPinned and ordering', () => {
+  let b: Backend;
+
+  beforeAll(async () => {
+    await initSqlJsOnce();
+  });
+
+  beforeEach(async () => {
+    b = await createBackend();
+  });
+
+  it('create returns pinned 0', async () => {
+    const list = await b.lists.create({ name: 'New', color: '#22D3EE', icon: 'cart-outline' });
+    expect(list.pinned).toBe(0);
+  });
+
+  it('setPinned marks a list and list()/withCounts() order pinned first preserving positions', async () => {
+    const a = await b.lists.create({ name: 'A', color: '#22D3EE', icon: 'cart-outline' });
+    const pinned = await b.lists.create({ name: 'B', color: '#34D399', icon: 'gift-outline' });
+    const c = await b.lists.create({ name: 'C', color: '#F87171', icon: 'rocket-outline' });
+
+    await b.lists.setPinned(pinned.id, true);
+
+    expect((await b.lists.get(pinned.id))?.pinned).toBe(1);
+    expect((await b.lists.list()).map(l => l.name)).toEqual(['B', 'A', 'C']);
+    expect((await b.lists.withCounts()).map(l => l.name)).toEqual(['B', 'A', 'C']);
+  });
+
+  it('setPinned(false) restores position order', async () => {
+    const a = await b.lists.create({ name: 'A', color: '#22D3EE', icon: 'cart-outline' });
+    const pinned = await b.lists.create({ name: 'B', color: '#34D399', icon: 'gift-outline' });
+    const c = await b.lists.create({ name: 'C', color: '#F87171', icon: 'rocket-outline' });
+
+    await b.lists.setPinned(pinned.id, true);
+    await b.lists.setPinned(pinned.id, false);
+
+    expect((await b.lists.get(pinned.id))?.pinned).toBe(0);
+    expect((await b.lists.list()).map(l => l.name)).toEqual(['A', 'B', 'C']);
+  });
+
+  it('moveToCollection and removeFromCollection keep the pinned flag', async () => {
+    const { a, free } = await seedTwoCollections(b);
+    await b.lists.setPinned(free.id, true);
+
+    await b.lists.moveToCollection(free.id, a.id);
+    const moved = await b.lists.get(free.id);
+    expect(moved?.collection_id).toBe(a.id);
+    expect(moved?.pinned).toBe(1);
+
+    await b.lists.removeFromCollection(free.id);
+    const restored = await b.lists.get(free.id);
+    expect(restored?.collection_id).toBeNull();
+    expect(restored?.pinned).toBe(1);
+  });
+
+  it('reorderFromDrag pins an unpinned list dropped above the block and keeps the dropped order', async () => {
+    const a = await b.lists.create({ name: 'A', color: '#22D3EE', icon: 'cart-outline' });
+    const p = await b.lists.create({ name: 'P', color: '#34D399', icon: 'gift-outline' });
+    await b.lists.setPinned(p.id, true);
+    const z = await b.lists.create({ name: 'Z', color: '#F87171', icon: 'rocket-outline' });
+    // display: [P, A, Z] (pinned first). Drag Z above P and drop as the new first.
+    const order = [z.id, p.id, a.id];
+    await b.lists.reorderFromDrag(order, z.id, true);
+
+    expect((await b.lists.get(z.id))?.pinned).toBe(1);
+    expect((await b.lists.list()).map(l => l.name)).toEqual(['Z', 'P', 'A']);
+  });
+
+  it('reorderFromDrag unpins a pinned list dropped below the block', async () => {
+    const a = await b.lists.create({ name: 'A', color: '#22D3EE', icon: 'cart-outline' });
+    const p = await b.lists.create({ name: 'P', color: '#34D399', icon: 'gift-outline' });
+    await b.lists.setPinned(p.id, true);
+    const z = await b.lists.create({ name: 'Z', color: '#F87171', icon: 'rocket-outline' });
+    // display: [P, A, Z]. Drag P to the end and drop as last.
+    const order = [a.id, z.id, p.id];
+    await b.lists.reorderFromDrag(order, p.id, false);
+
+    expect((await b.lists.get(p.id))?.pinned).toBe(0);
+    expect((await b.lists.list()).map(l => l.name)).toEqual(['A', 'Z', 'P']);
+  });
+
+  it('reorderFromDrag with a null pin just reorders', async () => {
+    const a = await b.lists.create({ name: 'A', color: '#22D3EE', icon: 'cart-outline' });
+    const c = await b.lists.create({ name: 'C', color: '#F87171', icon: 'rocket-outline' });
+    await b.lists.reorderFromDrag([c.id, a.id], c.id, null);
+
+    expect((await b.lists.get(c.id))?.pinned).toBe(0);
+    expect((await b.lists.list()).map(l => l.name)).toEqual(['C', 'A']);
+  });
+});
+
+describe('listRepo.duplicate', () => {
+  let b: Backend;
+
+  beforeAll(async () => {
+    await initSqlJsOnce();
+  });
+
+  beforeEach(async () => {
+    b = await createBackend();
+  });
+
+  it('creates the copy list at the end of its section and copies the items', async () => {
+    const source = await b.lists.create({ name: 'A', color: '#22D3EE', icon: 'cart-outline', collection_id: null });
+    const other = await b.lists.create({ name: 'Other', color: '#34D399', icon: 'gift-outline', collection_id: null });
+    await b.items.create({ list_id: source.id, name: 'a1', checked: 1, note: 'n1', position: 0, pictures: '["p1.jpg"]' });
+    await b.items.create({ list_id: source.id, name: 'a2', checked: 0, note: null, position: 1, pictures: null });
+
+    const copy = await b.lists.duplicate(source.id, {
+      name: 'A copy',
+      color: '#22D3EE',
+      icon: 'cart-outline',
+      collection_id: null,
+    });
+
+    expect(copy.id).not.toBe(source.id);
+    expect(copy.name).toBe('A copy');
+    expect(copy.position).toBe(2);
+    expect(copy.pinned).toBe(0);
+    expect(copy.collection_id).toBeNull();
+
+    const copies = await b.items.listByList(copy.id);
+    expect(copies.map(i => i.name)).toEqual(['a1', 'a2']);
+    expect(copies.map(i => i.position)).toEqual([0, 1]);
+    expect(copies[0].checked).toBe(1);
+    expect(copies[0].note).toBe('n1');
+    expect(copies[0].pictures).toBe('["copy-of-p1.jpg"]');
+
+    const sourceItems = await b.items.listByList(source.id);
+    expect(sourceItems.map(i => i.name)).toEqual(['a1', 'a2']);
+  });
+
+  it('places the duplicated list inside the same collection after existing members', async () => {
+    const { a, a1, a2 } = await seedTwoCollections(b);
+
+    const copy = await b.lists.duplicate(a1.id, {
+      name: 'A1 copy',
+      color: a1.color,
+      icon: a1.icon,
+      collection_id: a.id,
+    });
+
+    expect(copy.collection_id).toBe(a.id);
+    expect(copy.position).toBe(2);
+    expect((await b.lists.get(a1.id))?.position).toBe(0);
+    expect((await b.lists.get(a2.id))?.position).toBe(1);
+  });
+});
+
+describe('listRepo delete photo cleanup', () => {
+  let b: Backend;
+
+  beforeAll(async () => {
+    await initSqlJsOnce();
+  });
+
+  beforeEach(async () => {
+    b = await createBackend();
+  });
+
+  it('deletes the photos of a list\'s items when the list is deleted', async () => {
+    const deleteItemPhotos = (await import('../../src/utils/itemPhotos')).deleteItemPhotos as ReturnType<typeof vi.fn>;
+    deleteItemPhotos.mockClear();
+    const list = await b.lists.create({ name: 'A', color: '#22D3EE', icon: 'cart-outline', collection_id: null });
+    await b.items.create({ list_id: list.id, name: 'a1', checked: 0, note: null, position: 0, pictures: '["a1.jpg"]' });
+    await b.items.create({ list_id: list.id, name: 'a2', checked: 0, note: null, position: 1, pictures: '["a2.jpg","a3.jpg"]' });
+
+    await b.lists.delete(list.id);
+
+    expect(deleteItemPhotos).toHaveBeenCalledTimes(1);
+    expect(deleteItemPhotos).toHaveBeenCalledWith(['a1.jpg', 'a2.jpg', 'a3.jpg']);
+  });
+
+  it('deletes the photos of all items across the deleted lists in deleteMany', async () => {
+    const deleteItemPhotos = (await import('../../src/utils/itemPhotos')).deleteItemPhotos as ReturnType<typeof vi.fn>;
+    deleteItemPhotos.mockClear();
+    const a = await b.lists.create({ name: 'A', color: '#22D3EE', icon: 'cart-outline', collection_id: null });
+    const c = await b.lists.create({ name: 'C', color: '#34D399', icon: 'gift-outline', collection_id: null });
+    const kept = await b.lists.create({ name: 'Keep', color: '#F87171', icon: 'star-outline', collection_id: null });
+    await b.items.create({ list_id: a.id, name: 'a1', checked: 0, note: null, position: 0, pictures: '["a1.jpg"]' });
+    await b.items.create({ list_id: c.id, name: 'c1', checked: 0, note: null, position: 0, pictures: '["c1.jpg"]' });
+    await b.items.create({ list_id: kept.id, name: 'k1', checked: 0, note: null, position: 0, pictures: '["k1.jpg"]' });
+
+    await b.lists.deleteMany([a.id, c.id]);
+
+    expect(deleteItemPhotos).toHaveBeenCalledTimes(1);
+    const allDeleted = (deleteItemPhotos.mock.calls as string[][]).flat(2);
+    expect(allDeleted.sort()).toEqual(['a1.jpg', 'c1.jpg']);
+    expect(allDeleted).not.toContain('k1.jpg');
+  });
+});
+
+describe('listRepo kind', () => {
+  let b: Backend;
+
+  beforeAll(async () => {
+    await initSqlJsOnce();
+  });
+
+  beforeEach(async () => {
+    b = await createBackend();
+  });
+
+  it('defaults to standard and stores/updates a numeric kind', async () => {
+    const standard = await b.lists.create({ name: 'S', color: '#22D3EE', icon: 'cart-outline', collection_id: null });
+    const numeric = await b.lists.create({ name: 'N', color: '#34D399', icon: 'gift-outline', collection_id: null, kind: 'numeric' });
+
+    expect(standard.kind).toBe('standard');
+    expect(numeric.kind).toBe('numeric');
+    expect((await b.lists.withCounts()).find(l => l.id === numeric.id)?.kind).toBe('numeric');
+
+    await b.lists.update(standard.id, { kind: 'numeric' });
+    expect((await b.lists.get(standard.id))?.kind).toBe('numeric');
+  });
+
+  it('duplicates the source list kind', async () => {
+    const source = await b.lists.create({ name: 'N', color: '#34D399', icon: 'gift-outline', collection_id: null, kind: 'numeric' });
+    const copy = await b.lists.duplicate(source.id, { name: 'N copy', color: source.color, icon: source.icon, collection_id: null });
+    expect(copy.kind).toBe('numeric');
+  });
+});

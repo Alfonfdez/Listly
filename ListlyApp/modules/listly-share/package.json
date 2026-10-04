@@ -1,0 +1,8 @@
+{
+  "name": "listly-share",
+  "version": "0.1.0",
+  "description": "Local native module that opens the system share sheet for a file (reporting the true outcome on iOS) and saves a file to the public Downloads folder on Android.",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "private": true
+}

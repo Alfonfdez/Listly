@@ -1,0 +1,43 @@
+# Listly EAS ignore. EAS resolves ignore from the git root.
+# Keep in sync with ListlyApp/.gitignore + build artifacts exclusion.
+
+# local env files
+.env*.local
+
+# tooling / dev-only dirs
+opencode.jsonc
+.playwright-mcp/
+*.log
+
+# macOS
+.DS_Store
+*.pem
+
+# Expo
+.expo/
+dist/
+web-build/
+expo-env.d.ts
+
+# Native (prebuild regenerates these on EAS; never upload local build dirs).
+# Anchored to the Expo project root: an unanchored "android/" would also match
+# any module's android|ios folder and silently drop local native modules from
+# EAS archives.
+/ListlyApp/android/
+/ListlyApp/ios/
+.kotlin/
+node_modules/
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+
+# Metro / debug
+.metro-health-check*
+npm-debug.*
+yarn-debug.*
+yarn-error.*
+
+# typescript
+*.tsbuildinfo
