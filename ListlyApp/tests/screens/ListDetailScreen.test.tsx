@@ -250,6 +250,19 @@ describe('ListDetailScreen', () => {
     expect(flattenStyle(view.getByTestId('list-body').props.style).paddingBottom).toBeUndefined();
   });
 
+  it('renders the header and toolbar in a sticky block outside the items scroll view', async () => {
+    setLists([LIST, OTHER_LIST]);
+    const view = await render(<ListDetailScreen />);
+    await view.findByText('Milk');
+
+    // Header + toolbar live in the sticky block...
+    const sticky = view.getByTestId('list-sticky');
+    expect(sticky).toBeTruthy();
+    expect(view.getByLabelText('Sort items: Manual')).toBeTruthy();
+    // ...and the item rows are rendered as siblings outside it.
+    expect(view.getByText('Milk')).toBeTruthy();
+  });
+
   it('adds a new item at the end of the list', async () => {    const user = userEvent.setup();
     const view = await render(<ListDetailScreen />);
     await view.findByText('Milk');
@@ -884,9 +897,9 @@ it('disables reordering while searching', async () => {
     // Line totals: 2.50 × 2 = 5.00 and 1.00 × 1 = 1.00
     expect(view.getByLabelText('Total: 5.00')).toBeTruthy();
     expect(view.getByLabelText('Total: 1.00')).toBeTruthy();
-    // Header totals: all = 6.00, done = 5.00 (only the checked item)
-    expect(view.getByLabelText('Total: 6.00')).toBeTruthy();
-    expect(view.getByLabelText('Done: 5.00')).toBeTruthy();
+    // Header value bar carries the sums: done = 5.00, total = 6.00
+    expect(view.getByText('5.00 / 6.00')).toBeTruthy();
+    expect(view.getByText('83.33 %')).toBeTruthy();
   });
 
   it('shows the value progress bar for a numeric list with checked value', async () => {
@@ -903,33 +916,33 @@ it('disables reordering while searching', async () => {
     // done 5.00 / total 6.00 → 83.33 %
     expect(view.getByText('5.00 / 6.00')).toBeTruthy();
     expect(view.getByText('83.33 %')).toBeTruthy();
+    expect(view.getByLabelText('Value progress: 5.00 / 6.00, 83.33 %')).toBeTruthy();
   });
 
-  it('hides the value bar but reserves its slot when no checked value exists', async () => {
+  it('keeps the value bar visible on a numeric list with no checked value (0.00 state)', async () => {
     setLists([{ ...LIST, kind: 'numeric' }]);
     setItemsByListId(
       new Map([[1, [
         { ...ITEMS[0], amount_minor: 250, quantity: 2, checked: 0 },
-        { ...ITEMS[1], amount_minor: 100, quantity: 1, checked: 1 },
+        { ...ITEMS[1], amount_minor: 100, quantity: 1, checked: 0 },
       ]]])
     );
     const view = await render(<ListDetailScreen />);
     await view.findByText('Milk');
 
-    // done value = 0 (the only checked item has no value) → bar hidden
-    expect(view.queryByText('5.00 / 6.00')).toBeNull();
-    // slot reserved so the header height stays stable
+    // nothing checked → done value 0.00, total 6.00: bar still shows
+    expect(view.getByText('0.00 / 6.00')).toBeTruthy();
     expect(view.getByTestId('value-bar-slot')).toBeTruthy();
   });
 
-  it('does not show amount/quantity/totals for a standard list', async () => {
+  it('does not show the value bar or amount rows for a standard list', async () => {
     setLists([{ ...LIST, kind: 'standard' }]);
     setItemsByListId(new Map([[1, [{ ...ITEMS[0], amount_minor: 250, quantity: 2 }]]]));
     const view = await render(<ListDetailScreen />);
     await view.findByText('Milk');
 
-    expect(view.queryByLabelText('Done: 5.00')).toBeNull();
-    expect(view.queryByLabelText('Total: 5.00')).toBeNull();
+    expect(view.queryByTestId('value-bar-slot')).toBeNull();
+    expect(view.queryByText('5.00 / 6.00')).toBeNull();
   });
 
   it('creates a numeric item with amount and quantity from the add bar', async () => {

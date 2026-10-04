@@ -1,7 +1,7 @@
 # 026 — Numeric lists
 
 - **Objective**
-  Let a list be created as a *numeric list*: a normal list whose items additionally carry a generic **Amount** (a number, not necessarily money) and an integer **Quantity**, so it can be used for shopping (amount = unit price, quantity = units, line total = amount × quantity) or for counting materials. The list detail shows two read-only totals — the sum of all line totals and the sum of the line totals of *done* (checked) items only.
+  Let a list be created as a *numeric list*: a normal list whose items additionally carry a generic **Amount** (a number, not necessarily money) and an integer **Quantity**, so it can be used for shopping (amount = unit price, quantity = units, line total = amount × quantity) or for counting materials. The list detail shows a value-weighted total (the sum of all line totals) and a done-value subtotal (checked items only), rendered on the numeric value progress bar (feature 034).
 
 ---
 
@@ -22,9 +22,10 @@
 - Amount input uses a numeric keypad and is masked live: only digits and a single decimal point are accepted, capped at 2 decimals and at the 999,999.99 maximum; invalid keystrokes are rejected (never silently merged into the value). Quantity has `+`/`−` steppers in the add bar and edit form.
 
 ### 3. Detail totals (numeric lists only)
-- The list detail header shows two read-only rows below the progress bar:
-  - **Total** — sum of `amount × quantity` over **all** items.
-  - **Done** — sum of `amount × quantity` over **checked** items only.
+- The list detail header shows the value-weighted progress bar (feature 034), whose numbers are the totals:
+  - **Total** — sum of `amount × quantity` over **all** items (bar 2's denominator).
+  - **Done** — sum of `amount × quantity` over **checked** items only (bar 2's numerator).
+  - (The former two stacked read-only Total/Done text rows were removed; the values now live on the bar.)
 - Both are computed on read (never stored), summed in integer minor units and formatted with 2 decimals at display.
 - The existing `done/total` count and progress bar stay. (Feature 034 later adds a second, value-weighted progress bar between the count bar and these rows.)
 
@@ -48,7 +49,7 @@
 - **TypeScript strict**, no `any`; theme tokens + `fs()`; accessibility labels on the new inputs/steppers and totals.
 - **Caps/format**: amount ≤ 999,999.99 and quantity ≤ 99,999 enforced at input; values are clamped, never allowed to break the layout with huge numbers.
 - **Tests**: `utils/numeric` (parse/format/clamp/multiply/sum) unit tests; repo tests (create/update carry numeric fields; backup round-trip incl. legacy defaults; copy/merge carry them); screen tests (numeric list shows amount/qty/line total + both header totals; standard list unchanged; totals only count checked items).
-- **Verification**: `npm run test:all`; web loop at 375px (create a numeric list, add items with amount/quantity, check line totals, mark some done → Total and Done rows update; a standard list is unaffected; en/es labels).
+- **Verification**: `npm run test:all`; web loop at 375px (create a numeric list, add items with amount/quantity, check line totals, mark some done → the value bar's totals update; a standard list is unaffected; en/es labels).
 
 ---
 
@@ -56,9 +57,9 @@
 
 - [x] A list can be created as **Numeric** and its kind is shown/changeable in Edit List.
 - [x] On a numeric list, items accept an **Amount** (2 decimals, ≤ 999,999.99, invalid keystrokes rejected) and a **Quantity** (integer, ≤ 99,999, starts at 1) with a computed read-only **line total**.
-- [x] The list detail shows **Total** (all items) and **Done** (checked items only), both computed from `amount × quantity`.
+- [x] The list detail shows the **Total** (all items) and **Done** (checked items only) values on the numeric value progress bar, both computed from `amount × quantity`.
 - [x] Totals are computed in integer minor units (no floating-point drift) and formatted with 2 decimals.
-- [x] A standard list renders exactly as before (no Amount/Quantity/Total rows).
+- [x] A standard list renders exactly as before (no Amount/Quantity rows, no value bar).
 - [x] A numeric list's tile shows a kind badge (Home / Lists / Collection detail, card and row layouts); standard lists and collections do not.
 - [x] Duplicate / copy-to-list / merge carry `kind` and the numeric fields.
 - [x] Backups round-trip the new fields; older backups import with the lenient defaults (`standard` / null / 0).

@@ -27,20 +27,21 @@ describe('DetailHeader', () => {
     expect(view.queryByTestId('value-bar-slot')).toBeNull();
   });
 
-  it('renders the value bar with done/total numbers and a percentage', async () => {
+  it('renders the value bar with done/total numbers, a percentage and a combined a11y label', async () => {
     const view = await renderHeader({
-      totals: { all: 2293, done: 320 },
       valueProgress: { percent: 13.956, doneText: '3.20', totalText: '22.93' },
     });
     expect(view.getByText('3.20 / 22.93')).toBeTruthy();
     expect(view.getByText('13.96 %')).toBeTruthy();
-    expect(view.getByLabelText('Value progress: 13.96 %')).toBeTruthy();
+    expect(view.getByLabelText('Value progress: 3.20 / 22.93, 13.96 %')).toBeTruthy();
   });
 
-  it('reserves the value-bar slot (no numbers) when totals exist but the bar is hidden', async () => {
-    const view = await renderHeader({ totals: { all: 2293, done: 0 } });
-    expect(view.queryByText('3.20 / 22.93')).toBeNull();
-    // the reserved slot keeps the header height stable
+  it('renders the value bar in the zero state (0.00 / 0.00 · 0.00 %)', async () => {
+    const view = await renderHeader({
+      valueProgress: { percent: 0, doneText: '0.00', totalText: '0.00' },
+    });
+    expect(view.getByText('0.00 / 0.00')).toBeTruthy();
+    expect(view.getByText('0.00 %')).toBeTruthy();
     expect(view.getByTestId('value-bar-slot')).toBeTruthy();
   });
 });

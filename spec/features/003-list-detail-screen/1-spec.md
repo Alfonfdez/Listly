@@ -11,6 +11,11 @@
 - In-screen header with the list's icon, name (colored with the list color), and a progress bar showing "N/total" (`home_progress`, computed from `items` with `checked = 1`).
 - Native stack header stays "Listly" (default); the list identity lives in the screen body.
 
+### 1b. Sticky top area
+- The header (icon, name, count bar, and — on numeric lists — the value bar), the transient notices, and the batch toolbar stay **fixed** above the scrolling item list, so tapping items always keeps the list identity, progress bars, and batch actions in view.
+- The area sits **above** the pinned add/selection bar. On Android, while the keyboard is open, the whole body keeps its `paddingBottom = keyboard height` (feature added with the add bar), so the sticky area is pushed up and stays above the bottom bar, never hidden behind the keyboard.
+- Always visible (no collapsing header); the item list scrolls in the remaining space below it.
+
 ### 2. Item list
 - Items ordered by `position`.
 - Each row: checkbox (Ionicons circle → checkmark-circle when done), item name (secondary color + a faint green row tint when `checked = 1`; no strikethrough), a tappable note preview when the item has a `note`, and a circular edit button.
@@ -50,6 +55,7 @@
 ## Acceptance criteria
 
 - [x] Opening a list from Home shows its icon, name, color, and "N/total" progress.
+- [x] The header, progress bars, notices, and batch toolbar stay pinned while the items scroll; on Android the pinned area stays above the bottom bar when the keyboard is open.
 - [x] Item rows show a checkbox, the name (secondary color + faint green tint when done, no strikethrough), a tappable note preview, and a circular edit button.
 - [x] Tapping a row toggles the item and updates the progress bar.
 - [x] Typing in the add input creates the item at the end of the list; empty and duplicate names are rejected with a message.

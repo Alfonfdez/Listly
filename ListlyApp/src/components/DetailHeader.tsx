@@ -5,7 +5,7 @@ import { useConfig } from '../context/ConfigContext';
 import { useFontSize } from '../hooks/useFontSize';
 import { useLabels } from '../hooks/useLabels';
 import { withAlpha } from '../utils/color';
-import { formatMinor, formatPercent2 } from '../utils/numeric';
+import { formatPercent2 } from '../utils/numeric';
 import { ALPHA_TINT, ALPHA_TRACK, HIT_SLOP } from './componentStyles';
 import { ICONS } from '../constants/icons';
 import type { IconName } from '../constants/types';
@@ -19,10 +19,9 @@ interface Props {
   editAccessibilityLabel: string;
   trailing?: ReactNode;
   progressPercent?: number;
-  totals?: { all: number; done: number };
-  // Value-weighted progress for numeric lists (spec 034). Shown only when the
-  // values qualify; when absent the slot is still reserved so toggling items
-  // never reflows the header.
+  // Value-weighted progress for numeric lists (spec 034). Always present on a
+  // numeric list (even 0.00 / 0.00 · 0.00 %), so the second bar never reflows;
+  // absent only on standard lists.
   valueProgress?: { percent: number; doneText: string; totalText: string };
 }
 
@@ -35,7 +34,6 @@ export default function DetailHeader({
   editAccessibilityLabel,
   trailing,
   progressPercent,
-  totals,
   valueProgress,
 }: Props) {
   const { activeColors: c } = useConfig();
@@ -70,53 +68,23 @@ export default function DetailHeader({
           <View style={[styles.progressFill, { backgroundColor: color, width: `${progressPercent}%` }]} />
         </View>
       ) : null}
-      {totals ? (
+      {valueProgress ? (
         <View testID="value-bar-slot" style={styles.valueBarSlot}>
-          {valueProgress ? (
-            <>
-              <View style={styles.valueRow}>
-                <Text style={[styles.valueNumbers, { color: c.textSecondary, fontSize: fs(12) }]}>
-                  {valueProgress.doneText} / {valueProgress.totalText}
-                </Text>
-                <Text
-                  style={[styles.valueNumbers, { color: c.textSecondary, fontSize: fs(12) }]}
-                  accessibilityLabel={`${labels.list_value_progress_label}: ${formatPercent2(valueProgress.percent)} %`}
-                >
-                  {formatPercent2(valueProgress.percent)} %
-                </Text>
-              </View>
-              <View style={[styles.progressTrack, { backgroundColor: withAlpha(color, ALPHA_TRACK) }]}>
-                <View
-                  style={[styles.progressFill, { backgroundColor: color, width: `${valueProgress.percent}%` }]}
-                />
-              </View>
-            </>
-          ) : null}
-        </View>
-      ) : null}
-      {totals ? (
-        <View style={styles.totalsBlock}>
-          <View style={styles.totalRow}>
-            <Text style={[styles.totalLabel, { color: c.textSecondary, fontSize: fs(13) }]}>
-              {labels.list_total_label}
+          <View
+            style={styles.valueRow}
+            accessibilityLabel={`${labels.list_value_progress_label}: ${valueProgress.doneText} / ${valueProgress.totalText}, ${formatPercent2(valueProgress.percent)} %`}
+          >
+            <Text style={[styles.valueNumbers, { color: c.textSecondary, fontSize: fs(12) }]}>
+              {valueProgress.doneText} / {valueProgress.totalText}
             </Text>
-            <Text
-              style={[styles.totalValue, { color: c.text, fontSize: fs(14) }]}
-              accessibilityLabel={`${labels.list_total_label}: ${formatMinor(totals.all)}`}
-            >
-              {formatMinor(totals.all)}
+            <Text style={[styles.valueNumbers, { color: c.textSecondary, fontSize: fs(12) }]}>
+              {formatPercent2(valueProgress.percent)} %
             </Text>
           </View>
-          <View style={styles.totalRow}>
-            <Text style={[styles.totalLabel, { color: c.textSecondary, fontSize: fs(13) }]}>
-              {labels.list_done_total_label}
-            </Text>
-            <Text
-              style={[styles.totalValue, { color: c.text, fontSize: fs(14) }]}
-              accessibilityLabel={`${labels.list_done_total_label}: ${formatMinor(totals.done)}`}
-            >
-              {formatMinor(totals.done)}
-            </Text>
+          <View style={[styles.progressTrack, { backgroundColor: withAlpha(color, ALPHA_TRACK) }]}>
+            <View
+              style={[styles.progressFill, { backgroundColor: color, width: `${valueProgress.percent}%` }]}
+            />
           </View>
         </View>
       ) : null}
@@ -167,11 +135,6 @@ const styles = StyleSheet.create({
     height: PROGRESS_BAR_HEIGHT,
     borderRadius: PROGRESS_BAR_HEIGHT / 2,
   },
-  totalsBlock: {
-    gap: 2,
-  },
-  // Reserved space for the value bar (spec 034): keeps the header height stable
-  // whether or not the bar is shown.
   valueBarSlot: {
     minHeight: VALUE_BAR_SLOT_HEIGHT,
     gap: 4,
@@ -184,16 +147,5 @@ const styles = StyleSheet.create({
   },
   valueNumbers: {
     fontWeight: '500',
-  },
-  totalRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  totalLabel: {
-    fontWeight: '500',
-  },
-  totalValue: {
-    fontWeight: '700',
   },
 });

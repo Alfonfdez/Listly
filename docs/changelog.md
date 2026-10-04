@@ -1101,3 +1101,9 @@ pm run test:all green.
 [2026-10-04] refactor | ListlyApp/src/screens/ListDetailScreen.tsx
 - Forced the List-detail batch toolbar onto a **single line**: the sort pill + All/None/Clear now render in one non-wrapping row (`batchRowSingle`, `flexWrap: 'nowrap'`, gap 6), the compact sort chip keeps its natural width, and the three label pills share the remaining width evenly (`batchButtonFill` → `flex: 1`, `minWidth: 0`) with `numberOfLines={1}` + `flexShrink`, so the row no longer spills to a second line at 375px in any language. Replaces the previous two-row wrap layout (`020`/`022`).
 - `npm run test:all` green (80 files, 704 tests).
+
+[2026-10-04] feat | ListlyApp/src/screens/ListDetailScreen.tsx, ListlyApp/src/components/DetailHeader.tsx, ListlyApp/tests/screens/ListDetailScreen.test.tsx, ListlyApp/tests/components/DetailHeader.test.tsx
+- List detail top area is now **sticky**: the header (icon/name/buttons + count bar + numeric value bar), the transient notices, and the batch toolbar stay fixed above the scrolling items, and above the pinned add bar while the Android keyboard is open (the body keeps `paddingBottom = keyboard height`).
+- Numeric lists: removed the redundant **Total**/**Done** text rows — the value progress bar now carries those numbers and is **always shown** (including the zero state `0.00 / 0.00 · 0.00 %`), with a combined a11y label `Value progress: <done> / <total>, <percent> %`. `DetailHeader` drops the `totals` prop; `valueProgress` is now the single numeric input.
+- Updated `DetailHeader`/`ListDetailScreen` tests, specs 003/026/034 + roadmap.
+- `npm run test:all` green (80 files, 704 tests).
