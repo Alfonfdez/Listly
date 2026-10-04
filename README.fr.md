@@ -18,7 +18,7 @@ Tout fonctionne **sur l'appareil** : vos données vivent dans une base de donné
 
 - **Listes** — créez autant de listes que vous voulez, chacune avec son icône et sa couleur, et choisissez entre deux types de liste : **Standard** (liste de vérification) ou **Numérique**, avec un montant et une quantité par élément.
 - **Éléments** — ajoutez des éléments rapidement depuis la barre inférieure, cochez-les et ouvrez un élément pour ajouter une **note** ou une **photo** (galerie sur toutes les plateformes, appareil photo sur iOS et Android).
-- **Listes numériques** — attribuez à chaque élément un montant et une quantité ; l'en-tête de la liste affiche une **barre de progression par valeur** avec le **Total** et le sous-total **Fait**, et chaque élément affiche son total de ligne (montant × quantité). Toucher le montant d'un élément lorsqu'il est vide ou à `0.00` vide le champ pour saisir un prix directement.
+- **Listes numériques** — attribuez à chaque élément un montant et une quantité ; l'en-tête de la liste affiche une **barre de progression par valeur** (toujours visible, p. ex. `3.20 / 22.17 · 14.43 %`) et chaque élément affiche son total de ligne (montant × quantité). Toucher le montant d'un élément lorsqu'il est vide ou à `0.00` vide le champ pour saisir un prix directement.
 - **Collections** — regroupez les listes en collections (dossiers) comme *Maison* ou *Travail*, et faites glisser une liste sur une collection pour la déplacer dedans.
 - **Glisser-déposer** — réorganisez les listes et les éléments par appui long et glisser-déposer ; persisté via une colonne `position`.
 - **Listes verrouillées** — protégez une liste par une phrase secrète ; ses éléments sont chiffrés **sur l'appareil** avec AES-256-GCM. Si vous oubliez la phrase secrète, aucune récupération n'est possible.
@@ -35,16 +35,17 @@ Tout fonctionne **sur l'appareil** : vos données vivent dans une base de donné
 ![Accueil avec données](images/screenshots/02-home.png)<br>*Accueil avec une collection et des listes autonomes, dont une liste verrouillée.*<br><br>
 ![Menu latéral](images/screenshots/03-hamburger.png)<br>*Menu latéral avec Accueil, Collections, Listes et Réglages — et la version de l'app en bas.*<br><br>
 ![Créer une liste](images/screenshots/04-create-list.png)<br>*Créer une liste : nom, type (Standard ou Numérique), icône et couleur.*<br><br>
-![Détail de liste](images/screenshots/05-list-detail.png)<br>*Une liste standard avec des éléments cochés, une note, le contrôle de tri et les actions groupées.*<br><br>
-![Liste numérique](images/screenshots/06-numeric-list-v2.png)<br>*Une liste numérique avec une barre de progression par valeur, Total et Fait, les totaux de ligne et la ligne montant/quantité.*<br><br>
-![Ajout d'élément déplié](images/screenshots/07-add-item-expanded.png)<br>*La barre d'ajout dépliée pour joindre une note et des photos au nouvel élément.*<br><br>
-![Modifier un élément](images/screenshots/08-item-edit.png)<br>*Modifier un élément : nom, note et photos.*<br><br>
+![Détail de liste](images/screenshots/05-list-detail-v2.png)<br>*Une liste standard avec des éléments cochés, une note, le contrôle de tri et les actions groupées — l'en-tête reste fixe pendant le défilement.*<br><br>
+![Liste numérique](images/screenshots/06-numeric-list-v3.png)<br>*Une liste numérique avec une barre de progression par valeur, les totaux de ligne et la ligne montant/quantité.*<br><br>
+![Modifier une liste](images/screenshots/05b-edit-list.png)<br>*L'écran Modifier une liste : renommer, changer le type, l'icône et la couleur, déplacer la liste dans une collection, et Dupliquer, Fusionner ou Supprimer la liste.*<br><br>
+![Ajout d'élément déplié](images/screenshots/07-add-item-expanded-v2.png)<br>*La barre d'ajout dépliée pour joindre une note et des photos au nouvel élément.*<br><br>
+![Modifier un élément](images/screenshots/08-item-edit-v2.png)<br>*Modifier un élément : nom, note et photos.*<br><br>
 ![Collections](images/screenshots/09b-collections.png)<br>*L'écran Collections.*<br><br>
 ![Listes](images/screenshots/09-lists.png)<br>*L'écran Listes, montrant l'appartenance aux collections et la progression par liste.*<br><br>
 ![Détail de collection](images/screenshots/10-collection-detail.png)<br>*Une collection avec ses listes membres.*<br><br>
-![Verrouiller une liste](images/screenshots/12-lock-list.png)<br>*Verrouiller une liste par une phrase secrète.*<br><br>
+![Verrouiller une liste](images/screenshots/12-lock-list-v2.png)<br>*Verrouiller une liste par une phrase secrète.*<br><br>
 ![Liste verrouillée](images/screenshots/12b-locked-list.png)<br>*Une liste verrouillée, en attente de la phrase secrète.*<br><br>
-![Mode sélection](images/screenshots/13-select-mode.png)<br>*Mode sélection avec la barre d'actions inférieure.*<br><br>
+![Mode sélection](images/screenshots/13-select-mode-v2.png)<br>*Mode sélection avec la barre d'actions inférieure.*<br><br>
 ![Réglages](images/screenshots/14-settings.png)<br>*Réglages : Apparence, Régional, Personnalisation et Données.*<br><br>
 ![Réglages d'apparence](images/screenshots/15-settings-appearance.png)<br>*Apparence : thème et taille du texte.*<br><br>
 ![Sélecteur de langue](images/screenshots/16b-settings-language.png)<br>*Le sélecteur de langue avec les neuf langues et leurs drapeaux.*<br><br>

@@ -18,7 +18,7 @@ Todo funciona **en el dispositivo**: tus datos viven en una base de datos SQLite
 
 - **Listas** — crea tantas listas como quieras, cada una con su propio icono y color, y elige entre dos tipos de lista: **Estándar** (de comprobación) o **Numérica**, con un importe y una cantidad por elemento.
 - **Elementos** — añade elementos rápidamente desde la barra inferior, márcalos y abre un elemento para añadir una **nota** o una **foto** (galería en todas las plataformas, cámara en iOS y Android).
-- **Listas numéricas** — asigna a cada elemento un importe y una cantidad; la cabecera de la lista muestra una **barra de progreso por valor** junto al **Total** y el subtotal **Hecho**, y cada elemento muestra su total de línea (importe × cantidad). Tocar el importe de un elemento cuando está vacío o a `0.00` vacía el campo para poder escribir un precio directamente.
+- **Listas numéricas** — asigna a cada elemento un importe y una cantidad; la cabecera de la lista muestra una **barra de progreso por valor** (siempre visible, p. ej. `3.20 / 22.17 · 14.43 %`) y cada elemento muestra su total de línea (importe × cantidad). Tocar el importe de un elemento cuando está vacío o a `0.00` vacía el campo para poder escribir un precio directamente.
 - **Colecciones** — agrupa listas en colecciones (carpetas) como *Casa* o *Trabajo*, y arrastra una lista sobre una colección para moverla dentro.
 - **Arrastrar y soltar** — reordena listas y elementos manteniendo pulsado y arrastrando; se guarda mediante una columna `position`.
 - **Listas bloqueadas** — protege una lista con una contraseña; sus elementos se cifran **en el dispositivo** con AES-256-GCM. Si olvidas la contraseña, no hay recuperación.
@@ -35,16 +35,17 @@ Todo funciona **en el dispositivo**: tus datos viven en una base de datos SQLite
 ![Inicio con datos](images/screenshots/02-home.png)<br>*Inicio con una colección y listas sueltas, incluida una lista bloqueada.*<br><br>
 ![Menú lateral](images/screenshots/03-hamburger.png)<br>*Menú lateral con Inicio, Colecciones, Listas y Ajustes — y la versión de la app abajo.*<br><br>
 ![Crear lista](images/screenshots/04-create-list.png)<br>*Crear una lista: nombre, tipo (Estándar o Numérica), icono y color.*<br><br>
-![Detalle de lista](images/screenshots/05-list-detail.png)<br>*Una lista estándar con elementos marcados, una nota, el control de orden y acciones por lotes.*<br><br>
-![Lista numérica](images/screenshots/06-numeric-list-v2.png)<br>*Una lista numérica con barra de progreso por valor, Total y Hecho, totales de línea y la fila de importe/cantidad.*<br><br>
-![Añadir elemento ampliado](images/screenshots/07-add-item-expanded.png)<br>*La barra de añadir ampliada para adjuntar una nota y fotos al nuevo elemento.*<br><br>
-![Editar elemento](images/screenshots/08-item-edit.png)<br>*Editar un elemento: nombre, nota y fotos.*<br><br>
+![Detalle de lista](images/screenshots/05-list-detail-v2.png)<br>*Una lista estándar con elementos marcados, una nota, el control de orden y las acciones por lotes — la cabecera permanece fija mientras te desplazas.*<br><br>
+![Lista numérica](images/screenshots/06-numeric-list-v3.png)<br>*Una lista numérica con barra de progreso por valor, totales de línea y la fila de importe/cantidad.*<br><br>
+![Editar lista](images/screenshots/05b-edit-list.png)<br>*La pantalla Editar lista: renombrar, cambiar el tipo, el icono y el color, mover la lista a una colección, y Duplicar, Combinar o Eliminar la lista.*<br><br>
+![Añadir elemento ampliado](images/screenshots/07-add-item-expanded-v2.png)<br>*La barra de añadir ampliada para adjuntar una nota y fotos al nuevo elemento.*<br><br>
+![Editar elemento](images/screenshots/08-item-edit-v2.png)<br>*Editar un elemento: nombre, nota y fotos.*<br><br>
 ![Colecciones](images/screenshots/09b-collections.png)<br>*La pantalla de Colecciones.*<br><br>
 ![Listas](images/screenshots/09-lists.png)<br>*La pantalla de Listas, con la pertenencia a colecciones y el progreso por lista.*<br><br>
 ![Detalle de colección](images/screenshots/10-collection-detail.png)<br>*Una colección con sus listas miembro.*<br><br>
-![Bloquear lista](images/screenshots/12-lock-list.png)<br>*Bloquear una lista con una contraseña.*<br><br>
+![Bloquear lista](images/screenshots/12-lock-list-v2.png)<br>*Bloquear una lista con una contraseña.*<br><br>
 ![Lista bloqueada](images/screenshots/12b-locked-list.png)<br>*Una lista bloqueada, esperando la contraseña.*<br><br>
-![Modo selección](images/screenshots/13-select-mode.png)<br>*Modo selección con la barra de acciones inferior.*<br><br>
+![Modo selección](images/screenshots/13-select-mode-v2.png)<br>*Modo selección con la barra de acciones inferior.*<br><br>
 ![Ajustes](images/screenshots/14-settings.png)<br>*Ajustes: Apariencia, Regional, Personalización y Datos.*<br><br>
 ![Ajustes de apariencia](images/screenshots/15-settings-appearance.png)<br>*Apariencia: tema y tamaño del texto.*<br><br>
 ![Selector de idioma](images/screenshots/16b-settings-language.png)<br>*El selector de idioma con los nueve idiomas y sus banderas.*<br><br>

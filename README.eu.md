@@ -18,7 +18,7 @@ Dena **gailuan** exekutatzen da: zure datuak tokiko SQLite datu-basean bizi dira
 
 - **Zerrendak** — ahal adina zerrenda sortu, bakoitza bere ikono eta kolorearekin, eta aukeratu bi zerrenda motaren artean: **Estandarra** (kontrol-zerrenda) edo **Numerikoa**, elementu bakoitzeko zenbateko batekin eta kantitate batekin.
 - **Elementuak** — elementuak azkar gehitzen dira beheko barratik, markatu, eta ireki elementu bat **ohar** bat edo **argazki** bat gehitzeko (galeria plataforma guztietan, kamera iOS eta Android-en).
-- **Zerrenda numerikoak** — esleitu elementu bakoitzari zenbateko bat eta kantitate bat; zerrendaren goiburukoak **balioaren aurrerapen-barra** bat eta **Guztira**/**Eginda** azpitotala erakusten ditu, eta elementu bakoitzak bere lerro-totala (zenbatekoa × kantitatea). Elementu baten zenbatekoa hutsik edo `0.00` denean ukitzean eremua husten da, prezioa zuzenean idatzi ahal izateko.
+- **Zerrenda numerikoak** — esleitu elementu bakoitzari zenbateko bat eta kantitate bat; zerrendaren goiburukoak **balioaren aurrerapen-barra** bat (beti ikusgai, adib. `3.20 / 22.17 · 14.43 %`) erakusten du, eta elementu bakoitzak bere lerro-totala (zenbatekoa × kantitatea). Elementu baten zenbatekoa hutsik edo `0.00` denean ukitzean eremua husten da, prezioa zuzenean idatzi ahal izateko.
 - **Kolekzioak** — zerrendak kolekzio (karpeta)etan multzokatu, hala nola *Etxea* edo *Lana*, eta arrastatu zerrenda bat kolekzio baten gainera hara eramateko.
 - **Arrastatu eta jaregin** — berrantolatu zerrendak eta elementuak luze sakatuta eta arrastatuta; `position` zutabe baten bidez gordetzen da.
 - **Blokeatutako zerrendak** — babestu zerrenda bat pasahitz batekin; bere elementuak **gailuan** zifratzen dira AES-256-GCM-rekin. Pasahitza ahazten baduzu, ez dago berreskuratzerik.
@@ -35,16 +35,17 @@ Dena **gailuan** exekutatzen da: zure datuak tokiko SQLite datu-basean bizi dira
 ![Hasiera datuekin](images/screenshots/02-home.png)<br>*Hasiera kolekzio batekin eta zerrenda solteekin, blokeatutako zerrenda bat barne.*<br><br>
 ![Alboko menua](images/screenshots/03-hamburger.png)<br>*Alboko menua Hasiera, Kolekzioak, Zerrendak eta Ezarpenekin — eta apparen bertsioa behean.*<br><br>
 ![Zerrenda sortu](images/screenshots/04-create-list.png)<br>*Zerrenda sortu: izena, mota (Estandarra edo Numerikoa), ikonoa eta kolorea.*<br><br>
-![Zerrenda-xehetasuna](images/screenshots/05-list-detail.png)<br>*Zerrenda estandar bat, markatutako elementuekin, ohar batekin, ordena-kontrolarekin eta lote-ekintzekin.*<br><br>
-![Zerrenda numerikoa](images/screenshots/06-numeric-list-v2.png)<br>*Zerrenda numeriko bat balioaren aurrerapen-barra batekin, Guztira eta Eginda, lerro-totalekin eta zenbateko/kantitate errenkadarekin.*<br><br>
-![Gehitu elementua zabalik](images/screenshots/07-add-item-expanded.png)<br>*Gehitzeko barra zabaldua, elementu berriari oharra eta argazkiak eransteko.*<br><br>
-![Elementua editatu](images/screenshots/08-item-edit.png)<br>*Elementu bat editatzen: izena, oharra eta argazkiak.*<br><br>
+![Zerrenda-xehetasuna](images/screenshots/05-list-detail-v2.png)<br>*Zerrenda estandar bat, markatutako elementuekin, ohar batekin, ordena-kontrolarekin eta lote-ekintzekin — goiburukoa finko mantentzen da korritzen duzunean.*<br><br>
+![Zerrenda numerikoa](images/screenshots/06-numeric-list-v3.png)<br>*Zerrenda numeriko bat balioaren aurrerapen-barra batekin, lerro-totalekin eta zenbateko/kantitate errenkadarekin.*<br><br>
+![Zerrenda editatu](images/screenshots/05b-edit-list.png)<br>*Zerrenda editatzeko pantaila: izena, mota, ikonoa eta kolorea aldatu, zerrenda kolekzio batera eraman, eta bikoiztu, batu edo ezabatu zerrenda.*<br><br>
+![Gehitu elementua zabalik](images/screenshots/07-add-item-expanded-v2.png)<br>*Gehitzeko barra zabaldua, elementu berriari oharra eta argazkiak eransteko.*<br><br>
+![Elementua editatu](images/screenshots/08-item-edit-v2.png)<br>*Elementu bat editatzen: izena, oharra eta argazkiak.*<br><br>
 ![Kolekzioak](images/screenshots/09b-collections.png)<br>*Kolekzioen pantaila.*<br><br>
 ![Zerrendak](images/screenshots/09-lists.png)<br>*Zerrenden pantaila, kolekzio-egozpena eta zerrendako aurrerapena erakutsita.*<br><br>
 ![Kolekzio-xehetasuna](images/screenshots/10-collection-detail.png)<br>*Kolekzio bat bere kide diren zerrendekin.*<br><br>
-![Zerrenda blokeatu](images/screenshots/12-lock-list.png)<br>*Zerrenda bat pasahitz batekin blokeatzea.*<br><br>
+![Zerrenda blokeatu](images/screenshots/12-lock-list-v2.png)<br>*Zerrenda bat pasahitz batekin blokeatzea.*<br><br>
 ![Blokeatutako zerrenda](images/screenshots/12b-locked-list.png)<br>*Blokeatutako zerrenda bat, pasahitzaren zain.*<br><br>
-![Hautapen modua](images/screenshots/13-select-mode.png)<br>*Hautapen modua beheko ekintza-barrarekin.*<br><br>
+![Hautapen modua](images/screenshots/13-select-mode-v2.png)<br>*Hautapen modua beheko ekintza-barrarekin.*<br><br>
 ![Ezarpenak](images/screenshots/14-settings.png)<br>*Ezarpenak: Itxura, Eskualdea, Pertsonalizazioa eta Datuak.*<br><br>
 ![Itxura-ezarpenak](images/screenshots/15-settings-appearance.png)<br>*Itxura: gaia eta testu-tamaina.*<br><br>
 ![Hizkuntza-hautatzailea](images/screenshots/16b-settings-language.png)<br>*Hizkuntza-hautatzailea, bederatzi hizkuntzekin eta haien banderekin.*<br><br>

@@ -18,7 +18,7 @@ Todo funciona **no dispositivo**: os teus datos viven nunha base de datos SQLite
 
 - **Listas** — crea tantas listas como queiras, cada unha coa súa icona e cor, e escolle entre dous tipos de lista: **Estándar** (de verificación) ou **Numérica**, cun importe e unha cantidade por elemento.
 - **Elementos** — engade elementos rapidamente desde a barra inferior, márcaos e abre un elemento para engadir unha **nota** ou unha **foto** (galería en todas as plataformas, cámara en iOS e Android).
-- **Listas numéricas** — asigna a cada elemento un importe e unha cantidade; a cabeceira da lista mostra unha **barra de progreso por valor** xunto co **Total** e o subtotal **Feito**, e cada elemento mostra o seu total de liña (importe × cantidade). Tocar o importe dun elemento cando está baleiro ou a `0.00` baleira o campo para poder escribir un prezo directamente.
+- **Listas numéricas** — asigna a cada elemento un importe e unha cantidade; a cabeceira da lista mostra unha **barra de progreso por valor** (sempre visible, p. ex. `3.20 / 22.17 · 14.43 %`) e cada elemento mostra o seu total de liña (importe × cantidade). Tocar o importe dun elemento cando está baleiro ou a `0.00` baleira o campo para poder escribir un prezo directamente.
 - **Coleccións** — agrupa listas en coleccións (cartafoles) como *Casa* ou *Traballo*, e arrastra unha lista sobre unha colección para movela dentro.
 - **Arrastrar e soltar** — reordena listas e elementos premendo longo e arrastrando; gárdase mediante unha columna `position`.
 - **Listas bloqueadas** — protexe unha lista cunha contrasinal; os seus elementos cífranse **no dispositivo** con AES-256-GCM. Se esquecas a contrasinal, non hai recuperación.
@@ -35,16 +35,17 @@ Todo funciona **no dispositivo**: os teus datos viven nunha base de datos SQLite
 ![Inicio con datos](images/screenshots/02-home.png)<br>*Inicio cunha colección e listas soltas, incluída unha lista bloqueada.*<br><br>
 ![Menú lateral](images/screenshots/03-hamburger.png)<br>*Menú lateral con Inicio, Coleccións, Listas e Axustes — e a versión da app abaixo.*<br><br>
 ![Crear lista](images/screenshots/04-create-list.png)<br>*Crear unha lista: nome, tipo (Estándar ou Numérica), icona e cor.*<br><br>
-![Detalle de lista](images/screenshots/05-list-detail.png)<br>*Unha lista estándar con elementos marcados, unha nota, o control de orde e accións por lotes.*<br><br>
-![Lista numérica](images/screenshots/06-numeric-list-v2.png)<br>*Unha lista numérica cunha barra de progreso por valor, Total e Feito, totais de liña e a fila de importe/cantidade.*<br><br>
-![Engadir elemento ampliado](images/screenshots/07-add-item-expanded.png)<br>*A barra de engadir ampliada para adxuntar unha nota e fotos ao novo elemento.*<br><br>
-![Editar elemento](images/screenshots/08-item-edit.png)<br>*Editar un elemento: nome, nota e fotos.*<br><br>
+![Detalle de lista](images/screenshots/05-list-detail-v2.png)<br>*Unha lista estándar con elementos marcados, unha nota, o control de orde e as accións por lotes — a cabeceira mantense fixa mentres desprazas.*<br><br>
+![Lista numérica](images/screenshots/06-numeric-list-v3.png)<br>*Unha lista numérica cunha barra de progreso por valor, totais de liña e a fila de importe/cantidade.*<br><br>
+![Editar lista](images/screenshots/05b-edit-list.png)<br>*A pantalla Editar lista: renomear, cambiar o tipo, a icona e a cor, mover a lista a unha colección, e Duplicar, Combinar ou Eliminar a lista.*<br><br>
+![Engadir elemento ampliado](images/screenshots/07-add-item-expanded-v2.png)<br>*A barra de engadir ampliada para adxuntar unha nota e fotos ao novo elemento.*<br><br>
+![Editar elemento](images/screenshots/08-item-edit-v2.png)<br>*Editar un elemento: nome, nota e fotos.*<br><br>
 ![Coleccións](images/screenshots/09b-collections.png)<br>*A pantalla de Coleccións.*<br><br>
 ![Listas](images/screenshots/09-lists.png)<br>*A pantalla de Listas, coa pertenza a coleccións e o progreso por lista.*<br><br>
 ![Detalle de colección](images/screenshots/10-collection-detail.png)<br>*Unha colección coas súas listas membro.*<br><br>
-![Bloquear lista](images/screenshots/12-lock-list.png)<br>*Bloquear unha lista cunha contrasinal.*<br><br>
+![Bloquear lista](images/screenshots/12-lock-list-v2.png)<br>*Bloquear unha lista cunha contrasinal.*<br><br>
 ![Lista bloqueada](images/screenshots/12b-locked-list.png)<br>*Unha lista bloqueada, agardando a contrasinal.*<br><br>
-![Modo selección](images/screenshots/13-select-mode.png)<br>*Modo selección coa barra de accións inferior.*<br><br>
+![Modo selección](images/screenshots/13-select-mode-v2.png)<br>*Modo selección coa barra de accións inferior.*<br><br>
 ![Axustes](images/screenshots/14-settings.png)<br>*Axustes: Aparencia, Rexional, Personalización e Datos.*<br><br>
 ![Axustes de aparencia](images/screenshots/15-settings-appearance.png)<br>*Aparencia: tema e tamaño do texto.*<br><br>
 ![Selector de idioma](images/screenshots/16b-settings-language.png)<br>*O selector de idioma cos nove idiomas e as súas bandeiras.*<br><br>
