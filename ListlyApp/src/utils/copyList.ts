@@ -36,6 +36,11 @@ function buildNoteSuffix(note: string | null, withNotes: boolean): string {
 export function buildListCopyText(listName: string, items: Item[], opts: CopyOptions): string {
   const { withNotes, numeric = false, labels } = opts;
   const lines: string[] = [listName];
+  // Separate the title from the items with a blank line so it reads as a heading
+  // (only when there are items; an empty list stays the bare name).
+  if (items.length > 0) {
+    lines.push('');
+  }
 
   for (const item of sortByPosition(items)) {
     const checked = isOn(item.checked);
