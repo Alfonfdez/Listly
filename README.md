@@ -18,7 +18,7 @@ Everything runs **on-device**: your data lives in a local SQLite database (sql.j
 
 - **Lists** — create as many lists as you like, each with its own icon and color, and pick between two kinds of list: **Standard** checklists or **Numeric** lists with an amount and quantity per item.
 - **Items** — add items quickly from the bottom bar, check them off, and open an item to add a **note** or a **photo** (gallery on every platform, camera on iOS and Android).
-- **Numeric lists** — give each item an amount and a quantity; the list header shows a **value progress bar** alongside the **Total** and **Done** subtotal, and each item shows its line total (amount × quantity). Tapping an item's amount when it is empty or `0.00` clears the field so you can type a price straight away.
+- **Numeric lists** — give each item an amount and a quantity; the list header shows a **value progress bar** (always visible, e.g. `3.20 / 22.17 · 14.43 %`) and each item shows its line total (amount × quantity). Tapping an item's amount when it is empty or `0.00` clears the field so you can type a price straight away.
 - **Collections** — group lists into collections (folders) such as *Home* or *Work*, and drag a list onto a collection to move it in.
 - **Drag & drop** — reorder lists and items by long-press and drag; persisted through a `position` column.
 - **Locked lists** — protect a list with a passphrase; its items are encrypted **on-device** with AES-256-GCM. If you forget the passphrase there is no recovery.
@@ -35,16 +35,17 @@ Everything runs **on-device**: your data lives in a local SQLite database (sql.j
 ![Home with data](images/screenshots/02-home.png)<br>*Home with a collection and standalone lists, including a locked list.*<br><br>
 ![Hamburger menu](images/screenshots/03-hamburger.png)<br>*Drawer with Home, Collections, Lists, and Settings — and the app version at the bottom.*<br><br>
 ![Create list](images/screenshots/04-create-list.png)<br>*Create a list: name, kind (Standard or Numeric), icon, and color.*<br><br>
-![List detail](images/screenshots/05-list-detail.png)<br>*A standard list with checked items, a note, sort control, and batch actions.*<br><br>
-![Numeric list](images/screenshots/06-numeric-list-v2.png)<br>*A numeric list with a value progress bar, Total and Done, line totals, and the amount/quantity row.*<br><br>
-![Add item expanded](images/screenshots/07-add-item-expanded.png)<br>*The add bar expanded to attach a note and photos to the new item.*<br><br>
-![Edit item](images/screenshots/08-item-edit.png)<br>*Editing an item: name, note, and photos.*<br><br>
+![List detail](images/screenshots/05-list-detail-v2.png)<br>*A standard list with checked items, a note, the sort control, and batch actions — the list header stays pinned while you scroll.*<br><br>
+![Numeric list](images/screenshots/06-numeric-list-v3.png)<br>*A numeric list with a value progress bar, line totals, and the amount/quantity row.*<br><br>
+![Edit list](images/screenshots/05b-edit-list.png)<br>*The Edit list screen: rename, change kind, icon and color, move the list to a collection, and Duplicate, Merge or Delete the list.*<br><br>
+![Add item expanded](images/screenshots/07-add-item-expanded-v2.png)<br>*The add bar expanded to attach a note and photos to the new item.*<br><br>
+![Edit item](images/screenshots/08-item-edit-v2.png)<br>*Editing an item: name, note, and photos.*<br><br>
 ![Collections](images/screenshots/09b-collections.png)<br>*The Collections screen.*<br><br>
 ![Lists](images/screenshots/09-lists.png)<br>*The Lists screen, showing collection membership and per-list progress.*<br><br>
 ![Collection detail](images/screenshots/10-collection-detail.png)<br>*A collection with its member lists.*<br><br>
-![Lock list](images/screenshots/12-lock-list.png)<br>*Locking a list with a passphrase.*<br><br>
+![Lock list](images/screenshots/12-lock-list-v2.png)<br>*Locking a list with a passphrase.*<br><br>
 ![Locked list](images/screenshots/12b-locked-list.png)<br>*A locked list, waiting for the passphrase.*<br><br>
-![Select mode](images/screenshots/13-select-mode.png)<br>*Select mode with the bottom action bar.*<br><br>
+![Select mode](images/screenshots/13-select-mode-v2.png)<br>*Select mode with the bottom action bar.*<br><br>
 ![Settings](images/screenshots/14-settings.png)<br>*Settings: Appearance, Regional, Personalization, and Data.*<br><br>
 ![Appearance settings](images/screenshots/15-settings-appearance.png)<br>*Appearance: theme and text size.*<br><br>
 ![Language picker](images/screenshots/16b-settings-language.png)<br>*The language picker with all nine languages and their flags.*<br><br>

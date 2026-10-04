@@ -18,7 +18,7 @@ Tutto funziona **sul dispositivo**: i tuoi dati vivono in un database SQLite loc
 
 - **Liste** — crea tutte le liste che vuoi, ciascuna con la propria icona e il proprio colore, e scegli tra due tipi di lista: **Standard** (lista di controllo) o **Numerica**, con un importo e una quantità per elemento.
 - **Elementi** — aggiungi elementi rapidamente dalla barra inferiore, spuntali e apri un elemento per aggiungere una **nota** o una **foto** (galleria su tutte le piattaforme, fotocamera su iOS e Android).
-- **Liste numeriche** — assegna a ogni elemento un importo e una quantità; l'intestazione della lista mostra una **barra di avanzamento per valore** insieme al **Totale** e al subtotale **Fatto**, e ogni elemento mostra il proprio totale di riga (importo × quantità). Toccando l'importo di un elemento quando è vuoto o a `0.00` il campo si svuota, così puoi digitare subito un prezzo.
+- **Liste numeriche** — assegna a ogni elemento un importo e una quantità; l'intestazione della lista mostra una **barra di avanzamento per valore** (sempre visibile, ad es. `3.20 / 22.17 · 14.43 %`) e ogni elemento mostra il proprio totale di riga (importo × quantità). Toccando l'importo di un elemento quando è vuoto o a `0.00` il campo si svuota, così puoi digitare subito un prezzo.
 - **Raccolte** — raggruppa le liste in raccolte (cartelle) come *Casa* o *Lavoro*, e trascina una lista su una raccolta per spostarla dentro.
 - **Trascina e rilascia** — riordina liste ed elementi con pressione prolungata e trascinamento; salvato tramite una colonna `position`.
 - **Liste bloccate** — proteggi una lista con una passphrase; i suoi elementi vengono cifrati **sul dispositivo** con AES-256-GCM. Se dimentichi la passphrase, non c'è recupero.
@@ -35,16 +35,17 @@ Tutto funziona **sul dispositivo**: i tuoi dati vivono in un database SQLite loc
 ![Home con dati](images/screenshots/02-home.png)<br>*Home con una raccolta e liste indipendenti, inclusa una lista bloccata.*<br><br>
 ![Menu laterale](images/screenshots/03-hamburger.png)<br>*Menu laterale con Home, Raccolte, Liste e Impostazioni — e la versione dell'app in basso.*<br><br>
 ![Crea lista](images/screenshots/04-create-list.png)<br>*Crea una lista: nome, tipo (Standard o Numerica), icona e colore.*<br><br>
-![Dettaglio lista](images/screenshots/05-list-detail.png)<br>*Una lista standard con elementi spuntati, una nota, il controllo di ordinamento e le azioni in blocco.*<br><br>
-![Lista numerica](images/screenshots/06-numeric-list-v2.png)<br>*Una lista numerica con una barra di avanzamento per valore, Totale e Fatto, i totali di riga e la riga importo/quantità.*<br><br>
-![Aggiungi elemento espanso](images/screenshots/07-add-item-expanded.png)<br>*La barra di aggiunta espansa per allegare una nota e foto al nuovo elemento.*<br><br>
-![Modifica elemento](images/screenshots/08-item-edit.png)<br>*Modifica di un elemento: nome, nota e foto.*<br><br>
+![Dettaglio lista](images/screenshots/05-list-detail-v2.png)<br>*Una lista standard con elementi spuntati, una nota, il controllo di ordinamento e le azioni in blocco — l'intestazione resta fissa durante lo scorrimento.*<br><br>
+![Lista numerica](images/screenshots/06-numeric-list-v3.png)<br>*Una lista numerica con una barra di avanzamento per valore, i totali di riga e la riga importo/quantità.*<br><br>
+![Modifica lista](images/screenshots/05b-edit-list.png)<br>*La schermata Modifica lista: rinominare, cambiare tipo, icona e colore, spostare la lista in una raccolta e Duplicare, Unire o Eliminare la lista.*<br><br>
+![Aggiungi elemento espanso](images/screenshots/07-add-item-expanded-v2.png)<br>*La barra di aggiunta espansa per allegare una nota e foto al nuovo elemento.*<br><br>
+![Modifica elemento](images/screenshots/08-item-edit-v2.png)<br>*Modifica di un elemento: nome, nota e foto.*<br><br>
 ![Raccolte](images/screenshots/09b-collections.png)<br>*La schermata Raccolte.*<br><br>
 ![Liste](images/screenshots/09-lists.png)<br>*La schermata Liste, con l'appartenenza alle raccolte e il progresso per lista.*<br><br>
 ![Dettaglio raccolta](images/screenshots/10-collection-detail.png)<br>*Una raccolta con le sue liste membro.*<br><br>
-![Blocca lista](images/screenshots/12-lock-list.png)<br>*Bloccare una lista con una passphrase.*<br><br>
+![Blocca lista](images/screenshots/12-lock-list-v2.png)<br>*Bloccare una lista con una passphrase.*<br><br>
 ![Lista bloccata](images/screenshots/12b-locked-list.png)<br>*Una lista bloccata, in attesa della passphrase.*<br><br>
-![Modalità selezione](images/screenshots/13-select-mode.png)<br>*Modalità selezione con la barra delle azioni inferiore.*<br><br>
+![Modalità selezione](images/screenshots/13-select-mode-v2.png)<br>*Modalità selezione con la barra delle azioni inferiore.*<br><br>
 ![Impostazioni](images/screenshots/14-settings.png)<br>*Impostazioni: Aspetto, Regionale, Personalizzazione e Dati.*<br><br>
 ![Impostazioni aspetto](images/screenshots/15-settings-appearance.png)<br>*Aspetto: tema e dimensione del testo.*<br><br>
 ![Selettore lingua](images/screenshots/16b-settings-language.png)<br>*Il selettore della lingua con le nove lingue e le loro bandiere.*<br><br>

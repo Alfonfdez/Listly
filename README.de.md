@@ -18,7 +18,7 @@ Alles läuft **auf dem Gerät**: deine Daten liegen in einer lokalen SQLite-Date
 
 - **Listen** — erstelle so viele Listen wie du willst, jede mit eigenem Symbol und eigener Farbe, und wähle zwischen zwei Listenarten: **Standard** (Checkliste) oder **Numerisch**, mit einem Betrag und einer Menge pro Eintrag.
 - **Einträge** — füge Einträge schnell über die untere Leiste hinzu, hake sie ab und öffne einen Eintrag, um eine **Notiz** oder ein **Foto** anzuhängen (Galerie auf allen Plattformen, Kamera unter iOS und Android).
-- **Numerische Listen** — gib jedem Eintrag einen Betrag und eine Menge; der Listenkopf zeigt einen **Wertfortschrittsbalken** sowie **Gesamt** und die Zwischensumme **Erledigt**, und jeder Eintrag zeigt seine Zeilensumme (Betrag × Menge). Tippst du den Betrag eines Eintrags an, wenn er leer oder `0.00` ist, wird das Feld geleert, damit du einen Preis direkt eingeben kannst.
+- **Numerische Listen** — gib jedem Eintrag einen Betrag und eine Menge; der Listenkopf zeigt einen **Wertfortschrittsbalken** (immer sichtbar, z. B. `3.20 / 22.17 · 14.43 %`) und jeder Eintrag zeigt seine Zeilensumme (Betrag × Menge). Tippst du den Betrag eines Eintrags an, wenn er leer oder `0.00` ist, wird das Feld geleert, damit du einen Preis direkt eingeben kannst.
 - **Sammlungen** — gruppiere Listen in Sammlungen (Ordner) wie *Zuhause* oder *Arbeit*, und ziehe eine Liste auf eine Sammlung, um sie hineinzulegen.
 - **Drag & Drop** — sortiere Listen und Einträge per Langdrücken und Ziehen neu; gespeichert über eine Spalte `position`.
 - **Gesperrte Listen** — schütze eine Liste mit einer Passphrase; ihre Einträge werden **auf dem Gerät** mit AES-256-GCM verschlüsselt. Wenn du die Passphrase vergisst, gibt es keine Wiederherstellung.
@@ -35,16 +35,17 @@ Alles läuft **auf dem Gerät**: deine Daten liegen in einer lokalen SQLite-Date
 ![Start mit Daten](images/screenshots/02-home.png)<br>*Start mit einer Sammlung und eigenständigen Listen, darunter eine gesperrte Liste.*<br><br>
 ![Seitenmenü](images/screenshots/03-hamburger.png)<br>*Seitenmenü mit Start, Sammlungen, Listen und Einstellungen — und der App-Version unten.*<br><br>
 ![Liste erstellen](images/screenshots/04-create-list.png)<br>*Eine Liste erstellen: Name, Art (Standard oder Numerisch), Symbol und Farbe.*<br><br>
-![Listendetail](images/screenshots/05-list-detail.png)<br>*Eine Standardliste mit abgehakten Einträgen, einer Notiz, Sortiersteuerung und Stapelaktionen.*<br><br>
-![Numerische Liste](images/screenshots/06-numeric-list-v2.png)<br>*Eine numerische Liste mit einem Wertfortschrittsbalken, Gesamt und Erledigt, Zeilensummen und der Betrag/Menge-Zeile.*<br><br>
-![Eintrag hinzufügen ausgeklappt](images/screenshots/07-add-item-expanded.png)<br>*Die ausgeklappte Hinzufügen-Leiste, um dem neuen Eintrag eine Notiz und Fotos anzuhängen.*<br><br>
-![Eintrag bearbeiten](images/screenshots/08-item-edit.png)<br>*Einen Eintrag bearbeiten: Name, Notiz und Fotos.*<br><br>
+![Listendetail](images/screenshots/05-list-detail-v2.png)<br>*Eine Standardliste mit abgehakten Einträgen, einer Notiz, Sortiersteuerung und Stapelaktionen — der Kopf bleibt beim Scrollen fixiert.*<br><br>
+![Numerische Liste](images/screenshots/06-numeric-list-v3.png)<br>*Eine numerische Liste mit einem Wertfortschrittsbalken, Zeilensummen und der Betrag/Menge-Zeile.*<br><br>
+![Liste bearbeiten](images/screenshots/05b-edit-list.png)<br>*Der Bildschirm „Liste bearbeiten“: umbenennen, Art, Symbol und Farbe ändern, die Liste in eine Sammlung verschieben und die Liste duplizieren, zusammenführen oder löschen.*<br><br>
+![Eintrag hinzufügen ausgeklappt](images/screenshots/07-add-item-expanded-v2.png)<br>*Die ausgeklappte Hinzufügen-Leiste, um dem neuen Eintrag eine Notiz und Fotos anzuhängen.*<br><br>
+![Eintrag bearbeiten](images/screenshots/08-item-edit-v2.png)<br>*Einen Eintrag bearbeiten: Name, Notiz und Fotos.*<br><br>
 ![Sammlungen](images/screenshots/09b-collections.png)<br>*Der Sammlungen-Bildschirm.*<br><br>
 ![Listen](images/screenshots/09-lists.png)<br>*Der Listen-Bildschirm mit Sammlungszugehörigkeit und Fortschritt pro Liste.*<br><br>
 ![Sammlungsdetail](images/screenshots/10-collection-detail.png)<br>*Eine Sammlung mit ihren Mitgliedslisten.*<br><br>
-![Liste sperren](images/screenshots/12-lock-list.png)<br>*Eine Liste mit einer Passphrase sperren.*<br><br>
+![Liste sperren](images/screenshots/12-lock-list-v2.png)<br>*Eine Liste mit einer Passphrase sperren.*<br><br>
 ![Gesperrte Liste](images/screenshots/12b-locked-list.png)<br>*Eine gesperrte Liste, die auf die Passphrase wartet.*<br><br>
-![Auswahlmodus](images/screenshots/13-select-mode.png)<br>*Auswahlmodus mit der unteren Aktionsleiste.*<br><br>
+![Auswahlmodus](images/screenshots/13-select-mode-v2.png)<br>*Auswahlmodus mit der unteren Aktionsleiste.*<br><br>
 ![Einstellungen](images/screenshots/14-settings.png)<br>*Einstellungen: Erscheinungsbild, Regional, Personalisierung und Daten.*<br><br>
 ![Erscheinungsbild-Einstellungen](images/screenshots/15-settings-appearance.png)<br>*Erscheinungsbild: Theme und Textgröße.*<br><br>
 ![Sprachauswahl](images/screenshots/16b-settings-language.png)<br>*Die Sprachauswahl mit allen neun Sprachen und ihren Flaggen.*<br><br>

@@ -18,7 +18,7 @@ Tot funciona **al dispositiu**: les teves dades viuen en una base de dades SQLit
 
 - **Llistes** — crea tantes llistes com vulguis, cadascuna amb la seva icona i color, i tria entre dos tipus de llista: **Estàndard** (de verificació) o **Numèrica**, amb un import i una quantitat per element.
 - **Elements** — afegeix elements ràpidament des de la barra inferior, marca'ls i obre un element per afegir-hi una **nota** o una **foto** (galeria a totes les plataformes, càmera a iOS i Android).
-- **Llistes numèriques** — assigna a cada element un import i una quantitat; la capçalera de la llista mostra una **barra de progrés per valor** juntament amb el **Total** i el subtotal **Fet**, i cada element mostra el seu total de línia (import × quantitat). Tocar l'import d'un element quan és buit o a `0.00` buida el camp per poder escriure un preu directament.
+- **Llistes numèriques** — assigna a cada element un import i una quantitat; la capçalera de la llista mostra una **barra de progrés per valor** (sempre visible, p. ex. `3.20 / 22.17 · 14.43 %`) i cada element mostra el seu total de línia (import × quantitat). Tocar l'import d'un element quan és buit o a `0.00` buida el camp per poder escriure un preu directament.
 - **Col·leccions** — agrupa llistes en col·leccions (carpetes) com *Casa* o *Feina*, i arrossega una llista sobre una col·lecció per moure-la-hi.
 - **Arrossegar i deixar anar** — reordena llistes i elements prement llargament i arrossegant; es desa mitjançant una columna `position`.
 - **Llistes blocades** — protegeix una llista amb una contrasenya; els seus elements s'encripten **al dispositiu** amb AES-256-GCM. Si oblides la contrasenya, no hi ha recuperació.
@@ -35,16 +35,17 @@ Tot funciona **al dispositiu**: les teves dades viuen en una base de dades SQLit
 ![Inici amb dades](images/screenshots/02-home.png)<br>*Inici amb una col·lecció i llistes soltes, inclosa una llista blocada.*<br><br>
 ![Menú lateral](images/screenshots/03-hamburger.png)<br>*Menú lateral amb Inici, Col·leccions, Llistes i Ajustos — i la versió de l'app a baix.*<br><br>
 ![Crear llista](images/screenshots/04-create-list.png)<br>*Crear una llista: nom, tipus (Estàndard o Numèrica), icona i color.*<br><br>
-![Detall de llista](images/screenshots/05-list-detail.png)<br>*Una llista estàndard amb elements marcats, una nota, el control d'ordre i accions per lots.*<br><br>
-![Llista numèrica](images/screenshots/06-numeric-list-v2.png)<br>*Una llista numèrica amb barra de progrés per valor, Total i Fet, totals de línia i la fila d'import/cantitat.*<br><br>
-![Afegir element ampliat](images/screenshots/07-add-item-expanded.png)<br>*La barra d'afegir ampliada per adjuntar una nota i fotos al nou element.*<br><br>
-![Editar element](images/screenshots/08-item-edit.png)<br>*Editar un element: nom, nota i fotos.*<br><br>
+![Detall de llista](images/screenshots/05-list-detail-v2.png)<br>*Una llista estàndard amb elements marcats, una nota, el control d'ordre i les accions per lots — la capçalera es manté fixa mentre et desplaces.*<br><br>
+![Llista numèrica](images/screenshots/06-numeric-list-v3.png)<br>*Una llista numèrica amb barra de progrés per valor, totals de línia i la fila d'import/cantitat.*<br><br>
+![Editar llista](images/screenshots/05b-edit-list.png)<br>*La pantalla Editar llista: canviar el nom, el tipus, la icona i el color, moure la llista a una col·lecció, i Duplicar, Combinar o Eliminar la llista.*<br><br>
+![Afegir element ampliat](images/screenshots/07-add-item-expanded-v2.png)<br>*La barra d'afegir ampliada per adjuntar una nota i fotos al nou element.*<br><br>
+![Editar element](images/screenshots/08-item-edit-v2.png)<br>*Editar un element: nom, nota i fotos.*<br><br>
 ![Col·leccions](images/screenshots/09b-collections.png)<br>*La pantalla de Col·leccions.*<br><br>
 ![Llistes](images/screenshots/09-lists.png)<br>*La pantalla de Llistes, amb la pertinença a col·leccions i el progrés per llista.*<br><br>
 ![Detall de col·lecció](images/screenshots/10-collection-detail.png)<br>*Una col·lecció amb les seves llistes membre.*<br><br>
-![Blocar llista](images/screenshots/12-lock-list.png)<br>*Blocar una llista amb una contrasenya.*<br><br>
+![Blocar llista](images/screenshots/12-lock-list-v2.png)<br>*Blocar una llista amb una contrasenya.*<br><br>
 ![Llista blocada](images/screenshots/12b-locked-list.png)<br>*Una llista blocada, esperant la contrasenya.*<br><br>
-![Mode selecció](images/screenshots/13-select-mode.png)<br>*Mode selecció amb la barra d'accions inferior.*<br><br>
+![Mode selecció](images/screenshots/13-select-mode-v2.png)<br>*Mode selecció amb la barra d'accions inferior.*<br><br>
 ![Ajustos](images/screenshots/14-settings.png)<br>*Ajustos: Aparença, Regional, Personalització i Dades.*<br><br>
 ![Ajustos d'aparença](images/screenshots/15-settings-appearance.png)<br>*Aparença: tema i mida del text.*<br><br>
 ![Selector d'idioma](images/screenshots/16b-settings-language.png)<br>*El selector d'idioma amb els nou idiomes i les seves banderes.*<br><br>
