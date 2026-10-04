@@ -48,6 +48,8 @@ export function useItemSort({ filteredItems, dragItems }: Options) {
 
   const sortModeLabel =
     sort.key === 'manual' ? labels.item_sort_manual : sort.key === 'name' ? labels.item_sort_name : labels.item_sort_created;
+  // Icon-only pill: the mode word is gone, so the a11y label keeps the full
+  // description ("Sort items: Manual") for screen readers.
   const sortLabel = sortActive
     ? `${labels.item_sort}: ${sortModeLabel} ${sort.direction === 'asc' ? labels.item_sort_asc : labels.item_sort_desc}`
     : `${labels.item_sort}: ${labels.item_sort_manual}`;
@@ -63,7 +65,6 @@ export function useItemSort({ filteredItems, dragItems }: Options) {
     sortActive,
     displayItems,
     sortOptions,
-    sortModeLabel,
     sortLabel,
   };
 }

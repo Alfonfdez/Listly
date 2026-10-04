@@ -764,6 +764,7 @@ it('disables reordering while searching', async () => {
     const view = await render(<ListDetailScreen />);
     await view.findByText('Milk');
     expect(view.getByLabelText('Sort items: Manual')).toBeTruthy();
+    expect(view.queryByText('Manual')).toBeNull();
 
     setItemsByListId(new Map([[1, []]]));
     const empty = await render(<ListDetailScreen />);
@@ -796,7 +797,9 @@ it('disables reordering while searching', async () => {
     await waitFor(() =>
       expect(view.getAllByText(/^(Milk|Eggs)$/).map(n => n.props.children as string)).toEqual(['Eggs', 'Milk'])
     );
-    expect(view.getByLabelText('Sort items: Name Ascending')).toBeTruthy();
+    const sortPill = view.getByLabelText('Sort items: Name Ascending');
+    expect(sortPill).toBeTruthy();
+    expect(view.queryByText('Name')).toBeNull();
   });
 
   it('sorts items by created descending from the picker', async () => {

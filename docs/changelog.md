@@ -1092,3 +1092,12 @@ pm run test:all green.
 - `EntityForm` now takes an ordered `secondaryActions` list (per-action `primary`/`warning` tone) instead of the single `middleLabel`; `ListForm` forwards it. `ListDetailScreen` drops the merge chip/picker/confirm; its transient notice moved to the new `useMergeNotice` hook.
 - Removed the toolbar's first-row merge chip so the batch toolbar is left with the sort pill; updated ListDetail/EditList tests (merge flow moved to `EditListScreen`) and spec docs 013/025 + roadmap.
 - `npm run test:all` green (80 files, 704 tests).
+
+[2026-10-04] refactor | ListlyApp/src/screens/ListDetailScreen.tsx, ListlyApp/src/hooks/useItemSort.tsx, ListlyApp/tests/screens/ListDetailScreen.test.tsx
+- Made the List-detail sort pill **icon-only** (`swap-vertical` + direction arrow + `chevron-down`, no mode word). The full mode/direction moved into its accessibility label (`"Sort items: Name Ascending"`), so the sort stays discoverable to screen readers and the picker while the toolbar fits one line at 375px in all nine languages (the previous chip showed "Manual"/"Created"/"Erstellt"… and forced a wrap in eu/de/it/es/gl/pt). Removed the now-unused `sortModeLabel` return from `useItemSort`.
+- Updated the ListDetail tests (assert the pill hides the mode word + keeps the a11y label) and spec 022 + roadmap.
+- `npm run test:all` green (80 files, 704 tests).
+
+[2026-10-04] refactor | ListlyApp/src/screens/ListDetailScreen.tsx
+- Forced the List-detail batch toolbar onto a **single line**: the sort pill + All/None/Clear now render in one non-wrapping row (`batchRowSingle`, `flexWrap: 'nowrap'`, gap 6), the compact sort chip keeps its natural width, and the three label pills share the remaining width evenly (`batchButtonFill` → `flex: 1`, `minWidth: 0`) with `numberOfLines={1}` + `flexShrink`, so the row no longer spills to a second line at 375px in any language. Replaces the previous two-row wrap layout (`020`/`022`).
+- `npm run test:all` green (80 files, 704 tests).

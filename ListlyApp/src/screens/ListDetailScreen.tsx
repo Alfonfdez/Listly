@@ -138,7 +138,6 @@ export default function ListDetailScreen() {
     sortActive,
     displayItems,
     sortOptions,
-    sortModeLabel,
     sortLabel,
   } = useItemSort({ filteredItems, dragItems });
 
@@ -373,17 +372,14 @@ export default function ListDetailScreen() {
           ) : null}
           {items.length > 0 && !selectMode && !searchActive ? (
             <>
-              <View style={styles.batchRow}>
+              <View style={[styles.batchRow, styles.batchRowSingle]}>
                 <TouchableOpacity
                   onPress={openSortModal}
-                  style={[styles.batchButton, { borderColor: sortActive ? c.primary : c.border }]}
+                  style={[styles.batchButton, styles.batchButtonCompact, { borderColor: sortActive ? c.primary : c.border }]}
                   accessibilityRole="button"
                   accessibilityLabel={sortLabel}
                 >
                   <Ionicons name="swap-vertical" size={16} color={sortActive ? c.primary : c.textSecondary} />
-                  <Text style={[styles.batchText, { color: sortActive ? c.primary : c.text, fontSize: fs(13) }]}>
-                    {sortModeLabel}
-                  </Text>
                   {sortActive ? (
                     <Ionicons
                       name={sortDirection === 'asc' ? 'arrow-up' : 'arrow-down'}
@@ -393,41 +389,48 @@ export default function ListDetailScreen() {
                   ) : null}
                   <Ionicons name="chevron-down" size={14} color={c.textSecondary} />
                 </TouchableOpacity>
-              </View>
-              <View style={styles.batchRow}>
                 <TouchableOpacity
                   onPress={() => void completeAll()}
                   disabled={done === total}
-                  style={[styles.batchButton, { borderColor: c.border }]}
+                  style={[styles.batchButton, styles.batchButtonFill, { borderColor: c.border }]}
                   accessibilityRole="button"
                   accessibilityLabel={labels.item_complete_all_a11y}
                 >
                   <Ionicons name="checkmark-done-outline" size={16} color={done === total ? c.textSecondary : c.primary} />
-                  <Text style={[styles.batchText, { color: done === total ? c.textSecondary : c.primary, fontSize: fs(13) }]}>
+                  <Text
+                    numberOfLines={1}
+                    style={[styles.batchText, { color: done === total ? c.textSecondary : c.primary, fontSize: fs(13) }]}
+                  >
                     {labels.item_complete_all}
                   </Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                   onPress={() => void uncompleteAll()}
                   disabled={done === 0}
-                  style={[styles.batchButton, { borderColor: c.border }]}
+                  style={[styles.batchButton, styles.batchButtonFill, { borderColor: c.border }]}
                   accessibilityRole="button"
                   accessibilityLabel={labels.item_uncomplete_all_a11y}
                 >
                   <Ionicons name="square-outline" size={16} color={done === 0 ? c.textSecondary : list.color} />
-                  <Text style={[styles.batchText, { color: done === 0 ? c.textSecondary : list.color, fontSize: fs(13) }]}>
+                  <Text
+                    numberOfLines={1}
+                    style={[styles.batchText, { color: done === 0 ? c.textSecondary : list.color, fontSize: fs(13) }]}
+                  >
                     {labels.item_uncomplete_all}
                   </Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                   onPress={openClearCompleted}
                   disabled={done === 0}
-                  style={[styles.batchButton, { borderColor: c.border }]}
+                  style={[styles.batchButton, styles.batchButtonFill, { borderColor: c.border }]}
                   accessibilityRole="button"
                   accessibilityLabel={labels.item_clear_completed_a11y}
                 >
                   <Ionicons name="close-circle-outline" size={16} color={done === 0 ? c.textSecondary : c.red} />
-                  <Text style={[styles.batchText, { color: done === 0 ? c.textSecondary : c.red, fontSize: fs(13) }]}>
+                  <Text
+                    numberOfLines={1}
+                    style={[styles.batchText, { color: done === 0 ? c.textSecondary : c.red, fontSize: fs(13) }]}
+                  >
                     {labels.item_clear_completed}
                   </Text>
                 </TouchableOpacity>
@@ -613,6 +616,14 @@ const styles = StyleSheet.create({
     marginBottom: 12,
     paddingHorizontal: 4,
   },
+  // Sort + All/None/Clear on a single line: no wrapping, tighter gap, and the
+  // three label pills share the remaining width evenly (`flex: 1`), so the row
+  // never spills to a second line at 375px in any language.
+  batchRowSingle: {
+    flexWrap: 'nowrap',
+    gap: 6,
+    paddingHorizontal: 0,
+  },
   batchButton: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -622,7 +633,17 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 6,
   },
+  batchButtonCompact: {
+    paddingHorizontal: 10,
+  },
+  batchButtonFill: {
+    flex: 1,
+    justifyContent: 'center',
+    paddingHorizontal: 6,
+    minWidth: 0,
+  },
   batchText: {
     fontWeight: '600',
+    flexShrink: 1,
   },
 });
