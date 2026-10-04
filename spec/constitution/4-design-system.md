@@ -32,7 +32,7 @@ interface ColorPalette {
 | `green` | `#34D399` | Positive values, completed items |
 | `red` | `#F87171` | Negative values, errors, delete |
 | `star` | `#F9A825` | Pinned star indicator |
-| `warning` | `#F9A825` | Caution actions (e.g. Merge into…) |
+| `warning` | `#F9A825` | Caution actions (e.g. Merge, destructive confirmations) |
 | `border` | `#334155` | Input borders, dividers |
 
 ### Light Palette
@@ -48,7 +48,7 @@ interface ColorPalette {
 | `green` | `#059669` | Positive values, completed items |
 | `red` | `#DC2626` | Negative values, errors, delete |
 | `star` | `#F59E0B` | Pinned star indicator |
-| `warning` | `#F59E0B` | Caution actions (e.g. Merge into…) |
+| `warning` | `#F59E0B` | Caution actions (e.g. Merge, destructive confirmations) |
 | `border` | `#E2E8F0` | Input borders, dividers |
 
 ### Usage Rules

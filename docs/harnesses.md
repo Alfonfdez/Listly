@@ -93,7 +93,7 @@ acceptance criteria in a real browser.
 | Schema layer + validation | Zod 4 (`src/database/schemas.ts`) | In use | Row types derived via `z.infer`; read-path validation in native + web backends; schema-vs-migration drift test |
 | Component unit tests | Vitest + vitest-native + RNTL | In use | Presentational components + screen suites (EntityTile, HomeScreen) with ConfigContext/AppContext stubbed |
 | UI / E2E verification | Playwright MCP + `verification-loop` skill | In use | Spec acceptance criteria in a live Expo web app (feature 001 verified) |
-| CI pipeline | GitHub Actions (`.github/workflows/ci.yml`) | Scaffolded (guarded) | `npm run test:all` on every PR to `develop`/`main` and push to those branches |
+| CI pipeline | GitHub Actions (`.github/workflows/ci.yml`) | In use | `npm run test:all` on every PR to `develop`/`main` and push to those branches |
 | SDD alignment | `spec/` + changelog + test mapping | In use | Every feature spec maps to tests + changelog entries |
 | Mobile E2E | Maestro on Android emulator | Deferred | Needed only when native-only criteria appear |
 
@@ -103,12 +103,7 @@ Components under `tests/components/` / `tests/screens/` stub `ConfigContext`/`Ap
 
 ### CI workflow note
 
-`.github/workflows/ci.yml` is guarded so it no-ops green until `ListlyApp/package-lock.json`
-exists (a "Check app exists" step, run from the repo root, gates setup-node + `npm ci` +
-`npm run test:all` via its `exists` output). Once the app is scaffolded, CI runs `npm ci` +
-`npm run test:all` automatically on every PR/push to `develop`/`main`. Enable the
-"require status checks" rule in the GitHub branch ruleset only after the workflow has run at
-least once successfully with the real app (first `ListlyApp/` PR).
+`.github/workflows/ci.yml` runs `npm ci` + `npm run test:all` on every PR and push to `develop`/`main` (working directory `ListlyApp`, Node 24, npm cache keyed on `ListlyApp/package-lock.json`). It mirrors Finly's test-only pipeline and no longer has the early "app exists" guard — the app is scaffolded, so CI runs the full gate on every change. Enable the "require status checks" rule in the GitHub branch ruleset so a red `npm run test:all` blocks the merge (the release PR to `main` must go through it).
 
 ## Adding a test
 
