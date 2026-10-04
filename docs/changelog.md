@@ -1077,3 +1077,8 @@ pm run test:all green.
 - Docs (pre-release sync): the eight translated READMEs (`es/ca/gl/eu/fr/de/pt/it`) now document the **EAS Build** workflow (profiles table, `appVersionSource: local`, versionCode/keystore notes, and the debug-signed local smoke test), matching the English README and `AGENTS.md` instead of the old `gradlew`-only instructions.
 - `AGENTS.md`: refreshed stale lines — branch example now Listly-domain, repositories list includes collection/vault, `i18n/` shows the nine languages, `utils/` no longer lists the removed `language.ts`, and the project structure adds `hooks/`.
 - `spec/constitution/3-roadmap.md`: the `026-numeric-lists` header bullet notes the value progress bar added by 034.
+
+[2026-10-04] feat | ListlyApp/src/utils/copyList.ts, ListlyApp/tests/utils/copyList.test.ts, ListlyApp/scripts/gen-assets.mjs, ListlyApp/assets/android-icon-foreground.png, ListlyApp/assets/android-icon-monochrome.png
+- Feature: copied lists now separate the title from the items with a **blank line** (`buildListCopyText`), so pasting shows the list name as a heading followed by the items. Applies to both copy actions and both list kinds; an empty list stays the bare name.
+- Feature: enlarged the **Android adaptive app icon**. The adaptive foreground (and its monochrome twin) now renders at `scale(1.0)` so the mark fills ~55% of the canvas width (was ~34% at `scale(0.62)`), leaving comfortable padding inside the Android 66% safe zone (a first pass at `scale(1.2)` made it touch the edges, so it was dialled back). Regenerated via `gen-assets.mjs`; requires a new prebuild/EAS build to appear on device.
+- Spec 017 gains the blank-line criterion; `docs/assets.md` notes the new foreground scale. `npm run test:all` green (80 files, 705 tests).

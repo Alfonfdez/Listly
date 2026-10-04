@@ -613,7 +613,7 @@ describe('ListDetailScreen', () => {
     await view.findByText('Milk');
     await user.press(view.getByLabelText('Copy list'));
     await waitFor(() =>
-      expect(clipboardMock.setStringAsync).toHaveBeenCalledWith('Groceries\n✅ Milk\nEggs')
+      expect(clipboardMock.setStringAsync).toHaveBeenCalledWith('Groceries\n\n✅ Milk\nEggs')
     );
   });
 
@@ -623,7 +623,7 @@ describe('ListDetailScreen', () => {
     await view.findByText('Milk');
     await user.press(view.getByLabelText('Copy list with notes'));
     await waitFor(() =>
-      expect(clipboardMock.setStringAsync).toHaveBeenCalledWith('Groceries\n✅ Milk\nEggs — free-range')
+      expect(clipboardMock.setStringAsync).toHaveBeenCalledWith('Groceries\n\n✅ Milk\nEggs — free-range')
     );
   });
 

@@ -94,12 +94,14 @@ async function render(svg, file) {
 // icon.png / favicon.png — white background square, mark at ~92%.
 await render(wrap(scaled(mark(), 0.92), { background: WHITE }), 'icon.png');
 await render(wrap(scaled(mark(), 0.92), { background: WHITE }), 'favicon.png');
-// adaptive foreground — transparent, inside the 675 safe zone (~62%).
-await render(wrap(scaled(mark(), 0.62), {}), 'android-icon-foreground.png');
+// adaptive foreground — transparent. The mark is wide/short, so size by width:
+// scale 1.0 fills ~55% of the canvas width, leaving comfortable padding inside
+// the Android 66% safe zone (matching the visual weight of other launcher icons).
+await render(wrap(scaled(mark(), 1.0), {}), 'android-icon-foreground.png');
 // adaptive background — flat white; Android composes the layers.
 await render(wrap('', { background: WHITE }), 'android-icon-background.png');
-// monochrome — white silhouette (check masked out), inside the safe zone.
-await render(wrap(scaled(markMono(), 0.62), { mono: true }), 'android-icon-monochrome.png');
+// monochrome — white silhouette (check masked out), same scale as the foreground.
+await render(wrap(scaled(markMono(), 1.0), { mono: true }), 'android-icon-monochrome.png');
 // splash — transparent. The mark is wide/short (landscape), so size by width:
 // scale 1.0 fills ~54% of the canvas width (matching Finly's splash weight) and
 // leaves a comfortable vertical margin. Previously 0.42, which looked tiny.

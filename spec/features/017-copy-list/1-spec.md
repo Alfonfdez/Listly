@@ -16,6 +16,7 @@
 ### 2. Copy format
 - `src/utils/copyList.ts` `buildListCopyText(listName, items, withNotes)` returns:
   - First line: the list name.
+  - A **blank line** after the name (separating the title from the items), present only when the list has items.
   - One line per item in `position` order.
   - Done items (`checked === 1`) are prefixed with `✅ `.
   - With notes: a non-empty note is appended after ` — `; empty/null notes are omitted.
@@ -42,6 +43,7 @@
 - [x] Two copy icons appear in the list header only when the list has items.
 - [x] *Copy names* copies the list name and each item name (done items marked `✅`).
 - [x] *Copy all* copies the list name, item names, and their notes.
+- [x] The copied text separates the list name from the items with a blank line (an empty list stays just the name).
 - [x] After copying, the icon briefly shows a checkmark and a specific label ("List copied" or "List + notes copied").
 - [x] The copy text is in position order.
 - [x] All new labels exist in en and es.

@@ -180,7 +180,7 @@ Status: done.
 
 Copy a list's contents to the clipboard from the list detail screen:
 - Two header-row copy buttons (shown only when the list has items): *Copy names* (`list-outline`) and *Copy all* (`copy-outline`).
-- `src/utils/copyList.ts` `buildListCopyText(listName, items, withNotes)` → list name first, then each item in position order; done items prefixed `✅`; notes appended after ` — ` when copying all.
+- `src/utils/copyList.ts` `buildListCopyText(listName, items, withNotes)` → list name first, then a **blank line**, then each item in position order; done items prefixed `✅`; notes appended after ` — ` when copying all.
 - Clipboard via `expo-clipboard` (`setStringAsync`); transient checkmark + "Copied" feedback.
 - Spec: spec/features/017-copy-list/.
 
