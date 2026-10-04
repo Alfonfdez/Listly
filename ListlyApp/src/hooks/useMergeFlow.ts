@@ -1,28 +1,20 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { itemRepo } from '../database';
 import { logError, ERROR_SCOPE } from '../utils/errors';
-import { COPY_FEEDBACK_MS, MERGE_NOTICE, type NavigationProp } from '../constants/types';
 import type { ListWithCounts } from '../database/types';
 
 interface Options {
   list: ListWithCounts | undefined;
-  notice: string | undefined;
   refresh: () => Promise<void>;
-  navigation: NavigationProp<'ListDetail'>;
+  // Invoked after a successful merge (the source list no longer exists), so the
+  // caller can navigate to the target list with its own stack semantics.
+  onMerged: (target: ListWithCounts) => void;
 }
 
-export function useMergeFlow({ list, notice, refresh, navigation }: Options) {
+export function useMergeFlow({ list, refresh, onMerged }: Options) {
   const [mergePickerVisible, setMergePickerVisible] = useState(false);
   const [mergeTarget, setMergeTarget] = useState<ListWithCounts | null>(null);
   const [mergeBusy, setMergeBusy] = useState(false);
-  const [mergeNoticeVisible, setMergeNoticeVisible] = useState(false);
-
-  useEffect(() => {
-    if (notice !== MERGE_NOTICE) return;
-    setMergeNoticeVisible(true);
-    const timer = setTimeout(() => setMergeNoticeVisible(false), COPY_FEEDBACK_MS);
-    return () => clearTimeout(timer);
-  }, [notice]);
 
   const doMerge = useCallback(
     async (target: ListWithCounts) => {
@@ -33,13 +25,13 @@ export function useMergeFlow({ list, notice, refresh, navigation }: Options) {
         await refresh();
         setMergeBusy(false);
         setMergeTarget(null);
-        navigation.replace('ListDetail', { listId: target.id, notice: MERGE_NOTICE });
+        onMerged(target);
       } catch (error) {
         setMergeBusy(false);
         logError(ERROR_SCOPE.mergeLists, error);
       }
     },
-    [list, refresh, navigation]
+    [list, refresh, onMerged]
   );
 
   return {
@@ -49,7 +41,6 @@ export function useMergeFlow({ list, notice, refresh, navigation }: Options) {
     mergeTarget,
     setMergeTarget,
     mergeBusy,
-    mergeNoticeVisible,
     doMerge,
   };
 }

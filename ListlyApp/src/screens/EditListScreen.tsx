@@ -1,16 +1,20 @@
-import { useCallback, useState } from 'react';
-import { useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
+import { useCallback, useMemo, useState } from 'react';
+import { CommonActions, useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
 import { useApp } from '../context/AppContext';
 import { useLabels } from '../hooks/useLabels';
-import { LIST_KINDS, type IconName, type ListKind, type NavigationProp, type RootStackParamList } from '../constants/types';
+import { LIST_KINDS, MERGE_NOTICE, type IconName, type ListKind, type NavigationProp, type RootStackParamList } from '../constants/types';
 import { listRepo } from '../database';
+import type { ListWithCounts } from '../database/types';
+import { useMergeFlow } from '../hooks/useMergeFlow';
 import { logError, ERROR_SCOPE } from '../utils/errors';
 import ScreenShell from '../components/ScreenShell';
 import NotFoundScreen from '../components/NotFoundScreen';
 import ListForm from '../components/ListForm';
+import { type SecondaryAction } from '../components/EntityForm';
 import ConfirmModal from '../components/ConfirmModal';
 import CollectionSelectRow from '../components/CollectionSelectRow';
 import CollectionPickerModal from '../components/CollectionPickerModal';
+import ListPickerModal from '../components/ListPickerModal';
 import KindSelectRow from '../components/KindSelectRow';
 
 export default function EditListScreen() {
@@ -27,6 +31,39 @@ export default function EditListScreen() {
   const initialCollectionId = list?.collection_id ?? null;
   const [collectionId, setCollectionId] = useState<number | null>(() => initialCollectionId);
   const [kind, setKind] = useState<ListKind>(list?.kind ?? LIST_KINDS.standard);
+
+  const hasOtherLists = useMemo(
+    () => lists.some(l => l.id !== listId && !lockedListIds.has(l.id)),
+    [lists, listId, lockedListIds]
+  );
+  const canMerge = !!list && !locked && (list.total ?? 0) > 0 && hasOtherLists;
+
+  const {
+    mergePickerVisible,
+    openMergePicker,
+    closeMergePicker,
+    mergeTarget,
+    setMergeTarget,
+    mergeBusy,
+    doMerge,
+  } = useMergeFlow({
+    list,
+    refresh,
+    onMerged: useCallback(
+      (target: ListWithCounts) => {
+        navigation.dispatch(
+          CommonActions.reset({
+            index: 1,
+            routes: [
+              { name: 'Home' },
+              { name: 'ListDetail', params: { listId: target.id, notice: MERGE_NOTICE } },
+            ],
+          })
+        );
+      },
+      [navigation]
+    ),
+  });
 
   const update = useCallback(
     async ({ name, icon, color }: { name: string; icon: IconName; color: string }) => {
@@ -59,6 +96,24 @@ export default function EditListScreen() {
     }
   }, [listId, refresh, navigation]);
 
+  const secondaryActions: SecondaryAction[] = [];
+  if (canMerge) {
+    secondaryActions.push({
+      key: 'merge',
+      label: labels.list_merge_into,
+      onPress: openMergePicker,
+      tone: 'warning',
+    });
+  }
+  if (!locked) {
+    secondaryActions.push({
+      key: 'duplicate',
+      label: labels.list_duplicate,
+      onPress: () => navigation.navigate('CreateList', { duplicateFromListId: listId }),
+      tone: 'primary',
+    });
+  }
+
   if (!list) {
     return <NotFoundScreen />;
   }
@@ -73,8 +128,7 @@ export default function EditListScreen() {
         excludeId={list.id}
         deleteLabel={labels.list_delete_label}
         onDelete={() => setDeleteVisible(true)}
-        middleLabel={locked ? undefined : labels.list_duplicate}
-        onMiddle={locked ? undefined : () => navigation.navigate('CreateList', { duplicateFromListId: list.id })}
+        secondaryActions={secondaryActions}
         kindSlot={<KindSelectRow kind={kind} onChange={setKind} />}
         fieldSlot={
           <CollectionSelectRow
@@ -96,6 +150,35 @@ export default function EditListScreen() {
         cancelLabel={labels.common_cancel}
         onSelect={setCollectionId}
         onClose={() => setPickerVisible(false)}
+      />
+
+      <ListPickerModal
+        visible={mergePickerVisible}
+        title={labels.list_merge_into}
+        options={lists}
+        excludeListId={listId}
+        cancelLabel={labels.common_cancel}
+        emptyLabel={labels.list_merge_empty}
+        onSelect={setMergeTarget}
+        onClose={closeMergePicker}
+      />
+
+      <ConfirmModal
+        visible={mergeTarget !== null}
+        title={labels.list_merge_confirm_title}
+        message={
+          mergeTarget
+            ? labels.list_merge_confirm_message(list.total, mergeTarget.name, list.name)
+            : undefined
+        }
+        cancelLabel={labels.common_cancel}
+        confirmLabel={labels.list_merge_confirm}
+        onCancel={() => setMergeTarget(null)}
+        onConfirm={() => {
+          if (mergeTarget) void doMerge(mergeTarget);
+        }}
+        destructive
+        confirmDisabled={mergeBusy}
       />
 
       <ConfirmModal

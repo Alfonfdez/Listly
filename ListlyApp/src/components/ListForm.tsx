@@ -3,7 +3,7 @@ import { useLabels } from '../hooks/useLabels';
 import { MAX_LIST_NAME_LENGTH, type IconName } from '../constants/types';
 import { validateListName } from '../utils/validation';
 import { listRepo } from '../database';
-import EntityForm from './EntityForm';
+import EntityForm, { type SecondaryAction } from './EntityForm';
 
 interface Props {
   initialName: string;
@@ -14,8 +14,7 @@ interface Props {
   initialCollectionId?: number | null;
   deleteLabel?: string;
   onDelete?: () => void;
-  middleLabel?: string;
-  onMiddle?: () => void;
+  secondaryActions?: SecondaryAction[];
   fieldSlot?: ReactNode;
   kindSlot?: ReactNode;
   onSubmit: (data: {
@@ -35,8 +34,7 @@ export default function ListForm({
   initialCollectionId,
   deleteLabel,
   onDelete,
-  middleLabel,
-  onMiddle,
+  secondaryActions,
   fieldSlot,
   kindSlot,
   onSubmit,
@@ -65,8 +63,7 @@ export default function ListForm({
       existsByName={listRepo.existsByName}
       deleteLabel={deleteLabel}
       onDelete={onDelete}
-      middleLabel={middleLabel}
-      onMiddle={onMiddle}
+      secondaryActions={secondaryActions}
       kindSlot={kindSlot}
       fieldSlot={fieldSlot}
       onSubmit={submit}

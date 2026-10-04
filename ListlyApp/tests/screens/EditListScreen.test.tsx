@@ -37,7 +37,7 @@ vi.mock('reanimated-color-picker', () => ({
   Preview: () => null,
 }));
 
-const { listRepositoryMock } = vi.hoisted(() => ({
+const { listRepositoryMock, itemRepositoryMock } = vi.hoisted(() => ({
   listRepositoryMock: {
     existsByName: vi.fn(),
     update: vi.fn(),
@@ -45,10 +45,14 @@ const { listRepositoryMock } = vi.hoisted(() => ({
     moveToCollection: vi.fn(),
     removeFromCollection: vi.fn(),
   },
+  itemRepositoryMock: {
+    mergeInto: vi.fn(),
+  },
 }));
 
 vi.mock('../../src/database', () => ({
   listRepo: listRepositoryMock,
+  itemRepo: itemRepositoryMock,
 }));
 
 vi.mock('../../src/context/AppContext', () => ({
@@ -56,11 +60,14 @@ vi.mock('../../src/context/AppContext', () => ({
   AppProvider: ({ children }: { children: ReactNode }) => children as ReactNode,
 }));
 
-const nav = { goBack: vi.fn(), popToTop: vi.fn(), navigate: vi.fn() };
+const nav = { goBack: vi.fn(), popToTop: vi.fn(), navigate: vi.fn(), dispatch: vi.fn() };
 
 vi.mock('@react-navigation/native', () => ({
   useRoute: () => ({ params: { listId: 1 } }),
   useNavigation: () => nav,
+  CommonActions: {
+    reset: (payload: unknown) => ({ type: 'RESET', payload }),
+  },
 }));
 
 const LIST: ListWithCounts = {
@@ -140,6 +147,9 @@ describe('EditListScreen', () => {
     listRepositoryMock.delete.mockResolvedValue(undefined);
     listRepositoryMock.moveToCollection.mockResolvedValue(undefined);
     listRepositoryMock.removeFromCollection.mockResolvedValue(undefined);
+    itemRepositoryMock.mergeInto.mockReset();
+    itemRepositoryMock.mergeInto.mockResolvedValue(undefined);
+    nav.dispatch.mockClear();
     setLists([LIST, OTHER]);
     setCollections([KITCHEN, GARDEN]);
   });
@@ -237,6 +247,72 @@ describe('EditListScreen', () => {
     const view = await render(<EditListScreen />);
     await user.press(view.getByLabelText('Duplicate list'));
     expect(nav.navigate).toHaveBeenCalledWith('CreateList', { duplicateFromListId: 1 });
+  });
+
+  it('shows the merge action when the list has items and another list exists', async () => {
+    const view = await render(<EditListScreen />);
+    expect(view.getByLabelText('Merge into…')).toBeTruthy();
+  });
+
+  it('hides the merge action when the list has no items', async () => {
+    setLists([{ ...LIST, total: 0 }]);
+    const view = await render(<EditListScreen />);
+    expect(view.queryByLabelText('Merge into…')).toBeNull();
+  });
+
+  it('hides the merge action when there is no other list', async () => {
+    setLists([LIST]);
+    const view = await render(<EditListScreen />);
+    expect(view.queryByLabelText('Merge into…')).toBeNull();
+  });
+
+  it('opens the merge picker excluding the current list', async () => {
+    const user = userEvent.setup();
+    const view = await render(<EditListScreen />);
+    await user.press(view.getByLabelText('Merge into…'));
+
+    expect(await view.findByLabelText('Work Tasks')).toBeTruthy();
+    expect(view.queryByLabelText('Groceries')).toBeNull();
+  });
+
+  it('asks for a destructive confirmation with count, target and source before merging', async () => {
+    const user = userEvent.setup();
+    const view = await render(<EditListScreen />);
+    await user.press(view.getByLabelText('Merge into…'));
+    await user.press(await view.findByLabelText('Work Tasks'));
+
+    expect(await view.findByText('Merge 5 items into Work Tasks and delete Groceries?')).toBeTruthy();
+    expect(view.getByLabelText('Merge')).toBeTruthy();
+    expect(itemRepositoryMock.mergeInto).not.toHaveBeenCalled();
+  });
+
+  it('merges into a chosen list and resets the stack to the target with a merge notice', async () => {
+    const user = userEvent.setup();
+    const view = await render(<EditListScreen />);
+    await user.press(view.getByLabelText('Merge into…'));
+    await user.press(await view.findByLabelText('Work Tasks'));
+    await user.press(view.getByLabelText('Merge'));
+
+    await waitFor(() => expect(itemRepositoryMock.mergeInto).toHaveBeenCalledWith(1, 2));
+    await waitFor(() => expect(nav.dispatch).toHaveBeenCalled());
+    const action = nav.dispatch.mock.calls[0][0] as { payload: { routes: { name: string; params?: unknown }[] } };
+    expect(action.payload.routes[0]).toEqual({ name: 'Home' });
+    expect(action.payload.routes[1]).toEqual({
+      name: 'ListDetail',
+      params: { listId: 2, notice: 'merged' },
+    });
+  });
+
+  it('cancelling the merge confirmation changes nothing', async () => {
+    const user = userEvent.setup();
+    const view = await render(<EditListScreen />);
+    await user.press(view.getByLabelText('Merge into…'));
+    await user.press(await view.findByLabelText('Work Tasks'));
+    await user.press(view.getAllByLabelText('Cancel')[1]);
+
+    await waitFor(() => expect(view.queryByText(/Merge 5 items into/)).toBeNull());
+    expect(itemRepositoryMock.mergeInto).not.toHaveBeenCalled();
+    expect(nav.dispatch).not.toHaveBeenCalled();
   });
 
   it('shows the current collection in the Collection row when set', async () => {

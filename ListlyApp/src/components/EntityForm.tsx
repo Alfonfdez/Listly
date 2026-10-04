@@ -18,6 +18,13 @@ type StringTranslationKey = {
   [K in keyof Translations]: Translations[K] extends string ? K : never;
 }[keyof Translations];
 
+export interface SecondaryAction {
+  key: string;
+  label: string;
+  onPress: () => void;
+  tone?: 'primary' | 'warning';
+}
+
 interface Props<TError extends StringTranslationKey> {
   initialName: string;
   initialIcon: IconName;
@@ -33,8 +40,7 @@ interface Props<TError extends StringTranslationKey> {
   existsByName: (name: string, excludeId?: number) => Promise<boolean>;
   deleteLabel?: string;
   onDelete?: () => void;
-  middleLabel?: string;
-  onMiddle?: () => void;
+  secondaryActions?: SecondaryAction[];
   kindSlot?: ReactNode;
   fieldSlot?: ReactNode;
   onSubmit: (data: { name: string; icon: IconName; color: string }) => Promise<void>;
@@ -55,8 +61,7 @@ export default function EntityForm<TError extends StringTranslationKey>({
   existsByName,
   deleteLabel,
   onDelete,
-  middleLabel,
-  onMiddle,
+  secondaryActions,
   kindSlot,
   fieldSlot,
   onSubmit,
@@ -178,22 +183,26 @@ export default function EntityForm<TError extends StringTranslationKey>({
         </Pressable>
       ) : null}
 
-      {middleLabel && onMiddle ? (
-        <Pressable
-          onPress={onMiddle}
-          style={({ pressed }) => [
-            styles.middleButton,
-            { borderColor: c.primary, marginTop: deleteLabel && onDelete ? 16 : 28 },
-            pressed && styles.pressed,
-          ]}
-          accessibilityRole="button"
-          accessibilityLabel={middleLabel}
-        >
-          <Text style={[styles.middleButtonText, { color: c.primary, fontSize: fs(15) }]}>
-            {middleLabel}
-          </Text>
-        </Pressable>
-      ) : null}
+      {secondaryActions?.map(action => {
+        const toneColor = action.tone === 'warning' ? c.warning : c.primary;
+        return (
+          <Pressable
+            key={action.key}
+            onPress={action.onPress}
+            style={({ pressed }) => [
+              styles.secondaryButton,
+              { borderColor: toneColor, marginTop: deleteLabel && onDelete ? 12 : 28 },
+              pressed && styles.pressed,
+            ]}
+            accessibilityRole="button"
+            accessibilityLabel={action.label}
+          >
+            <Text style={[styles.secondaryButtonText, { color: toneColor, fontSize: fs(15) }]}>
+              {action.label}
+            </Text>
+          </Pressable>
+        );
+      })}
 
       <Pressable
         style={({ pressed }) => [
@@ -243,13 +252,13 @@ const styles = StyleSheet.create({
   deleteButtonText: {
     fontWeight: '600',
   },
-  middleButton: {
+  secondaryButton: {
     borderRadius: BUTTON_BORDER_RADIUS,
     borderWidth: 1,
     paddingVertical: 12,
     alignItems: 'center',
   },
-  middleButtonText: {
+  secondaryButtonText: {
     fontWeight: '600',
   },
   createButtonText: {

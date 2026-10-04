@@ -8,10 +8,10 @@
 ## Functional requirements
 
 ### 1. Merge action
-- List detail shows a *Merge into…* action only when the list has items **and at least one other list exists in the app** (and it stays inert during search/select modes). It is the second chip of the toolbar's first row, next to the sort pill, tinted with the amber `warning` token to signal a caution/destructive-but-data-preserving action.
+- Edit List (pencil → Edit List) shows a *Merge into…* action only when the list has items **and at least one other list exists in the app** (and the list is not locked). It is the second button of the bottom action stack, under the outlined-red *Delete list* button and above *Duplicate list* / *Save*, tinted with the amber `warning` token to signal a caution/destructive-but-data-preserving action.
 - Tapping it opens a list picker modal listing every other list (the source is excluded).
 - Selecting a target opens a destructive confirmation: "Merge N items into <Target> and delete <Source>?".
-- Confirming merges and takes the user to the target list with a *Merged into <Target>* toast.
+- Confirming merges and takes the user to the target list with a *Merged into <Target>* toast (the navigation stack is reset so the deleted source's detail screen is no longer behind the target).
 
 ### 2. Merge semantics
 - The source's items are appended at the end of the target in source `position` order, with full fidelity: `name`, `note`, `checked` state, and `pictures` (image files are deep-copied so the merged items own their own files).
@@ -23,6 +23,7 @@
 - Merging a list into itself is impossible (the source is excluded from the picker).
 - An empty source list shows no *Merge into…* action (nothing to merge).
 - With only one list in the app there is no merge target, so the *Merge into…* action is hidden.
+- A locked list shows no *Merge into…* action.
 - The operation fails safely if either list no longer exists.
 
 ### 4. i18n and error handling
@@ -41,8 +42,8 @@
 
 ## Acceptance criteria
 
-- [x] List detail shows a *Merge into…* action only when the list has items and another list exists to merge into.
-- [x] *Merge into…* sits on the toolbar's first row beside the sort pill and is amber (`warning` token), distinct from the primary-blue view actions.
+- [x] Edit List shows a *Merge into…* action only when the list has items and another list exists to merge into.
+- [x] *Merge into…* sits under *Delete list* in the bottom action stack and is amber (`warning` token), distinct from the primary-blue *Duplicate list* / *Save* actions.
 - [x] The picker lists other lists, excludes the source, and lets the user pick a target.
 - [x] The confirmation states the item count and the target name, with Cancel and Merge.
 - [x] Confirming appends the source's items (name, note, checked, pictures) to the target in source order and deletes the source list in one transaction.

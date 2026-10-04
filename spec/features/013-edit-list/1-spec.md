@@ -25,6 +25,7 @@
 - Save calls `listRepo.update(listId, { name, icon, color })`, refreshes app state, and goes back.
 - The submit button label is "Save"; screen/nav titles use "Edit list".
 - Renders an outlined-red *Delete list* button above *Save*; confirming deletes the list (`listRepo.delete`) and returns to the overview (`popToTop`).
+- Renders a *Duplicate list* button and, when the list has items and another (unlocked) list exists, a *Merge into…* button between *Delete list* and *Save* (order: Delete → Merge → Duplicate → Save). Merge reuses the merge flow (025): picker excluding self + destructive confirmation, then reset the stack to the target with the *Merged into* notice.
 
 ### 4. Entry point: List detail header
 - A pencil button sits at the right edge of the list header block on `ListDetailScreen` (next to the list icon/name/progress).
@@ -51,3 +52,4 @@
 - [x] A different existing list's name triggers the duplicate-name error and blocks saving.
 - [x] Create list still works exactly as before (shared form, no behavior change).
 - [x] Edit List shows an outlined-red *Delete list* button above Save; confirming deletes the list and returns to the overview.
+- [x] Edit List groups Delete → Merge into… (only with items + another list) → Duplicate list → Save; confirming a merge lands on the target with the *Merged into* notice.
