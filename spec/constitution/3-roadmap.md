@@ -33,6 +33,7 @@ List detail screen with items:
 - Add item via input (or modal).
 - Edit/delete item.
 - Per-list progress indicator.
+- The header (icon/name/buttons + count bar + numeric value bar), transient notices, and the batch toolbar are a **sticky top area** fixed above the scrolling items and the pinned add bar; on Android it stays above the keyboard (body keeps `paddingBottom = keyboard height`).
 - Spec: spec/features/003-list-detail-screen/.
 
 ## 004-create-list-screen
@@ -347,7 +348,7 @@ Status: done.
 
 Add a second, value-weighted progress bar to numeric list headers:
 - Below the existing item-count bar, numeric lists show a value bar whose fill is `doneValue / totalValue` (sum of checked value over total value), with the numbers (`3.20 / 22.93`) and a right-aligned percentage to two decimals (dot separator). No currency symbol.
-- Shown only when the list is numeric and both total and done values are greater than zero; hidden otherwise (non-numeric, total 0, or done 0). The slot is **space-reserved** on numeric lists so toggling items never reflows the header.
+- **Always shown on numeric lists**, including the zero state (`0.00 / 0.00 · 0.00 %`); absent only on standard lists. The value bar replaces the former stacked **Total**/**Done** text rows (their values now live on the bar), and carries a combined a11y label `Value progress: <done> / <total>, <percent> %`.
 - Pure helpers `valueProgressPercent` / `formatPercent2` in `src/utils/numeric.ts`; no DB/repo changes. A11y label `list_value_progress_label`.
 - Spec: spec/features/034-value-progress-bar/.
 

@@ -183,10 +183,10 @@ export default function ListDetailScreen() {
     [numeric, items]
   );
 
-  // Value-weighted progress bar for numeric lists (spec 034): shown only when
-  // there is a total value and something with value is checked.
+  // Value-weighted progress bar for numeric lists (spec 034): always shown on a
+  // numeric list, including the zero state (0.00 / 0.00 · 0.00 %).
   const valueProgress = useMemo(() => {
-    if (!totals || totals.all <= 0 || totals.done <= 0) return undefined;
+    if (!totals) return undefined;
     return {
       percent: valueProgressPercent(totals.all, totals.done),
       doneText: formatMinor(totals.done),
@@ -260,7 +260,6 @@ export default function ListDetailScreen() {
       onEdit={() => navigation.navigate('EditList', { listId })}
       editAccessibilityLabel={labels.list_edit_label}
         progressPercent={pct}
-        totals={totals}
         valueProgress={valueProgress}
       trailing={
         <View style={styles.copyGroup}>
@@ -338,13 +337,8 @@ export default function ListDetailScreen() {
   return (
     <ScreenShell>
       <View testID="list-body" style={[styles.body, keyboardHeight > 0 && { paddingBottom: keyboardHeight }]}>
-        <ScrollView
-          style={styles.list}
-          contentContainerStyle={styles.listContent}
-          showsVerticalScrollIndicator={false}
-          keyboardShouldPersistTaps="handled"
-        >
-          {searchActive && !selectMode ? (
+        {searchActive && !selectMode ? (
+          <View style={styles.topPad}>
             <SearchBar
               placeholder={labels.item_search_placeholder}
               value={query}
@@ -352,7 +346,12 @@ export default function ListDetailScreen() {
               onClose={() => { setQuery(''); setSearchActive(false); }}
               autoFocus
             />
-          ) : null}
+          </View>
+        ) : null}
+        {/* Sticky top area: header (icon/name/buttons + count bar + value bar),
+            the transient notices, and the batch toolbar. It stays fixed above the
+            scrolling items, and above the bottom bar while the keyboard is open. */}
+        <View testID="list-sticky" style={styles.sticky}>
           {header}
           {mergeNoticeVisible && list ? (
             <Text
@@ -371,10 +370,9 @@ export default function ListDetailScreen() {
             </Text>
           ) : null}
           {items.length > 0 && !selectMode && !searchActive ? (
-            <>
-              <View style={[styles.batchRow, styles.batchRowSingle]}>
-                <TouchableOpacity
-                  onPress={openSortModal}
+            <View style={[styles.batchRow, styles.batchRowSingle]}>
+              <TouchableOpacity
+                onPress={openSortModal}
                   style={[styles.batchButton, styles.batchButtonCompact, { borderColor: sortActive ? c.primary : c.border }]}
                   accessibilityRole="button"
                   accessibilityLabel={sortLabel}
@@ -435,8 +433,15 @@ export default function ListDetailScreen() {
                   </Text>
                 </TouchableOpacity>
               </View>
-            </>
           ) : null}
+        </View>
+
+        <ScrollView
+          style={styles.list}
+          contentContainerStyle={styles.listContent}
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
+        >
           {displayItems.length === 0 ? (
             noResults ? (
               <EmptyState icon="search-outline" message={labels.home_no_results} />
@@ -583,13 +588,24 @@ const styles = StyleSheet.create({
   body: {
     flex: 1,
   },
+  // Non-scrolling top area (header + notices + toolbar). Sits above the items
+  // ScrollView and above the bottom bar/keyboard because it is earlier in the
+  // flex column.
+  sticky: {
+    paddingHorizontal: 12,
+    paddingTop: 12,
+    paddingBottom: 12,
+  },
+  topPad: {
+    paddingHorizontal: 12,
+    paddingTop: 12,
+  },
   list: {
     flex: 1,
   },
   listContent: {
     flexGrow: 1,
     paddingHorizontal: 12,
-    paddingTop: 12,
     paddingBottom: 12,
   },
   copyGroup: {
