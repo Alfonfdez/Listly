@@ -692,163 +692,19 @@ describe('ListDetailScreen', () => {
     expect(await view.findByText('Items copied into "Work Tasks"')).toBeTruthy();
   });
 
-  it('shows the merge into action when the list has items', async () => {
-    setLists([LIST, OTHER_LIST]);
+  it('hides copy-to-list when there is no other list', async () => {
     const view = await render(<ListDetailScreen />);
     await view.findByText('Milk');
-    expect(view.getByLabelText('Merge into…')).toBeTruthy();
-  });
-
-  it('hides the merge into action when the list has no items', async () => {
-    setItemsByListId(new Map([[1, []]]));
-    setLists([LIST, OTHER_LIST]);
-    const view = await render(<ListDetailScreen />);
-    await view.findByText('No items yet');
-    expect(view.queryByLabelText('Merge into…')).toBeNull();
-  });
-
-  it('hides the merge into action while searching', async () => {
-    setLists([LIST, OTHER_LIST]);
-    const view = await render(<ListDetailScreen />);
-    await view.findByText('Milk');
-    expect(view.getByLabelText('Merge into…')).toBeTruthy();
-
-    const opts = lastHeaderRight() as { headerRight?: () => ReactElement } | undefined;
-    const headerTree = await render(opts!.headerRight!());
-    fireEvent.press(headerTree.getByLabelText('Search'));
-    await view.findByPlaceholderText('Search items...', {}, { timeout: 2000 });
-    expect(view.queryByLabelText('Merge into…')).toBeNull();
-  });
-
-  it('hides the merge into action and copy-to-list when there is no other list', async () => {
-    const view = await render(<ListDetailScreen />);
-    await view.findByText('Milk');
-    expect(view.queryByLabelText('Merge into…')).toBeNull();
     expect(view.queryByLabelText('Copy items to another list')).toBeNull();
     expect(view.getByLabelText('Copy list')).toBeTruthy();
     expect(view.getByLabelText('Copy list with notes')).toBeTruthy();
   });
 
-  it('shows the merge into action and copy-to-list when another list exists', async () => {
+  it('shows copy-to-list when another list exists', async () => {
     setLists([LIST, OTHER_LIST]);
     const view = await render(<ListDetailScreen />);
     await view.findByText('Milk');
-    expect(view.getByLabelText('Merge into…')).toBeTruthy();
     expect(view.getByLabelText('Copy items to another list')).toBeTruthy();
-  });
-
-  it('opens the merge picker excluding the current list', async () => {
-    const user = userEvent.setup();
-    const other: ListWithCounts = {
-      id: 2,
-      name: 'Recipes',
-      color: '#34D399',
-      icon: 'restaurant-outline',
-      collection_id: null,
-      created_at: 'x',
-      position: 1,
-      pinned: 0,
-      kind: 'standard',
-      total: 1,
-      completed: 0,
-    };
-    setLists([LIST, other]);
-    const view = await render(<ListDetailScreen />);
-    await view.findByText('Milk');
-    await user.press(view.getByLabelText('Merge into…'));
-
-    expect(await view.findByLabelText('Recipes')).toBeTruthy();
-    expect(view.queryByLabelText('Groceries')).toBeNull();
-  });
-
-  it('asks for a destructive confirmation with count, target and source before merging', async () => {
-    const user = userEvent.setup();
-    const other: ListWithCounts = {
-      id: 2,
-      name: 'Recipes',
-      color: '#34D399',
-      icon: 'restaurant-outline',
-      collection_id: null,
-      created_at: 'x',
-      position: 1,
-      pinned: 0,
-      kind: 'standard',
-      total: 1,
-      completed: 0,
-    };
-    setLists([LIST, other]);
-    const view = await render(<ListDetailScreen />);
-    await view.findByText('Milk');
-    await user.press(view.getByLabelText('Merge into…'));
-    await user.press(await view.findByLabelText('Recipes'));
-
-    expect(await view.findByText('Merge 2 items into Recipes and delete Groceries?')).toBeTruthy();
-    expect(view.getAllByLabelText('Cancel')[1]).toBeTruthy();
-    expect(view.getByLabelText('Merge')).toBeTruthy();
-    expect(itemRepositoryMock.mergeInto).not.toHaveBeenCalled();
-  });
-
-  it('merges into a chosen list and replaces the screen with the target and a merge notice', async () => {
-    const user = userEvent.setup();
-    const other: ListWithCounts = {
-      id: 2,
-      name: 'Recipes',
-      color: '#34D399',
-      icon: 'restaurant-outline',
-      collection_id: null,
-      created_at: 'x',
-      position: 1,
-      pinned: 0,
-      kind: 'standard',
-      total: 1,
-      completed: 0,
-    };
-    setLists([LIST, other]);
-    const view = await render(<ListDetailScreen />);
-    await view.findByText('Milk');
-    await user.press(view.getByLabelText('Merge into…'));
-    await user.press(await view.findByLabelText('Recipes'));
-    await user.press(view.getByLabelText('Merge'));
-
-    await waitFor(() => expect(itemRepositoryMock.mergeInto).toHaveBeenCalledWith(1, 2));
-    await waitFor(() => expect(getAppStub().refresh).toHaveBeenCalled());
-    await waitFor(() =>
-      expect(nav.replace).toHaveBeenCalledWith('ListDetail', { listId: 2, notice: 'merged' })
-    );
-  });
-
-  it('cancelling the merge confirmation changes nothing', async () => {
-    const user = userEvent.setup();
-    const other: ListWithCounts = {
-      id: 2,
-      name: 'Recipes',
-      color: '#34D399',
-      icon: 'restaurant-outline',
-      collection_id: null,
-      created_at: 'x',
-      position: 1,
-      pinned: 0,
-      kind: 'standard',
-      total: 1,
-      completed: 0,
-    };
-    setLists([LIST, other]);
-    const view = await render(<ListDetailScreen />);
-    await view.findByText('Milk');
-    await user.press(view.getByLabelText('Merge into…'));
-    await user.press(await view.findByLabelText('Recipes'));
-    await user.press(view.getAllByLabelText('Cancel')[1]);
-
-    await waitFor(() => expect(view.queryByText(/Merge 2 items into/)).toBeNull());
-    expect(itemRepositoryMock.mergeInto).not.toHaveBeenCalled();
-    expect(nav.replace).not.toHaveBeenCalled();
-  });
-
-  it('shows a transient Merged into label when arriving with the merge notice', async () => {
-    routeParams.value = { listId: 1, notice: 'merged' };
-    const view = await render(<ListDetailScreen />);
-    await view.findByText('Milk');
-    expect(await view.findByText('Merged into Groceries')).toBeTruthy();
   });
 
   it('reorders items through the repository when the grid drag ends', async () => {
@@ -1301,13 +1157,12 @@ it('disables reordering while searching', async () => {
     errorSpy.mockRestore();
   });
 
-  it('hides copy-to-list and merge while a list is locked', async () => {
+  it('hides copy-to-list while a list is locked', async () => {
     setLists([LIST, OTHER_LIST]);
     setLockedListIds([1]);
     setItemsByListId(new Map());
     const view = await render(<ListDetailScreen />);
     await view.findByText('Locked list');
-    expect(view.queryByLabelText('Merge into…')).toBeNull();
     expect(view.queryByLabelText('Copy items to another list')).toBeNull();
   });
 });

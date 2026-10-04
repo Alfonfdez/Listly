@@ -32,7 +32,7 @@ import ConfirmModal from '../components/ConfirmModal';
 import { useSelectSearchHeader } from '../hooks/useSelectSearchHeader';
 import { useItemSort } from '../hooks/useItemSort';
 import { useClipboardCopy } from '../hooks/useClipboardCopy';
-import { useMergeFlow } from '../hooks/useMergeFlow';
+import { useMergeNotice } from '../hooks/useMergeNotice';
 import { useItemEditing } from '../hooks/useItemEditing';
 import { useBatchItemActions } from '../hooks/useBatchItemActions';
 import OptionPickerModal from '../components/settings/OptionPickerModal';
@@ -152,16 +152,7 @@ export default function ListDetailScreen() {
     copyToList,
   } = useClipboardCopy({ list, items, refresh });
 
-  const {
-    mergePickerVisible,
-    openMergePicker,
-    closeMergePicker,
-    mergeTarget,
-    setMergeTarget,
-    mergeBusy,
-    mergeNoticeVisible,
-    doMerge,
-  } = useMergeFlow({ list, notice, refresh, navigation });
+  const mergeNoticeVisible = useMergeNotice(notice);
 
   const { editing, setEditing, editingExclusiveNames, saveEdit, deleteItem } = useItemEditing({
     items,
@@ -402,19 +393,6 @@ export default function ListDetailScreen() {
                   ) : null}
                   <Ionicons name="chevron-down" size={14} color={c.textSecondary} />
                 </TouchableOpacity>
-                {hasOtherLists && !locked ? (
-                  <TouchableOpacity
-                    onPress={openMergePicker}
-                    style={[styles.batchButton, { borderColor: c.warning }]}
-                    accessibilityRole="button"
-                    accessibilityLabel={labels.list_merge_into}
-                  >
-                    <Ionicons name="git-merge-outline" size={16} color={c.warning} />
-                    <Text style={[styles.batchText, { color: c.warning, fontSize: fs(13) }]}>
-                      {labels.list_merge_into}
-                    </Text>
-                  </TouchableOpacity>
-                ) : null}
               </View>
               <View style={styles.batchRow}>
                 <TouchableOpacity
@@ -560,35 +538,6 @@ export default function ListDetailScreen() {
         cancelLabel={labels.common_cancel}
         onSelect={copyToList}
         onClose={closeCopyPicker}
-      />
-
-      <ListPickerModal
-        visible={mergePickerVisible}
-        title={labels.list_merge_into}
-        options={lists}
-        excludeListId={listId}
-        cancelLabel={labels.common_cancel}
-        emptyLabel={labels.list_merge_empty}
-        onSelect={setMergeTarget}
-        onClose={closeMergePicker}
-      />
-
-      <ConfirmModal
-        visible={mergeTarget !== null}
-        title={labels.list_merge_confirm_title}
-        message={
-          mergeTarget
-            ? labels.list_merge_confirm_message(items.length, mergeTarget.name, list?.name ?? '')
-            : undefined
-        }
-        cancelLabel={labels.common_cancel}
-        confirmLabel={labels.list_merge_confirm}
-        onCancel={() => setMergeTarget(null)}
-        onConfirm={() => {
-          if (mergeTarget) void doMerge(mergeTarget);
-        }}
-        destructive
-        confirmDisabled={mergeBusy}
       />
 
       <LockListModal

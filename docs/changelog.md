@@ -1086,3 +1086,9 @@ pm run test:all green.
 [2026-10-04] ~ | ListlyApp/scripts/gen-assets.mjs, ListlyApp/assets/android-icon-foreground.png, ListlyApp/assets/android-icon-monochrome.png, docs/assets.md
 - Reduced the Android adaptive icon: the foreground and its monochrome twin now render at `scale(0.9)` (mark fills ~49% of the canvas width, was ~55% at `scale(1.0)`), leaving more padding inside the Android 66% safe zone. Regenerated via `gen-assets.mjs`; requires a new `expo prebuild`/EAS build to appear on device.
 - `docs/assets.md`: the foreground/monochrome rows now document `scale(0.9)` / ~49% canvas width.
+
+[2026-10-04] refactor | ListlyApp/src/components/EntityForm.tsx, ListlyApp/src/components/ListForm.tsx, ListlyApp/src/screens/EditListScreen.tsx, ListlyApp/src/screens/ListDetailScreen.tsx, ListlyApp/src/hooks/useMergeFlow.ts, ListlyApp/src/hooks/useMergeNotice.ts, ListlyApp/tests/screens/EditListScreen.test.tsx, ListlyApp/tests/screens/ListDetailScreen.test.tsx
+- Moved the *Merge into…* action from the list-detail toolbar to **Edit List**, as the second button of the bottom stack (order: Delete → Merge → Duplicate → Save). Merge now reuses the shared flow via an injected `onMerged` callback and resets the navigation stack to the target (Home → ListDetail) with the *Merged into* notice, so the deleted source's screen is no longer behind it.
+- `EntityForm` now takes an ordered `secondaryActions` list (per-action `primary`/`warning` tone) instead of the single `middleLabel`; `ListForm` forwards it. `ListDetailScreen` drops the merge chip/picker/confirm; its transient notice moved to the new `useMergeNotice` hook.
+- Removed the toolbar's first-row merge chip so the batch toolbar is left with the sort pill; updated ListDetail/EditList tests (merge flow moved to `EditListScreen`) and spec docs 013/025 + roadmap.
+- `npm run test:all` green (80 files, 704 tests).

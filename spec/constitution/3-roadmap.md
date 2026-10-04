@@ -135,6 +135,7 @@ Edit an existing list (name, icon, color):
 - Pencil entry point on the List detail header block navigates to the edit screen.
 - Save via `listRepo.update(listId, { name, icon, color })`; duplicate check excludes the edited list itself.
 - Delete moved into Edit List: an outlined-red *Delete list* button above Save (confirm → `listRepo.delete` → returns to the overview); the list-detail header no longer shows a delete icon.
+- The Edit List bottom stack is ordered Delete → Merge into… (025) → Duplicate list → Save.
 - Spec: spec/features/013-edit-list/.
 
 ## 014-code-quality
@@ -254,8 +255,8 @@ Assign / move a list between collections (and back to standalone) from Edit List
 Status: done.
 
 Merge one list into another:
-- A *Merge into…* action on the source list detail (visible when the list has items **and another list exists**, and inert during search/select) sits on the toolbar's first row beside the sort pill, amber (`warning` token); it opens `ListPickerModal` (excludes self), then a destructive confirmation ("Merge N items into <Target> and delete <Source>?").
-- `itemRepo.mergeInto(sourceId, targetId)` transactionally appends a full-fidelity copy of the source's items to the target (same case-insensitive name-dedupe rule as 023: same-name items already in the target are skipped and the target item is never modified), deletes the source (cleaning up only the dedupe-skipped items' photos), and rolls back on failure; after merging the app navigates via `navigation.replace` to the target with a "Merged into <Target>" toast.
+- A *Merge into…* action on the source list **Edit List** screen (visible when the list has items **and another list exists**, hidden for locked lists; the second button of the bottom stack, under *Delete list*, amber `warning` token); it opens `ListPickerModal` (excludes self), then a destructive confirmation ("Merge N items into <Target> and delete <Source>?").
+- `itemRepo.mergeInto(sourceId, targetId)` transactionally appends a full-fidelity copy of the source's items to the target (same case-insensitive name-dedupe rule as 023: same-name items already in the target are skipped and the target item is never modified), deletes the source (cleaning up only the dedupe-skipped items' photos), and rolls back on failure; after merging the app resets the stack to the target (Home → ListDetail) with a "Merged into <Target>" toast.
 - No schema change (`SCHEMA_VERSION` 7).
 - Spec: spec/features/025-merge-lists/.
 
