@@ -20,7 +20,8 @@
       },
       "predictiveBackGestureEnabled": false,
       "package": "com.listly.app",
-      "versionCode": 2
+      "versionCode": 2,
+      "allowBackup": false
     },
     "web": {
       "favicon": "./assets/favicon.png"

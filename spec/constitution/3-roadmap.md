@@ -365,6 +365,16 @@ Make the Create/Edit list and collection name fields behave like Finly's forms:
 - Shared components: `CharCounter` (styling), `FormHint` (band), `FormField` right slot, `EntityForm` touched state; no new i18n keys.
 - Spec: spec/features/035-form-name-feedback/.
 
+## Android: a reinstall no longer restores app data
+Status: done.
+
+Uninstalling the app and installing it again came back with data from the previous install (seen while testing the v1.1.0 upgrade; the same behaviour had already been fixed in Finly):
+- **Cause:** the app used Android's default `android:allowBackup="true"` with no backup rules, so the OS cloud backup copied the private SQLite database (`files/SQLite/Listly.db`) and Android **restored it on install** — even across a differently signed build of the same package.
+- **Fix:** `expo.android.allowBackup: false` in `app.json`; prebuild emits `android:allowBackup="false"` in the packaged manifest, disabling cloud backup and restore (and `adb backup`). A reinstall now starts empty; data moves only through the in-app JSON export/import.
+- Gate: `npm run test:all` green (86 files / 776 tests).
+
+Spec: spec/constitution/7-platform-differences.md, spec/features/005-settings-screen/.
+
 ## Future scope (not scheduled)
 - Per-list currency symbol (the numeric list is currency-agnostic for now).
 - A third "pending" (all − done) total.

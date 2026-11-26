@@ -24,6 +24,16 @@ Listly targets **iOS, Android, and web** with one codebase. This file collects h
 - **Locked lists (encryption):** key derivation/encryption use `react-native-quick-crypto` (native) and `crypto.subtle` (web). This is a **native development build only** — Expo Go lacks the native modules, so vault actions are disabled there with an explanatory message (the app still runs). See `docs/locked-lists.md`.
 - Anything else native-only must be gated with `isNative`, hidden on web, and its criteria reported "not checkable on web".
 
+## App data and OS-level backup
+
+| Platform | Behaviour |
+|----------|-----------|
+| Android | **OS auto-backup is disabled** (`expo.android.allowBackup: false` in `app.json`; prebuild emits `android:allowBackup="false"` in the packaged manifest). The database lives in the app's private storage (`files/SQLite/Listly.db`), so with Android's default `allowBackup="true"` the OS cloud backup copied it and **restored it when the app was installed again** — a fresh install could come up with a previous install's data (even from a differently signed build of the same package). `false` disables cloud backup and restore (and `adb backup`); device-to-device transfer on API 31+ is out of scope. |
+| iOS | No equivalent flag: reinstalling an app never restores its data (only a full device restore does). |
+| Web | The data lives in the browser origin's IndexedDB; the app has no control over it. |
+
+Data is moved between installs or devices **only** through the in-app JSON export/import.
+
 ## Verification
 - Web acceptance criteria are checked in a real browser at 375px (mobile criteria) via the `verification-loop` skill.
 - A change is only "done" when `npm run test:all` passes AND the feature criteria are verified (loop).
