@@ -45,6 +45,24 @@ describe('ItemFields', () => {
     expect(onChangeText).toHaveBeenCalledWith('Bread');
   });
 
+  it('ItemNameField supports a two-line multiline name (edit modal)', async () => {
+    const view = await render(
+      <ItemNameField
+        value="A long item name"
+        onChangeText={() => {}}
+        placeholder="Name"
+        accessibilityLabel="Name"
+        style={{}}
+        multiline
+      />
+    );
+
+    const input = view.getByLabelText('Name');
+    expect(input.props.multiline).toBe(true);
+    expect(input.props.numberOfLines).toBe(2);
+    expect(input.props.textAlignVertical).toBe('top');
+  });
+
   it('ItemAmountField renders the amount placeholder and forwards typing', async () => {
     const onChangeText = vi.fn();
     const view = await render(<ItemAmountField value="" onChangeText={onChangeText} style={{}} />);

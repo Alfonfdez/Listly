@@ -27,6 +27,11 @@
 ### 4. i18n
 - New key en/es: `home_drop_hint` ("Drop to move the list into this collection" / "Suelta para mover la lista a esta colección").
 
+### 5. Known limitation (documented, deferred)
+- On Home the Collections section sits **above** the Lists section in the same scroll view. When a list is dragged to the **extreme top edge** (to move it to the first list position), the drag auto-scroll reveals the collections under the dragged card, and the collection drop zone can take over: the reorder may stop mid-list, or the list can be dropped into a collection it merely passed over.
+- Workaround: stop at the top of the **lists area** (just below the collections) rather than dragging over the collection cards; or move lists into collections via **Edit List → Collection** (feature 024).
+- Deferred fix options: remove the Home drag-into-collection shortcut, custom drop detection on release (no library zone), or a deliberate hover/dwell before a zone accepts a drop. See the changelog entry for details.
+
 ---
 
 ## Non-functional requirements

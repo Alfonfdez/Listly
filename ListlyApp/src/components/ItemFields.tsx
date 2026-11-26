@@ -4,7 +4,7 @@ import { useFontSize } from '../hooks/useFontSize';
 import { useLabels } from '../hooks/useLabels';
 import { BUTTON_BORDER_RADIUS } from './componentStyles';
 import { formatMinor, lineTotalMinor } from '../utils/numeric';
-import { MAX_ITEM_NAME_LENGTH, MAX_ITEM_NOTE_LENGTH } from '../constants/types';
+import { MAX_ITEM_NAME_LENGTH, MAX_ITEM_NOTE_LENGTH, EDIT_ITEM_NAME_LINES } from '../constants/types';
 import CharCounter from './CharCounter';
 import QuantityStepper from './QuantityStepper';
 
@@ -17,6 +17,9 @@ interface ItemNameFieldProps {
   returnKeyType?: 'done';
   onSubmitEditing?: () => void;
   autoFocus?: boolean;
+  // Edit modal: a 2-line name with internal vertical scrolling. The add bar
+  // keeps the single-line input so Enter can still submit.
+  multiline?: boolean;
 }
 
 export function ItemNameField({
@@ -28,6 +31,7 @@ export function ItemNameField({
   returnKeyType,
   onSubmitEditing,
   autoFocus,
+  multiline = false,
 }: ItemNameFieldProps) {
   const { activeColors: c } = useConfig();
   const fs = useFontSize();
@@ -43,6 +47,10 @@ export function ItemNameField({
         returnKeyType={returnKeyType}
         onSubmitEditing={onSubmitEditing}
         autoFocus={autoFocus}
+        multiline={multiline}
+        numberOfLines={multiline ? EDIT_ITEM_NAME_LINES : undefined}
+        textAlignVertical={multiline ? 'top' : undefined}
+        scrollEnabled={multiline ? true : undefined}
         style={[styles.input, { color: c.text, fontSize: fs(15) }, style]}
         accessibilityLabel={accessibilityLabel}
       />

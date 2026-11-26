@@ -1133,3 +1133,9 @@ pm run test:all green.
 - The shared fullscreen viewer (photo + note) now closes by **tapping outside the content** (a backdrop press), in addition to the existing X button — no more having to hit the exact X. Taps on the photo/note itself don't close it (the backdrop is a sibling behind the content), and scrolling a long note still works. Form/picker modals are unchanged (X/button-only close).
 - Added tests for the 3-line preview and for backdrop-close vs content-tap; specs 003/011 + roadmap updated.
 - `npm run test:all` green (80 files, 712 tests).
+
+[2026-11-26] feat | ListlyApp/src/components/ItemFields.tsx, ListlyApp/src/components/ItemFormModal.tsx, ListlyApp/src/constants/types.ts, ListlyApp/tests/components/ItemFields.test.tsx, ListlyApp/tests/components/ItemFormModal.test.tsx, spec/features/003-list-detail-screen/1-spec.md, spec/features/018-drag-list-into-collection/1-spec.md, spec/constitution/3-roadmap.md
+- Edit-item modal: the **name** is now a 2-line multiline field (was a single horizontally-scrolling line) and the **note** area shows **5 lines** (was 3), both fixed-height with internal vertical scroll. The field area scrolls while the Delete/Cancel/Save actions stay fixed, so the bigger form stays usable on small screens / with the keyboard. The add-item bar keeps its single-line name (Enter still submits).
+- Added `EDIT_ITEM_NAME_LINES` / `EDIT_ITEM_NOTE_LINES` / line-height and padding constants; tests for the multiline name and the 5-line note.
+- Documented the Home drag-into-collection ↔ auto-scroll known limitation in `spec/features/018-drag-list-into-collection/1-spec.md` (workaround + deferred fix options).
+- `npm run test:all` green (80 files, 714 tests).

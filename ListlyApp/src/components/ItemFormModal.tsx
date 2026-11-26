@@ -1,10 +1,20 @@
 import { useEffect, useRef, useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useConfig } from '../context/ConfigContext';
 import { useFontSize } from '../hooks/useFontSize';
 import { useLabels } from '../hooks/useLabels';
 import { useItemDisplayFlags } from '../hooks/useItemDisplayFlags';
-import { BUTTON_BORDER_RADIUS, PRESSED_OPACITY, DISABLED_OPACITY } from './componentStyles';
+import {
+  BUTTON_BORDER_RADIUS,
+  PRESSED_OPACITY,
+  DISABLED_OPACITY,
+} from './componentStyles';
+import {
+  EDIT_ITEM_FIELD_LINE_HEIGHT,
+  EDIT_ITEM_FIELD_VERTICAL_PADDING,
+  EDIT_ITEM_NAME_LINES,
+  EDIT_ITEM_NOTE_LINES,
+} from '../constants/types';
 import { useItemDraft, type ItemDraftSeed } from '../hooks/useItemDraft';
 import { ItemAmountField, ItemNameField, ItemNoteField, ItemQuantityField } from './ItemFields';
 import ItemPhotosField from './ItemPhotosField';
@@ -49,6 +59,13 @@ export default function ItemFormModal({
   const labels = useLabels();
   const flags = useItemDisplayFlags(numeric);
   const showPhotos = flags.editShowPhotos && photosAllowed;
+  // Fixed 2-line name / 5-line note heights so longer text scrolls inside the
+  // field instead of growing the modal.
+  const fieldLineHeight = fs(EDIT_ITEM_FIELD_LINE_HEIGHT);
+  const nameInputHeight =
+    fieldLineHeight * EDIT_ITEM_NAME_LINES + EDIT_ITEM_FIELD_VERTICAL_PADDING;
+  const noteInputHeight =
+    fieldLineHeight * EDIT_ITEM_NOTE_LINES + EDIT_ITEM_FIELD_VERTICAL_PADDING;
 
   const draft = useItemDraft({ existingNames, numeric, validateOnChange: true });
   const { applySeed } = draft;
@@ -101,54 +118,78 @@ export default function ItemFormModal({
     >
       <Text style={[styles.title, { color: c.text, fontSize: fs(18) }]}>{title}</Text>
 
-      <FormField label={labels.item_name_label} error={draft.error ? labels[draft.error] : null}>
-        <ItemNameField
-          value={draft.name}
-          onChangeText={draft.onNameChange}
-          placeholder={labels.item_name_label}
-          accessibilityLabel={labels.item_name_label}
-          style={[styles.input, { backgroundColor: c.background, borderColor: c.border }]}
-        />
-      </FormField>
-
-      {numeric ? (
-        <View style={styles.numericRow}>
-          <FormField label={labels.item_amount_label}>
-            <ItemAmountField
-              value={draft.amount}
-              onChangeText={draft.onAmountChange}
-              onFocus={draft.onAmountFocus}
-              onBlur={draft.onAmountBlur}
-              style={[styles.input, styles.amountInput, { backgroundColor: c.background, borderColor: c.border }]}
-            />
-          </FormField>
-          <FormField label={labels.item_quantity_label}>
-            <ItemQuantityField value={draft.quantity} onChange={draft.setQuantity} />
-          </FormField>
-        </View>
-      ) : null}
-
-      {flags.editShowNotes ? (
-        <FormField label={labels.item_note_label}>
-          <ItemNoteField
-            value={draft.note}
-            onChangeText={draft.setNote}
-            numberOfLines={3}
-            style={[styles.input, styles.noteInput, { backgroundColor: c.background, borderColor: c.border }]}
+      <ScrollView
+        style={styles.fields}
+        contentContainerStyle={styles.fieldsContent}
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
+      >
+        <FormField label={labels.item_name_label} error={draft.error ? labels[draft.error] : null}>
+          <ItemNameField
+            value={draft.name}
+            onChangeText={draft.onNameChange}
+            placeholder={labels.item_name_label}
+            accessibilityLabel={labels.item_name_label}
+            multiline
+            style={[
+              styles.input,
+              {
+                height: nameInputHeight,
+                lineHeight: fieldLineHeight,
+                backgroundColor: c.background,
+                borderColor: c.border,
+              },
+            ]}
           />
         </FormField>
-      ) : null}
 
-      {showPhotos ? (
-        <View style={styles.photoSection}>
-          <ItemPhotosField
-            photos={draft.photos}
-            onTakePhoto={draft.handleTakePhoto}
-            onPickFromGallery={draft.handlePickFromGallery}
-            onRemovePhoto={draft.handleRemovePhoto}
-          />
-        </View>
-      ) : null}
+        {numeric ? (
+          <View style={styles.numericRow}>
+            <FormField label={labels.item_amount_label}>
+              <ItemAmountField
+                value={draft.amount}
+                onChangeText={draft.onAmountChange}
+                onFocus={draft.onAmountFocus}
+                onBlur={draft.onAmountBlur}
+                style={[styles.input, styles.amountInput, { backgroundColor: c.background, borderColor: c.border }]}
+              />
+            </FormField>
+            <FormField label={labels.item_quantity_label}>
+              <ItemQuantityField value={draft.quantity} onChange={draft.setQuantity} />
+            </FormField>
+          </View>
+        ) : null}
+
+        {flags.editShowNotes ? (
+          <FormField label={labels.item_note_label}>
+            <ItemNoteField
+              value={draft.note}
+              onChangeText={draft.setNote}
+              numberOfLines={EDIT_ITEM_NOTE_LINES}
+              style={[
+                styles.input,
+                {
+                  height: noteInputHeight,
+                  lineHeight: fieldLineHeight,
+                  backgroundColor: c.background,
+                  borderColor: c.border,
+                },
+              ]}
+            />
+          </FormField>
+        ) : null}
+
+        {showPhotos ? (
+          <View style={styles.photoSection}>
+            <ItemPhotosField
+              photos={draft.photos}
+              onTakePhoto={draft.handleTakePhoto}
+              onPickFromGallery={draft.handlePickFromGallery}
+              onRemovePhoto={draft.handleRemovePhoto}
+            />
+          </View>
+        ) : null}
+      </ScrollView>
 
       {confirmDelete ? (
         <View style={styles.confirmBlock}>
@@ -217,14 +258,20 @@ const styles = StyleSheet.create({
   content: {
     gap: 8,
   },
+  // The field area scrolls (and shrinks) so the enlarged name/note stay
+  // reachable on small screens and with the keyboard open; the action buttons
+  // below stay fixed.
+  fields: {
+    flexShrink: 1,
+  },
+  fieldsContent: {
+    gap: 8,
+  },
   title: {
     fontWeight: '700',
   },
   input: {
     paddingVertical: 10,
-  },
-  noteInput: {
-    minHeight: 72,
   },
   numericRow: {
     flexDirection: 'row',

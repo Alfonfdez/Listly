@@ -37,6 +37,14 @@ describe('ItemFormModal', () => {
     expect(view.getByLabelText('Add photo')).toBeTruthy();
   });
 
+  it('uses a two-line name and a five-line note in the edit form', async () => {
+    const view = await render(<ItemFormModal {...baseProps} />);
+    const name = view.getByLabelText('Name');
+    expect(name.props.multiline).toBe(true);
+    expect(name.props.numberOfLines).toBe(2);
+    expect(view.getByLabelText('Note').props.numberOfLines).toBe(5);
+  });
+
   it('hides the note and photo fields when the edit-item toggles are off', async () => {
     setConfig({ editShowNotes: false, editShowPhotos: false });
     const view = await render(<ItemFormModal {...baseProps} />);

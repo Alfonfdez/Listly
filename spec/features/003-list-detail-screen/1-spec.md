@@ -32,6 +32,7 @@
 
 ### 4. Edit / delete
 - Tapping the row's circular edit button opens the item form modal (`item_edit_title`) with name + note fields.
+- The modal's **name** is a 2-line multiline field and the **note** shows 5 lines, both with internal vertical scrolling (fixed heights) so long text doesn't grow the dialog. The field area scrolls while the Delete/Cancel/Save buttons stay fixed.
 - Save applies `itemRepo.update` with the same validations as add.
 - The modal shows a Delete action (`item_delete`) that asks for confirmation (`item_confirm_delete`) before `itemRepo.delete`.
 
@@ -61,5 +62,6 @@
 - [x] Tapping a row toggles the item and updates the progress bar.
 - [x] Typing in the add input creates the item at the end of the list; empty and duplicate names are rejected with a message.
 - [x] Editing an item updates its name and note; deleting removes it after confirmation.
+- [x] The edit modal's name wraps to 2 lines and its note shows 5 lines, both scrolling internally while the action buttons stay fixed.
 - [x] A list with no items shows the empty-state message and keeps the add input visible.
 - [x] All texts are multilingual and respect theme + text size.

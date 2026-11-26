@@ -64,6 +64,14 @@ export const MIN_PASSPHRASE_LENGTH = 6;
 export const AUTO_SCROLL_ACTIVATION_OFFSET = 90;
 export const AUTO_SCROLL_MAX_VELOCITY = 1400;
 
+// Edit-item modal text areas: the name wraps to 2 lines and the note shows 5
+// lines, both with internal vertical scrolling. Heights derive from the scaled
+// line height plus vertical padding (and border).
+export const EDIT_ITEM_NAME_LINES = 2;
+export const EDIT_ITEM_NOTE_LINES = 5;
+export const EDIT_ITEM_FIELD_LINE_HEIGHT = 20;
+export const EDIT_ITEM_FIELD_VERTICAL_PADDING = 24;
+
 export const MERGE_NOTICE = 'merged' as const;
 
 export const MAX_LIST_NAME_LENGTH = 100;
