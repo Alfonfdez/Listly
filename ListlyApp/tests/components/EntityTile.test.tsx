@@ -184,6 +184,25 @@ describe('EntityTile', () => {
     expect(hintedBorder).toBeTruthy();
     expect(hintedBorder).not.toBe(plainBorder);
   });
+
+  it('wraps long names to two lines and reserves two-line height (card and row)', async () => {
+    const longName = 'A very long list or collection name that needs to wrap';
+    for (const layout of ['card', 'row'] as const) {
+      const view = await renderTile({ ...LIST, name: longName }, { layout });
+      const name = view.getByText(longName);
+      expect(name.props.numberOfLines).toBe(2);
+      expect(flattenStyle(name.props.style).lineHeight).toBeGreaterThan(0);
+      expect(flattenStyle(view.getByTestId('tile-name').props.style).minHeight).toBeGreaterThan(0);
+    }
+  });
+
+  it('reserves the collection line on a row when requested so rows keep equal height', async () => {
+    const reserved = await renderTile(LIST, { layout: 'row', reserveCollectionLine: true });
+    expect(reserved.getByTestId('tile-collection')).toBeTruthy();
+
+    const plain = await renderTile(LIST, { layout: 'row' });
+    expect(plain.queryByTestId('tile-collection')).toBeNull();
+  });
 });
 
 function flattenStyle(style: unknown): Record<string, unknown> {

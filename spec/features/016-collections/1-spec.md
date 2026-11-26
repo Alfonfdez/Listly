@@ -68,6 +68,7 @@
 - The collection identity icon is `albums-outline` everywhere a folder icon used to appear: the Collections screen and collection-detail empty states, the Create collection / Collection detail header icons, and the Home FAB *Add collection* chooser row.
 - Home's fully-empty state (no collections *and* no lists) shows a distinct message + hint ("No collections or lists yet" / "Tap + to create your first collection or list", `home-outline` icon); the Lists screen keeps the existing lists-only empty state.
 - Collections and lists carry a small fixed *type badge* so they are distinguishable in both grid and list layouts: `albums-outline` for collections, `list-outline` for lists, positioned top-right on grid cards and trailing on list rows, and hidden in select mode (where `SelectionCheck` occupies the corner).
+- Tile names wrap to up to **2 lines** (both grid cards and list rows) and the tile **reserves two lines of height regardless of name length**, so cards/rows keep a uniform height whether a name is one or two lines; on the Lists screen the collection line under a list name is reserved on every row so member and standalone rows also match.
 - Collections additionally carry a colored *accent bar* (top edge on grid cards, left edge on list rows) in the collection's color, reinforcing the container look beyond the type badge.
 - On Home, the *Collections* and *Lists* section titles render with a leading type icon (`albums-outline` / `list-outline`); the *Lists* title appears whenever Home has standalone lists (not only when collections are also present).
 - On the Lists screen, a list that belongs to a collection shows the collection name (with a small `albums-outline` icon, in the collection's color) under the list name; standalone lists show no hint.
@@ -103,6 +104,7 @@
 - [x] List detail and collection detail headers show only search and select toggles (no delete icon); the delete action lives on the Edit List / Edit Collection screens.
 - [x] Edit List and Edit Collection render an outlined-red delete button above Save, wired to the confirm/chooser and returning to the overview after deletion.
 - [x] Collections and lists carry a fixed type badge (`albums-outline` / `list-outline`) in both grid and list layouts so they are visually distinguishable; collections additionally carry a colored accent bar (top edge on grid cards, left edge on list rows).
+- [x] Tile names wrap to up to 2 lines and every tile reserves two lines of height, so cards and rows stay the same height whether a name is one or two lines.
 - [x] The collection identity icon `albums-outline` appears in the Add-chooser row, the Create/Detail headers, and the Collections/collection-detail empty states; Home's fully-empty state shows a combined "no collections or lists" message with the `home-outline` icon.
 - [x] On Home, the *Collections* and *Lists* section titles show their type icon, and the *Lists* title appears even when there are only lists (no collections).
 - [x] On the Lists screen, a list inside a collection shows its collection name (collection color) under the list name; standalone lists show no hint.

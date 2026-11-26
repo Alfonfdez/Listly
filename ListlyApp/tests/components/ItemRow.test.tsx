@@ -39,6 +39,14 @@ describe('ItemRow', () => {
     expect(view.queryByText('checkmark-circle')).toBeNull();
   });
 
+  it('wraps a long item name to two lines', async () => {
+    const name = 'A very long item name that needs more than one line to fit';
+    const view = await render(<ItemRow item={makeItem({ name })} {...defaults} onToggle={() => {}} onEdit={() => {}} />);
+    const text = view.getByText(name);
+    expect(text.props.numberOfLines).toBe(2);
+    expect(flattenStyle(text.props.style).lineHeight).toBeGreaterThan(0);
+  });
+
   it('hides thumbnails when the item has no pictures', async () => {
     const view = await render(<ItemRow item={makeItem()} {...defaults} onToggle={() => {}} onEdit={() => {}} />);
     expect(view.queryByLabelText('Photos')).toBeNull();

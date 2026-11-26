@@ -29,7 +29,7 @@ Local database design:
 Status: done.
 
 List detail screen with items:
-- Item list with checkbox toggle, name, note indicator.
+- Item list with checkbox toggle, name (wraps to up to 2 lines), note indicator.
 - Add item via input (or modal).
 - Edit/delete item.
 - Per-list progress indicator.
@@ -176,7 +176,7 @@ User-defined collections that organize lists, plus a first-class Collections scr
 - Home select mode mixes collections and standalone lists (combined `N selected`); *Delete* opens a single modal — the shared `CollectionDeleteModal` chooser (`Delete N collections?`, *Move lists to Lists* / *Delete lists too*) when a selected collection has lists, or one destructive confirm (`Delete N collections and M lists?`) when none do — deleting the standalone lists and collections together with no fallthrough.
 - Per-section layout keys `homeCollectionsLayout` / `homeListsLayout` / `collectionsLayout` / `listsLayout` (defaults grid/grid/grid/list; legacy `home_layout` ignored) with Personalization rows for Home Collections, Home Lists, Collections screen, and Lists screen.
 - Detail-header cleanup: list/collection detail headers show only search/select toggles (gated on items/member lists); delete moved into the Edit List / Edit Collection screens (outlined-red button above Save, empty → confirm / non-empty → chooser).
-- Visual polish: the collection identity icon `albums-outline` replaces folder icons (empty states, Create/Detail headers, Add-chooser); Home's fully-empty state gets a combined "no collections or lists" message (`home-outline`); collections and lists carry a small fixed type badge (`albums-outline` / `list-outline`) plus a colored accent bar (top on grid cards, left on list rows); Home's *Collections* / *Lists* section titles show their type icon, and the *Lists* title appears even when there are only lists; on the Lists screen a collection-list shows its collection name (collection color) under the list name.
+- Visual polish: the collection identity icon `albums-outline` replaces folder icons (empty states, Create/Detail headers, Add-chooser); Home's fully-empty state gets a combined "no collections or lists" message (`home-outline`); collections and lists carry a small fixed type badge (`albums-outline` / `list-outline`) plus a colored accent bar (top on grid cards, left on list rows); Home's *Collections* / *Lists* section titles show their type icon, and the *Lists* title appears even when there are only lists; on the Lists screen a collection-list shows its collection name (collection color) under the list name — that line is reserved on every row so rows match. Tile names wrap to up to 2 lines and every tile reserves two lines of height, so cards/rows keep a uniform height whether the name is one or two lines.
 - i18n: `collection_*`, `collections_empty`, `home_add_collection`, `home_add_choice_title`, `home_section_lists`, `home_empty_all` / `home_empty_all_hint`, `collection_delete_many_title` / `collection_delete_combined_title` (+ messages), layout/settings keys in both `en` and `es`.
 - Spec: spec/features/016-collections/.
 

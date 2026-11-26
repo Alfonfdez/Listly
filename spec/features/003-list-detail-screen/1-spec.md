@@ -18,7 +18,7 @@
 
 ### 2. Item list
 - Items ordered by `position`.
-- Each row: checkbox (Ionicons circle → checkmark-circle when done), item name (secondary color + a faint green row tint when `checked = 1`; no strikethrough), a tappable note preview when the item has a `note`, and a circular edit button.
+- Each row: checkbox (Ionicons circle → checkmark-circle when done), item name (secondary color + a faint green row tint when `checked = 1`; no strikethrough; wraps to up to **2 lines** before ellipsizing), a tappable note preview when the item has a `note`, and a circular edit button.
 - Tapping a row toggles the item (check/uncheck) via `itemRepo.toggle`; progress updates on refresh.
 
 ### 3. Add item

@@ -1121,3 +1121,9 @@ pm run test:all green.
 - Enabled **drag auto-scroll** in List detail and on Home/Lists/Collections: the item and list sortable grids now receive a `scrollableRef` pointing at an `Animated.ScrollView`, so dragging near the top/bottom edge scrolls continuously. A long shopping list can now be dragged to position #1 in one gesture instead of repeated small drags. Tuned to 90 px activation offset / 1400 px/s.
 - Converted the items/lists `ScrollView` to reanimated's `Animated.ScrollView`; added `AUTO_SCROLL_ACTIVATION_OFFSET` / `AUTO_SCROLL_MAX_VELOCITY` constants; regression tests assert the grids are wired to the scroll ref; specs 009/012 + roadmap + `docs/programming-concepts.md` updated.
 - `npm run test:all` green (80 files, 707 tests).
+
+[2026-11-26] feat | ListlyApp/src/components/ItemRow.tsx, ListlyApp/src/components/Tile.tsx, ListlyApp/src/components/EntityTile.tsx, ListlyApp/tests/components/ItemRow.test.tsx, ListlyApp/tests/components/EntityTile.test.tsx, spec/features/003-list-detail-screen/1-spec.md, spec/features/016-collections/1-spec.md, spec/constitution/3-roadmap.md
+- Long names now wrap to **2 lines** instead of a single ellipsized line: item names in list rows, and list/collection names on tiles (grid cards and list rows).
+- Tiles **reserve two lines of name height** regardless of the actual length (explicit `lineHeight` + `minHeight`), so every card and row keeps the same height whether the name is one or two lines; the Lists-screen collection line is reserved on every row so member and standalone rows also match. Detail header stays single-line; the add-item input stays single-line (Enter still submits).
+- Added `TILE_NAME_MAX_LINES` / `TILE_NAME_LINE_HEIGHT_RATIO` constants, `tile-name`/`tile-collection` testIDs, and tests for the 2-line wrap + reserved height (item rows and tiles).
+- Specs 003/016 + roadmap updated; `npm run test:all` green (80 files, 710 tests).
