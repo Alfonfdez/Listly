@@ -22,6 +22,7 @@
 
 ## ENVIRONMENT
 - Host: Windows, PowerShell 5.1 shell. There is NO ripgrep in the shell — use the grep/glob/read tools for searching.
+- **Never write non-ASCII text through the shell**: PowerShell here-strings, pipes and `>` redirects re-encode with the console codepage and turn accents/dashes into `?` or mojibake. Write such files with the Write/Edit tools (UTF-8), or put the text in a JSON/values file written with Write and let a script read it. `scripts/i18n.mjs` only edits `src/i18n/*.ts` — never the READMEs or other files.
 - `opencode.jsonc` is gitignored (it contains the Context7 API key). A secret-free `opencode.example.jsonc` is committed as a template.
 - Web verification uses the Playwright MCP browser against the Expo web dev server at `http://localhost:8081`.
 - Dev-server lifecycle: start `npx expo start --web` (port 8081) in the background, poll the URL until it serves HTML, and always terminate it when done (free port 8081). Concrete commands are in `docs/harnesses.md` and the `verification-loop` skill.
@@ -106,8 +107,22 @@ npx expo lint
 ## I18N
 - Languages: English, Spanish, Catalan, Galician, Basque, French, German, Portuguese, Italian (en, es, ca, gl, eu, fr, de, pt, it).
 - `t()` returns the language object.
-- All UI strings go through `src/i18n/`; every pack is typed against `en`'s `Translations`, so key parity is enforced at typecheck (plus `tests/i18n/parity.test.ts`).
-- i18n key naming: `lowercase.with.dots`.
+- All UI strings go through `src/i18n/`; every pack is typed against `en`'s `Translations`, so key parity is enforced at typecheck (plus `tests/i18n/parity.test.ts` and the encoding guard in `tests/i18n/encoding.test.ts`).
+- i18n key naming: `snake_case` (e.g. `home_empty`, `settings_title`).
+
+## I18N KEYS
+Every key must exist in all nine language files with the same key set. **Always use the script** (never hand-edit the nine files):
+```bash
+npm run i18n -- list --check                                        # key counts + parity problems
+npm run i18n -- list --key home_                                    # show matching keys per language
+npm run i18n -- add --key foo --value "Foo" --after bar --dry-run
+npm run i18n -- add --key foo --values-file keys.json --after bar
+npm run i18n -- set --key foo --value "Foo" --lang es
+npm run i18n -- remove --key foo
+```
+- `--values-file` takes a JSON object keyed by language code; use it for anything containing a quote, backslash, `$` or backtick (never `--value` on the command line).
+- The script is all-or-nothing, keeps comments/sections/CRLF, and writes UTF-8; it is covered by `tests/tooling/i18n.test.ts`.
+- After any i18n change run `npm run test:all` (the parity + encoding tests must pass).
 
 ## PROJECT STRUCTURE
 ```
@@ -129,4 +144,4 @@ ListlyApp/
 - Components: `PascalCase.tsx` (e.g., `ItemRow.tsx`)
 - Repositories: `camelCaseRepo.ts` (e.g., `listRepo.ts`)
 - Hooks: `useHookName.ts`
-- i18n keys: `lowercase.with.dots` (e.g., `home_empty`, `settings_title`)
+- i18n keys: `snake_case` (e.g., `home_empty`, `settings_title`)
