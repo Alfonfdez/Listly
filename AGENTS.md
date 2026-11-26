@@ -104,7 +104,9 @@ npm run lint:fix   # the same with --fix (indent, quotes, commas, EOL)
 
 ## DATABASE
 - One `DatabaseHandle` interface on all platforms (`src/database/types.ts`); `engine.ts` (native) / `engine.web.ts` (web) select the engine.
-- Migrations run from `PRAGMA user_version` in `src/database/database.ts`, applying each step once inside a transaction.
+- The migration chain lives in `src/database/migrations/index.ts`: `MIGRATIONS` is an ordered list of `{ version, run }` steps and `SCHEMA_VERSION` (9 since v1.0.0) is the version this build writes to `PRAGMA user_version`.
+- **Never drop a database at or above `RELEASED_BASELINE` (9).** Bumping `SCHEMA_VERSION` means appending one idempotent step to `MIGRATIONS`; `tests/database/migrations.test.ts` fails if the chain does not end at `SCHEMA_VERSION`. Only pre-release databases (`1..8`) are rebuilt.
+- `tests/fixtures/upgrade/v1.0.0.sql` is a frozen v9 snapshot; `tests/database/upgrade.test.ts` proves an upgrade keeps every row. See `docs/upgrade-testing.md`.
 - Drizzle schema in `src/database/drizzle/schema.ts`; repositories written with the Drizzle query builder.
 - Every stored row is validated at the storage boundary with Zod (`src/database/schemas.ts`); `src/database/types.ts` re-exports the `z.infer` types.
 - Repositories: list, item, config, collection, vault.

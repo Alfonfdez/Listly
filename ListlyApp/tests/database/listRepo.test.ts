@@ -34,9 +34,7 @@ async function createBackend(): Promise<Backend> {
   await db.execAsync('PRAGMA foreign_keys = ON;');
 
   const { createSchema } = await import('../../src/database/migrations/001_initial');
-  const { addListPositions } = await import('../../src/database/migrations/003_list_position');
   await createSchema(db);
-  await addListPositions(db);
 
   const { collectionRepo: collections } = await import('../../src/database/repositories/collectionRepo');
   const { listRepo: lists } = await import('../../src/database/repositories/listRepo');
