@@ -1139,3 +1139,9 @@ pm run test:all green.
 - Added `EDIT_ITEM_NAME_LINES` / `EDIT_ITEM_NOTE_LINES` / line-height and padding constants; tests for the multiline name and the 5-line note.
 - Documented the Home drag-into-collection ↔ auto-scroll known limitation in `spec/features/018-drag-list-into-collection/1-spec.md` (workaround + deferred fix options).
 - `npm run test:all` green (80 files, 714 tests).
+
+[2026-11-26] chore | ListlyApp/scripts/i18n.mjs, ListlyApp/tests/tooling/i18n.test.ts, ListlyApp/tests/i18n/encoding.test.ts, ListlyApp/package.json, AGENTS.md, docs/harnesses.md
+- Added the **i18n helper** (`scripts/i18n.mjs`, `npm run i18n`): `list`/`add`/`set`/`remove` keys across all nine language files, with parity/arity checks, `--values-file` (for function values and anything with quotes/backticks/`$`), all-or-nothing writes, CRLF/comments preserved. Ported `tests/tooling/i18n.test.ts`.
+- Added the **encoding guard** `tests/i18n/encoding.test.ts` (no replacement characters, no UTF-8-as-Latin-1 mojibake, no `?` inside words; `?` parity with English). The guard immediately caught a false positive on the valid Portuguese `Âmbar`, so the mojibake heuristic now flags only `Ã`/`Â` followed by a high Latin-1 char/whitespace plus the `â€` prefix.
+- Fixed `AGENTS.md`: i18n keys are `snake_case` (not `lowercase.with.dots`); added the "never write non-ASCII through the shell" rule and the `npm run i18n` commands. `docs/harnesses.md`: i18n row + suite baseline 82 files / 754 tests.
+- `npm run test:all` green (82 files, 754 tests).
