@@ -36,12 +36,8 @@ describe('db drift', () => {
   it('real columns match the drift expectations', async () => {
     const db = await getHandle();
     await db.execAsync('PRAGMA foreign_keys = ON;');
-    const { createSchema } = await import('../../src/database/migrations/001_initial');
-    const { addListPositions } = await import('../../src/database/migrations/003_list_position');
-    const { addItemPictures } = await import('../../src/database/migrations/004_item_pictures');
-    await createSchema(db);
-    await addListPositions(db);
-    await addItemPictures(db);
+    const { migrateDatabase } = await import('../../src/database/migrations');
+    await migrateDatabase(db);
     for (const [table, expected] of Object.entries(EXPECTED_COLUMNS)) {
       expect(await columnNames(db, table)).toEqual(expected);
     }
@@ -49,12 +45,8 @@ describe('db drift', () => {
 
   it('zod schema keys match the migration columns', async () => {
     const db = await getHandle();
-    const { createSchema } = await import('../../src/database/migrations/001_initial');
-    const { addListPositions } = await import('../../src/database/migrations/003_list_position');
-    const { addItemPictures } = await import('../../src/database/migrations/004_item_pictures');
-    await createSchema(db);
-    await addListPositions(db);
-    await addItemPictures(db);
+    const { migrateDatabase } = await import('../../src/database/migrations');
+    await migrateDatabase(db);
     const { listSchema, itemSchema } = await import('../../src/database/schemas');
 
     expect(Object.keys(listSchema.shape)).toEqual(await columnNames(db, 'lists'));

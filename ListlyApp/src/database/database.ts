@@ -1,44 +1,23 @@
 import type { DatabaseHandle } from './types';
 import { openEngine } from './engine';
-import { createSchema } from './migrations/001_initial';
+import { migrateDatabase, SCHEMA_VERSION } from './migrations';
 import { runExclusive } from './transaction';
 import { deleteItemPhotos, parseItemPhotos } from '../utils/itemPhotos';
 import { DATABASE_NAME } from './constants';
 
-export const SCHEMA_VERSION = 9;
+export { SCHEMA_VERSION };
 
 let dbPromise: Promise<DatabaseHandle> | null = null;
 
 export function getDatabase(): Promise<DatabaseHandle> {
   if (!dbPromise) {
-    dbPromise = openEngine(DATABASE_NAME);
+    dbPromise = openEngine(DATABASE_NAME).catch(error => {
+      // A failed open must not poison every later retry.
+      dbPromise = null;
+      throw error;
+    });
   }
   return dbPromise;
-}
-
-async function migrate(database: DatabaseHandle): Promise<void> {
-  const row = await database.getFirstAsync<{ user_version: number }>('PRAGMA user_version');
-  const currentVersion = row?.user_version ?? 0;
-
-  if (currentVersion >= SCHEMA_VERSION) return;
-
-  await runExclusive(database, async () => {
-    // Pre-1.0 development: the schema is free to change, so an out-of-date
-    // database is rebuilt from the single canonical schema instead of being
-    // migrated incrementally. Once v1.0.0 is released this becomes a real
-    // versioned migration chain.
-    if (currentVersion > 0) {
-      await database.execAsync(`
-        DROP TABLE IF EXISTS items;
-        DROP TABLE IF EXISTS lists;
-        DROP TABLE IF EXISTS collections;
-        DROP TABLE IF EXISTS config;
-        DROP TABLE IF EXISTS vaults;
-      `);
-    }
-    await createSchema(database);
-    await database.execAsync(`PRAGMA user_version = ${SCHEMA_VERSION}`);
-  });
 }
 
 let initPromise: Promise<DatabaseHandle> | null = null;
@@ -48,9 +27,13 @@ export function initDatabase(): Promise<DatabaseHandle> {
     initPromise = (async () => {
       const database = await getDatabase();
       await database.execAsync('PRAGMA foreign_keys = ON;');
-      await migrate(database);
+      await migrateDatabase(database);
       return database;
-    })();
+    })().catch(error => {
+      // The App retry path must be able to try the whole initialization again.
+      initPromise = null;
+      throw error;
+    });
   }
   return initPromise;
 }
