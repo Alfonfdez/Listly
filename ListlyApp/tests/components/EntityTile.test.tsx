@@ -30,7 +30,7 @@ type Overrides = Partial<ComponentProps<typeof EntityTile>>;
 
 function renderTile(entity: TileEntity, overrides: Overrides = {}) {
   return render(
-    <EntityTile entity={entity} layout="card" selectMode={false} selected={false} onPress={() => {}} {...overrides} />
+    <EntityTile entity={entity} layout="card" selectMode={false} selected={false} onPress={() => {}} {...overrides} />,
   );
 }
 
@@ -143,7 +143,7 @@ describe('EntityTile', () => {
     const view = await renderTile(COLLECTION, { dropTarget: true });
 
     expect(view.getByLabelText('Shopping').props.accessibilityHint).toBe(
-      'Drop to move the list into this collection'
+      'Drop to move the list into this collection',
     );
   });
 

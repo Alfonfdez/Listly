@@ -71,12 +71,12 @@ export default function ListsScreenBase({
 
   const selectedCollections = useMemo(
     () => collections.filter(col => selectedCollectionIds.has(col.id)),
-    [collections, selectedCollectionIds]
+    [collections, selectedCollectionIds],
   );
 
   const selectedCollectionsHaveLists = useMemo(
     () => selectedCollections.some(col => (listsByCollectionId.get(col.id)?.length ?? 0) > 0),
-    [selectedCollections, listsByCollectionId]
+    [selectedCollections, listsByCollectionId],
   );
 
   const handleDeletePress = useCallback(() => {
@@ -114,7 +114,7 @@ export default function ListsScreenBase({
         exitSelectMode();
       }
     },
-    [selectedCollectionIds, selectedIds, refresh, exitSelectMode]
+    [selectedCollectionIds, selectedIds, refresh, exitSelectMode],
   );
 
   const hasData =

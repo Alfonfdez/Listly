@@ -104,7 +104,7 @@ describe('ItemFormModal', () => {
 
   it('blanks a zero amount on focus so the user can type immediately', async () => {
     const view = await render(
-      <ItemFormModal {...baseProps} numeric initialAmountMinor={0} initialQuantity={1} initialNote="" />
+      <ItemFormModal {...baseProps} numeric initialAmountMinor={0} initialQuantity={1} initialNote="" />,
     );
     expect(view.getByLabelText('Amount').props.value).toBe('0.00');
     await act(async () => {
@@ -115,7 +115,7 @@ describe('ItemFormModal', () => {
 
   it('keeps a non-zero amount on focus', async () => {
     const view = await render(
-      <ItemFormModal {...baseProps} numeric initialAmountMinor={120} initialQuantity={1} initialNote="" />
+      <ItemFormModal {...baseProps} numeric initialAmountMinor={120} initialQuantity={1} initialNote="" />,
     );
     expect(view.getByLabelText('Amount').props.value).toBe('1.20');
     await act(async () => {
@@ -126,7 +126,7 @@ describe('ItemFormModal', () => {
 
   it('restores the zero amount when focused then blurred without typing', async () => {
     const view = await render(
-      <ItemFormModal {...baseProps} numeric initialAmountMinor={0} initialQuantity={1} initialNote="" />
+      <ItemFormModal {...baseProps} numeric initialAmountMinor={0} initialQuantity={1} initialNote="" />,
     );
     await act(async () => {
       view.getByLabelText('Amount').props.onFocus();
@@ -149,7 +149,7 @@ describe('ItemFormModal', () => {
         initialQuantity={1}
         initialNote=""
         onSave={onSave}
-      />
+      />,
     );
     view.getByLabelText('Amount').props.onFocus();
     await user.type(view.getByLabelText('Amount'), '2.50');

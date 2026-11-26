@@ -52,7 +52,7 @@ describe('useVaultSession', () => {
     expect(vaultRepoMock.saveUnlocked).toHaveBeenCalledWith(
       1,
       'pw',
-      expect.arrayContaining([expect.objectContaining({ id: -2, name: 'new', position: 1 })])
+      expect.arrayContaining([expect.objectContaining({ id: -2, name: 'new', position: 1 })]),
     );
   });
 

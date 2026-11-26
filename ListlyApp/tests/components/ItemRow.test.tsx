@@ -1,6 +1,6 @@
 import { describe, expect, it, vi, beforeEach } from 'vitest';
-import { render, fireEvent } from '@testing-library/react-native';
-import { userEvent } from '@testing-library/react-native';
+import { render, fireEvent , userEvent } from '@testing-library/react-native';
+
 import ItemRow from '../../src/components/ItemRow';
 import { resetStub, setConfig } from '../helpers/configStub';
 import { ALPHA_SUBTLE } from '../../src/components/componentStyles';
@@ -75,7 +75,7 @@ describe('ItemRow', () => {
     expect(noNote.queryByText('medium roast')).toBeNull();
 
     const withNote = await render(
-      <ItemRow item={makeItem({ note: 'medium roast' })} {...defaults} onToggle={() => {}} onEdit={() => {}} />
+      <ItemRow item={makeItem({ note: 'medium roast' })} {...defaults} onToggle={() => {}} onEdit={() => {}} />,
     );
     const preview = withNote.getByText('medium roast');
     expect(preview).toBeTruthy();
@@ -84,7 +84,7 @@ describe('ItemRow', () => {
 
   it('hides the note preview in select mode', async () => {
     const view = await render(
-      <ItemRow item={makeItem({ note: 'medium roast' })} {...defaults} selectMode onToggle={() => {}} onEdit={() => {}} />
+      <ItemRow item={makeItem({ note: 'medium roast' })} {...defaults} selectMode onToggle={() => {}} onEdit={() => {}} />,
     );
     expect(view.queryByText('medium roast')).toBeNull();
   });
@@ -92,7 +92,7 @@ describe('ItemRow', () => {
   it('opens the full note viewer from the note preview', async () => {
     const user = userEvent.setup();
     const view = await render(
-      <ItemRow item={makeItem({ note: 'medium roast' })} {...defaults} onToggle={() => {}} onEdit={() => {}} />
+      <ItemRow item={makeItem({ note: 'medium roast' })} {...defaults} onToggle={() => {}} onEdit={() => {}} />,
     );
 
     await user.press(view.getByLabelText('View note'));
@@ -104,7 +104,7 @@ describe('ItemRow', () => {
   it('does not toggle when tapping the note preview', async () => {
     const onToggle = vi.fn();
     const view = await render(
-      <ItemRow item={makeItem({ note: 'milk whole' })} {...defaults} onToggle={onToggle} onEdit={() => {}} />
+      <ItemRow item={makeItem({ note: 'milk whole' })} {...defaults} onToggle={onToggle} onEdit={() => {}} />,
     );
 
     fireEvent.press(view.getByText('milk whole'));
@@ -136,7 +136,7 @@ describe('ItemRow', () => {
   it('hides notes everywhere when showNotes is off', async () => {
     setConfig({ showNotes: false });
     const view = await render(
-      <ItemRow item={makeItem({ note: 'medium roast' })} {...defaults} onToggle={() => {}} onEdit={() => {}} />
+      <ItemRow item={makeItem({ note: 'medium roast' })} {...defaults} onToggle={() => {}} onEdit={() => {}} />,
     );
     expect(view.queryByText('medium roast')).toBeNull();
   });

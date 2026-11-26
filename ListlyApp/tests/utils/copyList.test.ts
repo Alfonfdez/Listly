@@ -46,10 +46,10 @@ describe('buildListCopyText (standard)', () => {
       item({ id: 3, name: 'Eggs', note: '  ', position: 2 }),
     ];
     expect(buildListCopyText('Groceries', items, { withNotes: true })).toBe(
-      'Groceries\n\nMilk — skim\nBread\nEggs'
+      'Groceries\n\nMilk — skim\nBread\nEggs',
     );
     expect(buildListCopyText('Groceries', items, { withNotes: false })).toBe(
-      'Groceries\n\nMilk\nBread\nEggs'
+      'Groceries\n\nMilk\nBread\nEggs',
     );
   });
 
@@ -60,7 +60,7 @@ describe('buildListCopyText (standard)', () => {
   it('ignores numeric formatting and labels for standard lists', () => {
     const items = [item({ id: 1, name: 'Milk', amount_minor: 120, quantity: 2, position: 0 })];
     expect(
-      buildListCopyText('Groceries', items, { withNotes: false, numeric: false, labels })
+      buildListCopyText('Groceries', items, { withNotes: false, numeric: false, labels }),
     ).toBe('Groceries\n\nMilk');
   });
 });
@@ -72,21 +72,21 @@ describe('buildListCopyText (numeric)', () => {
       item({ id: 2, name: 'Eggs', amount_minor: 210, quantity: 1, position: 1 }),
     ];
     expect(buildListCopyText('Groceries', items, { withNotes: false, numeric: true, labels })).toBe(
-      'Groceries\n\n✅ Milk — 1.20 × 2 = 2.40\nEggs — 2.10 × 1 = 2.10\n\nTotal: 4.50\nDone: 2.40'
+      'Groceries\n\n✅ Milk — 1.20 × 2 = 2.40\nEggs — 2.10 × 1 = 2.10\n\nTotal: 4.50\nDone: 2.40',
     );
   });
 
   it('always shows the amount × quantity = total segment, including quantity 1', () => {
     const items = [item({ id: 1, name: 'Bread', amount_minor: 10000, quantity: 1, position: 0 })];
     expect(buildListCopyText('Groceries', items, { withNotes: false, numeric: true, labels })).toBe(
-      'Groceries\n\nBread — 100.00 × 1 = 100.00\n\nTotal: 100.00\nDone: 0.00'
+      'Groceries\n\nBread — 100.00 × 1 = 100.00\n\nTotal: 100.00\nDone: 0.00',
     );
   });
 
   it('renders a null amount as 0.00', () => {
     const items = [item({ id: 1, name: 'Salt', amount_minor: null, quantity: 1, position: 0 })];
     expect(buildListCopyText('Groceries', items, { withNotes: false, numeric: true, labels })).toBe(
-      'Groceries\n\nSalt — 0.00 × 1 = 0.00\n\nTotal: 0.00\nDone: 0.00'
+      'Groceries\n\nSalt — 0.00 × 1 = 0.00\n\nTotal: 0.00\nDone: 0.00',
     );
   });
 
@@ -95,7 +95,7 @@ describe('buildListCopyText (numeric)', () => {
       item({ id: 1, name: 'Coffee beans', amount_minor: 849, quantity: 2, note: 'Decaf, for the moka pot', position: 0 }),
     ];
     expect(buildListCopyText('Groceries', items, { withNotes: true, numeric: true, labels })).toBe(
-      'Groceries\n\nCoffee beans — 8.49 × 2 = 16.98 — Decaf, for the moka pot\n\nTotal: 16.98\nDone: 0.00'
+      'Groceries\n\nCoffee beans — 8.49 × 2 = 16.98 — Decaf, for the moka pot\n\nTotal: 16.98\nDone: 0.00',
     );
   });
 
@@ -105,7 +105,7 @@ describe('buildListCopyText (numeric)', () => {
       item({ id: 2, name: 'Eggs', amount_minor: 210, quantity: 3, checked: 0, position: 1 }),
     ];
     expect(buildListCopyText('Groceries', items, { withNotes: false, numeric: true, labels })).toBe(
-      'Groceries\n\n✅ Milk — 1.20 × 2 = 2.40\nEggs — 2.10 × 3 = 6.30\n\nTotal: 8.70\nDone: 2.40'
+      'Groceries\n\n✅ Milk — 1.20 × 2 = 2.40\nEggs — 2.10 × 3 = 6.30\n\nTotal: 8.70\nDone: 2.40',
     );
   });
 

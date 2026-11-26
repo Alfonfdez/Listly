@@ -55,7 +55,7 @@ const platformMock = vi.hoisted(() => ({ android: false }));
 
 vi.mock('../../../src/utils/platform', async () => {
   const actual = await vi.importActual<typeof import('../../../src/utils/platform')>(
-    '../../../src/utils/platform'
+    '../../../src/utils/platform',
   );
   return { ...actual, isAndroidPlatform: () => platformMock.android };
 });
@@ -143,9 +143,8 @@ describe('DataScreen', () => {
       expect(alertSpy).toHaveBeenCalledWith(
         'Backup saved',
         'Your backup has been saved to the Downloads folder.',
-        expect.any(Array)
-      )
-    );
+        expect.any(Array),
+      ));
     expect(ioMocks.saveBackupFile).not.toHaveBeenCalled();
     expect(lastAlertButtons().map(b => b.text)).toEqual(['Share', 'Done']);
   });
@@ -190,14 +189,13 @@ describe('DataScreen', () => {
     expect(getAppStub().refresh).toHaveBeenCalled();
     expect(getConfigStub().reload).toHaveBeenCalled();
     await waitFor(() =>
-      expect(alertSpy).toHaveBeenCalledWith('Import complete', 'Your data has been restored from the backup.')
-    );
+      expect(alertSpy).toHaveBeenCalledWith('Import complete', 'Your data has been restored from the backup.'));
   });
 
   it('reports an invalid backup file', async () => {
     ioMocks.pickBackupFile.mockResolvedValue('{"app":"Other"}');
     backupMocks.importBackup.mockRejectedValue(
-      new backupMocks.BackupValidationError('invalid_format', 'bad')
+      new backupMocks.BackupValidationError('invalid_format', 'bad'),
     );
     const user = userEvent.setup();
     const view = await render(<DataScreen />);
@@ -206,14 +204,13 @@ describe('DataScreen', () => {
     await user.press(view.getByLabelText('Import'));
 
     await waitFor(() =>
-      expect(alertSpy).toHaveBeenCalledWith('Invalid backup', 'The selected file is not a valid Listly backup.')
-    );
+      expect(alertSpy).toHaveBeenCalledWith('Invalid backup', 'The selected file is not a valid Listly backup.'));
   });
 
   it('reports a backup from a newer version', async () => {
     ioMocks.pickBackupFile.mockResolvedValue('{"schema":999}');
     backupMocks.importBackup.mockRejectedValue(
-      new backupMocks.BackupValidationError('newer_version', 'newer')
+      new backupMocks.BackupValidationError('newer_version', 'newer'),
     );
     const user = userEvent.setup();
     const view = await render(<DataScreen />);
@@ -222,8 +219,7 @@ describe('DataScreen', () => {
     await user.press(view.getByLabelText('Import'));
 
     await waitFor(() =>
-      expect(alertSpy).toHaveBeenCalledWith('Newer backup', 'This backup was created with a newer version of Listly. Update the app to import it.')
-    );
+      expect(alertSpy).toHaveBeenCalledWith('Newer backup', 'This backup was created with a newer version of Listly. Update the app to import it.'));
   });
 
   it('does nothing when the file picker is cancelled', async () => {

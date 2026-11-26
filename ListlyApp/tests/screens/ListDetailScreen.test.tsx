@@ -10,9 +10,10 @@ import {
   setItemsByListId,
   setLists,
   setLockedListIds,
+  getAppStub,
 } from '../helpers/appStub';
 import { resetStub } from '../helpers/configStub';
-import { getAppStub } from '../helpers/appStub';
+
 import { fireGridDragEnd, lastGrid } from '../mocks/react-native-sortables';
 import type { Item, ListWithCounts } from '../../src/database/types';
 import type { UnlockedItems } from '../../src/database/repositories/vaultRepo';
@@ -263,7 +264,8 @@ describe('ListDetailScreen', () => {
     expect(view.getByText('Milk')).toBeTruthy();
   });
 
-  it('adds a new item at the end of the list', async () => {    const user = userEvent.setup();
+  it('adds a new item at the end of the list', async () => {
+    const user = userEvent.setup();
     const view = await render(<ListDetailScreen />);
     await view.findByText('Milk');
     await user.type(view.getByLabelText('Add an item...'), '  Tea  ');
@@ -279,8 +281,7 @@ describe('ListDetailScreen', () => {
         position: 2,
         amount_minor: null,
         quantity: 0,
-      })
-    );
+      }));
   });
 
   it('rejects adding a duplicate item name', async () => {
@@ -396,8 +397,7 @@ describe('ListDetailScreen', () => {
         position: 2,
         amount_minor: null,
         quantity: 0,
-      })
-    );
+      }));
     expect(photoMocks.setPhotos).toHaveBeenCalledWith([]);
   });
 
@@ -421,8 +421,7 @@ describe('ListDetailScreen', () => {
         position: 2,
         amount_minor: null,
         quantity: 0,
-      })
-    );
+      }));
   });
 
   it('clears and collapses the details area after adding', async () => {
@@ -455,8 +454,7 @@ describe('ListDetailScreen', () => {
     await user.press(view.getByLabelText('Save'));
 
     await waitFor(() =>
-      expect(itemRepositoryMock.update).toHaveBeenCalledWith(2, { name: 'Eggs (brown)', note: 'from the market', pictures: null, amount_minor: null, quantity: 0 })
-    );
+      expect(itemRepositoryMock.update).toHaveBeenCalledWith(2, { name: 'Eggs (brown)', note: 'from the market', pictures: null, amount_minor: null, quantity: 0 }));
   });
 
   it('updates an item with photos in the edit modal', async () => {
@@ -469,8 +467,7 @@ describe('ListDetailScreen', () => {
 
     await user.press(view.getByLabelText('Save'));
     await waitFor(() =>
-      expect(itemRepositoryMock.update).toHaveBeenCalledWith(2, { name: 'Eggs', note: 'free-range', pictures: '["data:image/png;base64,BB"]', amount_minor: null, quantity: 0 })
-    );
+      expect(itemRepositoryMock.update).toHaveBeenCalledWith(2, { name: 'Eggs', note: 'free-range', pictures: '["data:image/png;base64,BB"]', amount_minor: null, quantity: 0 }));
   });
 
   it('deletes an item only after confirmation', async () => {
@@ -626,8 +623,7 @@ describe('ListDetailScreen', () => {
     await view.findByText('Milk');
     await user.press(view.getByLabelText('Copy list'));
     await waitFor(() =>
-      expect(clipboardMock.setStringAsync).toHaveBeenCalledWith('Groceries\n\n✅ Milk\nEggs')
-    );
+      expect(clipboardMock.setStringAsync).toHaveBeenCalledWith('Groceries\n\n✅ Milk\nEggs'));
   });
 
   it('copies item names and notes via the full copy action', async () => {
@@ -636,8 +632,7 @@ describe('ListDetailScreen', () => {
     await view.findByText('Milk');
     await user.press(view.getByLabelText('Copy list with notes'));
     await waitFor(() =>
-      expect(clipboardMock.setStringAsync).toHaveBeenCalledWith('Groceries\n\n✅ Milk\nEggs — free-range')
-    );
+      expect(clipboardMock.setStringAsync).toHaveBeenCalledWith('Groceries\n\n✅ Milk\nEggs — free-range'));
   });
 
   it('shows a specific confirmation after the simple copy', async () => {
@@ -745,7 +740,7 @@ describe('ListDetailScreen', () => {
   it('waits for the reorder write to settle before refreshing', async () => {
     let resolveReorder: () => void = () => {};
     itemRepositoryMock.reorder = vi.fn(
-      () => new Promise<void>(resolve => { resolveReorder = resolve; })
+      () => new Promise<void>(resolve => { resolveReorder = resolve; }),
     );
     const view = await render(<ListDetailScreen />);
     await view.findByText('Milk');
@@ -768,7 +763,7 @@ describe('ListDetailScreen', () => {
     expect(lastGrid()?.sortEnabled).toBe(false);
   });
 
-it('disables reordering while searching', async () => {
+  it('disables reordering while searching', async () => {
     const view = await render(<ListDetailScreen />);
     await view.findByText('Milk');
     expect(lastGrid()?.sortEnabled).toBe(true);
@@ -819,8 +814,7 @@ it('disables reordering while searching', async () => {
     await user.press(await view.findByLabelText('Select'));
 
     await waitFor(() =>
-      expect(view.getAllByText(/^(Milk|Eggs)$/).map(n => n.props.children as string)).toEqual(['Eggs', 'Milk'])
-    );
+      expect(view.getAllByText(/^(Milk|Eggs)$/).map(n => n.props.children as string)).toEqual(['Eggs', 'Milk']));
     const sortPill = view.getByLabelText('Sort items: Name Ascending');
     expect(sortPill).toBeTruthy();
     expect(view.queryByText('Name')).toBeNull();
@@ -842,8 +836,7 @@ it('disables reordering while searching', async () => {
 
     await waitFor(() => expect(view.getByLabelText('Sort items: Created Descending')).toBeTruthy());
     await waitFor(() =>
-      expect(view.getAllByText(/^(Old|New)$/).map(n => n.props.children as string)).toEqual(['New', 'Old'])
-    );
+      expect(view.getAllByText(/^(Old|New)$/).map(n => n.props.children as string)).toEqual(['New', 'Old']));
   });
 
   it('restores manual order and drag after picking Manual', async () => {
@@ -855,16 +848,14 @@ it('disables reordering while searching', async () => {
     await user.press(await view.findByLabelText('Name Ascending'));
     await user.press(await view.findByLabelText('Select'));
     await waitFor(() =>
-      expect(view.getAllByText(/^(Milk|Eggs)$/).map(n => n.props.children as string)).toEqual(['Eggs', 'Milk'])
-    );
+      expect(view.getAllByText(/^(Milk|Eggs)$/).map(n => n.props.children as string)).toEqual(['Eggs', 'Milk']));
 
     await user.press(view.getByLabelText('Sort items: Name Ascending'));
     await user.press(await view.findByLabelText('Manual'));
     await user.press(await view.findByLabelText('Select'));
 
     await waitFor(() =>
-      expect(view.getAllByText(/^(Milk|Eggs)$/).map(n => n.props.children as string)).toEqual(['Milk', 'Eggs'])
-    );
+      expect(view.getAllByText(/^(Milk|Eggs)$/).map(n => n.props.children as string)).toEqual(['Milk', 'Eggs']));
     expect(view.getByLabelText('Sort items: Manual')).toBeTruthy();
   });
 
@@ -900,7 +891,7 @@ it('disables reordering while searching', async () => {
       new Map([[1, [
         { ...ITEMS[0], amount_minor: 250, quantity: 2, checked: 1 },
         { ...ITEMS[1], amount_minor: 100, quantity: 1, checked: 0 },
-      ]]])
+      ]]]),
     );
     const view = await render(<ListDetailScreen />);
     await view.findByText('Milk');
@@ -919,7 +910,7 @@ it('disables reordering while searching', async () => {
       new Map([[1, [
         { ...ITEMS[0], amount_minor: 250, quantity: 2, checked: 1 },
         { ...ITEMS[1], amount_minor: 100, quantity: 1, checked: 0 },
-      ]]])
+      ]]]),
     );
     const view = await render(<ListDetailScreen />);
     await view.findByText('Milk');
@@ -936,7 +927,7 @@ it('disables reordering while searching', async () => {
       new Map([[1, [
         { ...ITEMS[0], amount_minor: 250, quantity: 2, checked: 0 },
         { ...ITEMS[1], amount_minor: 100, quantity: 1, checked: 0 },
-      ]]])
+      ]]]),
     );
     const view = await render(<ListDetailScreen />);
     await view.findByText('Milk');
@@ -969,9 +960,8 @@ it('disables reordering while searching', async () => {
 
     await waitFor(() =>
       expect(itemRepositoryMock.create).toHaveBeenCalledWith(
-        expect.objectContaining({ name: 'Tea', amount_minor: 150, quantity: 2 })
-      )
-    );
+        expect.objectContaining({ name: 'Tea', amount_minor: 150, quantity: 2 }),
+      ));
   });
 
   it('shows a lock action for a list with items', async () => {
@@ -1126,8 +1116,7 @@ it('disables reordering while searching', async () => {
     await user.press(view.getByLabelText('Change'));
 
     await waitFor(() =>
-      expect(vaultRepositoryMock.changePassphrase).toHaveBeenCalledWith(1, 'secret123', 'newsecret')
-    );
+      expect(vaultRepositoryMock.changePassphrase).toHaveBeenCalledWith(1, 'secret123', 'newsecret'));
   });
 
   it('shows a wrong current passphrase inline without logging it as an error', async () => {
@@ -1136,7 +1125,7 @@ it('disables reordering while searching', async () => {
     vaultRepositoryMock.unlock.mockResolvedValueOnce([{ ...ITEMS[0], id: 10, list_id: 1 }]);
     const { VaultCryptoError, VAULT_ERROR } = await import('../../src/utils/vaultCrypto');
     vaultRepositoryMock.changePassphrase.mockRejectedValueOnce(
-      new VaultCryptoError(VAULT_ERROR.wrongPassphrase)
+      new VaultCryptoError(VAULT_ERROR.wrongPassphrase),
     );
     const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
     const user = userEvent.setup();

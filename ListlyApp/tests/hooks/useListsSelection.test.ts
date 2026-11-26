@@ -44,8 +44,7 @@ describe('useListsSelection', () => {
         selectedIds: new Set([2]),
         selectedCollectionIds: new Set([5]),
         refresh: vi.fn(async () => {}),
-      })
-    );
+      }));
 
     expect(result.current.selectedListItems.map(l => l.id)).toEqual([2]);
     expect(result.current.selectedCollectionItems.map(c => c.id)).toEqual([5]);
@@ -60,8 +59,7 @@ describe('useListsSelection', () => {
         selectedIds: new Set([1, 2]),
         selectedCollectionIds: new Set(),
         refresh,
-      })
-    );
+      }));
     expect(result.current.allSelectedPinned).toBe(false);
 
     const all = await renderHook(() =>
@@ -71,8 +69,7 @@ describe('useListsSelection', () => {
         selectedIds: new Set([1, 2]),
         selectedCollectionIds: new Set(),
         refresh,
-      })
-    );
+      }));
     expect(all.result.current.allSelectedPinned).toBe(true);
   });
 
@@ -85,8 +82,7 @@ describe('useListsSelection', () => {
         selectedIds: new Set([1]),
         selectedCollectionIds: new Set([5]),
         refresh,
-      })
-    );
+      }));
 
     await act(async () => {
       result.current.handlePinPress();
@@ -106,8 +102,7 @@ describe('useListsSelection', () => {
         selectedIds: new Set([1]),
         selectedCollectionIds: new Set(),
         refresh,
-      })
-    );
+      }));
 
     await act(async () => {
       result.current.handlePinPress();
@@ -125,8 +120,7 @@ describe('useListsSelection', () => {
         selectedIds: new Set(),
         selectedCollectionIds: new Set(),
         refresh,
-      })
-    );
+      }));
 
     await act(async () => {
       result.current.handlePinPress();

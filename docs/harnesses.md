@@ -91,7 +91,7 @@ acceptance criteria in a real browser.
 | Pure-logic unit tests | Vitest + happy-dom | In use | Formatters, search/filter, color utilities |
 | DB contract suite | Vitest + sql.js (real SQLite in Node) | In use | One shared engine (native parity via expo-sqlite mock + web via sql.js/IndexedDB), Drizzle repo contract, DB drift vs types |
 | Type-checking | `tsc --noEmit` (strict, no `any`) | In use | Whole codebase types |
-| Linting | `npx expo lint` (eslint-config-expo) | In use | Code style, unused imports, React hooks rules |
+| Linting | `npm run lint` (`expo lint . --max-warnings 0`; eslint-config-expo + `@stylistic` + `eslint-plugin-boundaries`) | In use | Code style, formatting, unused imports, React hooks rules, layer import boundaries |
 | Schema layer + validation | Zod 4 (`src/database/schemas.ts`) | In use | Row types derived via `z.infer`; read-path validation in native + web backends; schema-vs-migration drift test |
 | Component unit tests | Vitest + vitest-native + RNTL | In use | Presentational components + screen suites (EntityTile, HomeScreen) with ConfigContext/AppContext stubbed |
 | UI / E2E verification | Playwright MCP + `verification-loop` skill | In use | Spec acceptance criteria in a live Expo web app (feature 001 verified) |

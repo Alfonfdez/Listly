@@ -24,14 +24,14 @@ export function ToastProvider({ children }: { children: ReactNode }) {
 
   useEffect(
     () => subscribeToErrors(() => showToast(labels.error_generic)),
-    [showToast, labels.error_generic]
+    [showToast, labels.error_generic],
   );
 
   useEffect(
     () => () => {
       if (timeoutRef.current) clearTimeout(timeoutRef.current);
     },
-    []
+    [],
   );
 
   const value = useMemo(() => ({ showToast }), [showToast]);

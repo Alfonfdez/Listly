@@ -90,7 +90,7 @@ async function renderView(overrides: Overrides = {}) {
 async function rerenderView() {
   if (!lastView) throw new Error('renderView must run first');
   return lastView.rerender(
-    <ListsView {...(lastViewProps as unknown as Parameters<typeof ListsView>[0])} />
+    <ListsView {...(lastViewProps as unknown as Parameters<typeof ListsView>[0])} />,
   );
 }
 
@@ -173,7 +173,7 @@ describe('ListsView', () => {
   });
 
   it('calls onToggleItem when a tile is tapped in select mode', async () => {
-const onToggleItem = vi.fn();
+    const onToggleItem = vi.fn();
     const onExitSelectMode = vi.fn();
     const view = await render(
       <ListsView
@@ -195,7 +195,7 @@ const onToggleItem = vi.fn();
         onCancelDeleteConfirm={vi.fn()}
         onConfirmDelete={vi.fn()}
         selectedCount={1}
-      />
+      />,
     );
     await view.findByText('Groceries');
     fireEvent.press(view.getByRole('checkbox', { name: /Groceries/ }));
@@ -224,7 +224,7 @@ const onToggleItem = vi.fn();
         onCancelDeleteConfirm={vi.fn()}
         onConfirmDelete={vi.fn()}
         selectedCount={2}
-      />
+      />,
     );
     await view.findByText('Groceries');
     fireEvent.press(view.getByText('Delete'));
@@ -253,7 +253,7 @@ const onToggleItem = vi.fn();
         onCancelDeleteConfirm={vi.fn()}
         onConfirmDelete={vi.fn()}
         selectedCount={1}
-      />
+      />,
     );
     await view.findByText('Groceries');
     fireEvent.press(view.getByText('Cancel'));

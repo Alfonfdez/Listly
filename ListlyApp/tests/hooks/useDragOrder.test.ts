@@ -60,7 +60,7 @@ describe('useDragOrder', () => {
     const onReorder = vi.fn();
     const { result, rerender } = await renderHook(
       ({ items }: { items: Item[] }) => useDragOrder(items, onReorder),
-      { initialProps: { items: [item(1), item(2), item(3)] } }
+      { initialProps: { items: [item(1), item(2), item(3)] } },
     );
 
     await act(() => result.current.onDragEnd(dragParams([item(3), item(1), item(2)])));
@@ -78,7 +78,7 @@ describe('useDragOrder', () => {
     const onReorder = vi.fn();
     const { result, rerender } = await renderHook(
       ({ items }: { items: Item[] }) => useDragOrder(items, onReorder),
-      { initialProps: { items: [item(1), item(2), item(3)] } }
+      { initialProps: { items: [item(1), item(2), item(3)] } },
     );
 
     // our own drag sets an optimistic order [3,1,2]

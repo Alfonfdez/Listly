@@ -1,5 +1,4 @@
 import { vi } from 'vitest';
-import type { ReactNode } from 'react';
 import type { CollectionWithCounts, Item, ListWithCounts } from '../../src/database/types';
 
 interface AppStubState {

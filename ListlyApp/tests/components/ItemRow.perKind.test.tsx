@@ -29,7 +29,7 @@ describe('ItemRow per-kind flags', () => {
   it('follows the numeric flags on a numeric list independently of the standard flags', async () => {
     setConfig({ showNotes: false, showNotesNumeric: true });
     const view = await render(
-      <ItemRow item={makeItem()} {...defaults} numeric onToggle={() => {}} onEdit={() => {}} />
+      <ItemRow item={makeItem()} {...defaults} numeric onToggle={() => {}} onEdit={() => {}} />,
     );
     expect(view.getByText('medium roast')).toBeTruthy();
   });
@@ -43,7 +43,7 @@ describe('ItemRow per-kind flags', () => {
   it('hides numeric notes when only the numeric flag is off', async () => {
     setConfig({ showNotes: true, showNotesNumeric: false });
     const view = await render(
-      <ItemRow item={makeItem()} {...defaults} numeric onToggle={() => {}} onEdit={() => {}} />
+      <ItemRow item={makeItem()} {...defaults} numeric onToggle={() => {}} onEdit={() => {}} />,
     );
     expect(view.queryByText('medium roast')).toBeNull();
   });

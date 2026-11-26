@@ -1,6 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { act, renderHook } from '@testing-library/react-native';
 
+import { useKeyboardHeight } from '../../src/hooks/useKeyboardHeight';
+
 const { android, listeners } = vi.hoisted(() => ({
   android: { value: true },
   listeners: new Map<string, (event: unknown) => void>(),
@@ -25,8 +27,6 @@ vi.mock('react-native', async () => {
     },
   };
 });
-
-import { useKeyboardHeight } from '../../src/hooks/useKeyboardHeight';
 
 describe('useKeyboardHeight', () => {
   beforeEach(() => {

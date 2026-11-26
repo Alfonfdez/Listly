@@ -166,8 +166,7 @@ describe('CreateListScreen', () => {
         color: '#FBBF24',
         icon: 'cart-outline',
         kind: 'standard',
-      })
-    );
+      }));
     expect(nav.goBack).toHaveBeenCalled();
   });
 
@@ -196,8 +195,7 @@ describe('CreateListScreen', () => {
         color: '#123456',
         icon: LIST_ICONS[0],
         kind: 'standard',
-      })
-    );
+      }));
   });
 
   it('cancels the picker discarding any pending color change', async () => {
@@ -233,8 +231,7 @@ describe('CreateListScreen', () => {
         color: '#22D3EE',
         icon: 'cart-outline',
         collection_id: null,
-      })
-    );
+      }));
     expect(nav.replace).toHaveBeenCalledWith('ListDetail', { listId: 9 });
   });
 
@@ -252,8 +249,7 @@ describe('CreateListScreen', () => {
         color: '#22D3EE',
         icon: 'cart-outline',
         collection_id: 5,
-      })
-    );
+      }));
   });
 
   it('without duplicateFromListId it uses the normal create flow', async () => {
@@ -270,8 +266,7 @@ describe('CreateListScreen', () => {
         color: QUICK_COLORS[0],
         icon: LIST_ICONS[0],
         kind: 'standard',
-      })
-    );
+      }));
     expect(listRepositoryMock.duplicate).not.toHaveBeenCalled();
     expect(nav.goBack).toHaveBeenCalled();
   });

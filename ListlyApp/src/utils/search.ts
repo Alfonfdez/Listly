@@ -13,7 +13,7 @@ export function matchesAllTerms(query: string, ...haystacks: string[]): boolean 
 export function filterListsByQuery(
   lists: ListWithCounts[],
   itemsByListId: ReadonlyMap<number, Item[]>,
-  query: string
+  query: string,
 ): ListWithCounts[] {
   if (searchTerms(query).length === 0) return lists;
   return lists.filter(list => {

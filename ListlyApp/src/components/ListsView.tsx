@@ -97,7 +97,7 @@ export default function ListsView({
   useFocusEffect(
     useCallback(() => {
       void refresh();
-    }, [refresh])
+    }, [refresh]),
   );
 
   const { filteredLists, displayCollections, handleCollectionsDragEnd } = useListsViewData({
@@ -139,7 +139,7 @@ export default function ListsView({
   useFocusEffect(
     useCallback(() => {
       return () => resetDragState();
-    }, [resetDragState])
+    }, [resetDragState]),
   );
 
   const { allSelectedPinned, handlePinPress } = useListsSelection({
@@ -158,7 +158,7 @@ export default function ListsView({
         navigation.navigate('ListDetail', { listId: item.id });
       }
     },
-    [selectMode, onToggleItem, navigation]
+    [selectMode, onToggleItem, navigation],
   );
 
   const handleCollectionPress = useCallback(
@@ -169,7 +169,7 @@ export default function ListsView({
         navigation.navigate('CollectionDetail', { collectionId: collection.id });
       }
     },
-    [selectMode, onToggleCollection, navigation]
+    [selectMode, onToggleCollection, navigation],
   );
 
   const renderItem = useCallback<SortableGridRenderItem<ListWithCounts>>(
@@ -216,7 +216,7 @@ export default function ListsView({
       isDragging,
       draggingId,
       displayLists,
-    ]
+    ],
   );
 
   const renderCollection = useCallback<SortableGridRenderItem<CollectionWithCounts>>(
@@ -255,7 +255,7 @@ export default function ListsView({
       handleZoneLeave,
       handleZoneDrop,
       hoverCollectionId,
-    ]
+    ],
   );
 
   // Remount the sortable grids whenever the item **sequence** changes so they

@@ -69,7 +69,6 @@ describe('PersonalizationScreen', () => {
     const updateConfig = getConfigStub().updateConfig;
 
     const notes = view.getAllByLabelText('Notes');
-    const photos = view.getAllByLabelText('Photos');
     await user.press(notes[2]!);
     expect(updateConfig).toHaveBeenCalledWith({ showNotesNumeric: false });
 

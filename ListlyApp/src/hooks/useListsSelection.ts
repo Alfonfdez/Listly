@@ -21,12 +21,12 @@ export function useListsSelection({
 }: Options) {
   const selectedListItems = useMemo(
     () => lists.filter(l => selectedIds.has(l.id)),
-    [lists, selectedIds]
+    [lists, selectedIds],
   );
 
   const selectedCollectionItems = useMemo(
     () => collections.filter(col => selectedCollectionIds.has(col.id)),
-    [collections, selectedCollectionIds]
+    [collections, selectedCollectionIds],
   );
 
   const hasPinSelection = selectedListItems.length + selectedCollectionItems.length > 0;
@@ -35,7 +35,7 @@ export function useListsSelection({
       hasPinSelection &&
       selectedListItems.every(l => isOn(l.pinned)) &&
       selectedCollectionItems.every(col => isOn(col.pinned)),
-    [hasPinSelection, selectedListItems, selectedCollectionItems]
+    [hasPinSelection, selectedListItems, selectedCollectionItems],
   );
 
   const handlePinPress = useMemo(
@@ -57,7 +57,7 @@ export function useListsSelection({
         }
       })();
     },
-    [hasPinSelection, allSelectedPinned, selectedListItems, selectedCollectionItems, refresh]
+    [hasPinSelection, allSelectedPinned, selectedListItems, selectedCollectionItems, refresh],
   );
 
   return { selectedListItems, selectedCollectionItems, allSelectedPinned, handlePinPress };

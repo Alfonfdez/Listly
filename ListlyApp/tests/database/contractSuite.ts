@@ -7,7 +7,7 @@ import type { ContractBackend } from './contractTypes';
 
 export function runContractSuite(
   name: string,
-  createBackend: () => Promise<ContractBackend>
+  createBackend: () => Promise<ContractBackend>,
 ): void {
   describe(`contract: ${name}`, () => {
     let backend: ContractBackend;
@@ -168,7 +168,7 @@ export function runContractSuite(
 
       it('creates and reads back an item with pictures', async () => {
         const created = await backend.item.create(
-          item(1, 'Photo Item', { pictures: JSON.stringify(['data:image/a', 'data:image/b']) })
+          item(1, 'Photo Item', { pictures: JSON.stringify(['data:image/a', 'data:image/b']) }),
         );
         const row = await backend.item.get(created.id);
         expect(row?.pictures).toBe(JSON.stringify(['data:image/a', 'data:image/b']));

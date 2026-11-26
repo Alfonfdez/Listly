@@ -121,7 +121,7 @@ export async function applyBackup(db: DatabaseHandle, snapshot: BackupSnapshot):
         collection.icon,
         collection.created_at,
         collection.position,
-        collection.pinned
+        collection.pinned,
       );
     }
 
@@ -136,7 +136,7 @@ export async function applyBackup(db: DatabaseHandle, snapshot: BackupSnapshot):
         list.position,
         list.pinned,
         list.kind,
-        list.collection_id
+        list.collection_id,
       );
     }
 
@@ -153,7 +153,7 @@ export async function applyBackup(db: DatabaseHandle, snapshot: BackupSnapshot):
         item.updated_at,
         item.pictures,
         item.amount_minor,
-        item.quantity
+        item.quantity,
       );
     }
 
@@ -167,7 +167,7 @@ export async function applyBackup(db: DatabaseHandle, snapshot: BackupSnapshot):
         row.kdf_version,
         row.verifier,
         row.payload,
-        row.updated_at
+        row.updated_at,
       );
     }
 

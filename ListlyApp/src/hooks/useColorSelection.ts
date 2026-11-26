@@ -3,10 +3,10 @@ import { QUICK_COLORS } from '../constants/listColors';
 
 export function useColorSelection(initialColor?: string | null) {
   const [selectedColor, setSelectedColor] = useState<string | null>(
-    initialColor ?? null
+    initialColor ?? null,
   );
   const [customColor, setCustomColor] = useState<string | null>(
-    initialColor && !QUICK_COLORS.includes(initialColor) ? initialColor : null
+    initialColor && !QUICK_COLORS.includes(initialColor) ? initialColor : null,
   );
 
   const handleColorSelect = useCallback((color: string) => {

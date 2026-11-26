@@ -59,7 +59,7 @@ function ItemRowInner({ item, selectMode, selected, numeric = false, onToggle, o
         selectMode && selected && { backgroundColor: withAlpha(c.primary, ALPHA_SELECTED) },
       ]}
       onPress={onToggle}
-                activeOpacity={PRESSED_OPACITY}
+      activeOpacity={PRESSED_OPACITY}
       accessibilityRole="checkbox"
       accessibilityState={selectMode ? { checked: selected } : { checked: isDone }}
       accessibilityLabel={item.name}
@@ -130,7 +130,7 @@ function ItemRowInner({ item, selectMode, selected, numeric = false, onToggle, o
                 key={`${uri}-${index}`}
                 style={styles.thumb}
                 onPress={() => setViewerIndex(index)}
-      activeOpacity={PRESSED_OPACITY}
+                activeOpacity={PRESSED_OPACITY}
                 accessibilityRole="imagebutton"
                 accessibilityLabel={labels.item_photos_title}
                 hitSlop={HIT_SLOP}

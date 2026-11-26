@@ -38,7 +38,7 @@ const testPlatform: VaultPlatformCrypto = {
     const bits = await cryptoRef.subtle.deriveBits(
       { name: 'PBKDF2', salt: utf8Encode(salt), iterations, hash: webCryptoHashName(digest) },
       material,
-      256
+      256,
     );
     return new Uint8Array(bits);
   },
@@ -54,7 +54,7 @@ const testPlatform: VaultPlatformCrypto = {
       'encrypt',
     ]);
     const sealed = new Uint8Array(
-      await cryptoRef.subtle.encrypt({ name: 'AES-GCM', iv: toArrayBuffer(iv) }, cryptoKey, toArrayBuffer(plaintext))
+      await cryptoRef.subtle.encrypt({ name: 'AES-GCM', iv: toArrayBuffer(iv) }, cryptoKey, toArrayBuffer(plaintext)),
     );
     const combined = new Uint8Array(iv.length + sealed.length);
     combined.set(iv, 0);
@@ -71,7 +71,7 @@ const testPlatform: VaultPlatformCrypto = {
     const plain = await cryptoRef.subtle.decrypt(
       { name: 'AES-GCM', iv: toArrayBuffer(iv) },
       cryptoKey,
-      toArrayBuffer(ciphertext)
+      toArrayBuffer(ciphertext),
     );
     return new Uint8Array(plain);
   },

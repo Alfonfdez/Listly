@@ -31,7 +31,7 @@ export function useMergeFlow({ list, refresh, onMerged }: Options) {
         logError(ERROR_SCOPE.mergeLists, error);
       }
     },
-    [list, refresh, onMerged]
+    [list, refresh, onMerged],
   );
 
   return {

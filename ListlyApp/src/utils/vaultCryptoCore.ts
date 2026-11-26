@@ -70,7 +70,7 @@ export function utf8Encode(str: string): Uint8Array<ArrayBuffer> {
         0xf0 | (code >> 18),
         0x80 | ((code >> 12) & 0x3f),
         0x80 | ((code >> 6) & 0x3f),
-        0x80 | (code & 0x3f)
+        0x80 | (code & 0x3f),
       );
     }
   }
@@ -167,7 +167,7 @@ export async function deriveKey(
   passphrase: string,
   saltHex: string,
   iterations: number,
-  digest: string
+  digest: string,
 ): Promise<Uint8Array> {
   return platform.pbkdf2(passphrase, saltHex, iterations, digest);
 }
@@ -175,7 +175,7 @@ export async function deriveKey(
 export async function makeVerifier(
   platform: VaultPlatformCrypto,
   keyBytes: Uint8Array,
-  saltHex: string
+  saltHex: string,
 ): Promise<string> {
   return platform.sha256Hex(verifierInput(keyBytes, saltHex));
 }
@@ -185,7 +185,7 @@ export async function seal(
   passphrase: string,
   json: string,
   iterations: number,
-  digest: string
+  digest: string,
 ): Promise<SealedVault> {
   const salt = await newSalt(platform);
   const keyBytes = await deriveKey(platform, passphrase, salt, iterations, digest);
@@ -201,7 +201,7 @@ export async function seal(
 export async function unseal(
   platform: VaultPlatformCrypto,
   vault: SealedVault,
-  passphrase: string
+  passphrase: string,
 ): Promise<string> {
   const keyBytes = await deriveKey(platform, passphrase, vault.salt, vault.iterations, vault.digest);
   try {
@@ -243,5 +243,4 @@ export function bindVaultCrypto(platform: VaultPlatformCrypto): VaultCrypto {
     },
   };
 }
-
 

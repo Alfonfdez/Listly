@@ -42,16 +42,16 @@ export interface SeedResult {
 
 export async function seedFixtures(backend: ContractBackend): Promise<SeedResult> {
   const groceries = await backend.list.create(
-    buildList('Groceries', { color: '#22D3EE', icon: 'cart-outline' })
+    buildList('Groceries', { color: '#22D3EE', icon: 'cart-outline' }),
   );
   const work = await backend.list.create(
-    buildList('Work Tasks', { color: '#F87171', icon: 'briefcase-outline' })
+    buildList('Work Tasks', { color: '#F87171', icon: 'briefcase-outline' }),
   );
 
   let position = 0;
   for (const fixture of GROCERIES_ITEMS) {
     await backend.item.create(
-      buildItem(groceries.id, fixture.name, { checked: fixture.checked, position: position++ })
+      buildItem(groceries.id, fixture.name, { checked: fixture.checked, position: position++ }),
     );
   }
 

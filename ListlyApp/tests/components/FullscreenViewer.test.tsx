@@ -8,7 +8,7 @@ describe('FullscreenViewer', () => {
     const view = await render(
       <FullscreenViewer visible onClose={vi.fn()}>
         <Text>content</Text>
-      </FullscreenViewer>
+      </FullscreenViewer>,
     );
     expect(view.getByText('content')).toBeTruthy();
     expect(view.getByLabelText('Close')).toBeTruthy();
@@ -19,7 +19,7 @@ describe('FullscreenViewer', () => {
     const view = await render(
       <FullscreenViewer visible onClose={onClose}>
         <Text>content</Text>
-      </FullscreenViewer>
+      </FullscreenViewer>,
     );
     fireEvent.press(view.getByLabelText('Close'));
     expect(onClose).toHaveBeenCalledTimes(1);
@@ -30,7 +30,7 @@ describe('FullscreenViewer', () => {
     const view = await render(
       <FullscreenViewer visible onClose={onClose}>
         <Text>content</Text>
-      </FullscreenViewer>
+      </FullscreenViewer>,
     );
     fireEvent.press(view.getByTestId('viewer-backdrop'));
     expect(onClose).toHaveBeenCalledTimes(1);
@@ -41,7 +41,7 @@ describe('FullscreenViewer', () => {
     const view = await render(
       <FullscreenViewer visible onClose={onClose}>
         <Text>content</Text>
-      </FullscreenViewer>
+      </FullscreenViewer>,
     );
     fireEvent.press(view.getByText('content'));
     expect(onClose).not.toHaveBeenCalled();
@@ -51,7 +51,7 @@ describe('FullscreenViewer', () => {
     const view = await render(
       <FullscreenViewer visible={false} onClose={vi.fn()}>
         <Text>content</Text>
-      </FullscreenViewer>
+      </FullscreenViewer>,
     );
     expect(view.queryByText('content')).toBeNull();
   });
