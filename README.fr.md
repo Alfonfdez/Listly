@@ -38,7 +38,7 @@ Tout fonctionne **sur l'appareil** : vos données vivent dans une base de donné
 ![Détail de liste](images/screenshots/v1.1.0-04-a-list-detail.png)<br>*Une liste standard avec des éléments cochés, des notes, une photo, le contrôle de tri et les actions groupées — l'en-tête reste fixe pendant le défilement.*<br><br>
 ![Liste numérique](images/screenshots/v1.1.0-04-b-numeric-list.png)<br>*Une liste numérique avec une barre de progression par valeur, les totaux de ligne et la ligne montant/quantité.*<br><br>
 ![Modifier une liste](images/screenshots/v1.1.0-05-edit-list.png)<br>*L'écran Modifier une liste : renommer, changer le type, l'icône et la couleur, déplacer la liste dans une collection, et Dupliquer, Fusionner ou Supprimer la liste.*<br><br>
-![Ajout d'élément déplié](images/screenshots/v1.1.0-06-a-add-item-expanded.png)<br>*La barre d'ajout dépliée pour joindre une note et des photos au nouvel élément.*<br><br>
+![Ajout d'élément déplié](images/screenshots/v1.1.0-06-a-add-item-expanded-v2.png)<br>*La barre d'ajout dépliée pour joindre une note et des photos au nouvel élément.*<br><br>
 ![Modifier un élément](images/screenshots/v1.1.0-06-b-item-edit.png)<br>*Modifier un élément : nom sur deux lignes, note et photos.*<br><br>
 ![Listes](images/screenshots/v1.1.0-07-a-lists.png)<br>*L'écran Listes, montrant l'appartenance aux collections et la progression par liste.*<br><br>
 ![Collections](images/screenshots/v1.1.0-07-b-collections.png)<br>*L'écran Collections.*<br><br>

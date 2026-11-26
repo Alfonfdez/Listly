@@ -6,6 +6,9 @@
  */
 export const SET = 'v1.1.0';
 
+/** Passphrase used to create the vault for the two locked-list screens. */
+export const LOCK_PASSPHRASE = 'listly';
+
 const empty = 'empty';
 const fixture = 'fixture';
 
@@ -81,7 +84,7 @@ export const SCREENS = [
     },
   },
   {
-    key: '06-a-add-item-expanded',
+    key: '06-a-add-item-expanded-v2',
     phase: fixture,
     run: async h => {
       await h.reload();
@@ -144,7 +147,7 @@ export const SCREENS = [
     run: async h => {
       await h.reload();
       await h.openList('Someday');
-      await h.openLockModal('listly');
+      await h.openLockModal(LOCK_PASSPHRASE);
       await h.page.waitForTimeout(400);
     },
   },
@@ -155,7 +158,7 @@ export const SCREENS = [
       await h.reload();
       await h.openList('Someday');
       if ((await h.page.getByLabel('Unlock', { exact: true }).count()) === 0) {
-        await h.openLockModal('listly');
+        await h.openLockModal(LOCK_PASSPHRASE);
         await h.page.getByLabel('Lock', { exact: true }).click();
       }
       await h.page.getByText('Locked list', { exact: true }).first().waitFor({ timeout: 30000 });

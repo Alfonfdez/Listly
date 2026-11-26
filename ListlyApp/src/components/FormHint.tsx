@@ -6,6 +6,7 @@ const HINT_FONT_SIZE = 12;
 const HINT_LINE_HEIGHT = 1.4;
 /** Lines of room always kept, so the buttons around the band never move. */
 const HINT_LINES = 2;
+const HINT_MARGIN = 8;
 
 interface Props {
   /** The "why you can't save" message, or null/empty for a blank band. */
@@ -47,8 +48,8 @@ const styles = StyleSheet.create({
   slot: {
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: 8,
-    marginBottom: 8,
+    marginTop: HINT_MARGIN,
+    marginBottom: HINT_MARGIN,
   },
   text: {
     textAlign: 'center',
