@@ -6,6 +6,7 @@ import { buildAppMock, resetAppStub, setLists, setCollections } from '../helpers
 import { resetStub } from '../helpers/configStub';
 import type { CollectionWithCounts, ListWithCounts } from '../../src/database/types';
 import { MAX_LIST_NAME_LENGTH } from '../../src/constants/types';
+import { darkColors } from '../../src/constants/themes';
 import { QUICK_COLOR_LABELS } from '../../src/constants/listColors';
 import { en } from '../../src/i18n/en';
 
@@ -160,6 +161,17 @@ describe('EditListScreen', () => {
     expect(view.getByLabelText('cart-outline').props.accessibilityState.selected).toBe(true);
     expect(view.getByLabelText(colorLabel('#22D3EE')).props.accessibilityState.selected).toBe(true);
     expect(view.getByLabelText('Save')).toBeTruthy();
+    expect(view.getByText(`9/${MAX_LIST_NAME_LENGTH}`)).toBeTruthy();
+  });
+
+  it('shows the required hint and a red border after clearing the name', async () => {
+    const user = userEvent.setup();
+    const view = await render(<EditListScreen />);
+    await user.clear(view.getByLabelText('Name'));
+
+    expect(await view.findByText('Name is required')).toBeTruthy();
+    expect(flattenStyle(view.getByLabelText('Name').props.style).borderColor).toBe(darkColors.red);
+    expect(view.getByLabelText('Save').props.accessibilityState.disabled).toBe(true);
   });
 
   it('caps the name input at the max length', async () => {
@@ -390,3 +402,10 @@ describe('EditListScreen', () => {
     expect(view.getByLabelText('Save')).toBeTruthy();
   });
 });
+
+function flattenStyle(style: unknown): Record<string, unknown> {
+  if (Array.isArray(style)) {
+    return style.reduce((acc: Record<string, unknown>, item) => ({ ...acc, ...flattenStyle(item) }), {});
+  }
+  return (style ?? {}) as Record<string, unknown>;
+}

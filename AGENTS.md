@@ -95,6 +95,18 @@ npm run lint:fix   # the same with --fix (indent, quotes, commas, EOL)
 - Node scripts are linted with Node globals; tests get a test-only React override.
 - Run `npm run lint:fix` before committing style changes; never hand-fix indentation. `npm run lint` must report **0 problems and 0 warnings**.
 
+## SCREENSHOTS
+```bash
+cd ListlyApp
+npm run screenshots                        # full v1.1.0 set into images/screenshots/
+npm run screenshots -- --only 03-create-list   # one screen (imports the fixture when needed)
+npm run screenshots -- --no-server             # reuse a dev server already on :8081
+```
+- The harness (`scripts/screenshots/capture.mjs` + `manifest.mjs` + `fixture.json`) starts Expo web on 8081 with `--clear`, imports the fixture through Settings -> Data -> Import, captures 21 screens at 375x812 (DPR 1, English, dark) and always stops the server it started.
+- **Bump the version first** (`app.json` `version` / `ios.buildNumber` / `android.versionCode`, `package.json`, the 9 README version rows) **and** `SET` in `manifest.mjs`: the drawer footer renders the app version, so a capture taken before the bump shows the old one.
+- Filenames are `<set>-<key>.png` (`v1.1.0-01-a-home-empty.png`). The 9 READMEs must reference the same files in manifest order; `tests/tooling/screenshots.test.ts` enforces it and validates the fixture.
+- `scripts/screenshots/fixture.json` is a real Listly backup (schema 9) with fixed dates and a data-URI photo; keep ids/FKs/config keys consistent. See `docs/screenshots.md`.
+
 ## VERIFICATION
 - A change is only "done" when `npm run test:all` passes (typecheck + lint + tests).
 - Changes to `src/utils/` or `src/database/` logic must include or update tests.

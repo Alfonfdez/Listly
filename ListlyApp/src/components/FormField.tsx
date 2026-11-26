@@ -6,20 +6,25 @@ import { SECTION_TITLE_FONT_SIZE, textStyles } from './textStyles';
 
 interface Props {
   label: string;
+  /** Right side of the label row (a char counter, usually). */
+  right?: ReactNode;
   error?: string | null;
   style?: StyleProp<ViewStyle>;
   children: ReactNode;
 }
 
-export default function FormField({ label, error, style, children }: Props) {
+export default function FormField({ label, right, error, style, children }: Props) {
   const { activeColors: c } = useConfig();
   const fs = useFontSize();
 
   return (
     <View style={style}>
-      <Text style={[textStyles.sectionTitle, { color: c.text, fontSize: fs(SECTION_TITLE_FONT_SIZE) }]}>
-        {label}
-      </Text>
+      <View style={styles.header}>
+        <Text style={[textStyles.sectionTitle, styles.label, { color: c.text, fontSize: fs(SECTION_TITLE_FONT_SIZE) }]}>
+          {label}
+        </Text>
+        {right ?? null}
+      </View>
       {children}
       {error ? (
         <Text style={[styles.error, { color: c.red, fontSize: fs(12) }]}>{error}</Text>
@@ -29,6 +34,17 @@ export default function FormField({ label, error, style, children }: Props) {
 }
 
 const styles = StyleSheet.create({
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 8,
+    marginBottom: 10,
+  },
+  label: {
+    flexShrink: 1,
+    marginBottom: 0,
+  },
   error: {
     marginTop: 4,
   },

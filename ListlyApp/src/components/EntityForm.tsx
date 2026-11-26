@@ -8,9 +8,11 @@ import { DEBOUNCE_MS, type IconName } from '../constants/types';
 import { logError, ERROR_SCOPE } from '../utils/errors';
 import type { Translations } from '../i18n/en';
 import { useColorSelection } from '../hooks/useColorSelection';
+import CharCounter from './CharCounter';
 import ColorGrid from './ColorGrid';
 import ColorPickerModal from './ColorPickerModal';
 import FormField from './FormField';
+import FormHint from './FormHint';
 import IconGrid from './IconGrid';
 import { BUTTON_BORDER_RADIUS, PRESSED_OPACITY, DISABLED_OPACITY } from './componentStyles';
 
@@ -75,6 +77,7 @@ export default function EntityForm<TError extends StringTranslationKey>({
   const [pickerVisible, setPickerVisible] = useState(false);
   const { selectedColor, customColor, handleColorSelect } = useColorSelection(initialColor);
   const [error, setError] = useState<TError | null>(null);
+  const [touched, setTouched] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const requestSeq = useRef(0);
 
@@ -95,6 +98,9 @@ export default function EntityForm<TError extends StringTranslationKey>({
 
   const trimmed = name.trim();
   const canSubmit = error === null && trimmed.length > 0 && !submitting;
+  // A freshly opened form must never greet the user in red: the border and the
+  // hint only appear once the field has been changed or blurred.
+  const showError = touched && error !== null;
 
   const submit = async () => {
     if (submitting) return;
@@ -131,14 +137,22 @@ export default function EntityForm<TError extends StringTranslationKey>({
       contentContainerStyle={styles.container}
       keyboardShouldPersistTaps="handled"
     >
-      <FormField label={nameLabel} error={error ? labels[error] : null} style={styles.field}>
+      <FormField
+        label={nameLabel}
+        right={<CharCounter current={name.length} max={maxNameLength} />}
+        style={styles.field}
+      >
         <TextInput
           value={name}
-          onChangeText={setName}
+          onChangeText={text => {
+            setTouched(true);
+            setName(text);
+          }}
+          onBlur={() => setTouched(true)}
           maxLength={maxNameLength}
           placeholder={nameLabel}
           placeholderTextColor={c.textSecondary}
-          style={inputStyle}
+          style={[inputStyle, showError && { borderColor: c.red }]}
           accessibilityLabel={nameLabel}
         />
       </FormField>
@@ -204,6 +218,8 @@ export default function EntityForm<TError extends StringTranslationKey>({
         );
       })}
 
+      <FormHint message={showError && error ? labels[error] : null} style={styles.hint} />
+
       <Pressable
         style={({ pressed }) => [
           styles.createButton,
@@ -235,6 +251,9 @@ const styles = StyleSheet.create({
   },
   field: {
     marginTop: 16,
+  },
+  hint: {
+    marginBottom: 0,
   },
   createButton: {
     marginTop: 16,

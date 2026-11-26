@@ -9,7 +9,7 @@ Everything runs **on-device**: your data lives in a local SQLite database (sql.j
 | | |
 |---|---|
 | **Platforms** | iOS, Android, and Web |
-| **Version** | 1.0.0 |
+| **Version** | 1.1.0 |
 | **Languages** | English, Spanish, Catalan, Galician, Basque, French, German, Portuguese, Italian |
 | **Data** | 100 % local (SQLite on native, sql.js + IndexedDB on web) |
 | **Themes** | Dark, Light, and Automatic (follows the system) |
@@ -31,27 +31,27 @@ Everything runs **on-device**: your data lives in a local SQLite database (sql.j
 
 ## Screenshots
 
-![Home screen](images/screenshots/01-home-empty.png)<br>*Home screen before any collection or list exists.*<br><br>
-![Home with data](images/screenshots/02-home.png)<br>*Home with a collection and standalone lists, including a locked list.*<br><br>
-![Hamburger menu](images/screenshots/03-hamburger.png)<br>*Drawer with Home, Collections, Lists, and Settings — and the app version at the bottom.*<br><br>
-![Create list](images/screenshots/04-create-list.png)<br>*Create a list: name, kind (Standard or Numeric), icon, and color.*<br><br>
-![List detail](images/screenshots/05-list-detail-v2.png)<br>*A standard list with checked items, a note, the sort control, and batch actions — the list header stays pinned while you scroll.*<br><br>
-![Numeric list](images/screenshots/06-numeric-list-v3.png)<br>*A numeric list with a value progress bar, line totals, and the amount/quantity row.*<br><br>
-![Edit list](images/screenshots/05b-edit-list.png)<br>*The Edit list screen: rename, change kind, icon and color, move the list to a collection, and Duplicate, Merge or Delete the list.*<br><br>
-![Add item expanded](images/screenshots/07-add-item-expanded-v2.png)<br>*The add bar expanded to attach a note and photos to the new item.*<br><br>
-![Edit item](images/screenshots/08-item-edit-v2.png)<br>*Editing an item: name, note, and photos.*<br><br>
-![Collections](images/screenshots/09b-collections.png)<br>*The Collections screen.*<br><br>
-![Lists](images/screenshots/09-lists.png)<br>*The Lists screen, showing collection membership and per-list progress.*<br><br>
-![Collection detail](images/screenshots/10-collection-detail.png)<br>*A collection with its member lists.*<br><br>
-![Lock list](images/screenshots/12-lock-list-v2.png)<br>*Locking a list with a passphrase.*<br><br>
-![Locked list](images/screenshots/12b-locked-list.png)<br>*A locked list, waiting for the passphrase.*<br><br>
-![Select mode](images/screenshots/13-select-mode-v2.png)<br>*Select mode with the bottom action bar.*<br><br>
-![Settings](images/screenshots/14-settings.png)<br>*Settings: Appearance, Regional, Personalization, and Data.*<br><br>
-![Appearance settings](images/screenshots/15-settings-appearance.png)<br>*Appearance: theme and text size.*<br><br>
-![Language picker](images/screenshots/16b-settings-language.png)<br>*The language picker with all nine languages and their flags.*<br><br>
-![Regional settings](images/screenshots/16-settings-regional.png)<br>*Regional settings: language.*<br><br>
-![Personalization settings](images/screenshots/17-settings-personalization.png)<br>*Personalization: layouts per screen and optional fields per list kind.*<br><br>
-![Data settings](images/screenshots/18-settings-data.png)<br>*Data: export/import and the guarded delete and reset actions.*<br><br>
+![Home screen](images/screenshots/v1.1.0-01-a-home-empty.png)<br>*Home screen before any collection or list exists.*<br><br>
+![Home with data](images/screenshots/v1.1.0-01-b-home.png)<br>*Home with two collections and standalone lists, with per-collection progress.*<br><br>
+![Hamburger menu](images/screenshots/v1.1.0-02-hamburger.png)<br>*Drawer with Home, Collections, Lists, and Settings — and the app version at the bottom.*<br><br>
+![Create list](images/screenshots/v1.1.0-03-create-list.png)<br>*Create a list: name, kind (Standard or Numeric), icon, and color.*<br><br>
+![List detail](images/screenshots/v1.1.0-04-a-list-detail.png)<br>*A standard list with checked items, notes, a photo, the sort control, and batch actions — the list header stays pinned while you scroll.*<br><br>
+![Numeric list](images/screenshots/v1.1.0-04-b-numeric-list.png)<br>*A numeric list with a value progress bar, line totals, and the amount/quantity row.*<br><br>
+![Edit list](images/screenshots/v1.1.0-05-edit-list.png)<br>*The Edit list screen: rename, change kind, icon and color, move the list to a collection, and Duplicate, Merge or Delete the list.*<br><br>
+![Add item expanded](images/screenshots/v1.1.0-06-a-add-item-expanded.png)<br>*The add bar expanded to attach a note and photos to the new item.*<br><br>
+![Edit item](images/screenshots/v1.1.0-06-b-item-edit.png)<br>*Editing an item: a two-line name, a note, and photos.*<br><br>
+![Lists](images/screenshots/v1.1.0-07-a-lists.png)<br>*The Lists screen, showing collection membership and per-list progress.*<br><br>
+![Collections](images/screenshots/v1.1.0-07-b-collections.png)<br>*The Collections screen.*<br><br>
+![Collection detail](images/screenshots/v1.1.0-07-c-collection-detail.png)<br>*A collection with its member lists.*<br><br>
+![Lock list](images/screenshots/v1.1.0-08-a-lock-list.png)<br>*Locking a list with a passphrase.*<br><br>
+![Locked list](images/screenshots/v1.1.0-08-b-locked-list.png)<br>*A locked list, waiting for the passphrase.*<br><br>
+![Select mode](images/screenshots/v1.1.0-09-select-mode.png)<br>*Select mode with the bottom action bar.*<br><br>
+![Settings](images/screenshots/v1.1.0-10-a-settings.png)<br>*Settings: Appearance, Regional, Personalization, and Data.*<br><br>
+![Appearance settings](images/screenshots/v1.1.0-10-b-appearance.png)<br>*Appearance: theme and text size.*<br><br>
+![Regional settings](images/screenshots/v1.1.0-10-c-regional.png)<br>*Regional settings: language.*<br><br>
+![Language picker](images/screenshots/v1.1.0-10-d-language.png)<br>*The language picker with all nine languages and their flags.*<br><br>
+![Personalization settings](images/screenshots/v1.1.0-10-e-personalization.png)<br>*Personalization: layouts per screen and optional fields per list kind.*<br><br>
+![Data settings](images/screenshots/v1.1.0-10-f-data.png)<br>*Data: export/import and the guarded delete and reset actions.*<br><br>
 
 ## Tech Stack
 

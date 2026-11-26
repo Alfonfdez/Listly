@@ -1,5 +1,5 @@
 import { describe, expect, it, beforeEach, vi } from 'vitest';
-import { render, userEvent, waitFor } from '@testing-library/react-native';
+import { render, userEvent, fireEvent, waitFor } from '@testing-library/react-native';
 import type { ReactNode } from 'react';
 import CreateListScreen from '../../src/screens/CreateListScreen';
 import { buildAppMock, resetAppStub, setLists } from '../helpers/appStub';
@@ -8,6 +8,7 @@ import { LIST_ICONS } from '../../src/constants/listIcons';
 import { QUICK_COLORS, QUICK_COLOR_LABELS } from '../../src/constants/listColors';
 import { en } from '../../src/i18n/en';
 import { MAX_LIST_NAME_LENGTH } from '../../src/constants/types';
+import { darkColors } from '../../src/constants/themes';
 import type { ListWithCounts } from '../../src/database/types';
 
 const colorLabel = (color: string): string => {
@@ -116,6 +117,30 @@ describe('CreateListScreen', () => {
     expect(view.getByLabelText(colorLabel(QUICK_COLORS[0])).props.accessibilityState.selected).toBe(true);
   });
 
+  it('does not greet an untouched form with the required hint', async () => {
+    const view = await render(<CreateListScreen />);
+    expect(view.queryByText('Name is required')).toBeNull();
+    expect(view.getByText(`0/${MAX_LIST_NAME_LENGTH}`)).toBeTruthy();
+  });
+
+  it('flags an empty name after blur with the hint and a red border', async () => {
+    const view = await render(<CreateListScreen />);
+    const input = view.getByLabelText('Name');
+    expect(flattenStyle(input.props.style).borderColor).toBe(darkColors.border);
+
+    fireEvent(input, 'blur');
+
+    expect(await view.findByText('Name is required')).toBeTruthy();
+    expect(flattenStyle(view.getByLabelText('Name').props.style).borderColor).toBe(darkColors.red);
+  });
+
+  it('updates the name counter while typing', async () => {
+    const user = userEvent.setup();
+    const view = await render(<CreateListScreen />);
+    await user.type(view.getByLabelText('Name'), 'Weekend');
+    expect(view.getByText(`7/${MAX_LIST_NAME_LENGTH}`)).toBeTruthy();
+  });
+
   it('disables Create until the name is valid', async () => {
     const user = userEvent.setup();
     const view = await render(<CreateListScreen />);
@@ -133,12 +158,13 @@ describe('CreateListScreen', () => {
     expect(view.getByLabelText('Create').props.accessibilityState.disabled).toBe(true);
   });
 
-  it('caps the name input at the max length', async () => {
+  it('caps the name input at the max length and bolds the counter', async () => {
     const user = userEvent.setup();
     const view = await render(<CreateListScreen />);
     await user.type(view.getByLabelText('Name'), 'a'.repeat(MAX_LIST_NAME_LENGTH + 20));
     expect(view.getByLabelText('Name').props.value.length).toBe(MAX_LIST_NAME_LENGTH);
     expect(view.queryByText('List name is too long')).toBeNull();
+    expect(flattenStyle(view.getByText(`${MAX_LIST_NAME_LENGTH}/${MAX_LIST_NAME_LENGTH}`).props.style).fontWeight).toBe('700');
   });
 
   it('rejects a duplicate name after the debounce', async () => {
@@ -271,3 +297,10 @@ describe('CreateListScreen', () => {
     expect(nav.goBack).toHaveBeenCalled();
   });
 });
+
+function flattenStyle(style: unknown): Record<string, unknown> {
+  if (Array.isArray(style)) {
+    return style.reduce((acc: Record<string, unknown>, item) => ({ ...acc, ...flattenStyle(item) }), {});
+  }
+  return (style ?? {}) as Record<string, unknown>;
+}

@@ -188,6 +188,8 @@ const styles = StyleSheet.create({
   },
   amountInput: {
     flex: 1,
+    // Web inputs keep their intrinsic width unless they are allowed to shrink.
+    minWidth: 0,
   },
   lineTotal: {
     fontWeight: '700',

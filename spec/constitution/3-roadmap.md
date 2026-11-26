@@ -355,6 +355,16 @@ Add a second, value-weighted progress bar to numeric list headers:
 - Pure helpers `valueProgressPercent` / `formatPercent2` in `src/utils/numeric.ts`; no DB/repo changes. A11y label `list_value_progress_label`.
 - Spec: spec/features/034-value-progress-bar/.
 
+## 035-form-name-feedback
+Status: done.
+
+Make the Create/Edit list and collection name fields behave like Finly's forms:
+- A freshly opened form is never red: the name error and border appear only after the field has been **changed or blurred**; tapping in and out with an empty name reveals the hint.
+- The error is a red line above the submit button, in a **reserved two-line band** so Delete/Save never move; the input border turns red while the error is visible.
+- The "Name" label row shows a live `current/max` counter (100 for lists and collections); it turns **red and bold** at the limit, and the item name/note counters gain the same style.
+- Shared components: `CharCounter` (styling), `FormHint` (band), `FormField` right slot, `EntityForm` touched state; no new i18n keys.
+- Spec: spec/features/035-form-name-feedback/.
+
 ## Future scope (not scheduled)
 - Per-list currency symbol (the numeric list is currency-agnostic for now).
 - A third "pending" (all − done) total.

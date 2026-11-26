@@ -9,7 +9,7 @@ Alles läuft **auf dem Gerät**: deine Daten liegen in einer lokalen SQLite-Date
 | | |
 |---|---|
 | **Plattformen** | iOS, Android und Web |
-| **Version** | 1.0.0 |
+| **Version** | 1.1.0 |
 | **Sprachen** | Englisch, Spanisch, Katalanisch, Galicisch, Baskisch, Französisch, Deutsch, Portugiesisch, Italienisch |
 | **Daten** | 100 % lokal (SQLite nativ, sql.js + IndexedDB im Web) |
 | **Themes** | Dunkel, Hell und Automatisch (folgt dem System) |
@@ -31,27 +31,27 @@ Alles läuft **auf dem Gerät**: deine Daten liegen in einer lokalen SQLite-Date
 
 ## Screenshots
 
-![Startbildschirm](images/screenshots/01-home-empty.png)<br>*Startbildschirm, bevor eine Sammlung oder Liste existiert.*<br><br>
-![Start mit Daten](images/screenshots/02-home.png)<br>*Start mit einer Sammlung und eigenständigen Listen, darunter eine gesperrte Liste.*<br><br>
-![Seitenmenü](images/screenshots/03-hamburger.png)<br>*Seitenmenü mit Start, Sammlungen, Listen und Einstellungen — und der App-Version unten.*<br><br>
-![Liste erstellen](images/screenshots/04-create-list.png)<br>*Eine Liste erstellen: Name, Art (Standard oder Numerisch), Symbol und Farbe.*<br><br>
-![Listendetail](images/screenshots/05-list-detail-v2.png)<br>*Eine Standardliste mit abgehakten Einträgen, einer Notiz, Sortiersteuerung und Stapelaktionen — der Kopf bleibt beim Scrollen fixiert.*<br><br>
-![Numerische Liste](images/screenshots/06-numeric-list-v3.png)<br>*Eine numerische Liste mit einem Wertfortschrittsbalken, Zeilensummen und der Betrag/Menge-Zeile.*<br><br>
-![Liste bearbeiten](images/screenshots/05b-edit-list.png)<br>*Der Bildschirm „Liste bearbeiten“: umbenennen, Art, Symbol und Farbe ändern, die Liste in eine Sammlung verschieben und die Liste duplizieren, zusammenführen oder löschen.*<br><br>
-![Eintrag hinzufügen ausgeklappt](images/screenshots/07-add-item-expanded-v2.png)<br>*Die ausgeklappte Hinzufügen-Leiste, um dem neuen Eintrag eine Notiz und Fotos anzuhängen.*<br><br>
-![Eintrag bearbeiten](images/screenshots/08-item-edit-v2.png)<br>*Einen Eintrag bearbeiten: Name, Notiz und Fotos.*<br><br>
-![Sammlungen](images/screenshots/09b-collections.png)<br>*Der Sammlungen-Bildschirm.*<br><br>
-![Listen](images/screenshots/09-lists.png)<br>*Der Listen-Bildschirm mit Sammlungszugehörigkeit und Fortschritt pro Liste.*<br><br>
-![Sammlungsdetail](images/screenshots/10-collection-detail.png)<br>*Eine Sammlung mit ihren Mitgliedslisten.*<br><br>
-![Liste sperren](images/screenshots/12-lock-list-v2.png)<br>*Eine Liste mit einer Passphrase sperren.*<br><br>
-![Gesperrte Liste](images/screenshots/12b-locked-list.png)<br>*Eine gesperrte Liste, die auf die Passphrase wartet.*<br><br>
-![Auswahlmodus](images/screenshots/13-select-mode-v2.png)<br>*Auswahlmodus mit der unteren Aktionsleiste.*<br><br>
-![Einstellungen](images/screenshots/14-settings.png)<br>*Einstellungen: Erscheinungsbild, Regional, Personalisierung und Daten.*<br><br>
-![Erscheinungsbild-Einstellungen](images/screenshots/15-settings-appearance.png)<br>*Erscheinungsbild: Theme und Textgröße.*<br><br>
-![Sprachauswahl](images/screenshots/16b-settings-language.png)<br>*Die Sprachauswahl mit allen neun Sprachen und ihren Flaggen.*<br><br>
-![Regionale Einstellungen](images/screenshots/16-settings-regional.png)<br>*Regionale Einstellungen: Sprache.*<br><br>
-![Personalisierungs-Einstellungen](images/screenshots/17-settings-personalization.png)<br>*Personalisierung: Layouts pro Bildschirm und optionale Felder pro Listenart.*<br><br>
-![Daten-Einstellungen](images/screenshots/18-settings-data.png)<br>*Daten: Export/Import und die abgesicherten Lösch- und Zurücksetzen-Aktionen.*<br><br>
+![Startbildschirm](images/screenshots/v1.1.0-01-a-home-empty.png)<br>*Startbildschirm, bevor eine Sammlung oder Liste existiert.*<br><br>
+![Start mit Daten](images/screenshots/v1.1.0-01-b-home.png)<br>*Start mit zwei Sammlungen und eigenständigen Listen, mit dem Fortschritt jeder Sammlung.*<br><br>
+![Seitenmenü](images/screenshots/v1.1.0-02-hamburger.png)<br>*Seitenmenü mit Start, Sammlungen, Listen und Einstellungen — und der App-Version unten.*<br><br>
+![Liste erstellen](images/screenshots/v1.1.0-03-create-list.png)<br>*Eine Liste erstellen: Name, Art (Standard oder Numerisch), Symbol und Farbe.*<br><br>
+![Listendetail](images/screenshots/v1.1.0-04-a-list-detail.png)<br>*Eine Standardliste mit abgehakten Einträgen, Notizen, einem Foto, Sortiersteuerung und Stapelaktionen — der Kopf bleibt beim Scrollen fixiert.*<br><br>
+![Numerische Liste](images/screenshots/v1.1.0-04-b-numeric-list.png)<br>*Eine numerische Liste mit einem Wertfortschrittsbalken, Zeilensummen und der Betrag/Menge-Zeile.*<br><br>
+![Liste bearbeiten](images/screenshots/v1.1.0-05-edit-list.png)<br>*Der Bildschirm „Liste bearbeiten“: umbenennen, Art, Symbol und Farbe ändern, die Liste in eine Sammlung verschieben und die Liste duplizieren, zusammenführen oder löschen.*<br><br>
+![Eintrag hinzufügen ausgeklappt](images/screenshots/v1.1.0-06-a-add-item-expanded.png)<br>*Die ausgeklappte Hinzufügen-Leiste, um dem neuen Eintrag eine Notiz und Fotos anzuhängen.*<br><br>
+![Eintrag bearbeiten](images/screenshots/v1.1.0-06-b-item-edit.png)<br>*Einen Eintrag bearbeiten: Name über zwei Zeilen, Notiz und Fotos.*<br><br>
+![Listen](images/screenshots/v1.1.0-07-a-lists.png)<br>*Der Listen-Bildschirm mit Sammlungszugehörigkeit und Fortschritt pro Liste.*<br><br>
+![Sammlungen](images/screenshots/v1.1.0-07-b-collections.png)<br>*Der Sammlungen-Bildschirm.*<br><br>
+![Sammlungsdetail](images/screenshots/v1.1.0-07-c-collection-detail.png)<br>*Eine Sammlung mit ihren Mitgliedslisten.*<br><br>
+![Liste sperren](images/screenshots/v1.1.0-08-a-lock-list.png)<br>*Eine Liste mit einer Passphrase sperren.*<br><br>
+![Gesperrte Liste](images/screenshots/v1.1.0-08-b-locked-list.png)<br>*Eine gesperrte Liste, die auf die Passphrase wartet.*<br><br>
+![Auswahlmodus](images/screenshots/v1.1.0-09-select-mode.png)<br>*Auswahlmodus mit der unteren Aktionsleiste.*<br><br>
+![Einstellungen](images/screenshots/v1.1.0-10-a-settings.png)<br>*Einstellungen: Erscheinungsbild, Regional, Personalisierung und Daten.*<br><br>
+![Erscheinungsbild-Einstellungen](images/screenshots/v1.1.0-10-b-appearance.png)<br>*Erscheinungsbild: Theme und Textgröße.*<br><br>
+![Regionale Einstellungen](images/screenshots/v1.1.0-10-c-regional.png)<br>*Regionale Einstellungen: Sprache.*<br><br>
+![Sprachauswahl](images/screenshots/v1.1.0-10-d-language.png)<br>*Die Sprachauswahl mit allen neun Sprachen und ihren Flaggen.*<br><br>
+![Personalisierungs-Einstellungen](images/screenshots/v1.1.0-10-e-personalization.png)<br>*Personalisierung: Layouts pro Bildschirm und optionale Felder pro Listenart.*<br><br>
+![Daten-Einstellungen](images/screenshots/v1.1.0-10-f-data.png)<br>*Daten: Export/Import und die abgesicherten Lösch- und Zurücksetzen-Aktionen.*<br><br>
 
 ## Technologien
 
