@@ -30,6 +30,7 @@ Status: done.
 
 List detail screen with items:
 - Item list with checkbox toggle, name (wraps to up to 2 lines), note preview (up to 3 lines, tap opens the full note viewer; closes with the X or by tapping outside).
+- Edit-item modal: 2-line multiline name and a 5-line note area (both fixed-height with internal vertical scroll); the field area scrolls while Delete/Cancel/Save stay fixed.
 - Add item via input (or modal).
 - Edit/delete item.
 - Per-list progress indicator.
