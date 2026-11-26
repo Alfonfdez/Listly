@@ -731,6 +731,17 @@ describe('ListDetailScreen', () => {
     await waitFor(() => expect(itemRepositoryMock.reorder).toHaveBeenCalledWith(1, [2, 1]));
   });
 
+  it('wires the items grid to the scroll container for drag auto-scroll', async () => {
+    const view = await render(<ListDetailScreen />);
+    await view.findByText('Milk');
+
+    const grid = lastGrid();
+    expect(grid?.scrollableRef).toBeTruthy();
+    expect(grid?.autoScrollDirection).toBe('vertical');
+    expect(grid?.autoScrollActivationOffset).toBe(90);
+    expect(grid?.autoScrollMaxVelocity).toBe(1400);
+  });
+
   it('waits for the reorder write to settle before refreshing', async () => {
     let resolveReorder: () => void = () => {};
     itemRepositoryMock.reorder = vi.fn(

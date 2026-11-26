@@ -9,6 +9,10 @@ interface GridProps {
   columns?: number;
   columnGap?: number;
   rowGap?: number;
+  scrollableRef?: unknown;
+  autoScrollDirection?: 'horizontal' | 'vertical';
+  autoScrollActivationOffset?: number;
+  autoScrollMaxVelocity?: number;
   onDragEnd?: (params: unknown) => void;
   onDragStart?: (params: unknown) => void;
   onActiveItemDropped?: (params: unknown) => void;

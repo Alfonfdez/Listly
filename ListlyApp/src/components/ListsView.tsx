@@ -1,5 +1,6 @@
 import { useCallback, useState, type ReactNode } from 'react';
-import { ActivityIndicator, ScrollView, StyleSheet, View, useWindowDimensions } from 'react-native';
+import { ActivityIndicator, StyleSheet, View, useWindowDimensions, type ScrollView } from 'react-native';
+import Animated, { useAnimatedRef } from 'react-native-reanimated';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import Sortable, { type SortableGridRenderItem } from 'react-native-sortables';
 import { useApp } from '../context/AppContext';
@@ -11,7 +12,7 @@ import { useListsSelection } from '../hooks/useListsSelection';
 import { useListsDrag } from '../hooks/useListsDrag';
 import { useFrozenKey } from '../hooks/useFrozenKey';
 import { shouldShowPinHint } from '../utils/pinDrop';
-import { LIST_VIEW_MODES, LIST_LAYOUTS, type NavigationProp, type ListViewMode, type ListLayout } from '../constants/types';
+import { LIST_VIEW_MODES, LIST_LAYOUTS, AUTO_SCROLL_ACTIVATION_OFFSET, AUTO_SCROLL_MAX_VELOCITY, type NavigationProp, type ListViewMode, type ListLayout } from '../constants/types';
 import { ICONS } from '../constants/icons';
 import ScreenShell from './ScreenShell';
 import SearchBar from './SearchBar';
@@ -84,6 +85,9 @@ export default function ListsView({
   const { activeColors: c } = useConfig();
   const labels = useLabels();
   const [chooserVisible, setChooserVisible] = useState(false);
+  // Animated ref shared by the collections/lists grids so a dragged item can
+  // auto-scroll this screen's scroll container near its edges.
+  const scrollRef = useAnimatedRef<ScrollView>();
 
   const { width } = useWindowDimensions();
   const isGrid = variant === LIST_LAYOUTS.grid;
@@ -330,7 +334,8 @@ export default function ListsView({
 
         <Sortable.MultiZoneProvider>
           {hasContent ? (
-            <ScrollView
+            <Animated.ScrollView
+              ref={scrollRef}
               contentContainerStyle={styles.scrollContent}
               showsVerticalScrollIndicator={false}
               onScrollBeginDrag={resetDragState}
@@ -348,6 +353,10 @@ export default function ListsView({
                   sortEnabled={!selectMode && !searching && displayCollections.length > 1}
                   columnGap={isCollectionsGrid ? GRID_GAP : 0}
                   rowGap={isCollectionsGrid ? GRID_GAP : 10}
+                  scrollableRef={scrollRef}
+                  autoScrollDirection="vertical"
+                  autoScrollActivationOffset={AUTO_SCROLL_ACTIVATION_OFFSET}
+                  autoScrollMaxVelocity={AUTO_SCROLL_MAX_VELOCITY}
                   onDragEnd={handleCollectionsDragEnd}
                   onDragStart={handleCollectionsDragStart}
                 />
@@ -365,12 +374,16 @@ export default function ListsView({
                   sortEnabled={sortEnabled}
                   columnGap={isGrid ? GRID_GAP : 0}
                   rowGap={isGrid ? GRID_GAP : 10}
+                  scrollableRef={scrollRef}
+                  autoScrollDirection="vertical"
+                  autoScrollActivationOffset={AUTO_SCROLL_ACTIVATION_OFFSET}
+                  autoScrollMaxVelocity={AUTO_SCROLL_MAX_VELOCITY}
                   onDragEnd={handleDragEnd}
                   onDragStart={handleListsDragStart}
                   onActiveItemDropped={handleActiveItemDropped}
                 />
               )}
-            </ScrollView>
+            </Animated.ScrollView>
           ) : (
             renderEmpty()
           )}

@@ -93,6 +93,7 @@ Status: done.
 Drag-to-reorder lists on Home and Lists:
 - Migration 003 adds `lists.position` (backfill + index), `SCHEMA_VERSION` 3; Drizzle/Zod/`ListWithCounts` include `position`; `listRepo` orders by position, appends on create, and `reorder(orderedIds)` persists atomically.
 - Home grid and Lists rows are drag-reorderable via `Sortable.Grid` (long-press drag, write-through + refresh); dragging is disabled while a search query is active.
+- Dragging near the top/bottom edge auto-scrolls the screen (`scrollableRef` on the `Animated.ScrollView`; 90 px activation, 1400 px/s) so a list can be moved across a long screen in one gesture.
 - Spec: spec/features/009-reorder-lists/.
 
 ## 010-bulk-select-delete
@@ -127,6 +128,7 @@ Drag-to-reorder items inside a list:
 - Sortable list-detail container (`Sortable.Grid`, 1 column); long-press drag; write-through + refresh.
 - Reordering disabled with <2 items, while a search query is active, or in select mode.
 - Long-press reserved for drag (no longer enters item select mode; select mode stays behind the header toggle).
+- Dragging near the top/bottom edge auto-scrolls the item list (`scrollableRef` on the `Animated.ScrollView`; 90 px activation, 1400 px/s), so a long list can be reordered to the top in one gesture.
 - Spec: spec/features/012-reorder-items/.
 
 ## 013-edit-list
