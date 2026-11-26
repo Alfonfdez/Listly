@@ -1173,3 +1173,8 @@ pm run test:all green.
 - Added a live `current/max` name counter to the "Name" label row (new `FormField` right slot); `CharCounter` now turns red **and bold** at the limit (item name/note counters included), and the new `FormHint` band announces changes to screen readers.
 - Added `spec/features/035-form-name-feedback/` (1-spec, 2-plan, 3-tasks) plus the roadmap entry; tests for `CharCounter` and the create/edit list and collection screens.
 - `npm run test:all` green (86 files, 776 tests).
+
+[2026-11-27] fix | ListlyApp/app.json, AGENTS.md, spec/constitution/7-platform-differences.md, spec/features/005-settings-screen/1-spec.md, spec/constitution/3-roadmap.md
+- Disabled Android OS auto-backup (`expo.android.allowBackup: false` in `app.json`): the app-private SQLite database was being copied by Android's cloud backup and **restored on reinstall**, so a fresh install came back with a previous install's data (seen while testing v1.1.0, and previously fixed in Finly). With the flag off, `android:allowBackup="false"` in the packaged manifest disables cloud backup/restore (and `adb backup`), so a reinstall starts empty and data moves only through Settings -> Data -> Export/Import.
+- Documented the behaviour in `AGENTS.md` (Android release section), `spec/constitution/7-platform-differences.md` (platform table) and the backup spec (`spec/features/005-settings-screen/` incl. a new acceptance criterion); roadmap entry added.
+- `npm run test:all` green (86 files, 776 tests).
