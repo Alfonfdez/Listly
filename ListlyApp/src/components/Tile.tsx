@@ -13,6 +13,11 @@ import SortablePressable from './SortablePressable';
 import type { Flag } from '../utils/flags';
 import type { IconName } from '../constants/types';
 
+// Tile names wrap to two lines; the row always reserves two lines of height so
+// cards and list rows stay the same height whether a name is 1 or 2 lines.
+const TILE_NAME_MAX_LINES = 2;
+const TILE_NAME_LINE_HEIGHT_RATIO = 1.25;
+
 interface TileShellProps {
   name: string;
   selectMode: boolean;
@@ -68,10 +73,17 @@ interface TileNameProps {
 export function TileName({ name, pinned, fontSize, starSize = 14, locked = false, style }: TileNameProps) {
   const { activeColors: c } = useConfig();
   const labels = useLabels();
+  const lineHeight = Math.round(fontSize * TILE_NAME_LINE_HEIGHT_RATIO);
+  // Reserve two lines of height whether the name is one or two lines long, so
+  // every card/row tile keeps the same height across the grid/list layouts.
+  const reservedHeight = lineHeight * TILE_NAME_MAX_LINES;
 
   return (
-    <View style={[tileStyles.nameRow, style]}>
-      <Text style={[tileStyles.name, { color: c.text, fontSize }]} numberOfLines={1}>
+    <View testID="tile-name" style={[tileStyles.nameRow, { minHeight: reservedHeight }, style]}>
+      <Text
+        style={[tileStyles.name, { color: c.text, fontSize, lineHeight }]}
+        numberOfLines={TILE_NAME_MAX_LINES}
+      >
         {name}
       </Text>
       {locked ? (
@@ -97,7 +109,7 @@ export function TileCollection({ collection, reserveLine = false }: TileCollecti
 
   const color = collection?.color ?? c.textSecondary;
   return (
-    <View style={[tileStyles.collectionRow, !collection && tileStyles.collectionRowHidden]}>
+    <View testID="tile-collection" style={[tileStyles.collectionRow, !collection && tileStyles.collectionRowHidden]}>
       <Ionicons name={ICONS.collection} size={12} color={color} />
       <Text style={[tileStyles.collectionName, { color, fontSize: fs(12) }]} numberOfLines={1}>
         {collection?.name ?? NBSP}

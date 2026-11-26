@@ -127,7 +127,9 @@ export default function EntityTile({
               starSize={13}
               style={styles.nameRow}
             />
-            {showCollection && entity.collection ? <TileCollection collection={entity.collection} /> : null}
+            {showCollection ? (
+              <TileCollection collection={entity.collection} reserveLine={reserveCollectionLine} />
+            ) : null}
           </View>
           {progress}
           {!selectMode && entity.listKind === 'numeric' ? <NumericBadge /> : null}

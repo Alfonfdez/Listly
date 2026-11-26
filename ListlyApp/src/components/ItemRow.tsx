@@ -73,9 +73,10 @@ function ItemRowInner({ item, selectMode, selected, numeric = false, onToggle, o
               {
                 color: isDone ? c.textSecondary : c.text,
                 fontSize: fs(16),
+                lineHeight: fs(20),
               },
             ]}
-            numberOfLines={1}
+            numberOfLines={2}
           >
             {item.name}
           </Text>
