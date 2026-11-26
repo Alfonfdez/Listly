@@ -38,7 +38,7 @@ Alles läuft **auf dem Gerät**: deine Daten liegen in einer lokalen SQLite-Date
 ![Listendetail](images/screenshots/v1.1.0-04-a-list-detail.png)<br>*Eine Standardliste mit abgehakten Einträgen, Notizen, einem Foto, Sortiersteuerung und Stapelaktionen — der Kopf bleibt beim Scrollen fixiert.*<br><br>
 ![Numerische Liste](images/screenshots/v1.1.0-04-b-numeric-list.png)<br>*Eine numerische Liste mit einem Wertfortschrittsbalken, Zeilensummen und der Betrag/Menge-Zeile.*<br><br>
 ![Liste bearbeiten](images/screenshots/v1.1.0-05-edit-list.png)<br>*Der Bildschirm „Liste bearbeiten“: umbenennen, Art, Symbol und Farbe ändern, die Liste in eine Sammlung verschieben und die Liste duplizieren, zusammenführen oder löschen.*<br><br>
-![Eintrag hinzufügen ausgeklappt](images/screenshots/v1.1.0-06-a-add-item-expanded.png)<br>*Die ausgeklappte Hinzufügen-Leiste, um dem neuen Eintrag eine Notiz und Fotos anzuhängen.*<br><br>
+![Eintrag hinzufügen ausgeklappt](images/screenshots/v1.1.0-06-a-add-item-expanded-v2.png)<br>*Die ausgeklappte Hinzufügen-Leiste, um dem neuen Eintrag eine Notiz und Fotos anzuhängen.*<br><br>
 ![Eintrag bearbeiten](images/screenshots/v1.1.0-06-b-item-edit.png)<br>*Einen Eintrag bearbeiten: Name über zwei Zeilen, Notiz und Fotos.*<br><br>
 ![Listen](images/screenshots/v1.1.0-07-a-lists.png)<br>*Der Listen-Bildschirm mit Sammlungszugehörigkeit und Fortschritt pro Liste.*<br><br>
 ![Sammlungen](images/screenshots/v1.1.0-07-b-collections.png)<br>*Der Sammlungen-Bildschirm.*<br><br>

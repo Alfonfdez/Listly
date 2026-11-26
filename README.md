@@ -38,7 +38,7 @@ Everything runs **on-device**: your data lives in a local SQLite database (sql.j
 ![List detail](images/screenshots/v1.1.0-04-a-list-detail.png)<br>*A standard list with checked items, notes, a photo, the sort control, and batch actions — the list header stays pinned while you scroll.*<br><br>
 ![Numeric list](images/screenshots/v1.1.0-04-b-numeric-list.png)<br>*A numeric list with a value progress bar, line totals, and the amount/quantity row.*<br><br>
 ![Edit list](images/screenshots/v1.1.0-05-edit-list.png)<br>*The Edit list screen: rename, change kind, icon and color, move the list to a collection, and Duplicate, Merge or Delete the list.*<br><br>
-![Add item expanded](images/screenshots/v1.1.0-06-a-add-item-expanded.png)<br>*The add bar expanded to attach a note and photos to the new item.*<br><br>
+![Add item expanded](images/screenshots/v1.1.0-06-a-add-item-expanded-v2.png)<br>*The add bar expanded to attach a note and photos to the new item.*<br><br>
 ![Edit item](images/screenshots/v1.1.0-06-b-item-edit.png)<br>*Editing an item: a two-line name, a note, and photos.*<br><br>
 ![Lists](images/screenshots/v1.1.0-07-a-lists.png)<br>*The Lists screen, showing collection membership and per-list progress.*<br><br>
 ![Collections](images/screenshots/v1.1.0-07-b-collections.png)<br>*The Collections screen.*<br><br>

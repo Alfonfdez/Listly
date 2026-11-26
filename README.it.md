@@ -38,7 +38,7 @@ Tutto funziona **sul dispositivo**: i tuoi dati vivono in un database SQLite loc
 ![Dettaglio lista](images/screenshots/v1.1.0-04-a-list-detail.png)<br>*Una lista standard con elementi spuntati, note, una foto, il controllo di ordinamento e le azioni in blocco — l'intestazione resta fissa durante lo scorrimento.*<br><br>
 ![Lista numerica](images/screenshots/v1.1.0-04-b-numeric-list.png)<br>*Una lista numerica con una barra di avanzamento per valore, i totali di riga e la riga importo/quantità.*<br><br>
 ![Modifica lista](images/screenshots/v1.1.0-05-edit-list.png)<br>*La schermata Modifica lista: rinominare, cambiare tipo, icona e colore, spostare la lista in una raccolta e Duplicare, Unire o Eliminare la lista.*<br><br>
-![Aggiungi elemento espanso](images/screenshots/v1.1.0-06-a-add-item-expanded.png)<br>*La barra di aggiunta espansa per allegare una nota e foto al nuovo elemento.*<br><br>
+![Aggiungi elemento espanso](images/screenshots/v1.1.0-06-a-add-item-expanded-v2.png)<br>*La barra di aggiunta espansa per allegare una nota e foto al nuovo elemento.*<br><br>
 ![Modifica elemento](images/screenshots/v1.1.0-06-b-item-edit.png)<br>*Modifica di un elemento: nome su due righe, nota e foto.*<br><br>
 ![Liste](images/screenshots/v1.1.0-07-a-lists.png)<br>*La schermata Liste, con l'appartenenza alle raccolte e il progresso per lista.*<br><br>
 ![Raccolte](images/screenshots/v1.1.0-07-b-collections.png)<br>*La schermata Raccolte.*<br><br>

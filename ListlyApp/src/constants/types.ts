@@ -72,6 +72,39 @@ export const EDIT_ITEM_NOTE_LINES = 5;
 export const EDIT_ITEM_FIELD_LINE_HEIGHT = 20;
 export const EDIT_ITEM_FIELD_VERTICAL_PADDING = 24;
 
+// Compact add bar (list detail): the note reserves 3 lines by default.
+export const ADD_ITEM_NOTE_LINES = 3;
+
+// Photo section tiles: the edit modal uses the regular size, the inline add
+// bar uses the compact one so the details area stays light.
+export const PHOTO_METRICS = {
+  regular: {
+    size: 80,
+    addIcon: 'add',
+    addIconSize: 28,
+    removeBadgeSize: 22,
+    removeIconSize: 14,
+    badgeOffset: -6,
+    titleFontSize: 15,
+    titleMarginBottom: 10,
+    rowGap: 10,
+    bottomMargin: 16,
+  },
+  compact: {
+    size: 56,
+    addIcon: 'images-outline',
+    addIconSize: 20,
+    removeBadgeSize: 18,
+    removeIconSize: 12,
+    badgeOffset: -5,
+    // Compact hides the "Photos" title; the values stay for a shared shape.
+    titleFontSize: 13,
+    titleMarginBottom: 6,
+    rowGap: 8,
+    bottomMargin: 8,
+  },
+} as const;
+
 export const MERGE_NOTICE = 'merged' as const;
 
 export const MAX_LIST_NAME_LENGTH = 100;

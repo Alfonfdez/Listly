@@ -375,6 +375,16 @@ Uninstalling the app and installing it again came back with data from the previo
 
 Spec: spec/constitution/7-platform-differences.md, spec/features/005-settings-screen/.
 
+## Compact add-bar details
+Status: done.
+
+The expandable details area of the list-detail add bar felt top-heavy:
+- Photo tiles in the inline add bar shrink to **56×56** (from 80×80), with a 20px image icon, an 18px remove badge and tighter gaps; the "Photos" title is hidden there (the icon and dashed add box identify the section), while the edit modal keeps the regular 80×80 tiles, the title and the 5-line note. `PhotoSection` / `ItemPhotosField` take an opt-in `compact` prop.
+- The add-bar note input reserves **3 lines** by default (`ADD_ITEM_NOTE_LINES`, height from the same line-height/padding tokens as the edit modal); longer notes scroll inside the field.
+- `tests/components/{PhotoSection,AddItemBar}.test.tsx` cover both tile sizes, the hidden compact title and the 3-line note; the updated screen was captured as **`v1.1.0-06-a-add-item-expanded-v2.png`** (a new filename so GitHub's image cache serves the new layout).
+
+Spec: spec/features/011-item-pictures/.
+
 ## Future scope (not scheduled)
 - Per-list currency symbol (the numeric list is currency-agnostic for now).
 - A third "pending" (all − done) total.

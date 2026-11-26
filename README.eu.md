@@ -38,7 +38,7 @@ Dena **gailuan** exekutatzen da: zure datuak tokiko SQLite datu-basean bizi dira
 ![Zerrenda-xehetasuna](images/screenshots/v1.1.0-04-a-list-detail.png)<br>*Zerrenda estandar bat, markatutako elementuekin, oharrekin, argazki batekin, ordena-kontrolarekin eta lote-ekintzekin — goiburukoa finko mantentzen da korritzen duzunean.*<br><br>
 ![Zerrenda numerikoa](images/screenshots/v1.1.0-04-b-numeric-list.png)<br>*Zerrenda numeriko bat balioaren aurrerapen-barra batekin, lerro-totalekin eta zenbateko/kantitate errenkadarekin.*<br><br>
 ![Zerrenda editatu](images/screenshots/v1.1.0-05-edit-list.png)<br>*Zerrenda editatzeko pantaila: izena, mota, ikonoa eta kolorea aldatu, zerrenda kolekzio batera eraman, eta bikoiztu, batu edo ezabatu zerrenda.*<br><br>
-![Gehitu elementua zabalik](images/screenshots/v1.1.0-06-a-add-item-expanded.png)<br>*Gehitzeko barra zabaldua, elementu berriari oharra eta argazkiak eransteko.*<br><br>
+![Gehitu elementua zabalik](images/screenshots/v1.1.0-06-a-add-item-expanded-v2.png)<br>*Gehitzeko barra zabaldua, elementu berriari oharra eta argazkiak eransteko.*<br><br>
 ![Elementua editatu](images/screenshots/v1.1.0-06-b-item-edit.png)<br>*Elementu bat editatzen: bi lerroko izena, oharra eta argazkiak.*<br><br>
 ![Zerrendak](images/screenshots/v1.1.0-07-a-lists.png)<br>*Zerrenden pantaila, kolekzio-egozpena eta zerrendako aurrerapena erakutsita.*<br><br>
 ![Kolekzioak](images/screenshots/v1.1.0-07-b-collections.png)<br>*Kolekzioen pantaila.*<br><br>

@@ -38,7 +38,7 @@ Todo funciona **en el dispositivo**: tus datos viven en una base de datos SQLite
 ![Detalle de lista](images/screenshots/v1.1.0-04-a-list-detail.png)<br>*Una lista estándar con elementos marcados, notas, una foto, el control de orden y las acciones por lotes — la cabecera permanece fija mientras te desplazas.*<br><br>
 ![Lista numérica](images/screenshots/v1.1.0-04-b-numeric-list.png)<br>*Una lista numérica con barra de progreso por valor, totales de línea y la fila de importe/cantidad.*<br><br>
 ![Editar lista](images/screenshots/v1.1.0-05-edit-list.png)<br>*La pantalla Editar lista: renombrar, cambiar el tipo, el icono y el color, mover la lista a una colección, y Duplicar, Combinar o Eliminar la lista.*<br><br>
-![Añadir elemento ampliado](images/screenshots/v1.1.0-06-a-add-item-expanded.png)<br>*La barra de añadir ampliada para adjuntar una nota y fotos al nuevo elemento.*<br><br>
+![Añadir elemento ampliado](images/screenshots/v1.1.0-06-a-add-item-expanded-v2.png)<br>*La barra de añadir ampliada para adjuntar una nota y fotos al nuevo elemento.*<br><br>
 ![Editar elemento](images/screenshots/v1.1.0-06-b-item-edit.png)<br>*Editar un elemento: nombre de dos líneas, nota y fotos.*<br><br>
 ![Listas](images/screenshots/v1.1.0-07-a-lists.png)<br>*La pantalla de Listas, con la pertenencia a colecciones y el progreso por lista.*<br><br>
 ![Colecciones](images/screenshots/v1.1.0-07-b-collections.png)<br>*La pantalla de Colecciones.*<br><br>

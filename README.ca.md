@@ -38,7 +38,7 @@ Tot funciona **al dispositiu**: les teves dades viuen en una base de dades SQLit
 ![Detall de llista](images/screenshots/v1.1.0-04-a-list-detail.png)<br>*Una llista estàndard amb elements marcats, notes, una foto, el control d'ordre i les accions per lots — la capçalera es manté fixa mentre et desplaces.*<br><br>
 ![Llista numèrica](images/screenshots/v1.1.0-04-b-numeric-list.png)<br>*Una llista numèrica amb barra de progrés per valor, totals de línia i la fila d'import/cantitat.*<br><br>
 ![Editar llista](images/screenshots/v1.1.0-05-edit-list.png)<br>*La pantalla Editar llista: canviar el nom, el tipus, la icona i el color, moure la llista a una col·lecció, i Duplicar, Combinar o Eliminar la llista.*<br><br>
-![Afegir element ampliat](images/screenshots/v1.1.0-06-a-add-item-expanded.png)<br>*La barra d'afegir ampliada per adjuntar una nota i fotos al nou element.*<br><br>
+![Afegir element ampliat](images/screenshots/v1.1.0-06-a-add-item-expanded-v2.png)<br>*La barra d'afegir ampliada per adjuntar una nota i fotos al nou element.*<br><br>
 ![Editar element](images/screenshots/v1.1.0-06-b-item-edit.png)<br>*Editar un element: nom de dues línies, nota i fotos.*<br><br>
 ![Llistes](images/screenshots/v1.1.0-07-a-lists.png)<br>*La pantalla de Llistes, amb la pertinença a col·leccions i el progrés per llista.*<br><br>
 ![Col·leccions](images/screenshots/v1.1.0-07-b-collections.png)<br>*La pantalla de Col·leccions.*<br><br>

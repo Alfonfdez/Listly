@@ -14,7 +14,8 @@
 
 ### 2. Add flow (ListDetailScreen inline add bar)
 - The existing chevron toggle that expands the note input now expands a "details" area: the note input plus an "Add photos" section beneath it.
-- The photo section shows existing thumbnails (80×80) with a remove button per photo (remove requires confirmation); a dashed "Add photo" box opens a source modal (Take photo — native only; Add from gallery).
+- In the inline add bar the details area is **compact**: photo tiles are **56×56** (18px remove badge, 20px image icon, tighter gaps), the "Photos" title is hidden, and the note input reserves **3 lines** by default (`ADD_ITEM_NOTE_LINES`), scrolling longer text inside the field. The edit modal keeps the regular 80×80 tiles, the "Photos" title and the 5-line note.
+- The photo section shows existing thumbnails with a remove button per photo (remove requires confirmation); a dashed "Add photo" box opens a source modal (Take photo — native only; Add from gallery).
 - The add box is hidden once 3 photos are attached.
 - Submitting the add bar serializes the chosen photos into the item; the photo state clears along with the name/note after creation.
 
@@ -46,6 +47,7 @@
 
 - [x] A nullable `items.pictures` column exists (migration 004, `SCHEMA_VERSION` 4) and zod/drizzle schemas match it.
 - [x] The expanded details area in the add bar shows the note input plus an "Add photos" section with an add box and per-photo remove buttons.
+- [x] The add-bar details area uses compact 56×56 photo tiles and a 3-line note input; the edit modal keeps the regular 80×80 tiles.
 - [x] Choosing "Add from gallery" attaches a photo; the add box disappears at 3 photos; up to 3 pictures persist on the item after adding.
 - [x] The edit modal shows the photo section under the Note field, pre-loaded with the item's photos, and saving changes (including removing all) persists.
 - [x] Item rows with pictures render a thumbnail strip under the name; tapping a thumbnail opens a full-screen viewer with a close button (and tap-outside-to-close).

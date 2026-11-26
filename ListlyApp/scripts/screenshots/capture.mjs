@@ -11,6 +11,10 @@ const FIXTURE_PATH = path.join(APP_ROOT, 'scripts', 'screenshots', 'fixture.json
 const DEFAULT_URL = 'http://localhost:8081';
 const DEFAULT_OUT = path.join(REPO_ROOT, 'images', 'screenshots');
 const STARTUP_TIMEOUT_MS = 180000;
+const VIEWPORT = { width: 375, height: 812 };
+const LOCALE = 'en-US';
+const TIMEZONE = 'Europe/Madrid';
+const COLOR_SCHEME = 'dark';
 
 function parseArgs(argv) {
   const opts = {
@@ -143,11 +147,11 @@ async function main() {
 
   const browser = await chromium.launch({ channel: 'chrome', headless: true });
   const context = await browser.newContext({
-    viewport: { width: 375, height: 812 },
+    viewport: VIEWPORT,
     deviceScaleFactor: 1,
-    locale: 'en-US',
-    timezoneId: 'Europe/Madrid',
-    colorScheme: 'dark',
+    locale: LOCALE,
+    timezoneId: TIMEZONE,
+    colorScheme: COLOR_SCHEME,
   });
   const page = await context.newPage();
   const consoleErrors = [];

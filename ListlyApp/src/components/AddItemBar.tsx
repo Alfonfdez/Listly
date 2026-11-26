@@ -8,6 +8,7 @@ import { useFontSize } from '../hooks/useFontSize';
 import { useLabels } from '../hooks/useLabels';
 import { useItemDraft } from '../hooks/useItemDraft';
 import { useItemDisplayFlags } from '../hooks/useItemDisplayFlags';
+import { ADD_ITEM_NOTE_LINES, EDIT_ITEM_FIELD_LINE_HEIGHT, EDIT_ITEM_FIELD_VERTICAL_PADDING } from '../constants/types';
 import { serializeItemPhotos } from '../utils/itemPhotos';
 import { ItemAmountField, ItemLineTotal, ItemNameField, ItemNoteField, ItemQuantityField } from './ItemFields';
 import ItemPhotosField from './ItemPhotosField';
@@ -47,6 +48,9 @@ export default function AddItemBar({
   const draft = useItemDraft({ existingNames, numeric });
   const [noteExpanded, setNoteExpanded] = useState(false);
   const canAddDetails = flags.showNotes || showPhotos;
+  const noteLineHeight = fs(EDIT_ITEM_FIELD_LINE_HEIGHT);
+  const notePaddingVertical = EDIT_ITEM_FIELD_VERTICAL_PADDING / 2;
+  const noteInputHeight = noteLineHeight * ADD_ITEM_NOTE_LINES + EDIT_ITEM_FIELD_VERTICAL_PADDING;
 
   useEffect(() => {
     if (!canAddDetails) setNoteExpanded(false);
@@ -142,11 +146,22 @@ export default function AddItemBar({
             <ItemNoteField
               value={draft.note}
               onChangeText={draft.setNote}
-              style={[styles.input, styles.noteInput, { backgroundColor: c.surface, borderColor: c.border }]}
+              numberOfLines={ADD_ITEM_NOTE_LINES}
+              style={[
+                styles.input,
+                {
+                  height: noteInputHeight,
+                  lineHeight: noteLineHeight,
+                  paddingVertical: notePaddingVertical,
+                  backgroundColor: c.surface,
+                  borderColor: c.border,
+                },
+              ]}
             />
           ) : null}
           {showPhotos ? (
             <ItemPhotosField
+              compact
               photos={draft.photos}
               onTakePhoto={draft.handleTakePhoto}
               onPickFromGallery={draft.handlePickFromGallery}
@@ -206,10 +221,6 @@ const styles = StyleSheet.create({
   },
   chevronOpen: {
     transform: [{ rotate: '180deg' }],
-  },
-  noteInput: {
-    minHeight: 64,
-    paddingTop: 10,
   },
   addButton: {
     height: ADD_ROW_HEIGHT,
