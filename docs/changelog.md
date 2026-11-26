@@ -1127,3 +1127,9 @@ pm run test:all green.
 - Tiles **reserve two lines of name height** regardless of the actual length (explicit `lineHeight` + `minHeight`), so every card and row keeps the same height whether the name is one or two lines; the Lists-screen collection line is reserved on every row so member and standalone rows also match. Detail header stays single-line; the add-item input stays single-line (Enter still submits).
 - Added `TILE_NAME_MAX_LINES` / `TILE_NAME_LINE_HEIGHT_RATIO` constants, `tile-name`/`tile-collection` testIDs, and tests for the 2-line wrap + reserved height (item rows and tiles).
 - Specs 003/016 + roadmap updated; `npm run test:all` green (80 files, 710 tests).
+
+[2026-11-26] feat | ListlyApp/src/components/ItemRow.tsx, ListlyApp/src/components/FullscreenViewer.tsx, ListlyApp/tests/components/ItemRow.test.tsx, ListlyApp/tests/components/FullscreenViewer.test.tsx, spec/features/003-list-detail-screen/1-spec.md, spec/features/011-item-pictures/1-spec.md, spec/constitution/3-roadmap.md
+- Note previews in item rows now show up to **3 lines** (was 2) before ellipsizing; tapping still opens the full note viewer.
+- The shared fullscreen viewer (photo + note) now closes by **tapping outside the content** (a backdrop press), in addition to the existing X button — no more having to hit the exact X. Taps on the photo/note itself don't close it (the backdrop is a sibling behind the content), and scrolling a long note still works. Form/picker modals are unchanged (X/button-only close).
+- Added tests for the 3-line preview and for backdrop-close vs content-tap; specs 003/011 + roadmap updated.
+- `npm run test:all` green (80 files, 712 tests).

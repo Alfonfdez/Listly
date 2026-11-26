@@ -29,7 +29,7 @@ Local database design:
 Status: done.
 
 List detail screen with items:
-- Item list with checkbox toggle, name (wraps to up to 2 lines), note indicator.
+- Item list with checkbox toggle, name (wraps to up to 2 lines), note preview (up to 3 lines, tap opens the full note viewer; closes with the X or by tapping outside).
 - Add item via input (or modal).
 - Edit/delete item.
 - Per-list progress indicator.
@@ -116,7 +116,7 @@ Status: done.
 Up to 3 pictures per item:
 - `items.pictures` TEXT column (JSON array of URIs), migration 004 / `SCHEMA_VERSION` 4.
 - "Add photos" section in the expanded details area of the add bar (under the note input) and under the Note field in the edit modal.
-- Thumbnail strip on item rows; full-screen viewer on tap.
+- Thumbnail strip on item rows; full-screen viewer on tap (closes with the X or by tapping outside the image).
 - Native stores file URIs in the document directory; web stores base64 data URLs inline; photo files cleaned up on item/list delete.
 - Spec: spec/features/011-item-pictures/.
 

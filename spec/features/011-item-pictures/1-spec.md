@@ -24,7 +24,7 @@
 
 ### 4. Display (ItemRow)
 - Items with photos render a thumbnail strip (up to 3, 36×36) below the item name.
-- Tapping a thumbnail opens a full-screen viewer with a close button.
+- Tapping a thumbnail opens a full-screen viewer with a close button; the viewer also closes by tapping outside the image (backdrop).
 
 ### 5. Photo storage & cleanup
 - Native: picked photos are copied to the app document directory and stored as file URIs; removing a photo or deleting the owning item/list deletes the files.
@@ -48,7 +48,7 @@
 - [x] The expanded details area in the add bar shows the note input plus an "Add photos" section with an add box and per-photo remove buttons.
 - [x] Choosing "Add from gallery" attaches a photo; the add box disappears at 3 photos; up to 3 pictures persist on the item after adding.
 - [x] The edit modal shows the photo section under the Note field, pre-loaded with the item's photos, and saving changes (including removing all) persists.
-- [x] Item rows with pictures render a thumbnail strip under the name; tapping a thumbnail opens a full-screen viewer with a close button.
+- [x] Item rows with pictures render a thumbnail strip under the name; tapping a thumbnail opens a full-screen viewer with a close button (and tap-outside-to-close).
 - [x] Removing a photo requires confirmation; web photos are data URLs stored inline; native file cleanup is wired in item/list delete paths.
 - [x] All new UI respects theme tokens and `fs()` scaling; all visible text exists in en and es.
 - [x] All tests pass (repo contract tests, util tests, component tests, typecheck, lint).

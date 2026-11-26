@@ -18,7 +18,8 @@
 
 ### 2. Item list
 - Items ordered by `position`.
-- Each row: checkbox (Ionicons circle → checkmark-circle when done), item name (secondary color + a faint green row tint when `checked = 1`; no strikethrough; wraps to up to **2 lines** before ellipsizing), a tappable note preview when the item has a `note`, and a circular edit button.
+- Each row: checkbox (Ionicons circle → checkmark-circle when done), item name (secondary color + a faint green row tint when `checked = 1`; no strikethrough; wraps to up to **2 lines** before ellipsizing), a tappable note preview when the item has a `note` (up to **3 lines**, then ellipsized), and a circular edit button.
+- Tapping the note preview opens the full note viewer; it closes with the X button **or by tapping outside** the note card (the shared viewer's backdrop).
 - Tapping a row toggles the item (check/uncheck) via `itemRepo.toggle`; progress updates on refresh.
 
 ### 3. Add item
@@ -56,7 +57,7 @@
 
 - [x] Opening a list from Home shows its icon, name, color, and "N/total" progress.
 - [x] The header, progress bars, notices, and batch toolbar stay pinned while the items scroll; on Android the pinned area stays above the bottom bar when the keyboard is open.
-- [x] Item rows show a checkbox, the name (secondary color + faint green tint when done, no strikethrough), a tappable note preview, and a circular edit button.
+- [x] Item rows show a checkbox, the name (secondary color + faint green tint when done, no strikethrough), a tappable note preview (up to 3 lines), and a circular edit button.
 - [x] Tapping a row toggles the item and updates the progress bar.
 - [x] Typing in the add input creates the item at the end of the list; empty and duplicate names are rejected with a message.
 - [x] Editing an item updates its name and note; deleting removes it after confirmation.
