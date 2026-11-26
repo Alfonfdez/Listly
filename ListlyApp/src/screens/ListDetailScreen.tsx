@@ -1,9 +1,10 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, View, type ScrollView } from 'react-native';
+import Animated, { useAnimatedRef } from 'react-native-reanimated';
 import { Ionicons } from '@expo/vector-icons';
 import Sortable, { type SortableGridRenderItem } from 'react-native-sortables';
 import { useFocusEffect, useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
-import { type IconName, type NavigationProp, type RootStackParamList, COPY_FEEDBACK_MS } from '../constants/types';
+import { type IconName, type NavigationProp, type RootStackParamList, COPY_FEEDBACK_MS, AUTO_SCROLL_ACTIVATION_OFFSET, AUTO_SCROLL_MAX_VELOCITY } from '../constants/types';
 import type { Item } from '../database/types';
 import { vaultRepo } from '../database';
 import { logError, ERROR_SCOPE } from '../utils/errors';
@@ -55,6 +56,9 @@ export default function ListDetailScreen() {
   const fs = useFontSize();
   const labels = useLabels();
   const keyboardHeight = useKeyboardHeight();
+  // Animated ref to the items scroll container so the sortable grid can
+  // auto-scroll while an item is dragged near the top/bottom edge.
+  const itemsScrollRef = useAnimatedRef<ScrollView>();
 
   const list = useMemo(() => lists.find(l => l.id === listId), [lists, listId]);
   const locked = lockedListIds.has(listId);
@@ -436,7 +440,8 @@ export default function ListDetailScreen() {
           ) : null}
         </View>
 
-        <ScrollView
+        <Animated.ScrollView
+          ref={itemsScrollRef}
           style={styles.list}
           contentContainerStyle={styles.listContent}
           showsVerticalScrollIndicator={false}
@@ -456,10 +461,14 @@ export default function ListDetailScreen() {
               columns={1}
               sortEnabled={!selectMode && query === '' && items.length > 1 && !sortActive}
               rowGap={8}
+              scrollableRef={itemsScrollRef}
+              autoScrollDirection="vertical"
+              autoScrollActivationOffset={AUTO_SCROLL_ACTIVATION_OFFSET}
+              autoScrollMaxVelocity={AUTO_SCROLL_MAX_VELOCITY}
               onDragEnd={handleDragEnd}
             />
           )}
-        </ScrollView>
+        </Animated.ScrollView>
 
         {!selectMode ? (
           <AddItemBar

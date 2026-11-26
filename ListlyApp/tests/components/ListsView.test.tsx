@@ -413,6 +413,17 @@ const onToggleItem = vi.fn();
     expect(listRepo.reorder).not.toHaveBeenCalled();
   });
 
+  it('wires the sortable grids to the scroll container for drag auto-scroll', async () => {
+    const view = await renderView();
+    await view.findByText('Groceries');
+
+    const grid = lastGrid();
+    expect(grid?.scrollableRef).toBeTruthy();
+    expect(grid?.autoScrollDirection).toBe('vertical');
+    expect(grid?.autoScrollActivationOffset).toBe(90);
+    expect(grid?.autoScrollMaxVelocity).toBe(1400);
+  });
+
   it('keeps the >1 guard for a single list outside Home', async () => {
     setLists([LISTS[0]]);
     setBaseLists([LISTS[0]]);

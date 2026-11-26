@@ -58,6 +58,12 @@ export const PHOTO_QUALITY = 0.7;
 export const TOAST_DURATION_MS = 3000;
 export const MIN_PASSPHRASE_LENGTH = 6;
 
+// Sortable drag auto-scroll (react-native-sortables): scrolling starts once the
+// dragged item is within AUTO_SCROLL_ACTIVATION_OFFSET px of the scroll area's
+// edge, at up to AUTO_SCROLL_MAX_VELOCITY px/second.
+export const AUTO_SCROLL_ACTIVATION_OFFSET = 90;
+export const AUTO_SCROLL_MAX_VELOCITY = 1400;
+
 export const MERGE_NOTICE = 'merged' as const;
 
 export const MAX_LIST_NAME_LENGTH = 100;
