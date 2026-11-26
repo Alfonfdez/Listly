@@ -66,7 +66,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const value = useMemo(
     () => ({ lists, collections, listsByCollectionId, baseLists, itemsByListId, lockedListIds, loading, refresh }),
-    [lists, collections, listsByCollectionId, baseLists, itemsByListId, lockedListIds, loading, refresh]
+    [lists, collections, listsByCollectionId, baseLists, itemsByListId, lockedListIds, loading, refresh],
   );
 
   return (

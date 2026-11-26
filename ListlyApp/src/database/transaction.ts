@@ -7,7 +7,7 @@ let chain: Promise<unknown> = Promise.resolve();
 
 export async function runExclusive<T>(
   handle: DatabaseHandle,
-  task: (handle: DatabaseHandle) => Promise<T>
+  task: (handle: DatabaseHandle) => Promise<T>,
 ): Promise<T> {
   let result!: T;
   const run = chain.then(async () => {
@@ -17,7 +17,7 @@ export async function runExclusive<T>(
   });
   chain = run.then(
     () => undefined,
-    () => undefined
+    () => undefined,
   );
   await run;
   return result;

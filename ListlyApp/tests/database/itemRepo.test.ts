@@ -119,7 +119,7 @@ describe('itemRepo.setAllChecked', () => {
   });
 
   it('checks all items of the target list leaving other lists untouched', async () => {
-    const { a, b2, a1, a2, a3, ba1 } = await seedTwoLists(b);
+    const { a, b2, a1, ba1 } = await seedTwoLists(b);
     await b.items.toggle(a1.id);
 
     await b.items.setAllChecked(a.id, true);
@@ -192,7 +192,7 @@ describe('itemRepo.duplicateItems', () => {
   it('appends full-fidelity copies to the target in source position order', async () => {
     const a = await b.lists.create({ name: 'A', color: '#22D3EE', icon: 'cart-outline', collection_id: null });
     const target = await b.lists.create({ name: 'B', color: '#34D399', icon: 'gift-outline', collection_id: null });
-    const existing = await b.items.create({
+    await b.items.create({
       list_id: target.id,
       name: 'existing',
       checked: 1,

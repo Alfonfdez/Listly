@@ -127,7 +127,7 @@ describe('listRepo.removeFromCollection', () => {
   });
 
   it('removes a member from its collection making it a standalone list at the end', async () => {
-    const { a, a1, a2, free } = await seedTwoCollections(b);
+    const { a, a1, free } = await seedTwoCollections(b);
     await b.lists.moveToCollection(free.id, a.id);
     expect((await b.lists.get(free.id))?.collection_id).toBe(a.id);
 
@@ -149,7 +149,7 @@ describe('listRepo.removeFromCollection', () => {
     expect((await b.lists.get(free.id))?.position).toBe(0);
   });
 
-it('appends the removed list after existing standalone lists', async () => {
+  it('appends the removed list after existing standalone lists', async () => {
     const { a, a1, a2 } = await seedTwoCollections(b);
 
     await b.lists.removeFromCollection(a1.id);
@@ -178,9 +178,9 @@ describe('listRepo.setPinned and ordering', () => {
   });
 
   it('setPinned marks a list and list()/withCounts() order pinned first preserving positions', async () => {
-    const a = await b.lists.create({ name: 'A', color: '#22D3EE', icon: 'cart-outline' });
+    await b.lists.create({ name: 'A', color: '#22D3EE', icon: 'cart-outline' });
     const pinned = await b.lists.create({ name: 'B', color: '#34D399', icon: 'gift-outline' });
-    const c = await b.lists.create({ name: 'C', color: '#F87171', icon: 'rocket-outline' });
+    await b.lists.create({ name: 'C', color: '#F87171', icon: 'rocket-outline' });
 
     await b.lists.setPinned(pinned.id, true);
 
@@ -190,9 +190,9 @@ describe('listRepo.setPinned and ordering', () => {
   });
 
   it('setPinned(false) restores position order', async () => {
-    const a = await b.lists.create({ name: 'A', color: '#22D3EE', icon: 'cart-outline' });
+    await b.lists.create({ name: 'A', color: '#22D3EE', icon: 'cart-outline' });
     const pinned = await b.lists.create({ name: 'B', color: '#34D399', icon: 'gift-outline' });
-    const c = await b.lists.create({ name: 'C', color: '#F87171', icon: 'rocket-outline' });
+    await b.lists.create({ name: 'C', color: '#F87171', icon: 'rocket-outline' });
 
     await b.lists.setPinned(pinned.id, true);
     await b.lists.setPinned(pinned.id, false);
@@ -265,7 +265,7 @@ describe('listRepo.duplicate', () => {
 
   it('creates the copy list at the end of its section and copies the items', async () => {
     const source = await b.lists.create({ name: 'A', color: '#22D3EE', icon: 'cart-outline', collection_id: null });
-    const other = await b.lists.create({ name: 'Other', color: '#34D399', icon: 'gift-outline', collection_id: null });
+    await b.lists.create({ name: 'Other', color: '#34D399', icon: 'gift-outline', collection_id: null });
     await b.items.create({ list_id: source.id, name: 'a1', checked: 1, note: 'n1', position: 0, pictures: '["p1.jpg"]' });
     await b.items.create({ list_id: source.id, name: 'a2', checked: 0, note: null, position: 1, pictures: null });
 

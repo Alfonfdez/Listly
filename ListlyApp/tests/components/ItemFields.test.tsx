@@ -37,7 +37,7 @@ describe('ItemFields', () => {
         placeholder="Add an item..."
         accessibilityLabel="Add an item..."
         style={{}}
-      />
+      />,
     );
 
     expect(view.getByText('4/200')).toBeTruthy();
@@ -54,7 +54,7 @@ describe('ItemFields', () => {
         accessibilityLabel="Name"
         style={{}}
         multiline
-      />
+      />,
     );
 
     const input = view.getByLabelText('Name');

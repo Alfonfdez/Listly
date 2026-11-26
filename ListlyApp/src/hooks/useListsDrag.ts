@@ -12,7 +12,7 @@ export function useListsDrag({ refresh, inCollectionDetail, filteredLists }: Opt
   const dropZones = useCollectionDropZones({ refresh, inCollectionDetail, items: filteredLists });
   const { display: displayLists, onDragEnd: handleDragEnd } = useDragOrder(
     filteredLists,
-    dropZones.handleListsDragEnd
+    dropZones.handleListsDragEnd,
   );
 
   return { displayLists, handleDragEnd, ...dropZones };

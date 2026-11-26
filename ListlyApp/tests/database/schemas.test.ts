@@ -76,7 +76,7 @@ describe('schemas', () => {
           showPhotosNumeric: false,
           editShowNotesNumeric: false,
           editShowPhotosNumeric: false,
-        })
+        }),
       ).toEqual({
         theme: THEMES.dark,
         language: LANGUAGES.es,

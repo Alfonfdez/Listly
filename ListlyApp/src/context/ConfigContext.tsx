@@ -98,7 +98,7 @@ export function ConfigProvider({ children }: { children: ReactNode }) {
 
   const value = useMemo(
     () => ({ config, activeColors, updateConfig, reload, loading }),
-    [config, activeColors, updateConfig, reload, loading]
+    [config, activeColors, updateConfig, reload, loading],
   );
 
   return (

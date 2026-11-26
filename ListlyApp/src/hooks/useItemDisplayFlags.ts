@@ -12,15 +12,15 @@ export function useItemDisplayFlags(numeric: boolean): ItemDisplayFlags {
 
   return numeric
     ? {
-        showNotes: config.showNotesNumeric,
-        showPhotos: config.showPhotosNumeric,
-        editShowNotes: config.editShowNotesNumeric,
-        editShowPhotos: config.editShowPhotosNumeric,
-      }
+      showNotes: config.showNotesNumeric,
+      showPhotos: config.showPhotosNumeric,
+      editShowNotes: config.editShowNotesNumeric,
+      editShowPhotos: config.editShowPhotosNumeric,
+    }
     : {
-        showNotes: config.showNotes,
-        showPhotos: config.showPhotos,
-        editShowNotes: config.editShowNotes,
-        editShowPhotos: config.editShowPhotos,
-      };
+      showNotes: config.showNotes,
+      showPhotos: config.showPhotos,
+      editShowNotes: config.editShowNotes,
+      editShowPhotos: config.editShowPhotos,
+    };
 }

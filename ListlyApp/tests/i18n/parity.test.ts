@@ -33,7 +33,7 @@ describe('i18n key parity', () => {
           expect((other as (...args: unknown[]) => unknown).length).toBe(value.length);
         }
       }
-    }
+    },
   );
 
   it.each(Object.entries(ALL).filter(([code]) => code !== 'en'))(
@@ -44,6 +44,6 @@ describe('i18n key parity', () => {
           expect(value.trim(), `${key} should not be empty`).not.toBe('');
         }
       }
-    }
+    },
   );
 });

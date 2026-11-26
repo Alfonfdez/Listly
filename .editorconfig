@@ -1,0 +1,18 @@
+root = true
+
+# The style ESLint enforces (see ListlyApp/eslint.config.mjs). Editors honour this
+# file natively (JetBrains) or with the "EditorConfig for VS Code" extension;
+# ESLint remains the actual gate (`npm run lint` / `npm run lint:fix`).
+[*]
+charset = utf-8
+indent_style = space
+indent_size = 2
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+[*.md]
+# Markdown uses two trailing spaces for a hard line break.
+trim_trailing_whitespace = false
+
+[*.{yml,yaml,json,jsonc}]
+indent_size = 2

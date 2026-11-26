@@ -34,7 +34,7 @@ export default function EditListScreen() {
 
   const hasOtherLists = useMemo(
     () => lists.some(l => l.id !== listId && !lockedListIds.has(l.id)),
-    [lists, listId, lockedListIds]
+    [lists, listId, lockedListIds],
   );
   const canMerge = !!list && !locked && (list.total ?? 0) > 0 && hasOtherLists;
 
@@ -58,10 +58,10 @@ export default function EditListScreen() {
               { name: 'Home' },
               { name: 'ListDetail', params: { listId: target.id, notice: MERGE_NOTICE } },
             ],
-          })
+          }),
         );
       },
-      [navigation]
+      [navigation],
     ),
   });
 
@@ -82,7 +82,7 @@ export default function EditListScreen() {
         logError(ERROR_SCOPE.moveList, error);
       }
     },
-    [listId, initialCollectionId, collectionId, kind, refresh, navigation]
+    [listId, initialCollectionId, collectionId, kind, refresh, navigation],
   );
 
   const remove = useCallback(async () => {

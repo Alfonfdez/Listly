@@ -132,7 +132,6 @@ export function TileBadge({ icon, color }: { icon: string; color: string }) {
 
 export const tileBadgeSize = BADGE_SIZE;
 
-
 interface TileProgressProps {
   completed: number;
   total: number;

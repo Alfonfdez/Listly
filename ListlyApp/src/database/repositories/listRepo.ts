@@ -36,7 +36,7 @@ export const listRepo = {
         db,
         lists,
         lists.position,
-        collectionId !== null ? eq(lists.collection_id, collectionId) : sql`${lists.collection_id} IS NULL`
+        collectionId !== null ? eq(lists.collection_id, collectionId) : sql`${lists.collection_id} IS NULL`,
       );
       const result = await db
         .insert(lists)
@@ -63,7 +63,7 @@ export const listRepo = {
 
   async duplicate(
     id: number,
-    data: { name: string; color: string; icon: string; collection_id?: number | null }
+    data: { name: string; color: string; icon: string; collection_id?: number | null },
   ): Promise<List> {
     return await write(async db => {
       const collectionId = data.collection_id ?? null;
@@ -72,7 +72,7 @@ export const listRepo = {
         db,
         lists,
         lists.position,
-        collectionId !== null ? eq(lists.collection_id, collectionId) : sql`${lists.collection_id} IS NULL`
+        collectionId !== null ? eq(lists.collection_id, collectionId) : sql`${lists.collection_id} IS NULL`,
       );
       const created = await db
         .insert(lists)
@@ -101,8 +101,7 @@ export const listRepo = {
 
   async reorder(orderedIds: number[]): Promise<void> {
     await reorderPositions(orderedIds, (db, id, i) =>
-      db.update(lists).set({ position: i }).where(eq(lists.id, id)).run()
-    );
+      db.update(lists).set({ position: i }).where(eq(lists.id, id)).run());
   },
 
   // Drag reorder with an optional pin change (spec 021 "A2"). See `reorderWithPin`.
@@ -112,7 +111,7 @@ export const listRepo = {
       draggedId,
       pin,
       (db, id, pinned) => db.update(lists).set({ pinned }).where(eq(lists.id, id)).run(),
-      (db, id, index) => db.update(lists).set({ position: index }).where(eq(lists.id, id)).run()
+      (db, id, index) => db.update(lists).set({ position: index }).where(eq(lists.id, id)).run(),
     );
   },
 
@@ -188,8 +187,7 @@ export const listRepo = {
         .leftJoin(items, eq(items.list_id, lists.id))
         .groupBy(lists.id)
         .orderBy(desc(lists.pinned), lists.position, lists.id)
-        .all()
-    );
+        .all());
   },
 
   async existsByName(name: string, excludeId?: number): Promise<boolean> {

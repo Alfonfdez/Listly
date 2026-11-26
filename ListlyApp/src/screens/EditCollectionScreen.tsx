@@ -23,7 +23,7 @@ export default function EditCollectionScreen() {
   const collection = collections.find(col => col.id === collectionId);
   const hasLists = useMemo(
     () => (listsByCollectionId.get(collectionId)?.length ?? 0) > 0,
-    [listsByCollectionId, collectionId]
+    [listsByCollectionId, collectionId],
   );
 
   const update = useCallback(
@@ -32,7 +32,7 @@ export default function EditCollectionScreen() {
       await refresh();
       navigation.goBack();
     },
-    [collectionId, refresh, navigation]
+    [collectionId, refresh, navigation],
   );
 
   const performDelete = useCallback(
@@ -48,7 +48,7 @@ export default function EditCollectionScreen() {
         setDeleteConfirmVisible(false);
       }
     },
-    [collectionId, refresh, navigation]
+    [collectionId, refresh, navigation],
   );
 
   if (!collection) {

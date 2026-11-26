@@ -38,7 +38,7 @@ export function useClipboardCopy({ list, items, refresh }: Options) {
       void Clipboard.setStringAsync(text).catch(error => logError(ERROR_SCOPE.copyToClipboard, error));
       startFeedback(withNotes ? 'all' : 'names');
     },
-    [list, items, labels, startFeedback]
+    [list, items, labels, startFeedback],
   );
 
   const copyToList = useCallback(
@@ -50,7 +50,7 @@ export function useClipboardCopy({ list, items, refresh }: Options) {
         await refresh();
       })();
     },
-    [list, refresh, startFeedback]
+    [list, refresh, startFeedback],
   );
 
   useEffect(() => {

@@ -47,7 +47,7 @@ export default function CollectionDeleteModal({
         action: onDelete,
       },
     ],
-    [labels.collection_delete_move, labels.collection_delete_also, c.primary, c.red, onMove, onDelete]
+    [labels.collection_delete_move, labels.collection_delete_also, c.primary, c.red, onMove, onDelete],
   );
 
   return (

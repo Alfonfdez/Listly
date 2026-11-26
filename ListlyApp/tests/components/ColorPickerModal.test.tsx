@@ -32,7 +32,7 @@ describe('ColorPickerModal', () => {
     const onSelect = vi.fn();
     const onClose = vi.fn();
     const view = await render(
-      <ColorPickerModal visible selectedColor="#22D3EE" onSelect={onSelect} onClose={onClose} />
+      <ColorPickerModal visible selectedColor="#22D3EE" onSelect={onSelect} onClose={onClose} />,
     );
 
     expect(view.getByText('Pick a color')).toBeTruthy();
@@ -48,7 +48,7 @@ describe('ColorPickerModal', () => {
     const onSelect = vi.fn();
     const onClose = vi.fn();
     const view = await render(
-      <ColorPickerModal visible selectedColor="#22D3EE" onSelect={onSelect} onClose={onClose} />
+      <ColorPickerModal visible selectedColor="#22D3EE" onSelect={onSelect} onClose={onClose} />,
     );
 
     pickerStub.getOnChangeJS()?.({ hex: '#123456' });
@@ -63,11 +63,11 @@ describe('ColorPickerModal', () => {
     const onSelect = vi.fn();
     const onClose = vi.fn();
     const view = await render(
-      <ColorPickerModal visible={false} selectedColor="#22D3EE" onSelect={onSelect} onClose={onClose} />
+      <ColorPickerModal visible={false} selectedColor="#22D3EE" onSelect={onSelect} onClose={onClose} />,
     );
 
     await view.rerender(
-      <ColorPickerModal visible selectedColor="#FBBF24" onSelect={onSelect} onClose={onClose} />
+      <ColorPickerModal visible selectedColor="#FBBF24" onSelect={onSelect} onClose={onClose} />,
     );
 
     await user.press(view.getByLabelText('OK'));

@@ -154,9 +154,9 @@ describe('collectionRepo', () => {
   });
 
   it('setPinned marks a collection and list()/withCounts() order pinned first preserving positions', async () => {
-    const one = await b.collections.create({ name: 'One', color: '#A855F7', icon: 'folder-outline' });
+    await b.collections.create({ name: 'One', color: '#A855F7', icon: 'folder-outline' });
     const pinned = await b.collections.create({ name: 'Two', color: '#34D399', icon: 'gift-outline' });
-    const three = await b.collections.create({ name: 'Three', color: '#F87171', icon: 'star-outline' });
+    await b.collections.create({ name: 'Three', color: '#F87171', icon: 'star-outline' });
 
     await b.collections.setPinned(pinned.id, true);
 
@@ -166,9 +166,9 @@ describe('collectionRepo', () => {
   });
 
   it('setPinned(false) restores position order', async () => {
-    const one = await b.collections.create({ name: 'One', color: '#A855F7', icon: 'folder-outline' });
+    await b.collections.create({ name: 'One', color: '#A855F7', icon: 'folder-outline' });
     const pinned = await b.collections.create({ name: 'Two', color: '#34D399', icon: 'gift-outline' });
-    const three = await b.collections.create({ name: 'Three', color: '#F87171', icon: 'star-outline' });
+    await b.collections.create({ name: 'Three', color: '#F87171', icon: 'star-outline' });
 
     await b.collections.setPinned(pinned.id, true);
     await b.collections.setPinned(pinned.id, false);

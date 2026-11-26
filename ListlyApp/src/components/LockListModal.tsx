@@ -41,7 +41,7 @@ export default function LockListModal({ visible, hasPhotos, mode = 'lock', onCan
       setAcknowledged(false);
       setError(null);
       setBusy(false);
-    }, [])
+    }, []),
   );
 
   const submit = async () => {
@@ -69,7 +69,7 @@ export default function LockListModal({ visible, hasPhotos, mode = 'lock', onCan
       setError(
         mode === 'change' && isWrongPassphrase(err)
           ? labels.vault_wrong_current
-          : labels.error_generic
+          : labels.error_generic,
       );
       setBusy(false);
     }

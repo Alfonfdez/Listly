@@ -85,10 +85,15 @@ cd android && ./gradlew assembleRelease   # APK → app/build/outputs/apk/releas
 - **After changing `assets/` or the icon/splash config in `app.json`, run `npx expo prebuild --platform android` before building** — otherwise the APK keeps the stale icons/splash (Gradle won't regenerate them).
 - Web favicon is injected only at export time: `npx expo export --platform web` (dev `expo start --web` serves no favicon).
 
-## LINT
+## LINT / FORMATTING
 ```bash
-npx expo lint
+npm run lint       # expo lint . --max-warnings 0 (src, tests, scripts, configs)
+npm run lint:fix   # the same with --fix (indent, quotes, commas, EOL)
 ```
+- Formatting is **machine-enforced**: 2-space indent (`case` one level deeper), single quotes, double JSX quotes, semicolons, trailing commas in multiline literals, no trailing spaces, a final newline, no BOM. `.editorconfig` mirrors it; ESLint is the gate.
+- `eslint-plugin-boundaries` enforces the layer import rules (`constants` → `utils` → `i18n` → `database` → `context` → `hooks` → `components` → `screens` → `navigation`).
+- Node scripts are linted with Node globals; tests get a test-only React override.
+- Run `npm run lint:fix` before committing style changes; never hand-fix indentation. `npm run lint` must report **0 problems and 0 warnings**.
 
 ## VERIFICATION
 - A change is only "done" when `npm run test:all` passes (typecheck + lint + tests).

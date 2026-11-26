@@ -37,7 +37,7 @@ export default function DataScreen() {
         Alert.alert(labels.settings_export_success_title, labels.settings_export_success_message);
       }
     },
-    [labels]
+    [labels],
   );
 
   const handleExport = useCallback(async () => {
@@ -145,34 +145,34 @@ export default function DataScreen() {
   const confirmContent =
     confirmAction === 'import'
       ? {
-          title: labels.settings_import_confirm_title,
-          message: labels.settings_import_confirm_message,
-          confirmLabel: labels.settings_import_action,
-          destructive: false,
-          onConfirm: () => void runImport(),
-        }
+        title: labels.settings_import_confirm_title,
+        message: labels.settings_import_confirm_message,
+        confirmLabel: labels.settings_import_action,
+        destructive: false,
+        onConfirm: () => void runImport(),
+      }
       : confirmAction === 'deleteAll'
         ? {
-            title: labels.settings_delete_all_confirm_title,
-            message: labels.settings_delete_all_confirm_message,
+          title: labels.settings_delete_all_confirm_title,
+          message: labels.settings_delete_all_confirm_message,
+          confirmLabel: labels.settings_delete_confirm,
+          destructive: true,
+          onConfirm: () => {
+            setConfirmAction(null);
+            setTypedDeleteAllVisible(true);
+          },
+        }
+        : confirmAction === 'reset'
+          ? {
+            title: labels.settings_factory_reset_confirm_title,
+            message: labels.settings_factory_reset_confirm_message,
             confirmLabel: labels.settings_delete_confirm,
             destructive: true,
             onConfirm: () => {
               setConfirmAction(null);
-              setTypedDeleteAllVisible(true);
+              setTypedResetVisible(true);
             },
           }
-        : confirmAction === 'reset'
-          ? {
-              title: labels.settings_factory_reset_confirm_title,
-              message: labels.settings_factory_reset_confirm_message,
-              confirmLabel: labels.settings_delete_confirm,
-              destructive: true,
-              onConfirm: () => {
-                setConfirmAction(null);
-                setTypedResetVisible(true);
-              },
-            }
           : null;
 
   return (

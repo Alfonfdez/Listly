@@ -51,7 +51,7 @@ describe('runExclusive', () => {
     await expect(
       runExclusive(handle, async () => {
         throw new Error('boom');
-      })
+      }),
     ).rejects.toThrow('boom');
     await expect(runExclusive(handle, async () => 'ok')).resolves.toBe('ok');
   });

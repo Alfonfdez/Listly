@@ -42,7 +42,7 @@ export const DB_KEY_MAP: Record<string, keyof Config> = {
 };
 
 const DB_KEY_OF: Record<string, string> = Object.fromEntries(
-  Object.entries(DB_KEY_MAP).map(([dbKey, configKey]) => [configKey, dbKey])
+  Object.entries(DB_KEY_MAP).map(([dbKey, configKey]) => [configKey, dbKey]),
 );
 
 export function decodeConfigValue(key: keyof Config, raw: string): unknown {

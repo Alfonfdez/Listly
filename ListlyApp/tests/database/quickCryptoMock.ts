@@ -46,7 +46,7 @@ function buildMock() {
       salt: Uint8Array,
       iterations: number,
       keylen: number,
-      digest: string
+      digest: string,
     ): Uint8Array {
       void iterations;
       void digest;

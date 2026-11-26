@@ -41,8 +41,7 @@ describe('useListsDrag', () => {
   it('reorders lists on drag end when there is no zone interaction', async () => {
     const refresh = vi.fn(async () => {});
     const { result } = await renderHook(() =>
-      useListsDrag({ refresh, inCollectionDetail: false, filteredLists: [list(1), list(2)] })
-    );
+      useListsDrag({ refresh, inCollectionDetail: false, filteredLists: [list(1), list(2)] }));
 
     await act(async () => {
       result.current.handleDragEnd({ data: [list(2), list(1)] } as never);
@@ -55,8 +54,7 @@ describe('useListsDrag', () => {
   it('exposes the drop-zone state and handlers', async () => {
     const refresh = vi.fn(async () => {});
     const { result } = await renderHook(() =>
-      useListsDrag({ refresh, inCollectionDetail: true, filteredLists: [list(1)] })
-    );
+      useListsDrag({ refresh, inCollectionDetail: true, filteredLists: [list(1)] }));
 
     await act(() => result.current.handleListsDragStart(dragStart('1')));
     expect(result.current.removeTargetActive).toBe(true);
@@ -73,8 +71,7 @@ describe('useListsDrag', () => {
   it('removes a list from its collection via the remove zone', async () => {
     const refresh = vi.fn(async () => {});
     const { result } = await renderHook(() =>
-      useListsDrag({ refresh, inCollectionDetail: true, filteredLists: [list(3)] })
-    );
+      useListsDrag({ refresh, inCollectionDetail: true, filteredLists: [list(3)] }));
 
     await act(() => result.current.handleListsDragStart(dragStart('3')));
     await act(async () => {
@@ -87,8 +84,7 @@ describe('useListsDrag', () => {
   it('keeps the optimistic display order after a drag', async () => {
     const refresh = vi.fn(async () => {});
     const { result } = await renderHook(() =>
-      useListsDrag({ refresh, inCollectionDetail: false, filteredLists: [list(1), list(2)] })
-    );
+      useListsDrag({ refresh, inCollectionDetail: false, filteredLists: [list(1), list(2)] }));
 
     await act(async () => {
       result.current.handleDragEnd({ data: [list(2), list(1)] } as never);

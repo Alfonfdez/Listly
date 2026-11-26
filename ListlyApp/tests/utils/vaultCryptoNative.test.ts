@@ -11,7 +11,7 @@ describe('vaultCrypto native availability', () => {
     __setQuickCryptoModuleForTests(null);
     expect(isVaultAvailable()).toBe(false);
     await expect(vaultCrypto.seal('passphrase', '[]', 1000, 'sha512')).rejects.toBeInstanceOf(
-      VaultCryptoError
+      VaultCryptoError,
     );
   });
 });

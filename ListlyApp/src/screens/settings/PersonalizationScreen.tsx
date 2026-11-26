@@ -137,7 +137,7 @@ export default function PersonalizationScreen() {
               editShowNotes: 'editShowNotes',
               editShowPhotos: 'editShowPhotos',
             },
-            { display: labels.settings_item_display, edit: labels.settings_edit_item }
+            { display: labels.settings_item_display, edit: labels.settings_edit_item },
           )}
 
           {groupHeading(labels.settings_numeric_lists)}
@@ -148,7 +148,7 @@ export default function PersonalizationScreen() {
               editShowNotes: 'editShowNotesNumeric',
               editShowPhotos: 'editShowPhotosNumeric',
             },
-            { display: labels.settings_item_display, edit: labels.settings_edit_item }
+            { display: labels.settings_item_display, edit: labels.settings_edit_item },
           )}
         </SettingsSection>
       </ScrollView>

@@ -27,7 +27,7 @@ export function useItemStore({ listId, repoItems, refresh, vault }: Options) {
   const unlocked = vault.unlocked;
   const items = useMemo<Item[]>(
     () => (unlocked ? (vault.items as unknown as Item[]) : repoItems),
-    [unlocked, vault.items, repoItems]
+    [unlocked, vault.items, repoItems],
   );
 
   const runRepo = useCallback(
@@ -35,7 +35,7 @@ export function useItemStore({ listId, repoItems, refresh, vault }: Options) {
       await runSafelyAsync(action, scope);
       await refresh();
     },
-    [refresh]
+    [refresh],
   );
 
   const add = useCallback(
@@ -48,7 +48,7 @@ export function useItemStore({ listId, repoItems, refresh, vault }: Options) {
       await itemRepo.create({ list_id: listId, checked: 0, position, ...data });
       await refresh();
     },
-    [unlocked, vault, repoItems, listId, refresh]
+    [unlocked, vault, repoItems, listId, refresh],
   );
 
   const update = useCallback(
@@ -59,7 +59,7 @@ export function useItemStore({ listId, repoItems, refresh, vault }: Options) {
       }
       await runRepo(itemRepo.update(id, data), ERROR_SCOPE.updateItem);
     },
-    [unlocked, vault, runRepo]
+    [unlocked, vault, runRepo],
   );
 
   const remove = useCallback(
@@ -70,7 +70,7 @@ export function useItemStore({ listId, repoItems, refresh, vault }: Options) {
       }
       await runRepo(itemRepo.delete(id), ERROR_SCOPE.deleteItem);
     },
-    [unlocked, vault, runRepo]
+    [unlocked, vault, runRepo],
   );
 
   // `removeMany` is called by `useSelectMode`, which logs failures
@@ -83,7 +83,7 @@ export function useItemStore({ listId, repoItems, refresh, vault }: Options) {
       }
       await itemRepo.deleteMany(ids);
     },
-    [unlocked, vault]
+    [unlocked, vault],
   );
 
   const toggle = useCallback(
@@ -94,7 +94,7 @@ export function useItemStore({ listId, repoItems, refresh, vault }: Options) {
       }
       await runRepo(itemRepo.toggle(id), ERROR_SCOPE.toggleItem);
     },
-    [unlocked, vault, runRepo]
+    [unlocked, vault, runRepo],
   );
 
   const setAllChecked = useCallback(
@@ -105,10 +105,10 @@ export function useItemStore({ listId, repoItems, refresh, vault }: Options) {
       }
       await runRepo(
         itemRepo.setAllChecked(listId, checked),
-        checked ? ERROR_SCOPE.completeAllItems : ERROR_SCOPE.uncompleteAllItems
+        checked ? ERROR_SCOPE.completeAllItems : ERROR_SCOPE.uncompleteAllItems,
       );
     },
-    [unlocked, vault, runRepo, listId]
+    [unlocked, vault, runRepo, listId],
   );
 
   const deleteCompleted = useCallback(
@@ -119,7 +119,7 @@ export function useItemStore({ listId, repoItems, refresh, vault }: Options) {
       }
       await runRepo(itemRepo.deleteCompleted(listId), ERROR_SCOPE.clearCompletedItems);
     },
-    [unlocked, vault, runRepo, listId]
+    [unlocked, vault, runRepo, listId],
   );
 
   const reorder = useCallback(
@@ -130,7 +130,7 @@ export function useItemStore({ listId, repoItems, refresh, vault }: Options) {
       }
       await runRepo(itemRepo.reorder(listId, orderedIds), ERROR_SCOPE.reorderItems);
     },
-    [unlocked, vault, runRepo, listId]
+    [unlocked, vault, runRepo, listId],
   );
 
   return { unlocked, items, add, update, remove, removeMany, toggle, setAllChecked, deleteCompleted, reorder };

@@ -49,7 +49,7 @@ export function lineTotalMinor(amountMinor: number | null, quantity: number): nu
 
 export function sumTotals(
   items: { amount_minor: number | null; quantity: number; checked: 0 | 1 }[],
-  options: { onlyDone: boolean }
+  options: { onlyDone: boolean },
 ): number {
   let total = 0;
   for (const item of items) {

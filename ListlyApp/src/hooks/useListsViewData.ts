@@ -43,7 +43,7 @@ export function useListsViewData({
 
   const filteredLists = useMemo(
     () => filterListsByQuery(scopeLists, itemsByListId, query),
-    [scopeLists, itemsByListId, query]
+    [scopeLists, itemsByListId, query],
   );
 
   const filteredCollections = useMemo(() => {
@@ -62,7 +62,7 @@ export function useListsViewData({
             const pin = resolvePinOnDrop(filteredCollections, meta.fromIndex, meta.toIndex);
             await runSafelyAsync(
               collectionRepo.reorderFromDrag(ids, meta.draggedId, pin),
-              ERROR_SCOPE.reorderCollections
+              ERROR_SCOPE.reorderCollections,
             );
           } else {
             await runSafelyAsync(collectionRepo.reorder(ids), ERROR_SCOPE.reorderCollections);
@@ -70,8 +70,8 @@ export function useListsViewData({
           await refresh();
         })();
       },
-      [refresh, filteredCollections]
-    )
+      [refresh, filteredCollections],
+    ),
   );
 
   return { scopeLists, filteredLists, filteredCollections, displayCollections, handleCollectionsDragEnd };

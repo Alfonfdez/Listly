@@ -26,7 +26,7 @@ describe('PhotoSection', () => {
         onTakePhoto={handlers.onTakePhoto}
         onPickFromGallery={handlers.onPickFromGallery}
         onRemovePhoto={handlers.onRemovePhoto}
-      />
+      />,
     );
   }
 

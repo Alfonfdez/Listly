@@ -49,7 +49,7 @@ describe('ListPickerModal', () => {
         cancelLabel="Cancel"
         onSelect={onSelect}
         onClose={onClose}
-      />
+      />,
     );
     expect(view.getByText('Work Tasks')).toBeTruthy();
     expect(view.getByText('Weekend')).toBeTruthy();
@@ -71,7 +71,7 @@ describe('ListPickerModal', () => {
         cancelLabel="Cancel"
         onSelect={onSelect}
         onClose={onClose}
-      />
+      />,
     );
     await user.press(view.getByLabelText('Work Tasks'));
     expect(onSelect).toHaveBeenCalledWith(OTHER);
@@ -91,7 +91,7 @@ describe('ListPickerModal', () => {
         cancelLabel="Cancel"
         onSelect={onSelect}
         onClose={onClose}
-      />
+      />,
     );
     await user.press(view.getByLabelText('Cancel'));
     expect(onSelect).not.toHaveBeenCalled();
@@ -110,7 +110,7 @@ describe('ListPickerModal', () => {
         cancelLabel="Cancel"
         onSelect={onSelect}
         onClose={onClose}
-      />
+      />,
     );
     expect(view.getByText('No other lists to copy into')).toBeTruthy();
   });
@@ -128,7 +128,7 @@ describe('ListPickerModal', () => {
         emptyLabel="No other lists to merge into"
         onSelect={onSelect}
         onClose={onClose}
-      />
+      />,
     );
     expect(view.getByText('No other lists to merge into')).toBeTruthy();
   });
@@ -146,10 +146,10 @@ describe('ListPickerModal', () => {
         cancelLabel="Cancel"
         onSelect={onSelect}
         onClose={onClose}
-      />
+      />,
     );
     expect(
-      withSubtitle.getByText('This list stays; its items are appended to the list you pick.')
+      withSubtitle.getByText('This list stays; its items are appended to the list you pick.'),
     ).toBeTruthy();
 
     const withoutSubtitle = await render(
@@ -161,10 +161,10 @@ describe('ListPickerModal', () => {
         cancelLabel="Cancel"
         onSelect={onSelect}
         onClose={onClose}
-      />
+      />,
     );
     expect(
-      withoutSubtitle.queryByText('This list stays; its items are appended to the list you pick.')
+      withoutSubtitle.queryByText('This list stays; its items are appended to the list you pick.'),
     ).toBeNull();
   });
 });

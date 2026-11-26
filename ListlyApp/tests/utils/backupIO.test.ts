@@ -64,7 +64,7 @@ describe('backupIO (native)', () => {
     expect(moduleMocks.shareFileAsync).toHaveBeenCalledWith(
       'file:///document/listly-backup.json',
       'application/json',
-      expect.any(String)
+      expect.any(String),
     );
   });
 

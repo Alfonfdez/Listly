@@ -100,7 +100,7 @@ export default function ItemFormModal({
       payload.note,
       photosAllowed ? payload.photos : [],
       payload.amountMinor,
-      payload.quantity
+      payload.quantity,
     );
   };
 
