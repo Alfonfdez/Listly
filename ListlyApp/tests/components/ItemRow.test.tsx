@@ -77,7 +77,9 @@ describe('ItemRow', () => {
     const withNote = await render(
       <ItemRow item={makeItem({ note: 'medium roast' })} {...defaults} onToggle={() => {}} onEdit={() => {}} />
     );
-    expect(withNote.getByText('medium roast')).toBeTruthy();
+    const preview = withNote.getByText('medium roast');
+    expect(preview).toBeTruthy();
+    expect(preview.props.numberOfLines).toBe(3);
   });
 
   it('hides the note preview in select mode', async () => {

@@ -17,6 +17,16 @@ export default function FullscreenViewer({ visible, onClose, children }: Props) 
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
       <View style={styles.overlay}>
+        {/* Backdrop: tapping anywhere outside the content closes the viewer. It is
+            a sibling behind the content, so taps on the photo/note do not bubble
+            to it. The X stays for accessibility and explicit closing. */}
+        <Pressable
+          testID="viewer-backdrop"
+          style={StyleSheet.absoluteFill}
+          onPress={onClose}
+          accessible={false}
+        />
+        {children}
         <Pressable
           style={styles.closeButton}
           onPress={onClose}
@@ -25,7 +35,6 @@ export default function FullscreenViewer({ visible, onClose, children }: Props) 
         >
           <Ionicons name="close" size={28} color={WHITE} />
         </Pressable>
-        {children}
       </View>
     </Modal>
   );
