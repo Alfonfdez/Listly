@@ -9,7 +9,7 @@ Tudo funciona **no dispositivo**: os teus dados vivem numa base de dados SQLite 
 | | |
 |---|---|
 | **Plataformas** | iOS, Android e Web |
-| **Versão** | 1.0.0 |
+| **Versão** | 1.1.0 |
 | **Idiomas** | Inglês, Espanhol, Catalão, Galego, Basco, Francês, Alemão, Português e Italiano |
 | **Dados** | 100 % locais (SQLite em nativo, sql.js + IndexedDB na web) |
 | **Temas** | Escuro, Claro e Automático (segue o sistema) |
@@ -31,27 +31,27 @@ Tudo funciona **no dispositivo**: os teus dados vivem numa base de dados SQLite 
 
 ## Capturas de ecrã
 
-![Ecrã inicial](images/screenshots/01-home-empty.png)<br>*Ecrã inicial antes de existir qualquer coleção ou lista.*<br><br>
-![Início com dados](images/screenshots/02-home.png)<br>*Início com uma coleção e listas isoladas, incluindo uma lista bloqueada.*<br><br>
-![Menu lateral](images/screenshots/03-hamburger.png)<br>*Menu lateral com Início, Coleções, Listas e Definições — e a versão da app em baixo.*<br><br>
-![Criar lista](images/screenshots/04-create-list.png)<br>*Criar uma lista: nome, tipo (Padrão ou Numérica), ícone e cor.*<br><br>
-![Detalhe da lista](images/screenshots/05-list-detail-v2.png)<br>*Uma lista padrão com itens marcados, uma nota, o controlo de ordenação e as ações em lote — o cabeçalho fica fixo durante o deslocamento.*<br><br>
-![Lista numérica](images/screenshots/06-numeric-list-v3.png)<br>*Uma lista numérica com uma barra de progresso por valor, totais de linha e a linha de valor/quantidade.*<br><br>
-![Editar lista](images/screenshots/05b-edit-list.png)<br>*O ecrã Editar lista: renomear, alterar o tipo, o ícone e a cor, mover a lista para uma coleção, e Duplicar, Combinar ou Eliminar a lista.*<br><br>
-![Adicionar item expandido](images/screenshots/07-add-item-expanded-v2.png)<br>*A barra de adicionar expandida para anexar uma nota e fotos ao novo item.*<br><br>
-![Editar item](images/screenshots/08-item-edit-v2.png)<br>*Editar um item: nome, nota e fotos.*<br><br>
-![Coleções](images/screenshots/09b-collections.png)<br>*O ecrã de Coleções.*<br><br>
-![Listas](images/screenshots/09-lists.png)<br>*O ecrã de Listas, mostrando a pertença a coleções e o progresso por lista.*<br><br>
-![Detalhe da coleção](images/screenshots/10-collection-detail.png)<br>*Uma coleção com as suas listas membros.*<br><br>
-![Bloquear lista](images/screenshots/12-lock-list-v2.png)<br>*Bloquear uma lista com uma palavra-passe.*<br><br>
-![Lista bloqueada](images/screenshots/12b-locked-list.png)<br>*Uma lista bloqueada, à espera da palavra-passe.*<br><br>
-![Modo de seleção](images/screenshots/13-select-mode-v2.png)<br>*Modo de seleção com a barra de ações inferior.*<br><br>
-![Definições](images/screenshots/14-settings.png)<br>*Definições: Aparência, Regional, Personalização e Dados.*<br><br>
-![Definições de aparência](images/screenshots/15-settings-appearance.png)<br>*Aparência: tema e tamanho do texto.*<br><br>
-![Seletor de idioma](images/screenshots/16b-settings-language.png)<br>*O seletor de idioma com os nove idiomas e as suas bandeiras.*<br><br>
-![Definições regionais](images/screenshots/16-settings-regional.png)<br>*Definições regionais: idioma.*<br><br>
-![Definições de personalização](images/screenshots/17-settings-personalization.png)<br>*Personalização: layouts por ecrã e campos opcionais por tipo de lista.*<br><br>
-![Definições de dados](images/screenshots/18-settings-data.png)<br>*Dados: exportar/importar e as ações protegidas de eliminação e reposição.*<br><br>
+![Ecrã inicial](images/screenshots/v1.1.0-01-a-home-empty.png)<br>*Ecrã inicial antes de existir qualquer coleção ou lista.*<br><br>
+![Início com dados](images/screenshots/v1.1.0-01-b-home.png)<br>*Início com duas coleções e listas isoladas, com o progresso de cada coleção.*<br><br>
+![Menu lateral](images/screenshots/v1.1.0-02-hamburger.png)<br>*Menu lateral com Início, Coleções, Listas e Definições — e a versão da app em baixo.*<br><br>
+![Criar lista](images/screenshots/v1.1.0-03-create-list.png)<br>*Criar uma lista: nome, tipo (Padrão ou Numérica), ícone e cor.*<br><br>
+![Detalhe da lista](images/screenshots/v1.1.0-04-a-list-detail.png)<br>*Uma lista padrão com itens marcados, notas, uma foto, o controlo de ordenação e as ações em lote — o cabeçalho fica fixo durante o deslocamento.*<br><br>
+![Lista numérica](images/screenshots/v1.1.0-04-b-numeric-list.png)<br>*Uma lista numérica com uma barra de progresso por valor, totais de linha e a linha de valor/quantidade.*<br><br>
+![Editar lista](images/screenshots/v1.1.0-05-edit-list.png)<br>*O ecrã Editar lista: renomear, alterar o tipo, o ícone e a cor, mover a lista para uma coleção, e Duplicar, Combinar ou Eliminar a lista.*<br><br>
+![Adicionar item expandido](images/screenshots/v1.1.0-06-a-add-item-expanded.png)<br>*A barra de adicionar expandida para anexar uma nota e fotos ao novo item.*<br><br>
+![Editar item](images/screenshots/v1.1.0-06-b-item-edit.png)<br>*Editar um item: nome em duas linhas, nota e fotos.*<br><br>
+![Listas](images/screenshots/v1.1.0-07-a-lists.png)<br>*O ecrã de Listas, mostrando a pertença a coleções e o progresso por lista.*<br><br>
+![Coleções](images/screenshots/v1.1.0-07-b-collections.png)<br>*O ecrã de Coleções.*<br><br>
+![Detalhe da coleção](images/screenshots/v1.1.0-07-c-collection-detail.png)<br>*Uma coleção com as suas listas membros.*<br><br>
+![Bloquear lista](images/screenshots/v1.1.0-08-a-lock-list.png)<br>*Bloquear uma lista com uma palavra-passe.*<br><br>
+![Lista bloqueada](images/screenshots/v1.1.0-08-b-locked-list.png)<br>*Uma lista bloqueada, à espera da palavra-passe.*<br><br>
+![Modo de seleção](images/screenshots/v1.1.0-09-select-mode.png)<br>*Modo de seleção com a barra de ações inferior.*<br><br>
+![Definições](images/screenshots/v1.1.0-10-a-settings.png)<br>*Definições: Aparência, Regional, Personalização e Dados.*<br><br>
+![Definições de aparência](images/screenshots/v1.1.0-10-b-appearance.png)<br>*Aparência: tema e tamanho do texto.*<br><br>
+![Definições regionais](images/screenshots/v1.1.0-10-c-regional.png)<br>*Definições regionais: idioma.*<br><br>
+![Seletor de idioma](images/screenshots/v1.1.0-10-d-language.png)<br>*O seletor de idioma com os nove idiomas e as suas bandeiras.*<br><br>
+![Definições de personalização](images/screenshots/v1.1.0-10-e-personalization.png)<br>*Personalização: layouts por ecrã e campos opcionais por tipo de lista.*<br><br>
+![Definições de dados](images/screenshots/v1.1.0-10-f-data.png)<br>*Dados: exportar/importar e as ações protegidas de eliminação e reposição.*<br><br>
 
 ## Tecnologias
 

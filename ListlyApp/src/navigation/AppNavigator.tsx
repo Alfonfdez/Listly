@@ -1,6 +1,6 @@
 import { Text, View, StyleSheet, Image } from 'react-native';
 import { memo, useEffect, useMemo, type ComponentType } from 'react';
-import Constants from 'expo-constants';
+import appConfig from '../../app.json';
 import { Ionicons } from '@expo/vector-icons';
 import { NavigationContainer, useNavigation, CommonActions } from '@react-navigation/native';
 import {
@@ -122,7 +122,7 @@ function CustomDrawerContent(props: DrawerContentComponentProps) {
           ))}
       </DrawerContentScrollView>
       <Text style={[styles.drawerVersion, { color: c.textSecondary, fontSize: fs(11) }]}>
-        v{Constants.expoConfig?.version}
+        v{appConfig.expo.version}
       </Text>
     </View>
   );

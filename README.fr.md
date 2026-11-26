@@ -9,7 +9,7 @@ Tout fonctionne **sur l'appareil** : vos données vivent dans une base de donné
 | | |
 |---|---|
 | **Plateformes** | iOS, Android et Web |
-| **Version** | 1.0.0 |
+| **Version** | 1.1.0 |
 | **Langues** | Anglais, Espagnol, Catalan, Galicien, Basque, Français, Allemand, Portugais, Italien |
 | **Données** | 100 % locales (SQLite en natif, sql.js + IndexedDB sur le web) |
 | **Thèmes** | Sombre, Clair et Automatique (suit le système) |
@@ -31,27 +31,27 @@ Tout fonctionne **sur l'appareil** : vos données vivent dans une base de donné
 
 ## Captures d'écran
 
-![Écran d'accueil](images/screenshots/01-home-empty.png)<br>*Écran d'accueil avant qu'aucune collection ou liste n'existe.*<br><br>
-![Accueil avec données](images/screenshots/02-home.png)<br>*Accueil avec une collection et des listes autonomes, dont une liste verrouillée.*<br><br>
-![Menu latéral](images/screenshots/03-hamburger.png)<br>*Menu latéral avec Accueil, Collections, Listes et Réglages — et la version de l'app en bas.*<br><br>
-![Créer une liste](images/screenshots/04-create-list.png)<br>*Créer une liste : nom, type (Standard ou Numérique), icône et couleur.*<br><br>
-![Détail de liste](images/screenshots/05-list-detail-v2.png)<br>*Une liste standard avec des éléments cochés, une note, le contrôle de tri et les actions groupées — l'en-tête reste fixe pendant le défilement.*<br><br>
-![Liste numérique](images/screenshots/06-numeric-list-v3.png)<br>*Une liste numérique avec une barre de progression par valeur, les totaux de ligne et la ligne montant/quantité.*<br><br>
-![Modifier une liste](images/screenshots/05b-edit-list.png)<br>*L'écran Modifier une liste : renommer, changer le type, l'icône et la couleur, déplacer la liste dans une collection, et Dupliquer, Fusionner ou Supprimer la liste.*<br><br>
-![Ajout d'élément déplié](images/screenshots/07-add-item-expanded-v2.png)<br>*La barre d'ajout dépliée pour joindre une note et des photos au nouvel élément.*<br><br>
-![Modifier un élément](images/screenshots/08-item-edit-v2.png)<br>*Modifier un élément : nom, note et photos.*<br><br>
-![Collections](images/screenshots/09b-collections.png)<br>*L'écran Collections.*<br><br>
-![Listes](images/screenshots/09-lists.png)<br>*L'écran Listes, montrant l'appartenance aux collections et la progression par liste.*<br><br>
-![Détail de collection](images/screenshots/10-collection-detail.png)<br>*Une collection avec ses listes membres.*<br><br>
-![Verrouiller une liste](images/screenshots/12-lock-list-v2.png)<br>*Verrouiller une liste par une phrase secrète.*<br><br>
-![Liste verrouillée](images/screenshots/12b-locked-list.png)<br>*Une liste verrouillée, en attente de la phrase secrète.*<br><br>
-![Mode sélection](images/screenshots/13-select-mode-v2.png)<br>*Mode sélection avec la barre d'actions inférieure.*<br><br>
-![Réglages](images/screenshots/14-settings.png)<br>*Réglages : Apparence, Régional, Personnalisation et Données.*<br><br>
-![Réglages d'apparence](images/screenshots/15-settings-appearance.png)<br>*Apparence : thème et taille du texte.*<br><br>
-![Sélecteur de langue](images/screenshots/16b-settings-language.png)<br>*Le sélecteur de langue avec les neuf langues et leurs drapeaux.*<br><br>
-![Réglages régionaux](images/screenshots/16-settings-regional.png)<br>*Réglages régionaux : langue.*<br><br>
-![Réglages de personnalisation](images/screenshots/17-settings-personalization.png)<br>*Personnalisation : dispositions par écran et champs facultatifs par type de liste.*<br><br>
-![Réglages des données](images/screenshots/18-settings-data.png)<br>*Données : export/import et les actions protégées de suppression et de réinitialisation.*<br><br>
+![Écran d'accueil](images/screenshots/v1.1.0-01-a-home-empty.png)<br>*Écran d'accueil avant qu'aucune collection ou liste n'existe.*<br><br>
+![Accueil avec données](images/screenshots/v1.1.0-01-b-home.png)<br>*Accueil avec deux collections et des listes autonomes, avec la progression de chaque collection.*<br><br>
+![Menu latéral](images/screenshots/v1.1.0-02-hamburger.png)<br>*Menu latéral avec Accueil, Collections, Listes et Réglages — et la version de l'app en bas.*<br><br>
+![Créer une liste](images/screenshots/v1.1.0-03-create-list.png)<br>*Créer une liste : nom, type (Standard ou Numérique), icône et couleur.*<br><br>
+![Détail de liste](images/screenshots/v1.1.0-04-a-list-detail.png)<br>*Une liste standard avec des éléments cochés, des notes, une photo, le contrôle de tri et les actions groupées — l'en-tête reste fixe pendant le défilement.*<br><br>
+![Liste numérique](images/screenshots/v1.1.0-04-b-numeric-list.png)<br>*Une liste numérique avec une barre de progression par valeur, les totaux de ligne et la ligne montant/quantité.*<br><br>
+![Modifier une liste](images/screenshots/v1.1.0-05-edit-list.png)<br>*L'écran Modifier une liste : renommer, changer le type, l'icône et la couleur, déplacer la liste dans une collection, et Dupliquer, Fusionner ou Supprimer la liste.*<br><br>
+![Ajout d'élément déplié](images/screenshots/v1.1.0-06-a-add-item-expanded.png)<br>*La barre d'ajout dépliée pour joindre une note et des photos au nouvel élément.*<br><br>
+![Modifier un élément](images/screenshots/v1.1.0-06-b-item-edit.png)<br>*Modifier un élément : nom sur deux lignes, note et photos.*<br><br>
+![Listes](images/screenshots/v1.1.0-07-a-lists.png)<br>*L'écran Listes, montrant l'appartenance aux collections et la progression par liste.*<br><br>
+![Collections](images/screenshots/v1.1.0-07-b-collections.png)<br>*L'écran Collections.*<br><br>
+![Détail de collection](images/screenshots/v1.1.0-07-c-collection-detail.png)<br>*Une collection avec ses listes membres.*<br><br>
+![Verrouiller une liste](images/screenshots/v1.1.0-08-a-lock-list.png)<br>*Verrouiller une liste par une phrase secrète.*<br><br>
+![Liste verrouillée](images/screenshots/v1.1.0-08-b-locked-list.png)<br>*Une liste verrouillée, en attente de la phrase secrète.*<br><br>
+![Mode sélection](images/screenshots/v1.1.0-09-select-mode.png)<br>*Mode sélection avec la barre d'actions inférieure.*<br><br>
+![Réglages](images/screenshots/v1.1.0-10-a-settings.png)<br>*Réglages : Apparence, Régional, Personnalisation et Données.*<br><br>
+![Réglages d'apparence](images/screenshots/v1.1.0-10-b-appearance.png)<br>*Apparence : thème et taille du texte.*<br><br>
+![Réglages régionaux](images/screenshots/v1.1.0-10-c-regional.png)<br>*Réglages régionaux : langue.*<br><br>
+![Sélecteur de langue](images/screenshots/v1.1.0-10-d-language.png)<br>*Le sélecteur de langue avec les neuf langues et leurs drapeaux.*<br><br>
+![Réglages de personnalisation](images/screenshots/v1.1.0-10-e-personalization.png)<br>*Personnalisation : dispositions par écran et champs facultatifs par type de liste.*<br><br>
+![Réglages des données](images/screenshots/v1.1.0-10-f-data.png)<br>*Données : export/import et les actions protégées de suppression et de réinitialisation.*<br><br>
 
 ## Technologies
 
