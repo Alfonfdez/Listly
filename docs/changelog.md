@@ -1234,3 +1234,7 @@ pm run test:all green.
 [2026-11-27] chore | ListlyApp/package.json, ListlyApp/package-lock.json
 - Updated the Expo dependency set to the SDK 57 patch versions `expo-doctor` expects: `expo` 57.0.26 -> 57.0.34, `expo-constants` 57.0.20 -> 57.0.25, `expo-image-picker` 57.0.20 -> 57.0.22, `expo-sharing` 57.0.22 -> 57.0.27, `expo-splash-screen` 57.0.9 -> 57.0.12 and `expo-sqlite` 57.0.3 -> 57.0.7 (via `npx expo install`).
 - `npx expo-doctor` is back to 21/21 and `npm run test:all` stays green (86 files, 785 tests).
+
+[2026-11-27] docs | docs/upgrade-testing.md, AGENTS.md
+- Recorded the 1.1.0 in-place upgrade verification in `docs/upgrade-testing.md`: EAS 1.0.0 -> EAS 1.1.0 preview (versionCode 2, build 91cb518d-d0bd-4ee3-bf28-2e833c8925d7, commit 7f5ef41) without uninstalling; the app works, data/settings preserved and the drawer shows v1.1.0. iOS simulator build deferred to 1.1.1.
+- `AGENTS.md`: no Google Play production AAB unless explicitly asked - the GitHub release APK (EAS preview) is the distribution path.
