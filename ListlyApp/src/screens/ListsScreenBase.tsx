@@ -11,6 +11,7 @@ import { useLabels } from '../hooks/useLabels';
 import { toggleInSet } from '../utils/set';
 import { LIST_VIEW_MODES, LIST_LAYOUTS, COLLECTION_DELETE_MODES, type ListViewMode, type CollectionDeleteMode } from '../constants/types';
 import ListsView from '../components/ListsView';
+import ScreenShell from '../components/ScreenShell';
 import CollectionDeleteModal from '../components/CollectionDeleteModal';
 import ConfirmModal from '../components/ConfirmModal';
 
@@ -136,7 +137,7 @@ export default function ListsScreenBase({
   const selectedCount = selectedIds.size + selectedCollectionIds.size;
 
   return (
-    <>
+    <ScreenShell>
       <ListsView
         mode={mode}
         variant={config[listsLayoutKey]}
@@ -177,6 +178,6 @@ export default function ListsScreenBase({
         onConfirm={() => void runCollectionDelete(COLLECTION_DELETE_MODES.cascade, () => setCombinedDeleteVisible(false), ERROR_SCOPE.deleteSelection)}
         destructive
       />
-    </>
+    </ScreenShell>
   );
 }

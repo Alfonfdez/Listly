@@ -14,7 +14,6 @@ import { useFrozenKey } from '../hooks/useFrozenKey';
 import { shouldShowPinHint } from '../utils/pinDrop';
 import { LIST_VIEW_MODES, LIST_LAYOUTS, AUTO_SCROLL_ACTIVATION_OFFSET, AUTO_SCROLL_MAX_VELOCITY, type NavigationProp, type ListViewMode, type ListLayout } from '../constants/types';
 import { ICONS } from '../constants/icons';
-import ScreenShell from './ScreenShell';
 import SearchBar from './SearchBar';
 import EmptyState from './EmptyState';
 import EntityTile from './EntityTile';
@@ -24,7 +23,7 @@ import SelectionActionBar from './SelectionActionBar';
 import ConfirmModal from './ConfirmModal';
 import SectionTitle from './SectionTitle';
 import RemoveFromCollectionTarget from './RemoveFromCollectionTarget';
-import { GRID_GAP, WIDE_BREAKPOINT, MEDIUM_BREAKPOINT, ZONE_MIN_ACTIVATION_DISTANCE } from './componentStyles';
+import { GRID_GAP, WIDE_BREAKPOINT, MEDIUM_BREAKPOINT, ZONE_MIN_ACTIVATION_DISTANCE, LIST_BOTTOM_FAB_PADDING } from './componentStyles';
 
 export type { ListViewMode };
 export type ListsViewVariant = ListLayout;
@@ -269,9 +268,9 @@ export default function ListsView({
 
   if (loading) {
     return (
-      <ScreenShell style={styles.center}>
+      <View style={styles.loading}>
         <ActivityIndicator size="large" color={c.primary} />
-      </ScreenShell>
+      </View>
     );
   }
 
@@ -319,7 +318,7 @@ export default function ListsView({
   const sortEnabled = !selectMode && !searching && displayLists.length > (inHome || inCollectionDetail ? 0 : 1);
 
   return (
-    <ScreenShell>
+    <>
       <View style={styles.content}>
         {header}
         {searchActive ? (
@@ -457,7 +456,7 @@ export default function ListsView({
         onConfirm={onConfirmDelete}
         destructive
       />
-    </ScreenShell>
+    </>
   );
 }
 
@@ -467,13 +466,14 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingTop: 12,
   },
-  center: {
+  loading: {
+    flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
   },
   scrollContent: {
     flexGrow: 1,
-    paddingBottom: 96,
+    paddingBottom: LIST_BOTTOM_FAB_PADDING,
     gap: 12,
   },
 });

@@ -1195,3 +1195,9 @@ pm run test:all green.
 - Renamed the updated add-bar screenshot to `v1.1.0-06-a-add-item-expanded-v2.png` (new filename so GitHub's README image cache serves the new layout) and updated the reference in all 9 READMEs; the old PNG was removed.
 - The compact photo section no longer renders the "Photos" title (it wasted vertical space): the dashed add tile now uses the image icon (`images-outline`) instead of "+", while the edit modal keeps the title and "+" tile. `PHOTO_METRICS` carries the icon names; `PhotoSection` tests cover the hidden title.
 - Spec 011 + roadmap updated; `npm run test:all` green (86 files, 781 tests).
+
+[2026-11-27] fix | ListlyApp/src/components/ListsView.tsx, ListlyApp/src/screens/ListsScreenBase.tsx, ListlyApp/src/components/ScreenShell.tsx, ListlyApp/src/components/componentStyles.ts, ListlyApp/tests/screens/HomeScreen.test.tsx, ListlyApp/tests/screens/CollectionDetailScreen.test.tsx, spec/constitution/7-platform-differences.md, spec/constitution/3-roadmap.md, docs/harnesses.md
+- Standardised the FAB position: `ListsView` no longer renders its own `ScreenShell`; `ListsScreenBase` and `CollectionDetailScreen` own exactly one, so Home, Lists, Collections and Collection detail all apply the bottom safe-area inset once (Collection detail was nesting two and pushing the FAB up on devices with a home indicator/gesture bar).
+- Kept the shared `Fab` at `FAB_BOTTOM_OFFSET = 56` (Finly parity) and added `LIST_BOTTOM_FAB_PADDING` (= offset + size + 16) for the list scroll padding so the last row clears the FAB.
+- `ScreenShell` exposes `testID="screen-shell"`; Home and Collection detail tests assert exactly one shell. Documented the rule in the platform-differences constitution; roadmap entry added.
+- `npm run test:all` green (86 files, 783 tests).
