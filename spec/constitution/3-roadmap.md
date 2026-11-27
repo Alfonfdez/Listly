@@ -395,6 +395,17 @@ The “+” FAB sat higher on Collection detail than on Home:
 
 Spec: spec/constitution/7-platform-differences.md.
 
+## Form feedback standard
+Status: done.
+
+Counters and validation messages were inconsistent across forms:
+- **Counters:** the item edit modal showed Name/Note counters under the inputs even though both fields have labels. They now render in the label rows (`FormField right`), matching the list/collection forms (035) and Finly; the label-less add bar keeps its counters under the inputs.
+- **Validation:** every invalid field gets a red border and an **inline message under the field** in every form. The hint band above Save was removed because the keyboard hid it; the lock modal reds only the field that needs fixing (passphrase/confirm/current). Messages are announced as alerts.
+- **Space:** the edit-item modal uses the saved room for 3 name lines and 7 note lines; photo tiles are 64×64 (from 80) with the same `images-outline` icon as the compact add bar, and the tiles sit 8px above the buttons.
+- Gate: `npm run test:all` green (86 files / 785 tests). The `03-create-list`, `05-edit-list` and `06-b-item-edit` screenshot refresh is deferred to the next UI batch.
+
+Spec: spec/features/036-form-feedback-standard/, spec/constitution/4-design-system.md.
+
 ## Future scope (not scheduled)
 - Per-list currency symbol (the numeric list is currency-agnostic for now).
 - A third "pending" (all − done) total.

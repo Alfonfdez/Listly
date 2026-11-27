@@ -94,7 +94,7 @@ export default function AddItemBar({
             accessibilityLabel={labels.item_add_placeholder}
             returnKeyType="done"
             onSubmitEditing={() => void submit()}
-            style={[styles.input, { backgroundColor: c.surface, borderColor: c.border }]}
+            style={[styles.input, { backgroundColor: c.surface, borderColor: draft.error ? c.red : c.border }]}
           />
         </View>
         {canAddDetails ? (

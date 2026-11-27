@@ -99,6 +99,12 @@ interface ColorPalette {
 - **Border radius:** `10` for inputs/buttons, `12` for cards, `16` for modals, `999` for pill/circle
 - **Grid gap:** `12` for icon/color grids
 
+## Forms: counters and validation
+- **Counters:** a field with a maximum length shows `current/max`. If it has a label, the counter is right-aligned in the label row (`FormField right`); label-less inline inputs (list-detail add bar) keep it under the input. `CharCounter` is muted/500 normally and red/700 at or over the limit.
+- **Red border:** every invalid field gets `c.red` as its border color, in every form type.
+- **Message placement:** every form shows the message **inline under the invalid field** (red, `role="alert"`, polite live region). There is no hint band above the submit button: with the keyboard open it sat below the fold. The inline add bar shows the message above its input row.
+- **Which field turns red:** mark the field the user must fix (e.g. the lock modal reds only the passphrase, confirm or current field for its specific error).
+
 ## Header
 - Stack navigator header titles are centered (`headerTitleAlign: 'center'` in `screenOptions`).
 - Drawer screens show the hamburger on the left.

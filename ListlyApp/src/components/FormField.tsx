@@ -27,7 +27,13 @@ export default function FormField({ label, right, error, style, children }: Prop
       </View>
       {children}
       {error ? (
-        <Text style={[styles.error, { color: c.red, fontSize: fs(12) }]}>{error}</Text>
+        <Text
+          accessibilityRole="alert"
+          accessibilityLiveRegion="polite"
+          style={[styles.error, { color: c.red, fontSize: fs(12) }]}
+        >
+          {error}
+        </Text>
       ) : null}
     </View>
   );
