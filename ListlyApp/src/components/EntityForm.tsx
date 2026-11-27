@@ -12,7 +12,6 @@ import CharCounter from './CharCounter';
 import ColorGrid from './ColorGrid';
 import ColorPickerModal from './ColorPickerModal';
 import FormField from './FormField';
-import FormHint from './FormHint';
 import IconGrid from './IconGrid';
 import { BUTTON_BORDER_RADIUS, PRESSED_OPACITY, DISABLED_OPACITY } from './componentStyles';
 
@@ -140,6 +139,7 @@ export default function EntityForm<TError extends StringTranslationKey>({
       <FormField
         label={nameLabel}
         right={<CharCounter current={name.length} max={maxNameLength} />}
+        error={showError && error ? labels[error] : null}
         style={styles.field}
       >
         <TextInput
@@ -218,8 +218,6 @@ export default function EntityForm<TError extends StringTranslationKey>({
         );
       })}
 
-      <FormHint message={showError && error ? labels[error] : null} style={styles.hint} />
-
       <Pressable
         style={({ pressed }) => [
           styles.createButton,
@@ -251,9 +249,6 @@ const styles = StyleSheet.create({
   },
   field: {
     marginTop: 16,
-  },
-  hint: {
-    marginBottom: 0,
   },
   createButton: {
     marginTop: 16,

@@ -75,10 +75,18 @@ export default function LockListModal({ visible, hasPhotos, mode = 'lock', onCan
     }
   };
 
-  const inputStyle = [
+  const fieldStyle = (invalid: boolean) => [
     styles.input,
-    { backgroundColor: c.background, borderColor: c.border, color: c.text, fontSize: fs(15) },
+    {
+      backgroundColor: c.background,
+      borderColor: invalid ? c.red : c.border,
+      color: c.text,
+      fontSize: fs(15),
+    },
   ];
+  const currentInvalid = error === labels.vault_wrong_current;
+  const confirmInvalid = error === labels.vault_passphrase_mismatch;
+  const passphraseInvalid = error === labels.vault_passphrase_too_short;
 
   // Photos are not encrypted in v1, so a plaintext list that contains photos
   // cannot be locked. Changing the passphrase of an already-locked list is never
@@ -103,7 +111,7 @@ export default function LockListModal({ visible, hasPhotos, mode = 'lock', onCan
           {mode === 'change' ? (
             <FormField label={labels.vault_current_passphrase_label} style={styles.field}>
               <TextInput
-                style={inputStyle}
+                style={fieldStyle(currentInvalid)}
                 value={current}
                 onChangeText={setCurrent}
                 secureTextEntry
@@ -114,7 +122,7 @@ export default function LockListModal({ visible, hasPhotos, mode = 'lock', onCan
           ) : null}
           <FormField label={labels.vault_passphrase_label} style={styles.field}>
             <TextInput
-              style={inputStyle}
+              style={fieldStyle(passphraseInvalid)}
               value={passphrase}
               onChangeText={setPassphrase}
               placeholder={labels.vault_passphrase_hint}
@@ -126,7 +134,7 @@ export default function LockListModal({ visible, hasPhotos, mode = 'lock', onCan
           </FormField>
           <FormField label={labels.vault_passphrase_confirm} style={styles.field}>
             <TextInput
-              style={inputStyle}
+              style={fieldStyle(confirmInvalid)}
               value={confirmValue}
               onChangeText={setConfirmValue}
               secureTextEntry

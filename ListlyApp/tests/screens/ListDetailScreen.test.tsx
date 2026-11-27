@@ -292,6 +292,7 @@ describe('ListDetailScreen', () => {
     await user.press(view.getByLabelText('Add'));
 
     expect(await view.findByText('An item with this name already exists')).toBeTruthy();
+    expect(flattenStyle(view.getByLabelText('Add an item...').props.style).borderColor).toBe(darkColors.red);
     expect(itemRepositoryMock.create).not.toHaveBeenCalled();
   });
 
@@ -302,6 +303,7 @@ describe('ListDetailScreen', () => {
     await user.press(view.getByLabelText('Add'));
 
     expect(await view.findByText('Name is required')).toBeTruthy();
+    expect(flattenStyle(view.getByLabelText('Add an item...').props.style).borderColor).toBe(darkColors.red);
     expect(itemRepositoryMock.create).not.toHaveBeenCalled();
   });
 

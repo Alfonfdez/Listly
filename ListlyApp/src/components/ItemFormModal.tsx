@@ -14,12 +14,15 @@ import {
   EDIT_ITEM_FIELD_VERTICAL_PADDING,
   EDIT_ITEM_NAME_LINES,
   EDIT_ITEM_NOTE_LINES,
+  MAX_ITEM_NAME_LENGTH,
+  MAX_ITEM_NOTE_LENGTH,
 } from '../constants/types';
 import { useItemDraft, type ItemDraftSeed } from '../hooks/useItemDraft';
 import { ItemAmountField, ItemNameField, ItemNoteField, ItemQuantityField } from './ItemFields';
 import ItemPhotosField from './ItemPhotosField';
 import ModalShell from './ModalShell';
 import FormField from './FormField';
+import CharCounter from './CharCounter';
 
 interface Props {
   visible: boolean;
@@ -124,20 +127,25 @@ export default function ItemFormModal({
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >
-        <FormField label={labels.item_name_label} error={draft.error ? labels[draft.error] : null}>
+        <FormField
+          label={labels.item_name_label}
+          right={<CharCounter current={draft.name.length} max={MAX_ITEM_NAME_LENGTH} />}
+          error={draft.error ? labels[draft.error] : null}
+        >
           <ItemNameField
             value={draft.name}
             onChangeText={draft.onNameChange}
             placeholder={labels.item_name_label}
             accessibilityLabel={labels.item_name_label}
             multiline
+            showCounter={false}
             style={[
               styles.input,
               {
                 height: nameInputHeight,
                 lineHeight: fieldLineHeight,
                 backgroundColor: c.background,
-                borderColor: c.border,
+                borderColor: draft.error ? c.red : c.border,
               },
             ]}
           />
@@ -161,11 +169,15 @@ export default function ItemFormModal({
         ) : null}
 
         {flags.editShowNotes ? (
-          <FormField label={labels.item_note_label}>
+          <FormField
+            label={labels.item_note_label}
+            right={<CharCounter current={draft.note.length} max={MAX_ITEM_NOTE_LENGTH} />}
+          >
             <ItemNoteField
               value={draft.note}
               onChangeText={draft.setNote}
               numberOfLines={EDIT_ITEM_NOTE_LINES}
+              showCounter={false}
               style={[
                 styles.input,
                 {
@@ -282,13 +294,13 @@ const styles = StyleSheet.create({
     minWidth: 100,
   },
   photoSection: {
-    marginTop: 4,
+    marginTop: 0,
   },
   buttonRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginTop: 12,
+    marginTop: 0,
     gap: 8,
   },
   buttonRowRight: {

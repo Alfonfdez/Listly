@@ -67,8 +67,8 @@ export const AUTO_SCROLL_MAX_VELOCITY = 1400;
 // Edit-item modal text areas: the name wraps to 2 lines and the note shows 5
 // lines, both with internal vertical scrolling. Heights derive from the scaled
 // line height plus vertical padding (and border).
-export const EDIT_ITEM_NAME_LINES = 2;
-export const EDIT_ITEM_NOTE_LINES = 5;
+export const EDIT_ITEM_NAME_LINES = 3;
+export const EDIT_ITEM_NOTE_LINES = 7;
 export const EDIT_ITEM_FIELD_LINE_HEIGHT = 20;
 export const EDIT_ITEM_FIELD_VERTICAL_PADDING = 24;
 
@@ -79,16 +79,16 @@ export const ADD_ITEM_NOTE_LINES = 3;
 // bar uses the compact one so the details area stays light.
 export const PHOTO_METRICS = {
   regular: {
-    size: 80,
-    addIcon: 'add',
-    addIconSize: 28,
-    removeBadgeSize: 22,
-    removeIconSize: 14,
-    badgeOffset: -6,
+    size: 64,
+    addIcon: 'images-outline',
+    addIconSize: 22,
+    removeBadgeSize: 20,
+    removeIconSize: 12,
+    badgeOffset: -5,
     titleFontSize: 15,
     titleMarginBottom: 10,
     rowGap: 10,
-    bottomMargin: 16,
+    bottomMargin: 0,
   },
   compact: {
     size: 56,

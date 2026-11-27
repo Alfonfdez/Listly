@@ -2,6 +2,8 @@ import { describe, expect, it, beforeEach, vi } from 'vitest';
 import { act, render, userEvent } from '@testing-library/react-native';
 import ItemFormModal from '../../src/components/ItemFormModal';
 import { resetStub, setConfig } from '../helpers/configStub';
+import { darkColors } from '../../src/constants/themes';
+import { EDIT_ITEM_NAME_LINES, EDIT_ITEM_NOTE_LINES } from '../../src/constants/types';
 
 const setPhotosMock = vi.fn();
 
@@ -37,12 +39,28 @@ describe('ItemFormModal', () => {
     expect(view.getByLabelText('Add photo')).toBeTruthy();
   });
 
-  it('uses a two-line name and a five-line note in the edit form', async () => {
+  it('uses the configured name/note line counts in the edit form', async () => {
     const view = await render(<ItemFormModal {...baseProps} />);
     const name = view.getByLabelText('Name');
     expect(name.props.multiline).toBe(true);
-    expect(name.props.numberOfLines).toBe(2);
-    expect(view.getByLabelText('Note').props.numberOfLines).toBe(5);
+    expect(name.props.numberOfLines).toBe(EDIT_ITEM_NAME_LINES);
+    expect(view.getByLabelText('Note').props.numberOfLines).toBe(EDIT_ITEM_NOTE_LINES);
+    expect(view.getByText('4/200')).toBeTruthy();
+    expect(view.getByText('5/2000')).toBeTruthy();
+  });
+
+  it('shows the inline name error and a red border without duplicating the counter', async () => {
+    const user = userEvent.setup();
+    const view = await render(<ItemFormModal {...baseProps} existingNames={new Set(['bread'])} />);
+    await user.clear(view.getByLabelText('Name'));
+
+    expect(await view.findByText('Name is required')).toBeTruthy();
+    expect(flattenStyle(view.getByLabelText('Name').props.style).borderColor).toBe(darkColors.red);
+
+    await user.type(view.getByLabelText('Name'), 'Bread');
+    expect(await view.findByText('An item with this name already exists')).toBeTruthy();
+    expect(flattenStyle(view.getByLabelText('Name').props.style).borderColor).toBe(darkColors.red);
+    expect(view.getByText('5/200')).toBeTruthy();
   });
 
   it('hides the note and photo fields when the edit-item toggles are off', async () => {
@@ -157,3 +175,10 @@ describe('ItemFormModal', () => {
     expect(onSave).toHaveBeenCalledWith('Milk', null, [], 250, 1);
   });
 });
+
+function flattenStyle(style: unknown): Record<string, unknown> {
+  if (Array.isArray(style)) {
+    return style.reduce((acc: Record<string, unknown>, item) => ({ ...acc, ...flattenStyle(item) }), {});
+  }
+  return (style ?? {}) as Record<string, unknown>;
+}
