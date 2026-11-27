@@ -1,3 +1,4 @@
+import { flattenStyle } from '../helpers/style';
 import { describe, expect, it, beforeEach, vi } from 'vitest';
 import { render, fireEvent, userEvent, waitFor, act } from '@testing-library/react-native';
 import type { ReactElement, ReactNode } from 'react';
@@ -1223,14 +1224,4 @@ async function renderWithHeader() {
 
 function fireEventPress(view: Awaited<ReturnType<typeof render>>, label: string) {
   fireEvent.press(view.getByLabelText(label));
-}
-
-function flattenStyle(style: unknown): Record<string, unknown> {
-  if (Array.isArray(style)) {
-    return style.reduce((acc: Record<string, unknown>, s) => ({ ...acc, ...flattenStyle(s) }), {});
-  }
-  if (style && typeof style === 'object') {
-    return { ...(style as Record<string, unknown>) };
-  }
-  return {};
 }

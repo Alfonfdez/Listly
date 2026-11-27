@@ -1,15 +1,9 @@
+import { flattenStyle } from '../helpers/style';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { render } from '@testing-library/react-native';
 import CharCounter from '../../src/components/CharCounter';
 import { resetStub } from '../helpers/configStub';
 import { darkColors } from '../../src/constants/themes';
-
-function flattenStyle(style: unknown): Record<string, unknown> {
-  if (Array.isArray(style)) {
-    return style.reduce((acc: Record<string, unknown>, item) => ({ ...acc, ...flattenStyle(item) }), {});
-  }
-  return (style ?? {}) as Record<string, unknown>;
-}
 
 describe('CharCounter', () => {
   beforeEach(() => {

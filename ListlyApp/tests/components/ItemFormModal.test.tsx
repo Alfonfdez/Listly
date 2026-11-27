@@ -1,3 +1,4 @@
+import { flattenStyle } from '../helpers/style';
 import { describe, expect, it, beforeEach, vi } from 'vitest';
 import { act, render, userEvent } from '@testing-library/react-native';
 import ItemFormModal from '../../src/components/ItemFormModal';
@@ -175,10 +176,3 @@ describe('ItemFormModal', () => {
     expect(onSave).toHaveBeenCalledWith('Milk', null, [], 250, 1);
   });
 });
-
-function flattenStyle(style: unknown): Record<string, unknown> {
-  if (Array.isArray(style)) {
-    return style.reduce((acc: Record<string, unknown>, item) => ({ ...acc, ...flattenStyle(item) }), {});
-  }
-  return (style ?? {}) as Record<string, unknown>;
-}
