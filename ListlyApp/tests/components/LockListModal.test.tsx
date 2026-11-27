@@ -1,3 +1,4 @@
+import { flattenStyle } from '../helpers/style';
 import { describe, expect, it, beforeEach, vi } from 'vitest';
 import { render, userEvent, waitFor } from '@testing-library/react-native';
 import LockListModal from '../../src/components/LockListModal';
@@ -110,10 +111,3 @@ describe('LockListModal', () => {
     await waitFor(() => expect(PROPS.onConfirm).toHaveBeenCalledWith('newsecret', 'oldsecret'));
   });
 });
-
-function flattenStyle(style: unknown): Record<string, unknown> {
-  if (Array.isArray(style)) {
-    return style.reduce((acc: Record<string, unknown>, item) => ({ ...acc, ...flattenStyle(item) }), {});
-  }
-  return (style ?? {}) as Record<string, unknown>;
-}

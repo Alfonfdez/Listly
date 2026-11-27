@@ -1,3 +1,5 @@
+import { colorLabel } from '../helpers/colors';
+import { flattenStyle } from '../helpers/style';
 import { describe, expect, it, beforeEach, vi } from 'vitest';
 import { render, userEvent, fireEvent, waitFor } from '@testing-library/react-native';
 import type { ReactNode } from 'react';
@@ -5,16 +7,10 @@ import CreateListScreen from '../../src/screens/CreateListScreen';
 import { buildAppMock, resetAppStub, setLists } from '../helpers/appStub';
 import { resetStub } from '../helpers/configStub';
 import { LIST_ICONS } from '../../src/constants/listIcons';
-import { QUICK_COLORS, QUICK_COLOR_LABELS } from '../../src/constants/listColors';
-import { en } from '../../src/i18n/en';
+import { QUICK_COLORS } from '../../src/constants/listColors';
 import { MAX_LIST_NAME_LENGTH } from '../../src/constants/types';
 import { darkColors } from '../../src/constants/themes';
 import type { ListWithCounts } from '../../src/database/types';
-
-const colorLabel = (color: string): string => {
-  const value = en[QUICK_COLOR_LABELS[color]];
-  return typeof value === 'string' ? value : color;
-};
 
 interface PickerProps {
   value?: string;
@@ -297,10 +293,3 @@ describe('CreateListScreen', () => {
     expect(nav.goBack).toHaveBeenCalled();
   });
 });
-
-function flattenStyle(style: unknown): Record<string, unknown> {
-  if (Array.isArray(style)) {
-    return style.reduce((acc: Record<string, unknown>, item) => ({ ...acc, ...flattenStyle(item) }), {});
-  }
-  return (style ?? {}) as Record<string, unknown>;
-}

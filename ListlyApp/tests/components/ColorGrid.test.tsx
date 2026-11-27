@@ -1,13 +1,8 @@
+import { colorLabel } from '../helpers/colors';
 import { describe, expect, it } from 'vitest';
 import { render, userEvent } from '@testing-library/react-native';
 import ColorGrid from '../../src/components/ColorGrid';
-import { QUICK_COLORS, QUICK_COLOR_LABELS } from '../../src/constants/listColors';
-import { en } from '../../src/i18n/en';
-
-const colorLabel = (color: string): string => {
-  const value = en[QUICK_COLOR_LABELS[color]];
-  return typeof value === 'string' ? value : color;
-};
+import { QUICK_COLORS } from '../../src/constants/listColors';
 
 describe('ColorGrid', () => {
   it('renders the quick colors as selectable circles', async () => {

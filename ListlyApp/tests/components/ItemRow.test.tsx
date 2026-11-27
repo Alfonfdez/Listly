@@ -1,3 +1,4 @@
+import { flattenStyle } from '../helpers/style';
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 import { render, fireEvent , userEvent } from '@testing-library/react-native';
 
@@ -148,13 +149,3 @@ describe('ItemRow', () => {
     expect(view.queryByLabelText('Photos')).toBeNull();
   });
 });
-
-function flattenStyle(style: unknown): Record<string, unknown> {
-  if (Array.isArray(style)) {
-    return style.reduce((acc: Record<string, unknown>, s) => ({ ...acc, ...flattenStyle(s) }), {});
-  }
-  if (style && typeof style === 'object') {
-    return { ...(style as Record<string, unknown>) };
-  }
-  return {};
-}

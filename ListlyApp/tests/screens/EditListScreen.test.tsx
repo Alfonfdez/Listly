@@ -1,3 +1,5 @@
+import { colorLabel } from '../helpers/colors';
+import { flattenStyle } from '../helpers/style';
 import { describe, expect, it, beforeEach, vi } from 'vitest';
 import { render, userEvent, waitFor } from '@testing-library/react-native';
 import type { ReactNode } from 'react';
@@ -7,13 +9,6 @@ import { resetStub } from '../helpers/configStub';
 import type { CollectionWithCounts, ListWithCounts } from '../../src/database/types';
 import { MAX_LIST_NAME_LENGTH } from '../../src/constants/types';
 import { darkColors } from '../../src/constants/themes';
-import { QUICK_COLOR_LABELS } from '../../src/constants/listColors';
-import { en } from '../../src/i18n/en';
-
-const colorLabel = (color: string): string => {
-  const value = en[QUICK_COLOR_LABELS[color]];
-  return typeof value === 'string' ? value : color;
-};
 
 interface PickerProps {
   value?: string;
@@ -402,10 +397,3 @@ describe('EditListScreen', () => {
     expect(view.getByLabelText('Save')).toBeTruthy();
   });
 });
-
-function flattenStyle(style: unknown): Record<string, unknown> {
-  if (Array.isArray(style)) {
-    return style.reduce((acc: Record<string, unknown>, item) => ({ ...acc, ...flattenStyle(item) }), {});
-  }
-  return (style ?? {}) as Record<string, unknown>;
-}
