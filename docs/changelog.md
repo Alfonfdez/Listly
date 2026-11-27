@@ -1230,3 +1230,7 @@ pm run test:all green.
 - Refreshed the three v1.1.0 screenshots whose UI changed after the first capture: `03-create-list` and `05-edit-list` (no hint band above the submit button) and `06-b-item-edit` (counters in the label rows, 3 name / 7 note lines, 64x64 photo tile with the image icon, 8px gap to the buttons).
 - Renamed them to `v1.1.0-*-v2.png` (new filenames so GitHub's README image cache serves the new layout), updated the manifest keys, removed the old PNGs and pointed all 9 READMEs at the new files. The other 18 screenshots are unchanged (web pixels, insets 0).
 - `npm run test:all` green (86 files, 785 tests).
+
+[2026-11-27] chore | ListlyApp/package.json, ListlyApp/package-lock.json
+- Updated the Expo dependency set to the SDK 57 patch versions `expo-doctor` expects: `expo` 57.0.26 -> 57.0.34, `expo-constants` 57.0.20 -> 57.0.25, `expo-image-picker` 57.0.20 -> 57.0.22, `expo-sharing` 57.0.22 -> 57.0.27, `expo-splash-screen` 57.0.9 -> 57.0.12 and `expo-sqlite` 57.0.3 -> 57.0.7 (via `npx expo install`).
+- `npx expo-doctor` is back to 21/21 and `npm run test:all` stays green (86 files, 785 tests).
