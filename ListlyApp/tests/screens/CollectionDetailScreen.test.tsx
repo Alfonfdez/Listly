@@ -108,6 +108,12 @@ describe('CollectionDetailScreen', () => {
     expect(view.getByText('2/5')).toBeTruthy();
   });
 
+  it('renders exactly one screen shell (no nested safe-area inset)', async () => {
+    const view = await render(<CollectionDetailScreen />);
+    expect(await view.findByText('Shopping')).toBeTruthy();
+    expect(view.getAllByTestId('screen-shell')).toHaveLength(1);
+  });
+
   it('shows the empty state when the collection has no member lists', async () => {
     setListsByCollectionId(new Map([[10, []]]));
     const view = await render(<CollectionDetailScreen />);

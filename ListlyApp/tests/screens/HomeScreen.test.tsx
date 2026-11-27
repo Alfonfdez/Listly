@@ -103,6 +103,11 @@ describe('HomeScreen', () => {
     expect(view.queryByText('Groceries')).toBeNull();
   });
 
+  it('renders exactly one screen shell (single safe-area inset)', async () => {
+    const view = await render(<HomeScreen />);
+    expect(view.getAllByTestId('screen-shell')).toHaveLength(1);
+  });
+
   it('renders list tiles with name and progress', async () => {
     const view = await render(<HomeScreen />);
     expect(await view.findByText('Groceries')).toBeTruthy();

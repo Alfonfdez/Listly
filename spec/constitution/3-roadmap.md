@@ -385,6 +385,16 @@ The expandable details area of the list-detail add bar felt top-heavy:
 
 Spec: spec/features/011-item-pictures/.
 
+## Standardise the FAB position
+Status: done.
+
+The “+” FAB sat higher on Collection detail than on Home:
+- **Cause:** `ListsView` rendered its own `ScreenShell` (bottom safe-area inset), and `CollectionDetailScreen` wrapped it in a second one. On devices with a home indicator / gesture bar the inset was applied twice, so the FAB and the list's bottom padding moved up (web screenshots hid it because insets are 0).
+- **Fix:** one `ScreenShell` per screen — `ListsView` is now a plain `flex: 1` view, `ListsScreenBase` and `CollectionDetailScreen` own the shell. The FAB stays the shared `Fab` with `FAB_BOTTOM_OFFSET = 56` (Finly parity), and the scroll padding is `LIST_BOTTOM_FAB_PADDING` (= offset + size + 16) so the last row clears it.
+- Tests assert exactly one `screen-shell` on Home and Collection detail; gate `npm run test:all` green (86 files / 783 tests).
+
+Spec: spec/constitution/7-platform-differences.md.
+
 ## Future scope (not scheduled)
 - Per-list currency symbol (the numeric list is currency-agnostic for now).
 - A third "pending" (all − done) total.
