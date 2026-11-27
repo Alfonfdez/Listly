@@ -55,6 +55,19 @@ The automated test proves the SQL logic; the device check proves the packaging:
 Anything that cannot be checked this way is reported as not verified, never as
 done.
 
+## 1.1.0 verification result
+
+Verified 2026-11-27 against the EAS builds:
+
+- The EAS 1.0.0 APK (versionCode 1) was installed and used (lists, a pinned list,
+  a numeric list, notes, a photo and changed settings).
+- The EAS 1.1.0 preview (versionCode 2, build
+  `91cb518d-d0bd-4ee3-bf28-2e833c8925d7`, commit `7f5ef41`) was installed **over
+  it without uninstalling** (same EAS signing key).
+- The upgrade completed in place and the app works; the drawer shows v1.1.0 and
+  the data/settings are preserved.
+- iOS simulator build: deferred to 1.1.1 (this release has no iOS artifact).
+
 ## Adding the next migration
 
 1. Append one step to `MIGRATIONS` in
