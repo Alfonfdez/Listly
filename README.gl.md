@@ -34,12 +34,12 @@ Todo funciona **no dispositivo**: os teus datos viven nunha base de datos SQLite
 ![Pantalla de inicio](images/screenshots/v1.1.0-01-a-home-empty.png)<br>*Pantalla de inicio antes de que exista ningunha colección ou lista.*<br><br>
 ![Inicio con datos](images/screenshots/v1.1.0-01-b-home.png)<br>*Inicio con dúas coleccións e listas soltas, co progreso de cada colección.*<br><br>
 ![Menú lateral](images/screenshots/v1.1.0-02-hamburger.png)<br>*Menú lateral con Inicio, Coleccións, Listas e Axustes — e a versión da app abaixo.*<br><br>
-![Crear lista](images/screenshots/v1.1.0-03-create-list.png)<br>*Crear unha lista: nome, tipo (Estándar ou Numérica), icona e cor.*<br><br>
+![Crear lista](images/screenshots/v1.1.0-03-create-list-v2.png)<br>*Crear unha lista: nome, tipo (Estándar ou Numérica), icona e cor.*<br><br>
 ![Detalle de lista](images/screenshots/v1.1.0-04-a-list-detail.png)<br>*Unha lista estándar con elementos marcados, notas, unha foto, o control de orde e as accións por lotes — a cabeceira mantense fixa mentres desprazas.*<br><br>
 ![Lista numérica](images/screenshots/v1.1.0-04-b-numeric-list.png)<br>*Unha lista numérica cunha barra de progreso por valor, totais de liña e a fila de importe/cantidade.*<br><br>
-![Editar lista](images/screenshots/v1.1.0-05-edit-list.png)<br>*A pantalla Editar lista: renomear, cambiar o tipo, a icona e a cor, mover a lista a unha colección, e Duplicar, Combinar ou Eliminar a lista.*<br><br>
+![Editar lista](images/screenshots/v1.1.0-05-edit-list-v2.png)<br>*A pantalla Editar lista: renomear, cambiar o tipo, a icona e a cor, mover a lista a unha colección, e Duplicar, Combinar ou Eliminar a lista.*<br><br>
 ![Engadir elemento ampliado](images/screenshots/v1.1.0-06-a-add-item-expanded-v2.png)<br>*A barra de engadir ampliada para adxuntar unha nota e fotos ao novo elemento.*<br><br>
-![Editar elemento](images/screenshots/v1.1.0-06-b-item-edit.png)<br>*Editar un elemento: nome de dúas liñas, nota e fotos.*<br><br>
+![Editar elemento](images/screenshots/v1.1.0-06-b-item-edit-v2.png)<br>*Editar un elemento: nome de dúas liñas, nota e fotos.*<br><br>
 ![Listas](images/screenshots/v1.1.0-07-a-lists.png)<br>*A pantalla de Listas, coa pertenza a coleccións e o progreso por lista.*<br><br>
 ![Coleccións](images/screenshots/v1.1.0-07-b-collections.png)<br>*A pantalla de Coleccións.*<br><br>
 ![Detalle de colección](images/screenshots/v1.1.0-07-c-collection-detail.png)<br>*Unha colección coas súas listas membro.*<br><br>

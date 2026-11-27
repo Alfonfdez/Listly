@@ -38,7 +38,7 @@ export const SCREENS = [
     },
   },
   {
-    key: '03-create-list',
+    key: '03-create-list-v2',
     phase: fixture,
     run: async h => {
       await h.reload();
@@ -73,7 +73,7 @@ export const SCREENS = [
     },
   },
   {
-    key: '05-edit-list',
+    key: '05-edit-list-v2',
     phase: fixture,
     run: async h => {
       await h.reload();
@@ -100,7 +100,7 @@ export const SCREENS = [
     },
   },
   {
-    key: '06-b-item-edit',
+    key: '06-b-item-edit-v2',
     phase: fixture,
     run: async h => {
       await h.reload();
