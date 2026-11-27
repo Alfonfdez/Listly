@@ -60,8 +60,8 @@ cd ListlyApp
 npx expo start
 ```
 
-## ANDROID BUILD & RELEASE (EAS)
-The **official** artifact is an EAS Build; local `gradlew` is a dev smoke-test path only.
+## BUILD & RELEASE (EAS)
+The **official Android artifact** is an EAS Build; local `gradlew` is a dev smoke-test path only. iOS gets a **simulator** build for compile verification (not device-signed).
 
 ```bash
 cd ListlyApp
@@ -69,8 +69,10 @@ npx eas-cli login                     # once
 npx eas-cli init                      # once — writes extra.eas.projectId into app.json
 npx eas-cli build --platform android --profile preview   # installable APK (internal)
 npx eas-cli build --platform android --profile production --no-wait  # store AAB
+npx eas-cli build --platform ios --profile preview-simulator         # simulator .tar.gz (compile check only)
 ```
-- `ListlyApp/eas.json` defines three profiles (`development`, `preview`, `production`) with `cli.appVersionSource: "local"` — EAS reads `version` / `android.versionCode` / `ios.buildNumber` straight from `app.json`.
+- `ListlyApp/eas.json` defines four profiles (`development`, `preview`, `preview-simulator`, `production`) with `cli.appVersionSource: "local"` — EAS reads `version` / `android.versionCode` / `ios.buildNumber` straight from `app.json`.
+- **Simulator builds are a profile, not a flag**: `preview-simulator` extends `preview` with `ios.simulator: true`. The artifact is a `.tar.gz` for the iOS Simulator; it is not signed for devices and cannot be installed on an iPhone.
 - **Bump `android.versionCode` (and `ios.buildNumber`) for every release**: `versionCode` must strictly increase or Google Play rejects the upload; it is what makes an update install *over* the previous one.
 - **Signing keys are managed by EAS** (generated on the first production build and stored on Expo's servers for the project's `projectId`), so consecutive releases share one signature and update in place — no uninstall. Keep an offline backup: `npx eas-cli credentials` → Android → download the keystore + passwords. Never commit a keystore (`.jks`/`.p12`/`.key` are gitignored; `.easignore` also excludes them).
 - A locally built `gradlew assembleRelease` APK is signed with the **debug** keystore (`app/build.gradle` uses `signingConfigs.debug`), so it has a different signature than the EAS release — use it only for local smoke tests, and expect to uninstall the debug APK before installing an EAS build.
