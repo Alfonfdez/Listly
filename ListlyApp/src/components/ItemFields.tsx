@@ -4,7 +4,8 @@ import { useFontSize } from '../hooks/useFontSize';
 import { useLabels } from '../hooks/useLabels';
 import { BUTTON_BORDER_RADIUS } from './componentStyles';
 import { formatMinor, lineTotalMinor } from '../utils/numeric';
-import { MAX_ITEM_NAME_LENGTH, MAX_ITEM_NOTE_LENGTH, EDIT_ITEM_NAME_LINES } from '../constants/types';
+import { MAX_ITEM_NAME_LENGTH, MAX_ITEM_NOTE_LENGTH } from '../constants/types';
+import { EDIT_ITEM_NAME_LINES } from '../constants/layout';
 import CharCounter from './CharCounter';
 import QuantityStepper from './QuantityStepper';
 

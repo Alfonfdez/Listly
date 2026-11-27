@@ -1,3 +1,5 @@
+import type { ColorPalette } from '../constants/themes';
+
 export const CARD_BORDER_RADIUS = 12;
 export const BUTTON_BORDER_RADIUS = 10;
 export const MODAL_BORDER_RADIUS = 16;
@@ -32,3 +34,8 @@ export const GRID_GAP = 12;
 export const WIDE_BREAKPOINT = 900;
 export const MEDIUM_BREAKPOINT = 600;
 export const ZONE_MIN_ACTIVATION_DISTANCE = 8;
+
+/** Border color for a form field: red when invalid, the theme border otherwise. */
+export function fieldBorderColor(colors: Pick<ColorPalette, 'border' | 'red'>, invalid: boolean): string {
+  return invalid ? colors.red : colors.border;
+}

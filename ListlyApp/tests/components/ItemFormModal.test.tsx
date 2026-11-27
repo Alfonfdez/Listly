@@ -3,7 +3,7 @@ import { act, render, userEvent } from '@testing-library/react-native';
 import ItemFormModal from '../../src/components/ItemFormModal';
 import { resetStub, setConfig } from '../helpers/configStub';
 import { darkColors } from '../../src/constants/themes';
-import { EDIT_ITEM_NAME_LINES, EDIT_ITEM_NOTE_LINES } from '../../src/constants/types';
+import { EDIT_ITEM_NAME_LINES, EDIT_ITEM_NOTE_LINES } from '../../src/constants/layout';
 
 const setPhotosMock = vi.fn();
 

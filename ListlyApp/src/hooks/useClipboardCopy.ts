@@ -4,7 +4,7 @@ import { itemRepo } from '../database';
 import { logError, runSafelyAsync, ERROR_SCOPE } from '../utils/errors';
 import { buildListCopyText } from '../utils/copyList';
 import { useLabels } from './useLabels';
-import { COPY_FEEDBACK_MS } from '../constants/types';
+import { LIST_KINDS, COPY_FEEDBACK_MS } from '../constants/types';
 import type { Item, ListWithCounts } from '../database/types';
 
 interface Options {
@@ -32,7 +32,7 @@ export function useClipboardCopy({ list, items, refresh }: Options) {
       if (!list) return;
       const text = buildListCopyText(list.name, items, {
         withNotes,
-        numeric: list.kind === 'numeric',
+        numeric: list.kind === LIST_KINDS.numeric,
         labels: { total: labels.list_total_label, done: labels.list_done_total_label },
       });
       void Clipboard.setStringAsync(text).catch(error => logError(ERROR_SCOPE.copyToClipboard, error));

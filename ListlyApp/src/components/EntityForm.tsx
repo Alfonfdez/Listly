@@ -13,7 +13,7 @@ import ColorGrid from './ColorGrid';
 import ColorPickerModal from './ColorPickerModal';
 import FormField from './FormField';
 import IconGrid from './IconGrid';
-import { BUTTON_BORDER_RADIUS, PRESSED_OPACITY, DISABLED_OPACITY } from './componentStyles';
+import { BUTTON_BORDER_RADIUS, PRESSED_OPACITY, DISABLED_OPACITY, fieldBorderColor } from './componentStyles';
 
 type StringTranslationKey = {
   [K in keyof Translations]: Translations[K] extends string ? K : never;
@@ -152,7 +152,7 @@ export default function EntityForm<TError extends StringTranslationKey>({
           maxLength={maxNameLength}
           placeholder={nameLabel}
           placeholderTextColor={c.textSecondary}
-          style={[inputStyle, showError && { borderColor: c.red }]}
+          style={[inputStyle, { borderColor: fieldBorderColor(c, showError) }]}
           accessibilityLabel={nameLabel}
         />
       </FormField>

@@ -7,7 +7,7 @@ import {
   EDIT_ITEM_FIELD_LINE_HEIGHT,
   EDIT_ITEM_FIELD_VERTICAL_PADDING,
   PHOTO_METRICS,
-} from '../../src/constants/types';
+} from '../../src/constants/layout';
 
 const NOTE_INPUT_HEIGHT = EDIT_ITEM_FIELD_LINE_HEIGHT * ADD_ITEM_NOTE_LINES + EDIT_ITEM_FIELD_VERTICAL_PADDING;
 
