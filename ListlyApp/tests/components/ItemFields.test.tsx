@@ -8,7 +8,7 @@ import {
   ItemNoteField,
   ItemQuantityField,
 } from '../../src/components/ItemFields';
-import { EDIT_ITEM_NAME_LINES } from '../../src/constants/types';
+import { EDIT_ITEM_NAME_LINES } from '../../src/constants/layout';
 
 describe('ItemFields', () => {
   beforeEach(() => resetStub());

@@ -8,12 +8,15 @@ import {
   BUTTON_BORDER_RADIUS,
   PRESSED_OPACITY,
   DISABLED_OPACITY,
+  fieldBorderColor,
 } from './componentStyles';
 import {
   EDIT_ITEM_FIELD_LINE_HEIGHT,
   EDIT_ITEM_FIELD_VERTICAL_PADDING,
   EDIT_ITEM_NAME_LINES,
   EDIT_ITEM_NOTE_LINES,
+} from '../constants/layout';
+import {
   MAX_ITEM_NAME_LENGTH,
   MAX_ITEM_NOTE_LENGTH,
 } from '../constants/types';
@@ -145,7 +148,7 @@ export default function ItemFormModal({
                 height: nameInputHeight,
                 lineHeight: fieldLineHeight,
                 backgroundColor: c.background,
-                borderColor: draft.error ? c.red : c.border,
+                borderColor: fieldBorderColor(c, draft.error !== null),
               },
             ]}
           />

@@ -3,6 +3,7 @@ import { Text, StyleSheet, View, type StyleProp, type ViewStyle } from 'react-na
 import { useConfig } from '../context/ConfigContext';
 import { useFontSize } from '../hooks/useFontSize';
 import { SECTION_TITLE_FONT_SIZE, textStyles } from './textStyles';
+import FieldError from './FieldError';
 
 interface Props {
   label: string;
@@ -26,15 +27,7 @@ export default function FormField({ label, right, error, style, children }: Prop
         {right ?? null}
       </View>
       {children}
-      {error ? (
-        <Text
-          accessibilityRole="alert"
-          accessibilityLiveRegion="polite"
-          style={[styles.error, { color: c.red, fontSize: fs(12) }]}
-        >
-          {error}
-        </Text>
-      ) : null}
+      <FieldError message={error} style={styles.error} />
     </View>
   );
 }

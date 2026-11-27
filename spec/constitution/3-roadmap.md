@@ -406,6 +406,18 @@ Counters and validation messages were inconsistent across forms:
 
 Spec: spec/features/036-form-feedback-standard/, spec/constitution/4-design-system.md.
 
+## Pre-release code cleanup
+Status: done.
+
+Small, behaviour-neutral refactors before v1.1.0:
+- **One inline error renderer:** new `FieldError` (red, 12px, `role="alert"` + polite live region) used by `FormField`, `AddItemBar`, `LockListModal` and `VaultUnlockView`; the repeated `borderColor: invalid ? red : border` became `fieldBorderColor(colors, invalid)` in `componentStyles`.
+- **`LIST_KINDS` constants** replace the remaining `'numeric'` / `'standard'` literals in `EntityTile`, `ListDetailScreen`, `useClipboardCopy` and the backup Zod enum.
+- **`src/constants/layout.ts`** now owns the UI layout tokens (`PHOTO_METRICS`, `EDIT_ITEM_*`, `ADD_ITEM_NOTE_LINES`); `constants/types.ts` keeps behavioural constants and types.
+- Deferred to post-release (bigger): splitting `ListDetailScreen` (674 lines) and `ListsView` (479), shared input-style/typography tokens.
+- Gate: `npm run test:all` green (86 files / 785 tests). Pixel-identical, so no screenshot refresh.
+
+Spec: spec/constitution/4-design-system.md.
+
 ## Future scope (not scheduled)
 - Per-list currency symbol (the numeric list is currency-agnostic for now).
 - A third "pending" (all − done) total.

@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { collectionSchema, itemSchema, listSchema, vaultSchema } from './schemas';
 import type { Collection, DatabaseHandle, Item, List, Vault } from './types';
 import { runExclusive } from './transaction';
+import { LIST_KINDS } from '../constants/types';
 
 interface ConfigRow {
   key: string;
@@ -17,7 +18,7 @@ const configRowSchema = z.object({
 });
 
 const backupPinnedSchema = z.union([z.literal(0), z.literal(1)]).default(0);
-const backupListKindSchema = z.enum(['standard', 'numeric']).default('standard');
+const backupListKindSchema = z.enum([LIST_KINDS.standard, LIST_KINDS.numeric] as const).default(LIST_KINDS.standard);
 const backupCollectionSchema = collectionSchema.extend({ pinned: backupPinnedSchema });
 const backupListSchema = listSchema
   .extend({

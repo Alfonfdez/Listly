@@ -20,7 +20,7 @@ import { useConfig } from '../context/ConfigContext';
 import { useFontSize } from '../hooks/useFontSize';
 import { useLabels } from '../hooks/useLabels';
 import type { Flag } from '../utils/flags';
-import type { ListKind } from '../constants/types';
+import { LIST_KINDS, type ListKind } from '../constants/types';
 
 type EntityKind = 'list' | 'collection';
 type EntityLayout = 'card' | 'row';
@@ -99,7 +99,7 @@ export default function EntityTile({
           {selectMode ? <SelectionCheck selected={selected} style={tileStyles.check} iconSize={14} /> : null}
           {!selectMode ? (
             <View style={tileStyles.typeBadge}>
-              {entity.listKind === 'numeric' ? <NumericBadge /> : null}
+              {entity.listKind === LIST_KINDS.numeric ? <NumericBadge /> : null}
               <TypeBadge type={entity.kind} />
             </View>
           ) : null}
@@ -132,7 +132,7 @@ export default function EntityTile({
             ) : null}
           </View>
           {progress}
-          {!selectMode && entity.listKind === 'numeric' ? <NumericBadge /> : null}
+          {!selectMode && entity.listKind === LIST_KINDS.numeric ? <NumericBadge /> : null}
           {!selectMode ? <TypeBadge type={entity.kind} /> : null}
         </>
       )}

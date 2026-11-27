@@ -1,7 +1,7 @@
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 import { render, fireEvent } from '@testing-library/react-native';
 import PhotoSection from '../../src/components/PhotoSection';
-import { PHOTO_METRICS } from '../../src/constants/types';
+import { PHOTO_METRICS } from '../../src/constants/layout';
 import { resetStub } from '../helpers/configStub';
 
 const { handlers } = vi.hoisted(() => ({

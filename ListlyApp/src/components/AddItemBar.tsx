@@ -8,11 +8,12 @@ import { useFontSize } from '../hooks/useFontSize';
 import { useLabels } from '../hooks/useLabels';
 import { useItemDraft } from '../hooks/useItemDraft';
 import { useItemDisplayFlags } from '../hooks/useItemDisplayFlags';
-import { ADD_ITEM_NOTE_LINES, EDIT_ITEM_FIELD_LINE_HEIGHT, EDIT_ITEM_FIELD_VERTICAL_PADDING } from '../constants/types';
+import { ADD_ITEM_NOTE_LINES, EDIT_ITEM_FIELD_LINE_HEIGHT, EDIT_ITEM_FIELD_VERTICAL_PADDING } from '../constants/layout';
 import { serializeItemPhotos } from '../utils/itemPhotos';
 import { ItemAmountField, ItemLineTotal, ItemNameField, ItemNoteField, ItemQuantityField } from './ItemFields';
 import ItemPhotosField from './ItemPhotosField';
-import { BUTTON_BORDER_RADIUS, PRESSED_OPACITY } from './componentStyles';
+import FieldError from './FieldError';
+import { BUTTON_BORDER_RADIUS, PRESSED_OPACITY, fieldBorderColor } from './componentStyles';
 
 interface Props {
   listId: number;
@@ -83,7 +84,7 @@ export default function AddItemBar({
   return (
     <View style={styles.addRow}>
       {draft.error ? (
-        <Text style={[styles.errorText, { color: c.red, fontSize: fs(12) }]}>{labels[draft.error]}</Text>
+        <FieldError message={labels[draft.error]} style={styles.errorText} />
       ) : null}
       <View style={styles.inputRow}>
         <View style={styles.nameColumn}>
@@ -94,7 +95,7 @@ export default function AddItemBar({
             accessibilityLabel={labels.item_add_placeholder}
             returnKeyType="done"
             onSubmitEditing={() => void submit()}
-            style={[styles.input, { backgroundColor: c.surface, borderColor: draft.error ? c.red : c.border }]}
+            style={[styles.input, { backgroundColor: c.surface, borderColor: fieldBorderColor(c, draft.error !== null) }]}
           />
         </View>
         {canAddDetails ? (

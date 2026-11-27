@@ -4,7 +4,7 @@ import Animated, { useAnimatedRef } from 'react-native-reanimated';
 import { Ionicons } from '@expo/vector-icons';
 import Sortable, { type SortableGridRenderItem } from 'react-native-sortables';
 import { useFocusEffect, useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
-import { type IconName, type NavigationProp, type RootStackParamList, COPY_FEEDBACK_MS, AUTO_SCROLL_ACTIVATION_OFFSET, AUTO_SCROLL_MAX_VELOCITY } from '../constants/types';
+import { LIST_KINDS, type IconName, type NavigationProp, type RootStackParamList, COPY_FEEDBACK_MS, AUTO_SCROLL_ACTIVATION_OFFSET, AUTO_SCROLL_MAX_VELOCITY } from '../constants/types';
 import type { Item } from '../database/types';
 import { vaultRepo } from '../database';
 import { logError, ERROR_SCOPE } from '../utils/errors';
@@ -178,7 +178,7 @@ export default function ListDetailScreen() {
   const done = items.filter(i => isOn(i.checked)).length;
   const total = items.length;
   const pct = total > 0 ? Math.round((done / total) * 100) : 0;
-  const numeric = list?.kind === 'numeric';
+  const numeric = list?.kind === LIST_KINDS.numeric;
   const totals = useMemo(
     () =>
       numeric

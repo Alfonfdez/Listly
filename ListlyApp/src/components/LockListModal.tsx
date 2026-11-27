@@ -7,10 +7,11 @@ import { useLabels } from '../hooks/useLabels';
 import { useResetOnOpen } from '../hooks/useResetOnOpen';
 import { isWrongPassphrase } from '../utils/vaultCrypto';
 import { MIN_PASSPHRASE_LENGTH } from '../constants/types';
-import { BUTTON_BORDER_RADIUS } from './componentStyles';
+import { BUTTON_BORDER_RADIUS, fieldBorderColor } from './componentStyles';
 import ModalShell from './ModalShell';
 import ModalFooter from './ModalFooter';
 import FormField from './FormField';
+import FieldError from './FieldError';
 
 interface Props {
   visible: boolean;
@@ -79,7 +80,7 @@ export default function LockListModal({ visible, hasPhotos, mode = 'lock', onCan
     styles.input,
     {
       backgroundColor: c.background,
-      borderColor: invalid ? c.red : c.border,
+      borderColor: fieldBorderColor(c, invalid),
       color: c.text,
       fontSize: fs(15),
     },
@@ -158,7 +159,7 @@ export default function LockListModal({ visible, hasPhotos, mode = 'lock', onCan
               {labels.vault_unrecoverable_warning}
             </Text>
           </TouchableOpacity>
-          {error ? <Text style={[styles.error, { color: c.red, fontSize: fs(12) }]}>{error}</Text> : null}
+          <FieldError message={error} style={styles.error} />
         </>
       )}
       <ModalFooter
