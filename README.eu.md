@@ -34,12 +34,12 @@ Dena **gailuan** exekutatzen da: zure datuak tokiko SQLite datu-basean bizi dira
 ![Hasierako pantaila](images/screenshots/v1.1.0-01-a-home-empty.png)<br>*Hasierako pantaila, kolekzio edo zerrendarik oraindik ez dagoenean.*<br><br>
 ![Hasiera datuekin](images/screenshots/v1.1.0-01-b-home.png)<br>*Hasiera bi kolekziorekin eta zerrenda solteekin, kolekzio bakoitzaren aurrerapenarekin.*<br><br>
 ![Alboko menua](images/screenshots/v1.1.0-02-hamburger.png)<br>*Alboko menua Hasiera, Kolekzioak, Zerrendak eta Ezarpenekin — eta apparen bertsioa behean.*<br><br>
-![Zerrenda sortu](images/screenshots/v1.1.0-03-create-list.png)<br>*Zerrenda sortu: izena, mota (Estandarra edo Numerikoa), ikonoa eta kolorea.*<br><br>
+![Zerrenda sortu](images/screenshots/v1.1.0-03-create-list-v2.png)<br>*Zerrenda sortu: izena, mota (Estandarra edo Numerikoa), ikonoa eta kolorea.*<br><br>
 ![Zerrenda-xehetasuna](images/screenshots/v1.1.0-04-a-list-detail.png)<br>*Zerrenda estandar bat, markatutako elementuekin, oharrekin, argazki batekin, ordena-kontrolarekin eta lote-ekintzekin — goiburukoa finko mantentzen da korritzen duzunean.*<br><br>
 ![Zerrenda numerikoa](images/screenshots/v1.1.0-04-b-numeric-list.png)<br>*Zerrenda numeriko bat balioaren aurrerapen-barra batekin, lerro-totalekin eta zenbateko/kantitate errenkadarekin.*<br><br>
-![Zerrenda editatu](images/screenshots/v1.1.0-05-edit-list.png)<br>*Zerrenda editatzeko pantaila: izena, mota, ikonoa eta kolorea aldatu, zerrenda kolekzio batera eraman, eta bikoiztu, batu edo ezabatu zerrenda.*<br><br>
+![Zerrenda editatu](images/screenshots/v1.1.0-05-edit-list-v2.png)<br>*Zerrenda editatzeko pantaila: izena, mota, ikonoa eta kolorea aldatu, zerrenda kolekzio batera eraman, eta bikoiztu, batu edo ezabatu zerrenda.*<br><br>
 ![Gehitu elementua zabalik](images/screenshots/v1.1.0-06-a-add-item-expanded-v2.png)<br>*Gehitzeko barra zabaldua, elementu berriari oharra eta argazkiak eransteko.*<br><br>
-![Elementua editatu](images/screenshots/v1.1.0-06-b-item-edit.png)<br>*Elementu bat editatzen: bi lerroko izena, oharra eta argazkiak.*<br><br>
+![Elementua editatu](images/screenshots/v1.1.0-06-b-item-edit-v2.png)<br>*Elementu bat editatzen: bi lerroko izena, oharra eta argazkiak.*<br><br>
 ![Zerrendak](images/screenshots/v1.1.0-07-a-lists.png)<br>*Zerrenden pantaila, kolekzio-egozpena eta zerrendako aurrerapena erakutsita.*<br><br>
 ![Kolekzioak](images/screenshots/v1.1.0-07-b-collections.png)<br>*Kolekzioen pantaila.*<br><br>
 ![Kolekzio-xehetasuna](images/screenshots/v1.1.0-07-c-collection-detail.png)<br>*Kolekzio bat bere kide diren zerrendekin.*<br><br>
