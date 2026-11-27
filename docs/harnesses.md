@@ -23,6 +23,7 @@ All commands run from the `ListlyApp/` directory (created when feature 001 is im
 | Android release APK (official) | `cd ListlyApp && npx eas-cli build --platform android --profile preview` (EAS-managed signing — see note below) |
 | Android store AAB (official) | `cd ListlyApp && npx eas-cli build --platform android --profile production --no-wait` |
 | Android local dev APK | `npx expo prebuild --platform android` then `cd android && ./gradlew assembleRelease` (debug-signed, smoke tests only) |
+| iOS simulator (compile check) | `cd ListlyApp && npx eas-cli build --platform ios --profile preview-simulator` (`.tar.gz`, not device-signed) |
 | Web production favicon/build | `npx expo export --platform web` (favicon + `index.html` are only generated here) |
 | Mobile E2E (Maestro flows) | Deferred — added when native-only criteria appear (see below) |
 

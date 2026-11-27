@@ -12,6 +12,12 @@
       "distribution": "internal",
       "node": "24.18.0"
     },
+    "preview-simulator": {
+      "extends": "preview",
+      "ios": {
+        "simulator": true
+      }
+    },
     "production": {
       "distribution": "store",
       "node": "24.18.0",

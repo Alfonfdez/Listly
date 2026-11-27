@@ -1238,3 +1238,7 @@ pm run test:all green.
 [2026-11-27] docs | docs/upgrade-testing.md, AGENTS.md
 - Recorded the 1.1.0 in-place upgrade verification in `docs/upgrade-testing.md`: EAS 1.0.0 -> EAS 1.1.0 preview (versionCode 2, build 91cb518d-d0bd-4ee3-bf28-2e833c8925d7, commit 7f5ef41) without uninstalling; the app works, data/settings preserved and the drawer shows v1.1.0. iOS simulator build deferred to 1.1.1.
 - `AGENTS.md`: no Google Play production AAB unless explicitly asked - the GitHub release APK (EAS preview) is the distribution path.
+
+[2026-11-27] chore | ListlyApp/eas.json, AGENTS.md, docs/harnesses.md
+- Added the `preview-simulator` EAS profile (`extends: preview`, `ios.simulator: true`), matching Finly, so the iOS Simulator artifact is built with `npx eas-cli build --platform ios --profile preview-simulator` (a `.tar.gz` for compile verification, not device-signed).
+- Documented the four profiles and the simulator command in `AGENTS.md` and `docs/harnesses.md`.
