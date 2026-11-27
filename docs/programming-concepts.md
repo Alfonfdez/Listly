@@ -294,6 +294,18 @@ export const es: Translations = { /* must match en exactly */ };
 <Sortable.Grid key={`grid-${ids.join('-')}`} data={items} … />
 ```
 
+## Drag auto-scroll (scrollableRef + Animated.ScrollView)
+**Definition:** Auto-scrolling a scroll container while an item is dragged near its edge, so a long list can be reordered in one gesture.
+**Explanation:** `react-native-sortables` only mounts its auto-scroll logic when a grid receives a `scrollableRef` — an `AnimatedRef` from `react-native-reanimated` pointing at the scroll container. The ref must target an **`Animated.ScrollView`** (not a plain RN `ScrollView`), because the library reads the scroll offset with reanimated's `useScrollViewOffset` and measures the container on the UI thread. Listly shares one `useAnimatedRef` between a screen's sortable grids. The ref is created once (it cannot be changed on the fly); `autoScrollEnabled` toggles the behavior instead.
+**Example:**
+```tsx
+const scrollRef = useAnimatedRef<ScrollView>();
+
+<Animated.ScrollView ref={scrollRef}>
+  <Sortable.Grid data={items} scrollableRef={scrollRef} autoScrollDirection="vertical" … />
+</Animated.ScrollView>
+```
+
 ## Modal
 **Definition:** React Native component that displays content overlaid on the current screen.
 **Explanation:** Useful for dialogs, selectors, or forms without changing screens. In Listly, used for item creation, color/icon pickers, and confirmations.

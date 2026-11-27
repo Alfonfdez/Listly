@@ -28,12 +28,12 @@ const platform: VaultPlatformCrypto = {
       utf8Encode(passphrase),
       'PBKDF2',
       false,
-      ['deriveBits']
+      ['deriveBits'],
     );
     const bits = await subtle.deriveBits(
       { name: 'PBKDF2', salt: utf8Encode(salt), iterations, hash: webCryptoHashName(digest) },
       keyMaterial,
-      256
+      256,
     );
     return new Uint8Array(bits);
   },
@@ -50,7 +50,7 @@ const platform: VaultPlatformCrypto = {
     const sealed = await subtle.encrypt(
       { name: 'AES-GCM', iv: toArrayBuffer(iv), tagLength: AES_TAG_BYTES * 8 },
       cryptoKey,
-      toArrayBuffer(plaintext)
+      toArrayBuffer(plaintext),
     );
     const ciphertext = new Uint8Array(sealed);
     const combined = new Uint8Array(iv.length + ciphertext.length);
@@ -68,7 +68,7 @@ const platform: VaultPlatformCrypto = {
     const plain = await subtle.decrypt(
       { name: 'AES-GCM', iv: toArrayBuffer(iv), tagLength: AES_TAG_BYTES * 8 },
       cryptoKey,
-      toArrayBuffer(ciphertext)
+      toArrayBuffer(ciphertext),
     );
     return new Uint8Array(plain);
   },

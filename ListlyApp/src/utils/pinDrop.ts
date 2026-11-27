@@ -20,7 +20,7 @@ import { isOn, type Flag } from './flags';
 export function resolvePinOnDrop<T extends { pinned: Flag }>(
   items: T[],
   fromIndex: number,
-  toIndex: number
+  toIndex: number,
 ): boolean | null {
   if (items.length === 0) return null;
   if (fromIndex < 0 || fromIndex >= items.length) return null;
@@ -52,7 +52,7 @@ export function resolvePinOnDrop<T extends { pinned: Flag }>(
 // dragged item (spec 021 §5).
 export function shouldShowPinHint<T extends { id: number; pinned: Flag }>(
   item: { pinned: Flag },
-  ctx: { isDragging: boolean; draggingId: number | null; items: T[] }
+  ctx: { isDragging: boolean; draggingId: number | null; items: T[] },
 ): boolean {
   if (!ctx.isDragging || ctx.draggingId == null) return false;
   const dragged = ctx.items.find(i => i.id === ctx.draggingId);

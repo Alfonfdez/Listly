@@ -66,16 +66,16 @@ describe('backup format', () => {
 
   it('rejects invalid JSON', () => {
     expect(() => parseBackup('not json')).toThrowError(
-      expect.objectContaining({ code: 'invalid_json' })
+      expect.objectContaining({ code: 'invalid_json' }),
     );
   });
 
   it('rejects a payload that is not a Listly backup', () => {
     expect(() => parseBackup('{}')).toThrowError(
-      expect.objectContaining({ code: 'invalid_format' })
+      expect.objectContaining({ code: 'invalid_format' }),
     );
     expect(() => parseBackup(JSON.stringify(makeSnapshot({ app: 'Other' } as never)))).toThrowError(
-      expect.objectContaining({ code: 'invalid_format' })
+      expect.objectContaining({ code: 'invalid_format' }),
     );
   });
 
@@ -83,7 +83,7 @@ describe('backup format', () => {
     const snapshot = makeSnapshot();
     const malformed = { ...snapshot, data: { ...snapshot.data, items: [{ id: 'x' }] } };
     expect(() => parseBackup(JSON.stringify(malformed))).toThrowError(
-      expect.objectContaining({ code: 'invalid_format' })
+      expect.objectContaining({ code: 'invalid_format' }),
     );
   });
 });

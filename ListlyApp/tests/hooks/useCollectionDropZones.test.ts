@@ -204,8 +204,7 @@ describe('useCollectionDropZones', () => {
     const items = [{ id: 1, pinned: 1 as const }, { id: 2, pinned: 0 as const }, { id: 3, pinned: 0 as const }];
     const refresh = vi.fn(async () => {});
     const { result } = await renderHook(() =>
-      useCollectionDropZones({ refresh, inCollectionDetail: false, items })
-    );
+      useCollectionDropZones({ refresh, inCollectionDetail: false, items }));
 
     // item 2 (unpinned, index 1) dropped first (index 0) → pin
     await act(async () => {
@@ -227,8 +226,7 @@ describe('useCollectionDropZones', () => {
     const items = [{ id: 1, pinned: 1 as const }, { id: 2, pinned: 0 as const }, { id: 3, pinned: 0 as const }];
     const refresh = vi.fn(async () => {});
     const { result } = await renderHook(() =>
-      useCollectionDropZones({ refresh, inCollectionDetail: false, items })
-    );
+      useCollectionDropZones({ refresh, inCollectionDetail: false, items }));
 
     // item 1 (pinned, index 0) dropped last (index 2) → unpin
     await act(async () => {
@@ -248,8 +246,7 @@ describe('useCollectionDropZones', () => {
   it('falls back to a plain reorder when drag metadata is missing', async () => {
     const refresh = vi.fn(async () => {});
     const { result } = await renderHook(() =>
-      useCollectionDropZones({ refresh, inCollectionDetail: false, items: [{ id: 1, pinned: 0 }] })
-    );
+      useCollectionDropZones({ refresh, inCollectionDetail: false, items: [{ id: 1, pinned: 0 }] }));
 
     await act(async () => {
       result.current.handleListsDragEnd([2, 1]);
@@ -262,8 +259,7 @@ describe('useCollectionDropZones', () => {
   it('exposes draggingId during a drag and clears it after', async () => {
     const refresh = vi.fn(async () => {});
     const { result } = await renderHook(() =>
-      useCollectionDropZones({ refresh, inCollectionDetail: false, items: [{ id: 1, pinned: 0 }] })
-    );
+      useCollectionDropZones({ refresh, inCollectionDetail: false, items: [{ id: 1, pinned: 0 }] }));
 
     await act(() => result.current.handleListsDragStart(dragStart('7')));
     expect(result.current.draggingId).toBe(7);

@@ -48,8 +48,7 @@ function sealedOf(row: Vault): SealedVault {
 
 async function readVault(listId: number): Promise<Vault | null> {
   return read(async db =>
-    parseRowOrNull(vaultSchema, 'vaults', await db.select().from(vaults).where(eq(vaults.list_id, listId)).get())
-  );
+    parseRowOrNull(vaultSchema, 'vaults', await db.select().from(vaults).where(eq(vaults.list_id, listId)).get()));
 }
 
 export const vaultRepo = {
@@ -108,7 +107,7 @@ export const vaultRepo = {
       passphrase,
       serializeItems(unlocked),
       row.kdf_iterations,
-      row.kdf_digest
+      row.kdf_digest,
     );
     await read(async db => {
       await db

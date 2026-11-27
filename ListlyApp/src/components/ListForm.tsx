@@ -44,7 +44,7 @@ export default function ListForm({
   const submit = useCallback(
     (data: { name: string; icon: IconName; color: string }) =>
       onSubmit({ ...data, collectionId: initialCollectionId }),
-    [onSubmit, initialCollectionId]
+    [onSubmit, initialCollectionId],
   );
 
   return (

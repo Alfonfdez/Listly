@@ -30,11 +30,7 @@ async function createBackend(): Promise<Backend> {
   await db.execAsync('PRAGMA foreign_keys = ON;');
 
   const { createSchema } = await import('../../src/database/migrations/001_initial');
-  const { addListPositions } = await import('../../src/database/migrations/003_list_position');
-  const { addItemPictures } = await import('../../src/database/migrations/004_item_pictures');
   await createSchema(db);
-  await addListPositions(db);
-  await addItemPictures(db);
 
   const { collectionRepo: collections } = await import('../../src/database/repositories/collectionRepo');
   const { listRepo: lists } = await import('../../src/database/repositories/listRepo');
@@ -154,9 +150,9 @@ describe('collectionRepo', () => {
   });
 
   it('setPinned marks a collection and list()/withCounts() order pinned first preserving positions', async () => {
-    const one = await b.collections.create({ name: 'One', color: '#A855F7', icon: 'folder-outline' });
+    await b.collections.create({ name: 'One', color: '#A855F7', icon: 'folder-outline' });
     const pinned = await b.collections.create({ name: 'Two', color: '#34D399', icon: 'gift-outline' });
-    const three = await b.collections.create({ name: 'Three', color: '#F87171', icon: 'star-outline' });
+    await b.collections.create({ name: 'Three', color: '#F87171', icon: 'star-outline' });
 
     await b.collections.setPinned(pinned.id, true);
 
@@ -166,9 +162,9 @@ describe('collectionRepo', () => {
   });
 
   it('setPinned(false) restores position order', async () => {
-    const one = await b.collections.create({ name: 'One', color: '#A855F7', icon: 'folder-outline' });
+    await b.collections.create({ name: 'One', color: '#A855F7', icon: 'folder-outline' });
     const pinned = await b.collections.create({ name: 'Two', color: '#34D399', icon: 'gift-outline' });
-    const three = await b.collections.create({ name: 'Three', color: '#F87171', icon: 'star-outline' });
+    await b.collections.create({ name: 'Three', color: '#F87171', icon: 'star-outline' });
 
     await b.collections.setPinned(pinned.id, true);
     await b.collections.setPinned(pinned.id, false);

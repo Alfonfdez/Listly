@@ -33,6 +33,7 @@
 - Hidden note/photo values are preserved (not wiped) when saving an item.
 
 ### 5. Backup format and IO
+- **Android OS backup is disabled** (`expo.android.allowBackup: false` in `app.json`, which prebuild turns into `android:allowBackup="false"`). The SQLite database is app-private (`files/SQLite/Listly.db`); while Android's auto-backup included it, uninstalling and reinstalling the app restored a previous install's data instead of starting empty. With the flag off, a reinstall always starts from the empty database, and this JSON backup is the only way to move data between installs.
 - `src/database/backup.ts`: `BACKUP_FORMAT_VERSION = 1`; snapshot `{ app: 'Listly', kind: 'backup', formatVersion, exportedAt, schema, data: { lists, items, config } }`; `buildBackup` reads all rows ordered by position; `applyBackup` replaces all three tables inside one transaction; `parseBackup`/`serializeBackup`; `BackupValidationError` codes `invalid_json` | `invalid_format` | `newer_version`.
 - `src/database/backupService.ts`: `exportBackup()` serializes a snapshot at the current `SCHEMA_VERSION`; `importBackup(json)` rejects `schema > SCHEMA_VERSION` with `newer_version` and otherwise applies the snapshot.
 - `src/utils/backupIO.ts` (native): writes `listly-backup-YYYY-MM-DD.json` in the document directory, then shares it through the local `listly-share` Expo module (`shareFileAsync`) after the `expo-sharing` availability gate; iOS reports the real share outcome (`saved`/`dismissed`). `saveBackupToDownloads(json)` writes to the public Downloads folder via the module's `saveToDownloadsAsync` (Android only; returns `false` when unsupported so the caller can fall back). Imports via `expo-document-picker`.
@@ -76,5 +77,6 @@
 - [x] An invalid or newer-version backup is rejected with a specific message and no data change.
 - [x] Delete all lists removes lists/items but keeps settings (guarded by a confirmation + typing `DELETE`); factory reset also restores defaults (same two-step guard).
 - [x] A fresh install (and the app after reset) starts with no lists or items.
+- [x] Uninstalling and reinstalling on Android starts empty: `android.allowBackup` is `false`, so the OS does not restore a previous install's database (the packaged manifest carries `android:allowBackup="false"`).
 - [x] The drawer shows a separator between Lists and Settings.
 - [x] `npm run test:all` passes.

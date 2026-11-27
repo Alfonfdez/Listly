@@ -122,7 +122,7 @@ export class SqlJsDatabase implements DatabaseHandle {
     const run = this.persistQueue.then(() => this.storage!.set(bytes));
     this.persistQueue = run.then(
       () => undefined,
-      () => undefined
+      () => undefined,
     );
     return run.catch((error) => {
       persistenceErrorListener?.(error);
@@ -134,7 +134,7 @@ export class SqlJsDatabase implements DatabaseHandle {
 export async function createSqlJsDatabase(
   bytes: Uint8Array | null,
   storage: DatabaseStorage | null = null,
-  locateFile?: (file: string) => string
+  locateFile?: (file: string) => string,
 ): Promise<SqlJsDatabase> {
   const SQL = await initSqlJsEngine(locateFile);
   return new SqlJsDatabase(new SQL.Database(bytes ?? undefined), storage);

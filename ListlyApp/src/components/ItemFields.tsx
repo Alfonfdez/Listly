@@ -5,6 +5,7 @@ import { useLabels } from '../hooks/useLabels';
 import { BUTTON_BORDER_RADIUS } from './componentStyles';
 import { formatMinor, lineTotalMinor } from '../utils/numeric';
 import { MAX_ITEM_NAME_LENGTH, MAX_ITEM_NOTE_LENGTH } from '../constants/types';
+import { EDIT_ITEM_NAME_LINES } from '../constants/layout';
 import CharCounter from './CharCounter';
 import QuantityStepper from './QuantityStepper';
 
@@ -17,6 +18,11 @@ interface ItemNameFieldProps {
   returnKeyType?: 'done';
   onSubmitEditing?: () => void;
   autoFocus?: boolean;
+  // Edit modal: a 2-line name with internal vertical scrolling. The add bar
+  // keeps the single-line input so Enter can still submit.
+  multiline?: boolean;
+  /** The label row can host the counter instead (FormField `right`). */
+  showCounter?: boolean;
 }
 
 export function ItemNameField({
@@ -28,6 +34,8 @@ export function ItemNameField({
   returnKeyType,
   onSubmitEditing,
   autoFocus,
+  multiline = false,
+  showCounter = true,
 }: ItemNameFieldProps) {
   const { activeColors: c } = useConfig();
   const fs = useFontSize();
@@ -43,10 +51,14 @@ export function ItemNameField({
         returnKeyType={returnKeyType}
         onSubmitEditing={onSubmitEditing}
         autoFocus={autoFocus}
+        multiline={multiline}
+        numberOfLines={multiline ? EDIT_ITEM_NAME_LINES : undefined}
+        textAlignVertical={multiline ? 'top' : undefined}
+        scrollEnabled={multiline ? true : undefined}
         style={[styles.input, { color: c.text, fontSize: fs(15) }, style]}
         accessibilityLabel={accessibilityLabel}
       />
-      <CharCounter current={value.length} max={MAX_ITEM_NAME_LENGTH} />
+      {showCounter ? <CharCounter current={value.length} max={MAX_ITEM_NAME_LENGTH} /> : null}
     </>
   );
 }
@@ -103,9 +115,17 @@ interface ItemNoteFieldProps {
   onChangeText: (text: string) => void;
   style: StyleProp<TextStyle>;
   numberOfLines?: number;
+  /** The label row can host the counter instead (FormField `right`). */
+  showCounter?: boolean;
 }
 
-export function ItemNoteField({ value, onChangeText, style, numberOfLines }: ItemNoteFieldProps) {
+export function ItemNoteField({
+  value,
+  onChangeText,
+  style,
+  numberOfLines,
+  showCounter = true,
+}: ItemNoteFieldProps) {
   const { activeColors: c } = useConfig();
   const fs = useFontSize();
   const labels = useLabels();
@@ -124,7 +144,7 @@ export function ItemNoteField({ value, onChangeText, style, numberOfLines }: Ite
         style={[styles.input, { color: c.text, fontSize: fs(15) }, style]}
         accessibilityLabel={labels.item_note_label}
       />
-      <CharCounter current={value.length} max={MAX_ITEM_NOTE_LENGTH} />
+      {showCounter ? <CharCounter current={value.length} max={MAX_ITEM_NOTE_LENGTH} /> : null}
     </>
   );
 }

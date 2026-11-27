@@ -59,7 +59,7 @@ function ItemRowInner({ item, selectMode, selected, numeric = false, onToggle, o
         selectMode && selected && { backgroundColor: withAlpha(c.primary, ALPHA_SELECTED) },
       ]}
       onPress={onToggle}
-                activeOpacity={PRESSED_OPACITY}
+      activeOpacity={PRESSED_OPACITY}
       accessibilityRole="checkbox"
       accessibilityState={selectMode ? { checked: selected } : { checked: isDone }}
       accessibilityLabel={item.name}
@@ -73,9 +73,10 @@ function ItemRowInner({ item, selectMode, selected, numeric = false, onToggle, o
               {
                 color: isDone ? c.textSecondary : c.text,
                 fontSize: fs(16),
+                lineHeight: fs(20),
               },
             ]}
-            numberOfLines={1}
+            numberOfLines={2}
           >
             {item.name}
           </Text>
@@ -115,7 +116,7 @@ function ItemRowInner({ item, selectMode, selected, numeric = false, onToggle, o
           >
             <Text
               style={[styles.notePreview, { color: c.textSecondary, fontSize: fs(13), lineHeight: fs(18) }]}
-              numberOfLines={2}
+              numberOfLines={3}
               ellipsizeMode="tail"
             >
               {item.note}
@@ -129,7 +130,7 @@ function ItemRowInner({ item, selectMode, selected, numeric = false, onToggle, o
                 key={`${uri}-${index}`}
                 style={styles.thumb}
                 onPress={() => setViewerIndex(index)}
-      activeOpacity={PRESSED_OPACITY}
+                activeOpacity={PRESSED_OPACITY}
                 accessibilityRole="imagebutton"
                 accessibilityLabel={labels.item_photos_title}
                 hitSlop={HIT_SLOP}

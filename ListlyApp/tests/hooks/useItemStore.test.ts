@@ -59,8 +59,7 @@ describe('useItemStore', () => {
   it('exposes the repo items when the vault is locked', async () => {
     const repoItems = [item(1, 0), item(2, 1)];
     const { result } = await renderHook(() =>
-      useItemStore({ listId: 10, repoItems, refresh: vi.fn(async () => {}), vault: vaultStub(false) as unknown as Vault })
-    );
+      useItemStore({ listId: 10, repoItems, refresh: vi.fn(async () => {}), vault: vaultStub(false) as unknown as Vault }));
     expect(result.current.items).toBe(repoItems);
   });
 
@@ -68,21 +67,19 @@ describe('useItemStore', () => {
     const vaultItems = [item(5, 0)];
     const vault = vaultStub(true, vaultItems);
     const { result } = await renderHook(() =>
-      useItemStore({ listId: 10, repoItems: [item(1, 0)], refresh: vi.fn(async () => {}), vault: vault as unknown as Vault })
-    );
+      useItemStore({ listId: 10, repoItems: [item(1, 0)], refresh: vi.fn(async () => {}), vault: vault as unknown as Vault }));
     expect(result.current.items).toBe(vaultItems);
   });
 
   it('adds via the repo, computing the next position, then refreshes', async () => {
     const refresh = vi.fn(async () => {});
     const { result } = await renderHook(() =>
-      useItemStore({ listId: 10, repoItems: [item(1, 0), item(2, 1)], refresh, vault: vaultStub(false) as unknown as Vault })
-    );
+      useItemStore({ listId: 10, repoItems: [item(1, 0), item(2, 1)], refresh, vault: vaultStub(false) as unknown as Vault }));
 
     await result.current.add(DRAFT);
 
     expect(itemRepoMock.create).toHaveBeenCalledWith(
-      expect.objectContaining({ list_id: 10, checked: 0, position: 2, name: 'New' })
+      expect.objectContaining({ list_id: 10, checked: 0, position: 2, name: 'New' }),
     );
     expect(refresh).toHaveBeenCalled();
   });
@@ -90,8 +87,7 @@ describe('useItemStore', () => {
   it('dispatches every repo mutation and refreshes (except removeMany)', async () => {
     const refresh = vi.fn(async () => {});
     const { result } = await renderHook(() =>
-      useItemStore({ listId: 10, repoItems: [item(1, 0)], refresh, vault: vaultStub(false) as unknown as Vault })
-    );
+      useItemStore({ listId: 10, repoItems: [item(1, 0)], refresh, vault: vaultStub(false) as unknown as Vault }));
 
     await result.current.update(1, { ...DRAFT, name: 'Edited' });
     await result.current.toggle(1);
@@ -117,8 +113,7 @@ describe('useItemStore', () => {
     const vault = vaultStub(true, [item(1, 0)]);
     const refresh = vi.fn(async () => {});
     const { result } = await renderHook(() =>
-      useItemStore({ listId: 10, repoItems: [], refresh, vault: vault as unknown as Vault })
-    );
+      useItemStore({ listId: 10, repoItems: [], refresh, vault: vault as unknown as Vault }));
 
     await result.current.add(DRAFT);
     await result.current.update(1, { ...DRAFT, name: 'Edited' });

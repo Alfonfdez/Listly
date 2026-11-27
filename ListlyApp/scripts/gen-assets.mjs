@@ -47,7 +47,7 @@ function markSvg({ mono }) {
   const dotX = cx - (rightEdge - leftEdge) / 2;
   const barX = dotX + dotR + 66;
 
-  const barFill = mono ? WHITE : `url(#g)`;
+  const barFill = mono ? WHITE : 'url(#g)';
   const plainBar = mono ? WHITE : SLATE;
   const dotFill = mono ? WHITE : CYAN_D;
   const checkColor = mono ? '#000000' : CYAN_D;

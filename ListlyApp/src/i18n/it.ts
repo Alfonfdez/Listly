@@ -70,7 +70,7 @@ export const it: Translations = {
   item_add: 'Aggiungi',
   item_empty: 'Ancora nessun elemento',
   item_empty_hint: 'Scrivi sotto per aggiungere il tuo primo elemento',
-  item_edit_title: "Modifica elemento",
+  item_edit_title: 'Modifica elemento',
   item_name_label: 'Nome',
   item_note_label: 'Nota',
   item_amount_label: 'Importo',

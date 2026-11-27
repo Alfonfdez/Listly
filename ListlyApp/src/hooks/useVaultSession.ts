@@ -16,7 +16,7 @@ export function useVaultSession(listId: number) {
       await vaultRepo.saveUnlocked(listId, passphraseRef.current, nextItems);
       setItems(nextItems);
     },
-    [listId]
+    [listId],
   );
 
   const unlock = useCallback(
@@ -35,7 +35,7 @@ export function useVaultSession(listId: number) {
         throw error;
       }
     },
-    [listId]
+    [listId],
   );
 
   const relock = useCallback(() => {
@@ -59,7 +59,7 @@ export function useVaultSession(listId: number) {
         throw error;
       }
     },
-    [listId, relock]
+    [listId, relock],
   );
 
   const changePassphrase = useCallback(
@@ -67,7 +67,7 @@ export function useVaultSession(listId: number) {
       await vaultRepo.changePassphrase(listId, currentPassphrase, newPassphrase);
       passphraseRef.current = newPassphrase;
     },
-    [listId]
+    [listId],
   );
 
   const mutate = useCallback(
@@ -75,7 +75,7 @@ export function useVaultSession(listId: number) {
       const next = updater(items);
       await persist(next);
     },
-    [items, persist]
+    [items, persist],
   );
 
   const addItem = useCallback(
@@ -109,30 +109,29 @@ export function useVaultSession(listId: number) {
       ];
       await persist(next);
     },
-    [items, listId, persist]
+    [items, listId, persist],
   );
 
   const updateItem = useCallback(
     async (id: number, data: Partial<Omit<VaultItemRecord, 'id' | 'list_id' | 'created_at'>>) => {
       await mutate(current =>
-        current.map(item => (item.id === id ? { ...item, ...data, updated_at: dbTimestamp() } : item))
-      );
+        current.map(item => (item.id === id ? { ...item, ...data, updated_at: dbTimestamp() } : item)));
     },
-    [mutate]
+    [mutate],
   );
 
   const deleteItem = useCallback(
     async (id: number) => {
       await mutate(current => current.filter(item => item.id !== id));
     },
-    [mutate]
+    [mutate],
   );
 
   const deleteMany = useCallback(
     async (ids: number[]) => {
       await mutate(current => current.filter(item => !ids.includes(item.id)));
     },
-    [mutate]
+    [mutate],
   );
 
   const toggleItem = useCallback(
@@ -141,11 +140,9 @@ export function useVaultSession(listId: number) {
         current.map(item =>
           item.id === id
             ? { ...item, checked: item.checked === 1 ? (0 as const) : (1 as const), updated_at: dbTimestamp() }
-            : item
-        )
-      );
+            : item));
     },
-    [mutate]
+    [mutate],
   );
 
   const setAllChecked = useCallback(
@@ -153,14 +150,14 @@ export function useVaultSession(listId: number) {
       const flag = checked ? (1 as const) : (0 as const);
       await mutate(current => current.map(item => ({ ...item, checked: flag, updated_at: dbTimestamp() })));
     },
-    [mutate]
+    [mutate],
   );
 
   const deleteCompleted = useCallback(
     async () => {
       await mutate(current => current.filter(item => item.checked !== 1));
     },
-    [mutate]
+    [mutate],
   );
 
   const reorder = useCallback(
@@ -177,7 +174,7 @@ export function useVaultSession(listId: number) {
         return ordered;
       });
     },
-    [mutate]
+    [mutate],
   );
 
   return {

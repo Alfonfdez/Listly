@@ -9,7 +9,7 @@ Tutto funziona **sul dispositivo**: i tuoi dati vivono in un database SQLite loc
 | | |
 |---|---|
 | **Piattaforme** | iOS, Android e Web |
-| **Versione** | 1.0.0 |
+| **Versione** | 1.1.0 |
 | **Lingue** | Inglese, Spagnolo, Catalano, Galiziano, Basco, Francese, Tedesco, Portoghese, Italiano |
 | **Dati** | 100 % locali (SQLite su nativo, sql.js + IndexedDB sul web) |
 | **Temi** | Scuro, Chiaro e Automatico (segue il sistema) |
@@ -31,27 +31,27 @@ Tutto funziona **sul dispositivo**: i tuoi dati vivono in un database SQLite loc
 
 ## Screenshot
 
-![Schermata Home](images/screenshots/01-home-empty.png)<br>*La schermata Home prima che esista qualsiasi raccolta o lista.*<br><br>
-![Home con dati](images/screenshots/02-home.png)<br>*Home con una raccolta e liste indipendenti, inclusa una lista bloccata.*<br><br>
-![Menu laterale](images/screenshots/03-hamburger.png)<br>*Menu laterale con Home, Raccolte, Liste e Impostazioni — e la versione dell'app in basso.*<br><br>
-![Crea lista](images/screenshots/04-create-list.png)<br>*Crea una lista: nome, tipo (Standard o Numerica), icona e colore.*<br><br>
-![Dettaglio lista](images/screenshots/05-list-detail-v2.png)<br>*Una lista standard con elementi spuntati, una nota, il controllo di ordinamento e le azioni in blocco — l'intestazione resta fissa durante lo scorrimento.*<br><br>
-![Lista numerica](images/screenshots/06-numeric-list-v3.png)<br>*Una lista numerica con una barra di avanzamento per valore, i totali di riga e la riga importo/quantità.*<br><br>
-![Modifica lista](images/screenshots/05b-edit-list.png)<br>*La schermata Modifica lista: rinominare, cambiare tipo, icona e colore, spostare la lista in una raccolta e Duplicare, Unire o Eliminare la lista.*<br><br>
-![Aggiungi elemento espanso](images/screenshots/07-add-item-expanded-v2.png)<br>*La barra di aggiunta espansa per allegare una nota e foto al nuovo elemento.*<br><br>
-![Modifica elemento](images/screenshots/08-item-edit-v2.png)<br>*Modifica di un elemento: nome, nota e foto.*<br><br>
-![Raccolte](images/screenshots/09b-collections.png)<br>*La schermata Raccolte.*<br><br>
-![Liste](images/screenshots/09-lists.png)<br>*La schermata Liste, con l'appartenenza alle raccolte e il progresso per lista.*<br><br>
-![Dettaglio raccolta](images/screenshots/10-collection-detail.png)<br>*Una raccolta con le sue liste membro.*<br><br>
-![Blocca lista](images/screenshots/12-lock-list-v2.png)<br>*Bloccare una lista con una passphrase.*<br><br>
-![Lista bloccata](images/screenshots/12b-locked-list.png)<br>*Una lista bloccata, in attesa della passphrase.*<br><br>
-![Modalità selezione](images/screenshots/13-select-mode-v2.png)<br>*Modalità selezione con la barra delle azioni inferiore.*<br><br>
-![Impostazioni](images/screenshots/14-settings.png)<br>*Impostazioni: Aspetto, Regionale, Personalizzazione e Dati.*<br><br>
-![Impostazioni aspetto](images/screenshots/15-settings-appearance.png)<br>*Aspetto: tema e dimensione del testo.*<br><br>
-![Selettore lingua](images/screenshots/16b-settings-language.png)<br>*Il selettore della lingua con le nove lingue e le loro bandiere.*<br><br>
-![Impostazioni regionali](images/screenshots/16-settings-regional.png)<br>*Impostazioni regionali: lingua.*<br><br>
-![Impostazioni personalizzazione](images/screenshots/17-settings-personalization.png)<br>*Personalizzazione: layout per schermata e campi opzionali per tipo di lista.*<br><br>
-![Impostazioni dati](images/screenshots/18-settings-data.png)<br>*Dati: esporta/importa e le azioni protette di eliminazione e ripristino.*<br><br>
+![Schermata Home](images/screenshots/v1.1.0-01-a-home-empty.png)<br>*La schermata Home prima che esista qualsiasi raccolta o lista.*<br><br>
+![Home con dati](images/screenshots/v1.1.0-01-b-home.png)<br>*Home con due raccolte e liste indipendenti, con il progresso di ogni raccolta.*<br><br>
+![Menu laterale](images/screenshots/v1.1.0-02-hamburger.png)<br>*Menu laterale con Home, Raccolte, Liste e Impostazioni — e la versione dell'app in basso.*<br><br>
+![Crea lista](images/screenshots/v1.1.0-03-create-list-v2.png)<br>*Crea una lista: nome, tipo (Standard o Numerica), icona e colore.*<br><br>
+![Dettaglio lista](images/screenshots/v1.1.0-04-a-list-detail.png)<br>*Una lista standard con elementi spuntati, note, una foto, il controllo di ordinamento e le azioni in blocco — l'intestazione resta fissa durante lo scorrimento.*<br><br>
+![Lista numerica](images/screenshots/v1.1.0-04-b-numeric-list.png)<br>*Una lista numerica con una barra di avanzamento per valore, i totali di riga e la riga importo/quantità.*<br><br>
+![Modifica lista](images/screenshots/v1.1.0-05-edit-list-v2.png)<br>*La schermata Modifica lista: rinominare, cambiare tipo, icona e colore, spostare la lista in una raccolta e Duplicare, Unire o Eliminare la lista.*<br><br>
+![Aggiungi elemento espanso](images/screenshots/v1.1.0-06-a-add-item-expanded-v2.png)<br>*La barra di aggiunta espansa per allegare una nota e foto al nuovo elemento.*<br><br>
+![Modifica elemento](images/screenshots/v1.1.0-06-b-item-edit-v2.png)<br>*Modifica di un elemento: nome su due righe, nota e foto.*<br><br>
+![Liste](images/screenshots/v1.1.0-07-a-lists.png)<br>*La schermata Liste, con l'appartenenza alle raccolte e il progresso per lista.*<br><br>
+![Raccolte](images/screenshots/v1.1.0-07-b-collections.png)<br>*La schermata Raccolte.*<br><br>
+![Dettaglio raccolta](images/screenshots/v1.1.0-07-c-collection-detail.png)<br>*Una raccolta con le sue liste membro.*<br><br>
+![Blocca lista](images/screenshots/v1.1.0-08-a-lock-list.png)<br>*Bloccare una lista con una passphrase.*<br><br>
+![Lista bloccata](images/screenshots/v1.1.0-08-b-locked-list.png)<br>*Una lista bloccata, in attesa della passphrase.*<br><br>
+![Modalità selezione](images/screenshots/v1.1.0-09-select-mode.png)<br>*Modalità selezione con la barra delle azioni inferiore.*<br><br>
+![Impostazioni](images/screenshots/v1.1.0-10-a-settings.png)<br>*Impostazioni: Aspetto, Regionale, Personalizzazione e Dati.*<br><br>
+![Impostazioni aspetto](images/screenshots/v1.1.0-10-b-appearance.png)<br>*Aspetto: tema e dimensione del testo.*<br><br>
+![Impostazioni regionali](images/screenshots/v1.1.0-10-c-regional.png)<br>*Impostazioni regionali: lingua.*<br><br>
+![Selettore lingua](images/screenshots/v1.1.0-10-d-language.png)<br>*Il selettore della lingua con le nove lingue e le loro bandiere.*<br><br>
+![Impostazioni personalizzazione](images/screenshots/v1.1.0-10-e-personalization.png)<br>*Personalizzazione: layout per schermata e campi opzionali per tipo di lista.*<br><br>
+![Impostazioni dati](images/screenshots/v1.1.0-10-f-data.png)<br>*Dati: esporta/importa e le azioni protette di eliminazione e ripristino.*<br><br>
 
 ## Tecnologie
 

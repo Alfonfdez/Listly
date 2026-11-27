@@ -1,9 +1,10 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, View, type ScrollView } from 'react-native';
+import Animated, { useAnimatedRef } from 'react-native-reanimated';
 import { Ionicons } from '@expo/vector-icons';
 import Sortable, { type SortableGridRenderItem } from 'react-native-sortables';
 import { useFocusEffect, useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
-import { type IconName, type NavigationProp, type RootStackParamList, COPY_FEEDBACK_MS } from '../constants/types';
+import { LIST_KINDS, type IconName, type NavigationProp, type RootStackParamList, COPY_FEEDBACK_MS, AUTO_SCROLL_ACTIVATION_OFFSET, AUTO_SCROLL_MAX_VELOCITY } from '../constants/types';
 import type { Item } from '../database/types';
 import { vaultRepo } from '../database';
 import { logError, ERROR_SCOPE } from '../utils/errors';
@@ -55,6 +56,9 @@ export default function ListDetailScreen() {
   const fs = useFontSize();
   const labels = useLabels();
   const keyboardHeight = useKeyboardHeight();
+  // Animated ref to the items scroll container so the sortable grid can
+  // auto-scroll while an item is dragged near the top/bottom edge.
+  const itemsScrollRef = useAnimatedRef<ScrollView>();
 
   const list = useMemo(() => lists.find(l => l.id === listId), [lists, listId]);
   const locked = lockedListIds.has(listId);
@@ -96,7 +100,7 @@ export default function ListDetailScreen() {
       return () => {
         relock();
       };
-    }, [refresh, relock])
+    }, [refresh, relock]),
   );
 
   useEffect(() => {
@@ -125,7 +129,7 @@ export default function ListDetailScreen() {
     filteredItems,
     useCallback((ids: number[]) => {
       void reorder(ids);
-    }, [reorder])
+    }, [reorder]),
   );
 
   const {
@@ -174,13 +178,13 @@ export default function ListDetailScreen() {
   const done = items.filter(i => isOn(i.checked)).length;
   const total = items.length;
   const pct = total > 0 ? Math.round((done / total) * 100) : 0;
-  const numeric = list?.kind === 'numeric';
+  const numeric = list?.kind === LIST_KINDS.numeric;
   const totals = useMemo(
     () =>
       numeric
         ? { all: sumTotals(items, { onlyDone: false }), done: sumTotals(items, { onlyDone: true }) }
         : undefined,
-    [numeric, items]
+    [numeric, items],
   );
 
   // Value-weighted progress bar for numeric lists (spec 034): always shown on a
@@ -205,7 +209,7 @@ export default function ListDetailScreen() {
         onEdit={() => setEditing(item)}
       />
     ),
-    [selectMode, selectedIds, toggleItem, toggle, setEditing, numeric]
+    [selectMode, selectedIds, toggleItem, toggle, setEditing, numeric],
   );
 
   if (!list) {
@@ -259,75 +263,75 @@ export default function ListDetailScreen() {
       progressLabel={labels.home_progress(done, total)}
       onEdit={() => navigation.navigate('EditList', { listId })}
       editAccessibilityLabel={labels.list_edit_label}
-        progressPercent={pct}
-        valueProgress={valueProgress}
+      progressPercent={pct}
+      valueProgress={valueProgress}
       trailing={
         <View style={styles.copyGroup}>
           {!locked && items.length > 0 ? (
             <>
-            <TouchableOpacity
-              onPress={() => copyList(false)}
-              style={styles.copyButton}
-              accessibilityRole="button"
-              accessibilityLabel={labels.list_copy_names}
-              hitSlop={HIT_SLOP}
-            >
-              <Ionicons
-                name={copiedAction === 'names' ? 'checkmark' : 'copy-outline'}
-                size={20}
-                color={copiedAction === 'names' ? c.green : list.color}
-              />
-            </TouchableOpacity>
-            <TouchableOpacity
-              onPress={() => copyList(true)}
-              style={styles.copyButton}
-              accessibilityRole="button"
-              accessibilityLabel={labels.list_copy_all}
-              hitSlop={HIT_SLOP}
-            >
-              <Ionicons
-                name={copiedAction === 'all' ? 'checkmark' : 'reader-outline'}
-                size={20}
-                color={copiedAction === 'all' ? c.green : list.color}
-              />
-            </TouchableOpacity>
-            {hasOtherLists && !locked ? (
               <TouchableOpacity
-                onPress={openCopyPicker}
+                onPress={() => copyList(false)}
                 style={styles.copyButton}
                 accessibilityRole="button"
-                accessibilityLabel={labels.list_copy_to}
-                accessibilityHint={labels.list_picker_hint}
+                accessibilityLabel={labels.list_copy_names}
                 hitSlop={HIT_SLOP}
               >
                 <Ionicons
-                  name={copiedAction === 'to-list' ? 'checkmark' : 'duplicate-outline'}
+                  name={copiedAction === 'names' ? 'checkmark' : 'copy-outline'}
                   size={20}
-                  color={copiedAction === 'to-list' ? c.green : list.color}
+                  color={copiedAction === 'names' ? c.green : list.color}
                 />
               </TouchableOpacity>
-            ) : null}
-              </>
-            ) : null}
-            <TouchableOpacity
-              onPress={() => (vaultReady ? setLockModalVisible(true) : setVaultInfoVisible(true))}
-              style={styles.copyButton}
-              accessibilityRole="button"
-              accessibilityLabel={locked ? labels.list_change_passphrase : labels.list_lock_action}
-              hitSlop={HIT_SLOP}
-            >
-              <Ionicons name={locked ? 'key-outline' : 'lock-closed-outline'} size={20} color={list.color} />
-            </TouchableOpacity>
-            {copiedAction ? (
-              <Text style={[styles.copiedLabel, { color: c.green, fontSize: fs(12) }]}>
-                {copiedAction === 'to-list' && copiedToName
-                  ? labels.list_copied_to(copiedToName)
-                  : copiedAction === 'all'
-                    ? labels.list_copied_notes
-                    : labels.list_copied_names}
-              </Text>
-            ) : null}
-          </View>
+              <TouchableOpacity
+                onPress={() => copyList(true)}
+                style={styles.copyButton}
+                accessibilityRole="button"
+                accessibilityLabel={labels.list_copy_all}
+                hitSlop={HIT_SLOP}
+              >
+                <Ionicons
+                  name={copiedAction === 'all' ? 'checkmark' : 'reader-outline'}
+                  size={20}
+                  color={copiedAction === 'all' ? c.green : list.color}
+                />
+              </TouchableOpacity>
+              {hasOtherLists && !locked ? (
+                <TouchableOpacity
+                  onPress={openCopyPicker}
+                  style={styles.copyButton}
+                  accessibilityRole="button"
+                  accessibilityLabel={labels.list_copy_to}
+                  accessibilityHint={labels.list_picker_hint}
+                  hitSlop={HIT_SLOP}
+                >
+                  <Ionicons
+                    name={copiedAction === 'to-list' ? 'checkmark' : 'duplicate-outline'}
+                    size={20}
+                    color={copiedAction === 'to-list' ? c.green : list.color}
+                  />
+                </TouchableOpacity>
+              ) : null}
+            </>
+          ) : null}
+          <TouchableOpacity
+            onPress={() => (vaultReady ? setLockModalVisible(true) : setVaultInfoVisible(true))}
+            style={styles.copyButton}
+            accessibilityRole="button"
+            accessibilityLabel={locked ? labels.list_change_passphrase : labels.list_lock_action}
+            hitSlop={HIT_SLOP}
+          >
+            <Ionicons name={locked ? 'key-outline' : 'lock-closed-outline'} size={20} color={list.color} />
+          </TouchableOpacity>
+          {copiedAction ? (
+            <Text style={[styles.copiedLabel, { color: c.green, fontSize: fs(12) }]}>
+              {copiedAction === 'to-list' && copiedToName
+                ? labels.list_copied_to(copiedToName)
+                : copiedAction === 'all'
+                  ? labels.list_copied_notes
+                  : labels.list_copied_names}
+            </Text>
+          ) : null}
+        </View>
       }
     />
   );
@@ -373,70 +377,71 @@ export default function ListDetailScreen() {
             <View style={[styles.batchRow, styles.batchRowSingle]}>
               <TouchableOpacity
                 onPress={openSortModal}
-                  style={[styles.batchButton, styles.batchButtonCompact, { borderColor: sortActive ? c.primary : c.border }]}
-                  accessibilityRole="button"
-                  accessibilityLabel={sortLabel}
+                style={[styles.batchButton, styles.batchButtonCompact, { borderColor: sortActive ? c.primary : c.border }]}
+                accessibilityRole="button"
+                accessibilityLabel={sortLabel}
+              >
+                <Ionicons name="swap-vertical" size={16} color={sortActive ? c.primary : c.textSecondary} />
+                {sortActive ? (
+                  <Ionicons
+                    name={sortDirection === 'asc' ? 'arrow-up' : 'arrow-down'}
+                    size={14}
+                    color={c.primary}
+                  />
+                ) : null}
+                <Ionicons name="chevron-down" size={14} color={c.textSecondary} />
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => void completeAll()}
+                disabled={done === total}
+                style={[styles.batchButton, styles.batchButtonFill, { borderColor: c.border }]}
+                accessibilityRole="button"
+                accessibilityLabel={labels.item_complete_all_a11y}
+              >
+                <Ionicons name="checkmark-done-outline" size={16} color={done === total ? c.textSecondary : c.primary} />
+                <Text
+                  numberOfLines={1}
+                  style={[styles.batchText, { color: done === total ? c.textSecondary : c.primary, fontSize: fs(13) }]}
                 >
-                  <Ionicons name="swap-vertical" size={16} color={sortActive ? c.primary : c.textSecondary} />
-                  {sortActive ? (
-                    <Ionicons
-                      name={sortDirection === 'asc' ? 'arrow-up' : 'arrow-down'}
-                      size={14}
-                      color={c.primary}
-                    />
-                  ) : null}
-                  <Ionicons name="chevron-down" size={14} color={c.textSecondary} />
-                </TouchableOpacity>
-                <TouchableOpacity
-                  onPress={() => void completeAll()}
-                  disabled={done === total}
-                  style={[styles.batchButton, styles.batchButtonFill, { borderColor: c.border }]}
-                  accessibilityRole="button"
-                  accessibilityLabel={labels.item_complete_all_a11y}
+                  {labels.item_complete_all}
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => void uncompleteAll()}
+                disabled={done === 0}
+                style={[styles.batchButton, styles.batchButtonFill, { borderColor: c.border }]}
+                accessibilityRole="button"
+                accessibilityLabel={labels.item_uncomplete_all_a11y}
+              >
+                <Ionicons name="square-outline" size={16} color={done === 0 ? c.textSecondary : list.color} />
+                <Text
+                  numberOfLines={1}
+                  style={[styles.batchText, { color: done === 0 ? c.textSecondary : list.color, fontSize: fs(13) }]}
                 >
-                  <Ionicons name="checkmark-done-outline" size={16} color={done === total ? c.textSecondary : c.primary} />
-                  <Text
-                    numberOfLines={1}
-                    style={[styles.batchText, { color: done === total ? c.textSecondary : c.primary, fontSize: fs(13) }]}
-                  >
-                    {labels.item_complete_all}
-                  </Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  onPress={() => void uncompleteAll()}
-                  disabled={done === 0}
-                  style={[styles.batchButton, styles.batchButtonFill, { borderColor: c.border }]}
-                  accessibilityRole="button"
-                  accessibilityLabel={labels.item_uncomplete_all_a11y}
+                  {labels.item_uncomplete_all}
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={openClearCompleted}
+                disabled={done === 0}
+                style={[styles.batchButton, styles.batchButtonFill, { borderColor: c.border }]}
+                accessibilityRole="button"
+                accessibilityLabel={labels.item_clear_completed_a11y}
+              >
+                <Ionicons name="close-circle-outline" size={16} color={done === 0 ? c.textSecondary : c.red} />
+                <Text
+                  numberOfLines={1}
+                  style={[styles.batchText, { color: done === 0 ? c.textSecondary : c.red, fontSize: fs(13) }]}
                 >
-                  <Ionicons name="square-outline" size={16} color={done === 0 ? c.textSecondary : list.color} />
-                  <Text
-                    numberOfLines={1}
-                    style={[styles.batchText, { color: done === 0 ? c.textSecondary : list.color, fontSize: fs(13) }]}
-                  >
-                    {labels.item_uncomplete_all}
-                  </Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  onPress={openClearCompleted}
-                  disabled={done === 0}
-                  style={[styles.batchButton, styles.batchButtonFill, { borderColor: c.border }]}
-                  accessibilityRole="button"
-                  accessibilityLabel={labels.item_clear_completed_a11y}
-                >
-                  <Ionicons name="close-circle-outline" size={16} color={done === 0 ? c.textSecondary : c.red} />
-                  <Text
-                    numberOfLines={1}
-                    style={[styles.batchText, { color: done === 0 ? c.textSecondary : c.red, fontSize: fs(13) }]}
-                  >
-                    {labels.item_clear_completed}
-                  </Text>
-                </TouchableOpacity>
-              </View>
+                  {labels.item_clear_completed}
+                </Text>
+              </TouchableOpacity>
+            </View>
           ) : null}
         </View>
 
-        <ScrollView
+        <Animated.ScrollView
+          ref={itemsScrollRef}
           style={styles.list}
           contentContainerStyle={styles.listContent}
           showsVerticalScrollIndicator={false}
@@ -456,10 +461,14 @@ export default function ListDetailScreen() {
               columns={1}
               sortEnabled={!selectMode && query === '' && items.length > 1 && !sortActive}
               rowGap={8}
+              scrollableRef={itemsScrollRef}
+              autoScrollDirection="vertical"
+              autoScrollActivationOffset={AUTO_SCROLL_ACTIVATION_OFFSET}
+              autoScrollMaxVelocity={AUTO_SCROLL_MAX_VELOCITY}
               onDragEnd={handleDragEnd}
             />
           )}
-        </ScrollView>
+        </Animated.ScrollView>
 
         {!selectMode ? (
           <AddItemBar

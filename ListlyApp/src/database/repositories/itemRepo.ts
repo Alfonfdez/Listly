@@ -72,8 +72,7 @@ export const itemRepo = {
         .update(items)
         .set({ position: i, updated_at: dbTimestamp() })
         .where(and(eq(items.id, id), eq(items.list_id, listId)))
-        .run()
-    );
+        .run());
   },
 
   async update(id: number, data: Partial<Omit<Item, 'id' | 'created_at'>>): Promise<void> {

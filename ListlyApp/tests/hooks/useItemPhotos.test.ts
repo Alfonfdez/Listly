@@ -1,6 +1,8 @@
 import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
 import { renderHook, act } from '@testing-library/react-native';
 
+import { useItemPhotos } from '../../src/hooks/useItemPhotos';
+
 const { requestCameraPermissionsAsync, launchCameraAsync, requestMediaLibraryPermissionsAsync, launchImageLibraryAsync } =
   vi.hoisted(() => ({
     requestCameraPermissionsAsync: vi.fn(),
@@ -20,8 +22,6 @@ vi.mock('../../src/utils/itemPhotos', async () => {
   const actual = await vi.importActual<typeof import('../../src/utils/itemPhotos')>('../../src/utils/itemPhotos');
   return { ...actual, deleteItemPhotos: vi.fn(async () => {}) };
 });
-
-import { useItemPhotos } from '../../src/hooks/useItemPhotos';
 
 describe('useItemPhotos error handling', () => {
   let errorSpy: ReturnType<typeof vi.spyOn>;

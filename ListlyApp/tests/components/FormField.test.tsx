@@ -8,7 +8,7 @@ describe('FormField', () => {
     const view = await render(
       <FormField label="Name">
         <Text>input</Text>
-      </FormField>
+      </FormField>,
     );
     expect(view.getByText('Name')).toBeTruthy();
     expect(view.getByText('input')).toBeTruthy();
@@ -18,7 +18,7 @@ describe('FormField', () => {
     const view = await render(
       <FormField label="Name" error="Required">
         <Text>input</Text>
-      </FormField>
+      </FormField>,
     );
     expect(view.getByText('Required')).toBeTruthy();
   });
@@ -27,7 +27,7 @@ describe('FormField', () => {
     const view = await render(
       <FormField label="Name" error={null}>
         <Text>input</Text>
-      </FormField>
+      </FormField>,
     );
     expect(view.queryByText('Required')).toBeNull();
   });

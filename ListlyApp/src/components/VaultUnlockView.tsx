@@ -4,8 +4,9 @@ import { Ionicons } from '@expo/vector-icons';
 import { useConfig } from '../context/ConfigContext';
 import { useFontSize } from '../hooks/useFontSize';
 import { useLabels } from '../hooks/useLabels';
-import { BUTTON_BORDER_RADIUS, PRESSED_OPACITY } from './componentStyles';
+import { BUTTON_BORDER_RADIUS, PRESSED_OPACITY, fieldBorderColor } from './componentStyles';
 import { ICONS } from '../constants/icons';
+import FieldError from './FieldError';
 
 interface Props {
   onUnlock: (passphrase: string) => Promise<void>;
@@ -43,7 +44,12 @@ export default function VaultUnlockView({ onUnlock, onRemoveLock, wrongPassphras
       <TextInput
         style={[
           styles.input,
-          { backgroundColor: c.background, borderColor: wrongPassphrase ? c.red : c.border, color: c.text, fontSize: fs(15) },
+          {
+            backgroundColor: c.background,
+            borderColor: fieldBorderColor(c, wrongPassphrase),
+            color: c.text,
+            fontSize: fs(15),
+          },
         ]}
         value={passphrase}
         onChangeText={setPassphrase}
@@ -54,7 +60,7 @@ export default function VaultUnlockView({ onUnlock, onRemoveLock, wrongPassphras
         accessibilityLabel={labels.vault_passphrase_label}
       />
       {wrongPassphrase ? (
-        <Text style={[styles.error, { color: c.red, fontSize: fs(12) }]}>{labels.vault_wrong_passphrase}</Text>
+        <FieldError message={labels.vault_wrong_passphrase} style={styles.error} />
       ) : null}
       <TouchableOpacity
         style={[styles.button, { backgroundColor: c.primary }]}

@@ -22,6 +22,7 @@
 
 ## ENVIRONMENT
 - Host: Windows, PowerShell 5.1 shell. There is NO ripgrep in the shell — use the grep/glob/read tools for searching.
+- **Never write non-ASCII text through the shell**: PowerShell here-strings, pipes and `>` redirects re-encode with the console codepage and turn accents/dashes into `?` or mojibake. Write such files with the Write/Edit tools (UTF-8), or put the text in a JSON/values file written with Write and let a script read it. `scripts/i18n.mjs` only edits `src/i18n/*.ts` — never the READMEs or other files.
 - `opencode.jsonc` is gitignored (it contains the Context7 API key). A secret-free `opencode.example.jsonc` is committed as a template.
 - Web verification uses the Playwright MCP browser against the Expo web dev server at `http://localhost:8081`.
 - Dev-server lifecycle: start `npx expo start --web` (port 8081) in the background, poll the URL until it serves HTML, and always terminate it when done (free port 8081). Concrete commands are in `docs/harnesses.md` and the `verification-loop` skill.
@@ -73,6 +74,7 @@ npx eas-cli build --platform android --profile production --no-wait  # store AAB
 - **Bump `android.versionCode` (and `ios.buildNumber`) for every release**: `versionCode` must strictly increase or Google Play rejects the upload; it is what makes an update install *over* the previous one.
 - **Signing keys are managed by EAS** (generated on the first production build and stored on Expo's servers for the project's `projectId`), so consecutive releases share one signature and update in place — no uninstall. Keep an offline backup: `npx eas-cli credentials` → Android → download the keystore + passwords. Never commit a keystore (`.jks`/`.p12`/`.key` are gitignored; `.easignore` also excludes them).
 - A locally built `gradlew assembleRelease` APK is signed with the **debug** keystore (`app/build.gradle` uses `signingConfigs.debug`), so it has a different signature than the EAS release — use it only for local smoke tests, and expect to uninstall the debug APK before installing an EAS build.
+- **Android auto-backup stays off** (`expo.android.allowBackup: false` in `app.json` → `android:allowBackup="false"` in the packaged manifest). The SQLite database is app-private, so with Android's default `true` the OS cloud backup copied it and **restored it on reinstall**, which brought a previous install's data back into a fresh install (and could undo an in-app factory reset). With it off a reinstall starts empty; data moves only through Settings → Data → Export/Import. Changing the flag needs `npx expo prebuild --platform android` (the generated `android/` is gitignored) and a new build.
 
 ### Local dev build (icons/splash regeneration)
 ```bash
@@ -84,10 +86,27 @@ cd android && ./gradlew assembleRelease   # APK → app/build/outputs/apk/releas
 - **After changing `assets/` or the icon/splash config in `app.json`, run `npx expo prebuild --platform android` before building** — otherwise the APK keeps the stale icons/splash (Gradle won't regenerate them).
 - Web favicon is injected only at export time: `npx expo export --platform web` (dev `expo start --web` serves no favicon).
 
-## LINT
+## LINT / FORMATTING
 ```bash
-npx expo lint
+npm run lint       # expo lint . --max-warnings 0 (src, tests, scripts, configs)
+npm run lint:fix   # the same with --fix (indent, quotes, commas, EOL)
 ```
+- Formatting is **machine-enforced**: 2-space indent (`case` one level deeper), single quotes, double JSX quotes, semicolons, trailing commas in multiline literals, no trailing spaces, a final newline, no BOM. `.editorconfig` mirrors it; ESLint is the gate.
+- `eslint-plugin-boundaries` enforces the layer import rules (`constants` → `utils` → `i18n` → `database` → `context` → `hooks` → `components` → `screens` → `navigation`).
+- Node scripts are linted with Node globals; tests get a test-only React override.
+- Run `npm run lint:fix` before committing style changes; never hand-fix indentation. `npm run lint` must report **0 problems and 0 warnings**.
+
+## SCREENSHOTS
+```bash
+cd ListlyApp
+npm run screenshots                        # full v1.1.0 set into images/screenshots/
+npm run screenshots -- --only 03-create-list   # one screen (imports the fixture when needed)
+npm run screenshots -- --no-server             # reuse a dev server already on :8081
+```
+- The harness (`scripts/screenshots/capture.mjs` + `manifest.mjs` + `fixture.json`) starts Expo web on 8081 with `--clear`, imports the fixture through Settings -> Data -> Import, captures 21 screens at 375x812 (DPR 1, English, dark) and always stops the server it started.
+- **Bump the version first** (`app.json` `version` / `ios.buildNumber` / `android.versionCode`, `package.json`, the 9 README version rows) **and** `SET` in `manifest.mjs`: the drawer footer renders the app version, so a capture taken before the bump shows the old one.
+- Filenames are `<set>-<key>.png` (`v1.1.0-01-a-home-empty.png`). The 9 READMEs must reference the same files in manifest order; `tests/tooling/screenshots.test.ts` enforces it and validates the fixture.
+- `scripts/screenshots/fixture.json` is a real Listly backup (schema 9) with fixed dates and a data-URI photo; keep ids/FKs/config keys consistent. See `docs/screenshots.md`.
 
 ## VERIFICATION
 - A change is only "done" when `npm run test:all` passes (typecheck + lint + tests).
@@ -98,7 +117,9 @@ npx expo lint
 
 ## DATABASE
 - One `DatabaseHandle` interface on all platforms (`src/database/types.ts`); `engine.ts` (native) / `engine.web.ts` (web) select the engine.
-- Migrations run from `PRAGMA user_version` in `src/database/database.ts`, applying each step once inside a transaction.
+- The migration chain lives in `src/database/migrations/index.ts`: `MIGRATIONS` is an ordered list of `{ version, run }` steps and `SCHEMA_VERSION` (9 since v1.0.0) is the version this build writes to `PRAGMA user_version`.
+- **Never drop a database at or above `RELEASED_BASELINE` (9).** Bumping `SCHEMA_VERSION` means appending one idempotent step to `MIGRATIONS`; `tests/database/migrations.test.ts` fails if the chain does not end at `SCHEMA_VERSION`. Only pre-release databases (`1..8`) are rebuilt.
+- `tests/fixtures/upgrade/v1.0.0.sql` is a frozen v9 snapshot; `tests/database/upgrade.test.ts` proves an upgrade keeps every row. See `docs/upgrade-testing.md`.
 - Drizzle schema in `src/database/drizzle/schema.ts`; repositories written with the Drizzle query builder.
 - Every stored row is validated at the storage boundary with Zod (`src/database/schemas.ts`); `src/database/types.ts` re-exports the `z.infer` types.
 - Repositories: list, item, config, collection, vault.
@@ -106,8 +127,22 @@ npx expo lint
 ## I18N
 - Languages: English, Spanish, Catalan, Galician, Basque, French, German, Portuguese, Italian (en, es, ca, gl, eu, fr, de, pt, it).
 - `t()` returns the language object.
-- All UI strings go through `src/i18n/`; every pack is typed against `en`'s `Translations`, so key parity is enforced at typecheck (plus `tests/i18n/parity.test.ts`).
-- i18n key naming: `lowercase.with.dots`.
+- All UI strings go through `src/i18n/`; every pack is typed against `en`'s `Translations`, so key parity is enforced at typecheck (plus `tests/i18n/parity.test.ts` and the encoding guard in `tests/i18n/encoding.test.ts`).
+- i18n key naming: `snake_case` (e.g. `home_empty`, `settings_title`).
+
+## I18N KEYS
+Every key must exist in all nine language files with the same key set. **Always use the script** (never hand-edit the nine files):
+```bash
+npm run i18n -- list --check                                        # key counts + parity problems
+npm run i18n -- list --key home_                                    # show matching keys per language
+npm run i18n -- add --key foo --value "Foo" --after bar --dry-run
+npm run i18n -- add --key foo --values-file keys.json --after bar
+npm run i18n -- set --key foo --value "Foo" --lang es
+npm run i18n -- remove --key foo
+```
+- `--values-file` takes a JSON object keyed by language code; use it for anything containing a quote, backslash, `$` or backtick (never `--value` on the command line).
+- The script is all-or-nothing, keeps comments/sections/CRLF, and writes UTF-8; it is covered by `tests/tooling/i18n.test.ts`.
+- After any i18n change run `npm run test:all` (the parity + encoding tests must pass).
 
 ## PROJECT STRUCTURE
 ```
@@ -129,4 +164,4 @@ ListlyApp/
 - Components: `PascalCase.tsx` (e.g., `ItemRow.tsx`)
 - Repositories: `camelCaseRepo.ts` (e.g., `listRepo.ts`)
 - Hooks: `useHookName.ts`
-- i18n keys: `lowercase.with.dots` (e.g., `home_empty`, `settings_title`)
+- i18n keys: `snake_case` (e.g., `home_empty`, `settings_title`)

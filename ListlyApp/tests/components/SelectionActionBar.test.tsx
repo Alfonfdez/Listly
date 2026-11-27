@@ -12,7 +12,7 @@ function renderBar(overrides: Partial<React.ComponentProps<typeof SelectionActio
       onDelete={vi.fn()}
       onCancel={vi.fn()}
       {...overrides}
-    />
+    />,
   );
 }
 

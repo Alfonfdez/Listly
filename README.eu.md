@@ -9,7 +9,7 @@ Dena **gailuan** exekutatzen da: zure datuak tokiko SQLite datu-basean bizi dira
 | | |
 |---|---|
 | **Plataformak** | iOS, Android eta Web |
-| **Bertsioa** | 1.0.0 |
+| **Bertsioa** | 1.1.0 |
 | **Hizkuntzak** | Ingelesa, Gaztelania, Katalana, Galiziera, Euskara, Frantsesa, Alemana, Portugesa eta Italiera |
 | **Datuak** | % 100 lokalak (SQLite natiboan, sql.js + IndexedDB webean) |
 | **Gaiak** | Iluna, Argia eta Automatikoa (sistema jarraitzen du) |
@@ -31,27 +31,27 @@ Dena **gailuan** exekutatzen da: zure datuak tokiko SQLite datu-basean bizi dira
 
 ## Pantaila-argazkiak
 
-![Hasierako pantaila](images/screenshots/01-home-empty.png)<br>*Hasierako pantaila, kolekzio edo zerrendarik oraindik ez dagoenean.*<br><br>
-![Hasiera datuekin](images/screenshots/02-home.png)<br>*Hasiera kolekzio batekin eta zerrenda solteekin, blokeatutako zerrenda bat barne.*<br><br>
-![Alboko menua](images/screenshots/03-hamburger.png)<br>*Alboko menua Hasiera, Kolekzioak, Zerrendak eta Ezarpenekin — eta apparen bertsioa behean.*<br><br>
-![Zerrenda sortu](images/screenshots/04-create-list.png)<br>*Zerrenda sortu: izena, mota (Estandarra edo Numerikoa), ikonoa eta kolorea.*<br><br>
-![Zerrenda-xehetasuna](images/screenshots/05-list-detail-v2.png)<br>*Zerrenda estandar bat, markatutako elementuekin, ohar batekin, ordena-kontrolarekin eta lote-ekintzekin — goiburukoa finko mantentzen da korritzen duzunean.*<br><br>
-![Zerrenda numerikoa](images/screenshots/06-numeric-list-v3.png)<br>*Zerrenda numeriko bat balioaren aurrerapen-barra batekin, lerro-totalekin eta zenbateko/kantitate errenkadarekin.*<br><br>
-![Zerrenda editatu](images/screenshots/05b-edit-list.png)<br>*Zerrenda editatzeko pantaila: izena, mota, ikonoa eta kolorea aldatu, zerrenda kolekzio batera eraman, eta bikoiztu, batu edo ezabatu zerrenda.*<br><br>
-![Gehitu elementua zabalik](images/screenshots/07-add-item-expanded-v2.png)<br>*Gehitzeko barra zabaldua, elementu berriari oharra eta argazkiak eransteko.*<br><br>
-![Elementua editatu](images/screenshots/08-item-edit-v2.png)<br>*Elementu bat editatzen: izena, oharra eta argazkiak.*<br><br>
-![Kolekzioak](images/screenshots/09b-collections.png)<br>*Kolekzioen pantaila.*<br><br>
-![Zerrendak](images/screenshots/09-lists.png)<br>*Zerrenden pantaila, kolekzio-egozpena eta zerrendako aurrerapena erakutsita.*<br><br>
-![Kolekzio-xehetasuna](images/screenshots/10-collection-detail.png)<br>*Kolekzio bat bere kide diren zerrendekin.*<br><br>
-![Zerrenda blokeatu](images/screenshots/12-lock-list-v2.png)<br>*Zerrenda bat pasahitz batekin blokeatzea.*<br><br>
-![Blokeatutako zerrenda](images/screenshots/12b-locked-list.png)<br>*Blokeatutako zerrenda bat, pasahitzaren zain.*<br><br>
-![Hautapen modua](images/screenshots/13-select-mode-v2.png)<br>*Hautapen modua beheko ekintza-barrarekin.*<br><br>
-![Ezarpenak](images/screenshots/14-settings.png)<br>*Ezarpenak: Itxura, Eskualdea, Pertsonalizazioa eta Datuak.*<br><br>
-![Itxura-ezarpenak](images/screenshots/15-settings-appearance.png)<br>*Itxura: gaia eta testu-tamaina.*<br><br>
-![Hizkuntza-hautatzailea](images/screenshots/16b-settings-language.png)<br>*Hizkuntza-hautatzailea, bederatzi hizkuntzekin eta haien banderekin.*<br><br>
-![Eskualde-ezarpenak](images/screenshots/16-settings-regional.png)<br>*Eskualde-ezarpenak: hizkuntza.*<br><br>
-![Pertsonalizazio-ezarpenak](images/screenshots/17-settings-personalization.png)<br>*Pertsonalizazioa: pantaila bakoitzeko diseinuak eta zerrenda mota bakoitzeko eremu aukerakoak.*<br><br>
-![Datu-ezarpenak](images/screenshots/18-settings-data.png)<br>*Datuak: esportatu/inportatu eta ezabaketa eta berrezarpen babestutako ekintzak.*<br><br>
+![Hasierako pantaila](images/screenshots/v1.1.0-01-a-home-empty.png)<br>*Hasierako pantaila, kolekzio edo zerrendarik oraindik ez dagoenean.*<br><br>
+![Hasiera datuekin](images/screenshots/v1.1.0-01-b-home.png)<br>*Hasiera bi kolekziorekin eta zerrenda solteekin, kolekzio bakoitzaren aurrerapenarekin.*<br><br>
+![Alboko menua](images/screenshots/v1.1.0-02-hamburger.png)<br>*Alboko menua Hasiera, Kolekzioak, Zerrendak eta Ezarpenekin — eta apparen bertsioa behean.*<br><br>
+![Zerrenda sortu](images/screenshots/v1.1.0-03-create-list-v2.png)<br>*Zerrenda sortu: izena, mota (Estandarra edo Numerikoa), ikonoa eta kolorea.*<br><br>
+![Zerrenda-xehetasuna](images/screenshots/v1.1.0-04-a-list-detail.png)<br>*Zerrenda estandar bat, markatutako elementuekin, oharrekin, argazki batekin, ordena-kontrolarekin eta lote-ekintzekin — goiburukoa finko mantentzen da korritzen duzunean.*<br><br>
+![Zerrenda numerikoa](images/screenshots/v1.1.0-04-b-numeric-list.png)<br>*Zerrenda numeriko bat balioaren aurrerapen-barra batekin, lerro-totalekin eta zenbateko/kantitate errenkadarekin.*<br><br>
+![Zerrenda editatu](images/screenshots/v1.1.0-05-edit-list-v2.png)<br>*Zerrenda editatzeko pantaila: izena, mota, ikonoa eta kolorea aldatu, zerrenda kolekzio batera eraman, eta bikoiztu, batu edo ezabatu zerrenda.*<br><br>
+![Gehitu elementua zabalik](images/screenshots/v1.1.0-06-a-add-item-expanded-v2.png)<br>*Gehitzeko barra zabaldua, elementu berriari oharra eta argazkiak eransteko.*<br><br>
+![Elementua editatu](images/screenshots/v1.1.0-06-b-item-edit-v2.png)<br>*Elementu bat editatzen: bi lerroko izena, oharra eta argazkiak.*<br><br>
+![Zerrendak](images/screenshots/v1.1.0-07-a-lists.png)<br>*Zerrenden pantaila, kolekzio-egozpena eta zerrendako aurrerapena erakutsita.*<br><br>
+![Kolekzioak](images/screenshots/v1.1.0-07-b-collections.png)<br>*Kolekzioen pantaila.*<br><br>
+![Kolekzio-xehetasuna](images/screenshots/v1.1.0-07-c-collection-detail.png)<br>*Kolekzio bat bere kide diren zerrendekin.*<br><br>
+![Zerrenda blokeatu](images/screenshots/v1.1.0-08-a-lock-list.png)<br>*Zerrenda bat pasahitz batekin blokeatzea.*<br><br>
+![Blokeatutako zerrenda](images/screenshots/v1.1.0-08-b-locked-list.png)<br>*Blokeatutako zerrenda bat, pasahitzaren zain.*<br><br>
+![Hautapen modua](images/screenshots/v1.1.0-09-select-mode.png)<br>*Hautapen modua beheko ekintza-barrarekin.*<br><br>
+![Ezarpenak](images/screenshots/v1.1.0-10-a-settings.png)<br>*Ezarpenak: Itxura, Eskualdea, Pertsonalizazioa eta Datuak.*<br><br>
+![Itxura-ezarpenak](images/screenshots/v1.1.0-10-b-appearance.png)<br>*Itxura: gaia eta testu-tamaina.*<br><br>
+![Eskualde-ezarpenak](images/screenshots/v1.1.0-10-c-regional.png)<br>*Eskualde-ezarpenak: hizkuntza.*<br><br>
+![Hizkuntza-hautatzailea](images/screenshots/v1.1.0-10-d-language.png)<br>*Hizkuntza-hautatzailea, bederatzi hizkuntzekin eta haien banderekin.*<br><br>
+![Pertsonalizazio-ezarpenak](images/screenshots/v1.1.0-10-e-personalization.png)<br>*Pertsonalizazioa: pantaila bakoitzeko diseinuak eta zerrenda mota bakoitzeko eremu aukerakoak.*<br><br>
+![Datu-ezarpenak](images/screenshots/v1.1.0-10-f-data.png)<br>*Datuak: esportatu/inportatu eta ezabaketa eta berrezarpen babestutako ekintzak.*<br><br>
 
 ## Teknologiak
 

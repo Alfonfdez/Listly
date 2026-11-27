@@ -52,8 +52,7 @@ describe('useListsViewData', () => {
 
   it('scopes member lists on a collection detail', async () => {
     const { result } = await renderHook(() =>
-      useListsViewData({ ...base, mode: LIST_VIEW_MODES.collection, collectionId: 5 })
-    );
+      useListsViewData({ ...base, mode: LIST_VIEW_MODES.collection, collectionId: 5 }));
     expect(result.current.filteredLists.map(l => l.id)).toEqual([2]);
   });
 
@@ -69,16 +68,14 @@ describe('useListsViewData', () => {
 
   it('filters collections by name', async () => {
     const { result } = await renderHook(() =>
-      useListsViewData({ ...base, mode: LIST_VIEW_MODES.home, query: 'stu' })
-    );
+      useListsViewData({ ...base, mode: LIST_VIEW_MODES.home, query: 'stu' }));
     expect(result.current.displayCollections.map(c => c.id)).toEqual([6]);
   });
 
   it('reorders collections and refreshes', async () => {
     const refresh = vi.fn(async () => {});
     const { result } = await renderHook(() =>
-      useListsViewData({ ...base, mode: LIST_VIEW_MODES.home, refresh })
-    );
+      useListsViewData({ ...base, mode: LIST_VIEW_MODES.home, refresh }));
 
     await act(async () => {
       result.current.handleCollectionsDragEnd({ data: [collection(6, 'Study'), collection(5, 'Home')] } as never);

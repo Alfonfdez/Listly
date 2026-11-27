@@ -29,7 +29,7 @@ export async function nextPosition(
   db: DrizzleDb,
   table: RepoTable,
   positionColumn: AnyColumn,
-  where?: SQL
+  where?: SQL,
 ): Promise<number> {
   const row = await db.select({ m: nextPositionSql(positionColumn) }).from(table).where(where).get();
   return row?.m ?? 0;
@@ -37,7 +37,7 @@ export async function nextPosition(
 
 export async function reorderPositions(
   orderedIds: number[],
-  updateOne: (db: DrizzleDb, id: number, index: number) => Promise<unknown>
+  updateOne: (db: DrizzleDb, id: number, index: number) => Promise<unknown>,
 ): Promise<void> {
   await write(async db => {
     for (let i = 0; i < orderedIds.length; i++) {
@@ -56,7 +56,7 @@ export async function reorderWithPin(
   draggedId: number,
   pin: boolean | null,
   setPinned: (db: DrizzleDb, id: number, pinned: 0 | 1) => Promise<unknown>,
-  setPosition: (db: DrizzleDb, id: number, index: number) => Promise<unknown>
+  setPosition: (db: DrizzleDb, id: number, index: number) => Promise<unknown>,
 ): Promise<void> {
   await write(async db => {
     if (pin !== null) await setPinned(db, draggedId, pin ? 1 : 0);
@@ -72,7 +72,7 @@ export async function deletePhotosOfItems(rows: { pictures: string | null }[]): 
 
 export async function picturesOfLists(
   db: DrizzleDb,
-  listIds: number[]
+  listIds: number[],
 ): Promise<{ pictures: string | null }[]> {
   if (listIds.length === 0) return [];
   return await db
@@ -85,7 +85,7 @@ export async function picturesOfLists(
 export async function copyItemsInto(
   db: DrizzleDb,
   sourceListId: number,
-  targetListId: number
+  targetListId: number,
 ): Promise<number[]> {
   const sourceRows = await db
     .select()

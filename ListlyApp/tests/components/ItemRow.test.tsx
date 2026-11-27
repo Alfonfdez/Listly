@@ -1,6 +1,7 @@
+import { flattenStyle } from '../helpers/style';
 import { describe, expect, it, vi, beforeEach } from 'vitest';
-import { render, fireEvent } from '@testing-library/react-native';
-import { userEvent } from '@testing-library/react-native';
+import { render, fireEvent , userEvent } from '@testing-library/react-native';
+
 import ItemRow from '../../src/components/ItemRow';
 import { resetStub, setConfig } from '../helpers/configStub';
 import { ALPHA_SUBTLE } from '../../src/components/componentStyles';
@@ -39,6 +40,14 @@ describe('ItemRow', () => {
     expect(view.queryByText('checkmark-circle')).toBeNull();
   });
 
+  it('wraps a long item name to two lines', async () => {
+    const name = 'A very long item name that needs more than one line to fit';
+    const view = await render(<ItemRow item={makeItem({ name })} {...defaults} onToggle={() => {}} onEdit={() => {}} />);
+    const text = view.getByText(name);
+    expect(text.props.numberOfLines).toBe(2);
+    expect(flattenStyle(text.props.style).lineHeight).toBeGreaterThan(0);
+  });
+
   it('hides thumbnails when the item has no pictures', async () => {
     const view = await render(<ItemRow item={makeItem()} {...defaults} onToggle={() => {}} onEdit={() => {}} />);
     expect(view.queryByLabelText('Photos')).toBeNull();
@@ -67,14 +76,16 @@ describe('ItemRow', () => {
     expect(noNote.queryByText('medium roast')).toBeNull();
 
     const withNote = await render(
-      <ItemRow item={makeItem({ note: 'medium roast' })} {...defaults} onToggle={() => {}} onEdit={() => {}} />
+      <ItemRow item={makeItem({ note: 'medium roast' })} {...defaults} onToggle={() => {}} onEdit={() => {}} />,
     );
-    expect(withNote.getByText('medium roast')).toBeTruthy();
+    const preview = withNote.getByText('medium roast');
+    expect(preview).toBeTruthy();
+    expect(preview.props.numberOfLines).toBe(3);
   });
 
   it('hides the note preview in select mode', async () => {
     const view = await render(
-      <ItemRow item={makeItem({ note: 'medium roast' })} {...defaults} selectMode onToggle={() => {}} onEdit={() => {}} />
+      <ItemRow item={makeItem({ note: 'medium roast' })} {...defaults} selectMode onToggle={() => {}} onEdit={() => {}} />,
     );
     expect(view.queryByText('medium roast')).toBeNull();
   });
@@ -82,7 +93,7 @@ describe('ItemRow', () => {
   it('opens the full note viewer from the note preview', async () => {
     const user = userEvent.setup();
     const view = await render(
-      <ItemRow item={makeItem({ note: 'medium roast' })} {...defaults} onToggle={() => {}} onEdit={() => {}} />
+      <ItemRow item={makeItem({ note: 'medium roast' })} {...defaults} onToggle={() => {}} onEdit={() => {}} />,
     );
 
     await user.press(view.getByLabelText('View note'));
@@ -94,7 +105,7 @@ describe('ItemRow', () => {
   it('does not toggle when tapping the note preview', async () => {
     const onToggle = vi.fn();
     const view = await render(
-      <ItemRow item={makeItem({ note: 'milk whole' })} {...defaults} onToggle={onToggle} onEdit={() => {}} />
+      <ItemRow item={makeItem({ note: 'milk whole' })} {...defaults} onToggle={onToggle} onEdit={() => {}} />,
     );
 
     fireEvent.press(view.getByText('milk whole'));
@@ -126,7 +137,7 @@ describe('ItemRow', () => {
   it('hides notes everywhere when showNotes is off', async () => {
     setConfig({ showNotes: false });
     const view = await render(
-      <ItemRow item={makeItem({ note: 'medium roast' })} {...defaults} onToggle={() => {}} onEdit={() => {}} />
+      <ItemRow item={makeItem({ note: 'medium roast' })} {...defaults} onToggle={() => {}} onEdit={() => {}} />,
     );
     expect(view.queryByText('medium roast')).toBeNull();
   });
@@ -138,13 +149,3 @@ describe('ItemRow', () => {
     expect(view.queryByLabelText('Photos')).toBeNull();
   });
 });
-
-function flattenStyle(style: unknown): Record<string, unknown> {
-  if (Array.isArray(style)) {
-    return style.reduce((acc: Record<string, unknown>, s) => ({ ...acc, ...flattenStyle(s) }), {});
-  }
-  if (style && typeof style === 'object') {
-    return { ...(style as Record<string, unknown>) };
-  }
-  return {};
-}

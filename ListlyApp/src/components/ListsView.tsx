@@ -1,5 +1,6 @@
 import { useCallback, useState, type ReactNode } from 'react';
-import { ActivityIndicator, ScrollView, StyleSheet, View, useWindowDimensions } from 'react-native';
+import { ActivityIndicator, StyleSheet, View, useWindowDimensions, type ScrollView } from 'react-native';
+import Animated, { useAnimatedRef } from 'react-native-reanimated';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import Sortable, { type SortableGridRenderItem } from 'react-native-sortables';
 import { useApp } from '../context/AppContext';
@@ -11,9 +12,8 @@ import { useListsSelection } from '../hooks/useListsSelection';
 import { useListsDrag } from '../hooks/useListsDrag';
 import { useFrozenKey } from '../hooks/useFrozenKey';
 import { shouldShowPinHint } from '../utils/pinDrop';
-import { LIST_VIEW_MODES, LIST_LAYOUTS, type NavigationProp, type ListViewMode, type ListLayout } from '../constants/types';
+import { LIST_VIEW_MODES, LIST_LAYOUTS, AUTO_SCROLL_ACTIVATION_OFFSET, AUTO_SCROLL_MAX_VELOCITY, type NavigationProp, type ListViewMode, type ListLayout } from '../constants/types';
 import { ICONS } from '../constants/icons';
-import ScreenShell from './ScreenShell';
 import SearchBar from './SearchBar';
 import EmptyState from './EmptyState';
 import EntityTile from './EntityTile';
@@ -23,7 +23,7 @@ import SelectionActionBar from './SelectionActionBar';
 import ConfirmModal from './ConfirmModal';
 import SectionTitle from './SectionTitle';
 import RemoveFromCollectionTarget from './RemoveFromCollectionTarget';
-import { GRID_GAP, WIDE_BREAKPOINT, MEDIUM_BREAKPOINT, ZONE_MIN_ACTIVATION_DISTANCE } from './componentStyles';
+import { GRID_GAP, WIDE_BREAKPOINT, MEDIUM_BREAKPOINT, ZONE_MIN_ACTIVATION_DISTANCE, LIST_BOTTOM_FAB_PADDING } from './componentStyles';
 
 export type { ListViewMode };
 export type ListsViewVariant = ListLayout;
@@ -84,6 +84,9 @@ export default function ListsView({
   const { activeColors: c } = useConfig();
   const labels = useLabels();
   const [chooserVisible, setChooserVisible] = useState(false);
+  // Animated ref shared by the collections/lists grids so a dragged item can
+  // auto-scroll this screen's scroll container near its edges.
+  const scrollRef = useAnimatedRef<ScrollView>();
 
   const { width } = useWindowDimensions();
   const isGrid = variant === LIST_LAYOUTS.grid;
@@ -93,7 +96,7 @@ export default function ListsView({
   useFocusEffect(
     useCallback(() => {
       void refresh();
-    }, [refresh])
+    }, [refresh]),
   );
 
   const { filteredLists, displayCollections, handleCollectionsDragEnd } = useListsViewData({
@@ -135,7 +138,7 @@ export default function ListsView({
   useFocusEffect(
     useCallback(() => {
       return () => resetDragState();
-    }, [resetDragState])
+    }, [resetDragState]),
   );
 
   const { allSelectedPinned, handlePinPress } = useListsSelection({
@@ -154,7 +157,7 @@ export default function ListsView({
         navigation.navigate('ListDetail', { listId: item.id });
       }
     },
-    [selectMode, onToggleItem, navigation]
+    [selectMode, onToggleItem, navigation],
   );
 
   const handleCollectionPress = useCallback(
@@ -165,7 +168,7 @@ export default function ListsView({
         navigation.navigate('CollectionDetail', { collectionId: collection.id });
       }
     },
-    [selectMode, onToggleCollection, navigation]
+    [selectMode, onToggleCollection, navigation],
   );
 
   const renderItem = useCallback<SortableGridRenderItem<ListWithCounts>>(
@@ -212,7 +215,7 @@ export default function ListsView({
       isDragging,
       draggingId,
       displayLists,
-    ]
+    ],
   );
 
   const renderCollection = useCallback<SortableGridRenderItem<CollectionWithCounts>>(
@@ -251,7 +254,7 @@ export default function ListsView({
       handleZoneLeave,
       handleZoneDrop,
       hoverCollectionId,
-    ]
+    ],
   );
 
   // Remount the sortable grids whenever the item **sequence** changes so they
@@ -265,9 +268,9 @@ export default function ListsView({
 
   if (loading) {
     return (
-      <ScreenShell style={styles.center}>
+      <View style={styles.loading}>
         <ActivityIndicator size="large" color={c.primary} />
-      </ScreenShell>
+      </View>
     );
   }
 
@@ -315,7 +318,7 @@ export default function ListsView({
   const sortEnabled = !selectMode && !searching && displayLists.length > (inHome || inCollectionDetail ? 0 : 1);
 
   return (
-    <ScreenShell>
+    <>
       <View style={styles.content}>
         {header}
         {searchActive ? (
@@ -330,7 +333,8 @@ export default function ListsView({
 
         <Sortable.MultiZoneProvider>
           {hasContent ? (
-            <ScrollView
+            <Animated.ScrollView
+              ref={scrollRef}
               contentContainerStyle={styles.scrollContent}
               showsVerticalScrollIndicator={false}
               onScrollBeginDrag={resetDragState}
@@ -348,6 +352,10 @@ export default function ListsView({
                   sortEnabled={!selectMode && !searching && displayCollections.length > 1}
                   columnGap={isCollectionsGrid ? GRID_GAP : 0}
                   rowGap={isCollectionsGrid ? GRID_GAP : 10}
+                  scrollableRef={scrollRef}
+                  autoScrollDirection="vertical"
+                  autoScrollActivationOffset={AUTO_SCROLL_ACTIVATION_OFFSET}
+                  autoScrollMaxVelocity={AUTO_SCROLL_MAX_VELOCITY}
                   onDragEnd={handleCollectionsDragEnd}
                   onDragStart={handleCollectionsDragStart}
                 />
@@ -365,12 +373,16 @@ export default function ListsView({
                   sortEnabled={sortEnabled}
                   columnGap={isGrid ? GRID_GAP : 0}
                   rowGap={isGrid ? GRID_GAP : 10}
+                  scrollableRef={scrollRef}
+                  autoScrollDirection="vertical"
+                  autoScrollActivationOffset={AUTO_SCROLL_ACTIVATION_OFFSET}
+                  autoScrollMaxVelocity={AUTO_SCROLL_MAX_VELOCITY}
                   onDragEnd={handleDragEnd}
                   onDragStart={handleListsDragStart}
                   onActiveItemDropped={handleActiveItemDropped}
                 />
               )}
-            </ScrollView>
+            </Animated.ScrollView>
           ) : (
             renderEmpty()
           )}
@@ -444,7 +456,7 @@ export default function ListsView({
         onConfirm={onConfirmDelete}
         destructive
       />
-    </ScreenShell>
+    </>
   );
 }
 
@@ -454,13 +466,14 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingTop: 12,
   },
-  center: {
+  loading: {
+    flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
   },
   scrollContent: {
     flexGrow: 1,
-    paddingBottom: 96,
+    paddingBottom: LIST_BOTTOM_FAB_PADDING,
     gap: 12,
   },
 });

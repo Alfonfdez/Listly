@@ -5,6 +5,7 @@ import { useConfig } from '../context/ConfigContext';
 import { useFontSize } from '../hooks/useFontSize';
 import { useLabels } from '../hooks/useLabels';
 import { MAX_ITEM_PICTURES } from '../constants/types';
+import { PHOTO_METRICS } from '../constants/layout';
 import { isNative } from '../utils/platform';
 import ConfirmModal from './ConfirmModal';
 import ModalShell from './ModalShell';
@@ -15,14 +16,17 @@ interface Props {
   onTakePhoto: () => void;
   onPickFromGallery: () => void;
   onRemovePhoto: (uri: string) => void;
+  /** Smaller tiles for the inline add bar (the edit modal keeps the regular size). */
+  compact?: boolean;
 }
 
-export default function PhotoSection({ photos, onTakePhoto, onPickFromGallery, onRemovePhoto }: Props) {
+export default function PhotoSection({ photos, onTakePhoto, onPickFromGallery, onRemovePhoto, compact = false }: Props) {
   const [sourceModalVisible, setSourceModalVisible] = useState(false);
   const [photoToDelete, setPhotoToDelete] = useState<string | null>(null);
   const { activeColors: c } = useConfig();
   const fs = useFontSize();
   const labels = useLabels();
+  const metrics = PHOTO_METRICS[compact ? 'compact' : 'regular'];
 
   const handleSourceOption = (action: () => void) => {
     setSourceModalVisible(false);
@@ -39,21 +43,45 @@ export default function PhotoSection({ photos, onTakePhoto, onPickFromGallery, o
   const canAddMore = photos.length < MAX_ITEM_PICTURES;
 
   return (
-    <View style={styles.container}>
-      <Text style={[styles.title, { color: c.text, fontSize: fs(15) }]}>{labels.item_photos_title}</Text>
-      <View style={styles.photoRow}>
+    <View style={{ marginBottom: metrics.bottomMargin }}>
+      {!compact && (
+        <Text
+          style={[
+            styles.title,
+            { color: c.text, fontSize: fs(metrics.titleFontSize), marginBottom: metrics.titleMarginBottom },
+          ]}
+        >
+          {labels.item_photos_title}
+        </Text>
+      )}
+      <View style={[styles.photoRow, { gap: metrics.rowGap }]}>
         {photos.map((uri, index) => (
           <View key={`${uri}-${index}`} style={styles.photoWrapper}>
-            <View style={[styles.photoButton, { backgroundColor: c.surface }]}>
+            <View
+              style={[
+                styles.photoButton,
+                { width: metrics.size, height: metrics.size, backgroundColor: c.surface },
+              ]}
+            >
               <Image source={{ uri }} style={styles.photoThumbnail} />
             </View>
             <Pressable
-              style={[styles.removeButton, { backgroundColor: c.red }]}
+              style={[
+                styles.removeButton,
+                {
+                  top: metrics.badgeOffset,
+                  right: metrics.badgeOffset,
+                  width: metrics.removeBadgeSize,
+                  height: metrics.removeBadgeSize,
+                  borderRadius: metrics.removeBadgeSize / 2,
+                  backgroundColor: c.red,
+                },
+              ]}
               onPress={() => setPhotoToDelete(uri)}
               accessibilityRole="button"
               accessibilityLabel={labels.item_photos_remove}
             >
-              <Ionicons name="close" size={14} color={c.background} />
+              <Ionicons name="close" size={metrics.removeIconSize} color={c.background} />
             </Pressable>
           </View>
         ))}
@@ -62,14 +90,14 @@ export default function PhotoSection({ photos, onTakePhoto, onPickFromGallery, o
             style={({ pressed }) => [
               styles.photoButton,
               styles.addButton,
-              { backgroundColor: c.surface, borderColor: c.border },
+              { width: metrics.size, height: metrics.size, backgroundColor: c.surface, borderColor: c.border },
               pressed && styles.pressed,
             ]}
             onPress={() => setSourceModalVisible(true)}
             accessibilityRole="button"
             accessibilityLabel={labels.item_photos_add}
           >
-            <Ionicons name="add" size={28} color={c.textSecondary} />
+            <Ionicons name={metrics.addIcon} size={metrics.addIconSize} color={c.textSecondary} />
           </Pressable>
         )}
       </View>
@@ -132,26 +160,17 @@ export default function PhotoSection({ photos, onTakePhoto, onPickFromGallery, o
   );
 }
 
-const REMOVE_BADGE_SIZE = 22;
-
 const styles = StyleSheet.create({
-  container: {
-    marginBottom: 16,
-  },
   title: {
     fontWeight: '600',
-    marginBottom: 10,
   },
   photoRow: {
     flexDirection: 'row',
-    gap: 10,
   },
   photoWrapper: {
     position: 'relative',
   },
   photoButton: {
-    width: 80,
-    height: 80,
     borderRadius: CARD_BORDER_RADIUS,
     borderWidth: 2,
     alignItems: 'center',
@@ -168,11 +187,6 @@ const styles = StyleSheet.create({
   },
   removeButton: {
     position: 'absolute',
-    top: -6,
-    right: -6,
-    width: REMOVE_BADGE_SIZE,
-    height: REMOVE_BADGE_SIZE,
-    borderRadius: REMOVE_BADGE_SIZE / 2,
     alignItems: 'center',
     justifyContent: 'center',
     zIndex: 1,

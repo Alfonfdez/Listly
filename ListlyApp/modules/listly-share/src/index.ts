@@ -24,7 +24,7 @@ function getNativeModule(): ListlyShareNativeModule | null {
 export async function shareFileAsync(
   url: string,
   mimeType: string,
-  dialogTitle: string
+  dialogTitle: string,
 ): Promise<ShareResultValue> {
   const module = getNativeModule();
   if (module == null) {

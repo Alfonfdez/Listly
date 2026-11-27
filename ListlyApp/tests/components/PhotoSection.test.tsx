@@ -1,6 +1,8 @@
+import { flattenStyle } from '../helpers/style';
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 import { render, fireEvent } from '@testing-library/react-native';
 import PhotoSection from '../../src/components/PhotoSection';
+import { PHOTO_METRICS } from '../../src/constants/layout';
 import { resetStub } from '../helpers/configStub';
 
 const { handlers } = vi.hoisted(() => ({
@@ -19,16 +21,36 @@ describe('PhotoSection', () => {
     handlers.onRemovePhoto.mockReset();
   });
 
-  function renderSection(photos: string[]) {
+  function renderSection(photos: string[], compact = false) {
     return render(
       <PhotoSection
         photos={photos}
         onTakePhoto={handlers.onTakePhoto}
         onPickFromGallery={handlers.onPickFromGallery}
         onRemovePhoto={handlers.onRemovePhoto}
-      />
+        compact={compact}
+      />,
     );
   }
+
+  it('renders the regular tile size by default', async () => {
+    const view = await renderSection([]);
+    expect(view.getByText('Photos')).toBeTruthy();
+    expect(flattenStyle(view.getByLabelText('Add photo').props.style).width).toBe(PHOTO_METRICS.regular.size);
+  });
+
+  it('hides the title in the compact section', async () => {
+    const view = await renderSection([], true);
+    expect(view.queryByText('Photos')).toBeNull();
+    expect(view.getByLabelText('Add photo')).toBeTruthy();
+  });
+
+  it('renders the compact tile size when asked', async () => {
+    const view = await renderSection([], true);
+    const style = flattenStyle(view.getByLabelText('Add photo').props.style);
+    expect(style.width).toBe(PHOTO_METRICS.compact.size);
+    expect(style.height).toBe(PHOTO_METRICS.compact.size);
+  });
 
   it('renders an add button when under the limit', async () => {
     const view = await renderSection(['data:image/a']);

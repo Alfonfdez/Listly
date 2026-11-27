@@ -3,7 +3,7 @@ import type { SortableGridDragEndParams } from 'react-native-sortables';
 
 export function useDragOrder<T extends { id: number }>(
   items: T[],
-  onReorder: (ids: number[], params: SortableGridDragEndParams<T>) => void
+  onReorder: (ids: number[], params: SortableGridDragEndParams<T>) => void,
 ) {
   const [order, setOrder] = useState<number[] | null>(null);
 
@@ -41,7 +41,7 @@ export function useDragOrder<T extends { id: number }>(
       setOrder(ids);
       onReorder(ids, params);
     },
-    [items, onReorder]
+    [items, onReorder],
   );
 
   return { display, onDragEnd };

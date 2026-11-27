@@ -1,7 +1,10 @@
+import { flattenStyle } from '../helpers/style';
 import { describe, expect, it, beforeEach, vi } from 'vitest';
 import { act, render, userEvent } from '@testing-library/react-native';
 import ItemFormModal from '../../src/components/ItemFormModal';
 import { resetStub, setConfig } from '../helpers/configStub';
+import { darkColors } from '../../src/constants/themes';
+import { EDIT_ITEM_NAME_LINES, EDIT_ITEM_NOTE_LINES } from '../../src/constants/layout';
 
 const setPhotosMock = vi.fn();
 
@@ -35,6 +38,30 @@ describe('ItemFormModal', () => {
     const view = await render(<ItemFormModal {...baseProps} />);
     expect(view.getByLabelText('Note')).toBeTruthy();
     expect(view.getByLabelText('Add photo')).toBeTruthy();
+  });
+
+  it('uses the configured name/note line counts in the edit form', async () => {
+    const view = await render(<ItemFormModal {...baseProps} />);
+    const name = view.getByLabelText('Name');
+    expect(name.props.multiline).toBe(true);
+    expect(name.props.numberOfLines).toBe(EDIT_ITEM_NAME_LINES);
+    expect(view.getByLabelText('Note').props.numberOfLines).toBe(EDIT_ITEM_NOTE_LINES);
+    expect(view.getByText('4/200')).toBeTruthy();
+    expect(view.getByText('5/2000')).toBeTruthy();
+  });
+
+  it('shows the inline name error and a red border without duplicating the counter', async () => {
+    const user = userEvent.setup();
+    const view = await render(<ItemFormModal {...baseProps} existingNames={new Set(['bread'])} />);
+    await user.clear(view.getByLabelText('Name'));
+
+    expect(await view.findByText('Name is required')).toBeTruthy();
+    expect(flattenStyle(view.getByLabelText('Name').props.style).borderColor).toBe(darkColors.red);
+
+    await user.type(view.getByLabelText('Name'), 'Bread');
+    expect(await view.findByText('An item with this name already exists')).toBeTruthy();
+    expect(flattenStyle(view.getByLabelText('Name').props.style).borderColor).toBe(darkColors.red);
+    expect(view.getByText('5/200')).toBeTruthy();
   });
 
   it('hides the note and photo fields when the edit-item toggles are off', async () => {
@@ -96,7 +123,7 @@ describe('ItemFormModal', () => {
 
   it('blanks a zero amount on focus so the user can type immediately', async () => {
     const view = await render(
-      <ItemFormModal {...baseProps} numeric initialAmountMinor={0} initialQuantity={1} initialNote="" />
+      <ItemFormModal {...baseProps} numeric initialAmountMinor={0} initialQuantity={1} initialNote="" />,
     );
     expect(view.getByLabelText('Amount').props.value).toBe('0.00');
     await act(async () => {
@@ -107,7 +134,7 @@ describe('ItemFormModal', () => {
 
   it('keeps a non-zero amount on focus', async () => {
     const view = await render(
-      <ItemFormModal {...baseProps} numeric initialAmountMinor={120} initialQuantity={1} initialNote="" />
+      <ItemFormModal {...baseProps} numeric initialAmountMinor={120} initialQuantity={1} initialNote="" />,
     );
     expect(view.getByLabelText('Amount').props.value).toBe('1.20');
     await act(async () => {
@@ -118,7 +145,7 @@ describe('ItemFormModal', () => {
 
   it('restores the zero amount when focused then blurred without typing', async () => {
     const view = await render(
-      <ItemFormModal {...baseProps} numeric initialAmountMinor={0} initialQuantity={1} initialNote="" />
+      <ItemFormModal {...baseProps} numeric initialAmountMinor={0} initialQuantity={1} initialNote="" />,
     );
     await act(async () => {
       view.getByLabelText('Amount').props.onFocus();
@@ -141,7 +168,7 @@ describe('ItemFormModal', () => {
         initialQuantity={1}
         initialNote=""
         onSave={onSave}
-      />
+      />,
     );
     view.getByLabelText('Amount').props.onFocus();
     await user.type(view.getByLabelText('Amount'), '2.50');

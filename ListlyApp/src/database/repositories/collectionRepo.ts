@@ -44,8 +44,7 @@ export const collectionRepo = {
 
   async reorder(orderedIds: number[]): Promise<void> {
     await reorderPositions(orderedIds, (db, id, i) =>
-      db.update(collections).set({ position: i }).where(eq(collections.id, id)).run()
-    );
+      db.update(collections).set({ position: i }).where(eq(collections.id, id)).run());
   },
 
   // See listRepo.reorderFromDrag — the collections twin (spec 021 "A2").
@@ -55,7 +54,7 @@ export const collectionRepo = {
       draggedId,
       pin,
       (db, id, pinned) => db.update(collections).set({ pinned }).where(eq(collections.id, id)).run(),
-      (db, id, index) => db.update(collections).set({ position: index }).where(eq(collections.id, id)).run()
+      (db, id, index) => db.update(collections).set({ position: index }).where(eq(collections.id, id)).run(),
     );
   },
 
@@ -86,8 +85,7 @@ export const collectionRepo = {
     }
 
     const listIds = await read(async db =>
-      (await db.select({ id: lists.id }).from(lists).where(eq(lists.collection_id, id)).all()).map(r => r.id)
-    );
+      (await db.select({ id: lists.id }).from(lists).where(eq(lists.collection_id, id)).all()).map(r => r.id));
     let photos: { pictures: string | null }[] = [];
     await write(async db => {
       photos = await picturesOfLists(db, listIds);
@@ -110,8 +108,7 @@ export const collectionRepo = {
     }
 
     const listIds = await read(async db =>
-      (await db.select({ id: lists.id }).from(lists).where(inArray(lists.collection_id, ids)).all()).map(r => r.id)
-    );
+      (await db.select({ id: lists.id }).from(lists).where(inArray(lists.collection_id, ids)).all()).map(r => r.id));
     let photos: { pictures: string | null }[] = [];
     await write(async tx => {
       photos = await picturesOfLists(tx, listIds);
@@ -141,8 +138,7 @@ export const collectionRepo = {
         .leftJoin(items, eq(items.list_id, lists.id))
         .groupBy(collections.id)
         .orderBy(desc(collections.pinned), collections.position, collections.id)
-        .all()
-    );
+        .all());
   },
 
   async existsByName(name: string, excludeId?: number): Promise<boolean> {

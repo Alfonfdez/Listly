@@ -1,3 +1,4 @@
+import { flattenStyle } from '../helpers/style';
 import { describe, expect, it, beforeEach, afterEach, vi } from 'vitest';
 import { render, fireEvent } from '@testing-library/react-native';
 import type { ReactElement, ReactNode } from 'react';
@@ -103,6 +104,11 @@ describe('HomeScreen', () => {
     expect(view.queryByText('Groceries')).toBeNull();
   });
 
+  it('renders exactly one screen shell (single safe-area inset)', async () => {
+    const view = await render(<HomeScreen />);
+    expect(view.getAllByTestId('screen-shell')).toHaveLength(1);
+  });
+
   it('renders list tiles with name and progress', async () => {
     const view = await render(<HomeScreen />);
     expect(await view.findByText('Groceries')).toBeTruthy();
@@ -172,13 +178,3 @@ describe('HomeScreen', () => {
     expect(fontSize).toBe(16);
   });
 });
-
-function flattenStyle(style: unknown): Record<string, unknown> {
-  if (Array.isArray(style)) {
-    return style.reduce((acc: Record<string, unknown>, s) => ({ ...acc, ...flattenStyle(s) }), {});
-  }
-  if (style && typeof style === 'object') {
-    return { ...(style as Record<string, unknown>) };
-  }
-  return {};
-}

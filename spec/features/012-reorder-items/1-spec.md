@@ -24,6 +24,10 @@
 ### 4. Guards mirror the lists behavior
 - Follows the same restriction as lists reordering (feature 009): no reordering when the list has 0 or 1 items.
 
+### 5. Auto-scroll while dragging
+- The items `Sortable.Grid` receives a `scrollableRef` (an `AnimatedRef` to the screen's `Animated.ScrollView`), enabling the library's auto-scroll: dragging an item within `AUTO_SCROLL_ACTIVATION_OFFSET` (90 px) of the top/bottom edge scrolls the list continuously at up to `AUTO_SCROLL_MAX_VELOCITY` (1400 px/s), so a long list can be reordered to position #1 in one gesture instead of repeated small drags.
+- Same tuning constants are shared with the lists grids (feature 009).
+
 ---
 
 ## Non-functional requirements
@@ -43,3 +47,4 @@
 - [x] Reordering is disabled with fewer than 2 items, while a search query is active, and in select mode.
 - [x] Long-press on an item no longer enters select mode; the header select toggle still does.
 - [x] Reordering one list's items never affects another list.
+- [x] Dragging an item near the top/bottom edge auto-scrolls the list so it can be moved across a long list in one gesture.

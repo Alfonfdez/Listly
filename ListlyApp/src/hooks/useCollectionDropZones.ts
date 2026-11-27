@@ -75,7 +75,7 @@ export function useCollectionDropZones({ refresh, inCollectionDetail, items = []
           if (draggedId !== null) {
             await runSafelyAsync(
               listRepo.reorderFromDrag(ids, draggedId, pin),
-              ERROR_SCOPE.reorderLists
+              ERROR_SCOPE.reorderLists,
             );
           } else {
             await runSafelyAsync(listRepo.reorder(ids), ERROR_SCOPE.reorderLists);
@@ -89,7 +89,7 @@ export function useCollectionDropZones({ refresh, inCollectionDetail, items = []
         }
       })();
     },
-    [refresh, items]
+    [refresh, items],
   );
 
   // The library does not always fire `onDragEnd` (e.g. a long-press released
@@ -108,7 +108,7 @@ export function useCollectionDropZones({ refresh, inCollectionDetail, items = []
       setRemoveTargetActive(inCollectionDetail);
       setIsDragging(true);
     },
-    [inCollectionDetail]
+    [inCollectionDetail],
   );
 
   const handleCollectionsDragStart = useCallback(() => {
@@ -147,7 +147,7 @@ export function useCollectionDropZones({ refresh, inCollectionDetail, items = []
           pendingMoveRef.current = null;
         });
     },
-    [refresh]
+    [refresh],
   );
 
   const handleRemoveZoneDrop = useCallback(() => {
@@ -173,7 +173,7 @@ export function useCollectionDropZones({ refresh, inCollectionDetail, items = []
       hoverCollectionIdRef.current = null;
       performZoneDrop(id => listRepo.moveToCollection(id, collectionId));
     },
-    [performZoneDrop]
+    [performZoneDrop],
   );
 
   return {

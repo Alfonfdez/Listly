@@ -52,7 +52,7 @@ export function useItemDraft({ existingNames, numeric = false, validateOnChange 
       setName(value);
       setError(validateOnChange ? validateItemName(value, existingNames) : null);
     },
-    [validateOnChange, existingNames]
+    [validateOnChange, existingNames],
   );
 
   const onAmountChange = useCallback((text: string) => {
@@ -95,7 +95,7 @@ export function useItemDraft({ existingNames, numeric = false, validateOnChange 
       amountBeforeFocus.current = '';
       amountTouched.current = false;
     },
-    [setPhotos]
+    [setPhotos],
   );
 
   const reset = useCallback(() => applySeed(EMPTY_ITEM_DRAFT), [applySeed]);
@@ -108,7 +108,7 @@ export function useItemDraft({ existingNames, numeric = false, validateOnChange 
       amountMinor: numeric ? amountMinor : null,
       quantity: numeric ? clampQuantity(quantity) : 0,
     }),
-    [name, note, photos, numeric, amountMinor, quantity]
+    [name, note, photos, numeric, amountMinor, quantity],
   );
 
   return {

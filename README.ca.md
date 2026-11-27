@@ -9,7 +9,7 @@ Tot funciona **al dispositiu**: les teves dades viuen en una base de dades SQLit
 | | |
 |---|---|
 | **Plataformes** | iOS, Android i Web |
-| **Versió** | 1.0.0 |
+| **Versió** | 1.1.0 |
 | **Idiomes** | Anglès, Espanyol, Català, Gallec, Basc, Francès, Alemany, Portuguès i Italià |
 | **Dades** | 100 % locals (SQLite en natiu, sql.js + IndexedDB a la web) |
 | **Temes** | Fosc, Clar i Automàtic (segueix el sistema) |
@@ -31,27 +31,27 @@ Tot funciona **al dispositiu**: les teves dades viuen en una base de dades SQLit
 
 ## Captures de pantalla
 
-![Pantalla d'inici](images/screenshots/01-home-empty.png)<br>*Pantalla d'inici abans que existeixi cap col·lecció o llista.*<br><br>
-![Inici amb dades](images/screenshots/02-home.png)<br>*Inici amb una col·lecció i llistes soltes, inclosa una llista blocada.*<br><br>
-![Menú lateral](images/screenshots/03-hamburger.png)<br>*Menú lateral amb Inici, Col·leccions, Llistes i Ajustos — i la versió de l'app a baix.*<br><br>
-![Crear llista](images/screenshots/04-create-list.png)<br>*Crear una llista: nom, tipus (Estàndard o Numèrica), icona i color.*<br><br>
-![Detall de llista](images/screenshots/05-list-detail-v2.png)<br>*Una llista estàndard amb elements marcats, una nota, el control d'ordre i les accions per lots — la capçalera es manté fixa mentre et desplaces.*<br><br>
-![Llista numèrica](images/screenshots/06-numeric-list-v3.png)<br>*Una llista numèrica amb barra de progrés per valor, totals de línia i la fila d'import/cantitat.*<br><br>
-![Editar llista](images/screenshots/05b-edit-list.png)<br>*La pantalla Editar llista: canviar el nom, el tipus, la icona i el color, moure la llista a una col·lecció, i Duplicar, Combinar o Eliminar la llista.*<br><br>
-![Afegir element ampliat](images/screenshots/07-add-item-expanded-v2.png)<br>*La barra d'afegir ampliada per adjuntar una nota i fotos al nou element.*<br><br>
-![Editar element](images/screenshots/08-item-edit-v2.png)<br>*Editar un element: nom, nota i fotos.*<br><br>
-![Col·leccions](images/screenshots/09b-collections.png)<br>*La pantalla de Col·leccions.*<br><br>
-![Llistes](images/screenshots/09-lists.png)<br>*La pantalla de Llistes, amb la pertinença a col·leccions i el progrés per llista.*<br><br>
-![Detall de col·lecció](images/screenshots/10-collection-detail.png)<br>*Una col·lecció amb les seves llistes membre.*<br><br>
-![Blocar llista](images/screenshots/12-lock-list-v2.png)<br>*Blocar una llista amb una contrasenya.*<br><br>
-![Llista blocada](images/screenshots/12b-locked-list.png)<br>*Una llista blocada, esperant la contrasenya.*<br><br>
-![Mode selecció](images/screenshots/13-select-mode-v2.png)<br>*Mode selecció amb la barra d'accions inferior.*<br><br>
-![Ajustos](images/screenshots/14-settings.png)<br>*Ajustos: Aparença, Regional, Personalització i Dades.*<br><br>
-![Ajustos d'aparença](images/screenshots/15-settings-appearance.png)<br>*Aparença: tema i mida del text.*<br><br>
-![Selector d'idioma](images/screenshots/16b-settings-language.png)<br>*El selector d'idioma amb els nou idiomes i les seves banderes.*<br><br>
-![Ajustos regionals](images/screenshots/16-settings-regional.png)<br>*Ajustos regionals: idioma.*<br><br>
-![Ajustos de personalització](images/screenshots/17-settings-personalization.png)<br>*Personalització: dissenys per pantalla i camps opcionals per tipus de llista.*<br><br>
-![Ajustos de dades](images/screenshots/18-settings-data.png)<br>*Dades: exportar/importar i les accions protegides d'esborrat i restabliment.*<br><br>
+![Pantalla d'inici](images/screenshots/v1.1.0-01-a-home-empty.png)<br>*Pantalla d'inici abans que existeixi cap col·lecció o llista.*<br><br>
+![Inici amb dades](images/screenshots/v1.1.0-01-b-home.png)<br>*Inici amb dues col·leccions i llistes soltes, amb el progrés de cada col·lecció.*<br><br>
+![Menú lateral](images/screenshots/v1.1.0-02-hamburger.png)<br>*Menú lateral amb Inici, Col·leccions, Llistes i Ajustos — i la versió de l'app a baix.*<br><br>
+![Crear llista](images/screenshots/v1.1.0-03-create-list-v2.png)<br>*Crear una llista: nom, tipus (Estàndard o Numèrica), icona i color.*<br><br>
+![Detall de llista](images/screenshots/v1.1.0-04-a-list-detail.png)<br>*Una llista estàndard amb elements marcats, notes, una foto, el control d'ordre i les accions per lots — la capçalera es manté fixa mentre et desplaces.*<br><br>
+![Llista numèrica](images/screenshots/v1.1.0-04-b-numeric-list.png)<br>*Una llista numèrica amb barra de progrés per valor, totals de línia i la fila d'import/cantitat.*<br><br>
+![Editar llista](images/screenshots/v1.1.0-05-edit-list-v2.png)<br>*La pantalla Editar llista: canviar el nom, el tipus, la icona i el color, moure la llista a una col·lecció, i Duplicar, Combinar o Eliminar la llista.*<br><br>
+![Afegir element ampliat](images/screenshots/v1.1.0-06-a-add-item-expanded-v2.png)<br>*La barra d'afegir ampliada per adjuntar una nota i fotos al nou element.*<br><br>
+![Editar element](images/screenshots/v1.1.0-06-b-item-edit-v2.png)<br>*Editar un element: nom de dues línies, nota i fotos.*<br><br>
+![Llistes](images/screenshots/v1.1.0-07-a-lists.png)<br>*La pantalla de Llistes, amb la pertinença a col·leccions i el progrés per llista.*<br><br>
+![Col·leccions](images/screenshots/v1.1.0-07-b-collections.png)<br>*La pantalla de Col·leccions.*<br><br>
+![Detall de col·lecció](images/screenshots/v1.1.0-07-c-collection-detail.png)<br>*Una col·lecció amb les seves llistes membre.*<br><br>
+![Blocar llista](images/screenshots/v1.1.0-08-a-lock-list.png)<br>*Blocar una llista amb una contrasenya.*<br><br>
+![Llista blocada](images/screenshots/v1.1.0-08-b-locked-list.png)<br>*Una llista blocada, esperant la contrasenya.*<br><br>
+![Mode selecció](images/screenshots/v1.1.0-09-select-mode.png)<br>*Mode selecció amb la barra d'accions inferior.*<br><br>
+![Ajustos](images/screenshots/v1.1.0-10-a-settings.png)<br>*Ajustos: Aparença, Regional, Personalització i Dades.*<br><br>
+![Ajustos d'aparença](images/screenshots/v1.1.0-10-b-appearance.png)<br>*Aparença: tema i mida del text.*<br><br>
+![Ajustos regionals](images/screenshots/v1.1.0-10-c-regional.png)<br>*Ajustos regionals: idioma.*<br><br>
+![Selector d'idioma](images/screenshots/v1.1.0-10-d-language.png)<br>*El selector d'idioma amb els nou idiomes i les seves banderes.*<br><br>
+![Ajustos de personalització](images/screenshots/v1.1.0-10-e-personalization.png)<br>*Personalització: dissenys per pantalla i camps opcionals per tipus de llista.*<br><br>
+![Ajustos de dades](images/screenshots/v1.1.0-10-f-data.png)<br>*Dades: exportar/importar i les accions protegides d'esborrat i restabliment.*<br><br>
 
 ## Tecnologies
 

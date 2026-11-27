@@ -13,7 +13,7 @@ describe('useFrozenKey', () => {
   it('holds the previous key while frozen and adopts the new one when unfrozen', async () => {
     const { result, rerender } = await renderHook(
       ({ key, frozen }: { key: string; frozen: boolean }) => useFrozenKey(key, frozen),
-      { initialProps: { key: 'a', frozen: false } }
+      { initialProps: { key: 'a', frozen: false } },
     );
 
     // a new key arrives during a drag → the grid is not remounted (frozen)

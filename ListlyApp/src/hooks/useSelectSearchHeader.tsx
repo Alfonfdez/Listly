@@ -34,15 +34,15 @@ export function useSelectSearchHeader({
     navigation.setOptions({
       headerRight: visible
         ? () => (
-            <SelectSearchHeader
-              selectMode={selectMode}
-              showSelect={showSelect}
-              showSearch={showSearch}
-              searchActive={searchActive}
-              onToggleSelect={onToggleSelect}
-              onToggleSearch={toggleSearch}
-            />
-          )
+          <SelectSearchHeader
+            selectMode={selectMode}
+            showSelect={showSelect}
+            showSearch={showSearch}
+            searchActive={searchActive}
+            onToggleSelect={onToggleSelect}
+            onToggleSearch={toggleSearch}
+          />
+        )
         : undefined,
     });
   }, [navigation, visible, selectMode, showSelect, showSearch, searchActive, onToggleSelect, toggleSearch]);

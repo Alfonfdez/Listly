@@ -7,10 +7,11 @@ import { useLabels } from '../hooks/useLabels';
 import { useResetOnOpen } from '../hooks/useResetOnOpen';
 import { isWrongPassphrase } from '../utils/vaultCrypto';
 import { MIN_PASSPHRASE_LENGTH } from '../constants/types';
-import { BUTTON_BORDER_RADIUS } from './componentStyles';
+import { BUTTON_BORDER_RADIUS, fieldBorderColor } from './componentStyles';
 import ModalShell from './ModalShell';
 import ModalFooter from './ModalFooter';
 import FormField from './FormField';
+import FieldError from './FieldError';
 
 interface Props {
   visible: boolean;
@@ -41,7 +42,7 @@ export default function LockListModal({ visible, hasPhotos, mode = 'lock', onCan
       setAcknowledged(false);
       setError(null);
       setBusy(false);
-    }, [])
+    }, []),
   );
 
   const submit = async () => {
@@ -69,16 +70,24 @@ export default function LockListModal({ visible, hasPhotos, mode = 'lock', onCan
       setError(
         mode === 'change' && isWrongPassphrase(err)
           ? labels.vault_wrong_current
-          : labels.error_generic
+          : labels.error_generic,
       );
       setBusy(false);
     }
   };
 
-  const inputStyle = [
+  const fieldStyle = (invalid: boolean) => [
     styles.input,
-    { backgroundColor: c.background, borderColor: c.border, color: c.text, fontSize: fs(15) },
+    {
+      backgroundColor: c.background,
+      borderColor: fieldBorderColor(c, invalid),
+      color: c.text,
+      fontSize: fs(15),
+    },
   ];
+  const currentInvalid = error === labels.vault_wrong_current;
+  const confirmInvalid = error === labels.vault_passphrase_mismatch;
+  const passphraseInvalid = error === labels.vault_passphrase_too_short;
 
   // Photos are not encrypted in v1, so a plaintext list that contains photos
   // cannot be locked. Changing the passphrase of an already-locked list is never
@@ -103,7 +112,7 @@ export default function LockListModal({ visible, hasPhotos, mode = 'lock', onCan
           {mode === 'change' ? (
             <FormField label={labels.vault_current_passphrase_label} style={styles.field}>
               <TextInput
-                style={inputStyle}
+                style={fieldStyle(currentInvalid)}
                 value={current}
                 onChangeText={setCurrent}
                 secureTextEntry
@@ -114,7 +123,7 @@ export default function LockListModal({ visible, hasPhotos, mode = 'lock', onCan
           ) : null}
           <FormField label={labels.vault_passphrase_label} style={styles.field}>
             <TextInput
-              style={inputStyle}
+              style={fieldStyle(passphraseInvalid)}
               value={passphrase}
               onChangeText={setPassphrase}
               placeholder={labels.vault_passphrase_hint}
@@ -126,7 +135,7 @@ export default function LockListModal({ visible, hasPhotos, mode = 'lock', onCan
           </FormField>
           <FormField label={labels.vault_passphrase_confirm} style={styles.field}>
             <TextInput
-              style={inputStyle}
+              style={fieldStyle(confirmInvalid)}
               value={confirmValue}
               onChangeText={setConfirmValue}
               secureTextEntry
@@ -150,7 +159,7 @@ export default function LockListModal({ visible, hasPhotos, mode = 'lock', onCan
               {labels.vault_unrecoverable_warning}
             </Text>
           </TouchableOpacity>
-          {error ? <Text style={[styles.error, { color: c.red, fontSize: fs(12) }]}>{error}</Text> : null}
+          <FieldError message={error} style={styles.error} />
         </>
       )}
       <ModalFooter

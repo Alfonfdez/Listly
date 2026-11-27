@@ -25,6 +25,9 @@
 ### 3. Tapping still works
 - Tapping a tile (grid) or a row still navigates to its list detail; the drag gesture and the tap/press coexist.
 
+### 4. Auto-scroll while dragging
+- Both grids share the screen's `scrollableRef` (an `AnimatedRef` to an `Animated.ScrollView`), enabling the library's auto-scroll: dragging within `AUTO_SCROLL_ACTIVATION_OFFSET` (90 px) of the top/bottom edge scrolls the screen at up to `AUTO_SCROLL_MAX_VELOCITY` (1400 px/s), so a card can be moved across a long screen in one gesture.
+
 ---
 
 ## Non-functional requirements
@@ -44,3 +47,4 @@
 - [x] The new order persists after a reload (DB `position` writes).
 - [x] A list created afterwards is appended at the end.
 - [x] Tap still opens list detail; searching keeps filtering; all theme/text-size behavior is unchanged.
+- [x] Dragging near the top/bottom edge auto-scrolls the screen so a list can be moved across a long screen in one gesture.

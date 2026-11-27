@@ -28,7 +28,7 @@ describe('SqlJsDatabase persistence', () => {
     await expect(
       db.withTransactionAsync(async () => {
         await db.withTransactionAsync(async () => {});
-      })
+      }),
     ).rejects.toThrow(/Nested transaction/);
     db.close();
   });

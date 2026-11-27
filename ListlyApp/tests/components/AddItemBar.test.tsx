@@ -1,7 +1,16 @@
+import { flattenStyle } from '../helpers/style';
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 import { render, userEvent } from '@testing-library/react-native';
 import { resetStub, setConfig } from '../helpers/configStub';
 import AddItemBar from '../../src/components/AddItemBar';
+import {
+  ADD_ITEM_NOTE_LINES,
+  EDIT_ITEM_FIELD_LINE_HEIGHT,
+  EDIT_ITEM_FIELD_VERTICAL_PADDING,
+  PHOTO_METRICS,
+} from '../../src/constants/layout';
+
+const NOTE_INPUT_HEIGHT = EDIT_ITEM_FIELD_LINE_HEIGHT * ADD_ITEM_NOTE_LINES + EDIT_ITEM_FIELD_VERTICAL_PADDING;
 
 vi.mock('../../src/hooks/useItemPhotos', () => ({
   useItemPhotos: () => ({
@@ -34,6 +43,29 @@ describe('AddItemBar', () => {
 
     expect(view.getByLabelText('Note')).toBeTruthy();
     expect(view.getByLabelText('Add photo')).toBeTruthy();
+  });
+
+  it('uses a three-line note and compact photo tiles in the details area', async () => {
+    const user = userEvent.setup();
+    const view = await render(<AddItemBar {...baseProps} />);
+
+    await user.press(view.getByLabelText('Toggle details'));
+
+    const note = view.getByLabelText('Note');
+    expect(note.props.numberOfLines).toBe(ADD_ITEM_NOTE_LINES);
+    expect(flattenStyle(note.props.style).height).toBe(NOTE_INPUT_HEIGHT);
+    expect(flattenStyle(view.getByLabelText('Add photo').props.style).width).toBe(PHOTO_METRICS.compact.size);
+  });
+
+  it('uses the compact details on numeric lists too', async () => {
+    const user = userEvent.setup();
+    const view = await render(<AddItemBar {...baseProps} numeric />);
+
+    await user.press(view.getByLabelText('Toggle details'));
+
+    expect(view.getByLabelText('Amount')).toBeTruthy();
+    expect(view.getByLabelText('Note').props.numberOfLines).toBe(ADD_ITEM_NOTE_LINES);
+    expect(flattenStyle(view.getByLabelText('Add photo').props.style).width).toBe(PHOTO_METRICS.compact.size);
   });
 
   it('hides the photo section when the list is locked (photosAllowed false)', async () => {

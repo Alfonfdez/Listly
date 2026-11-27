@@ -132,7 +132,8 @@ describe('vaultRepo', () => {
     expect(after?.kdf_digest).toBe(before?.kdf_digest);
   });
 
-  it('drives the locked-list id set from the vaults table', async () => {    const { vaultRepo, listId } = await seedList();
+  it('drives the locked-list id set from the vaults table', async () => {
+    const { vaultRepo, listId } = await seedList();
     expect(await vaultRepo.listIds()).toEqual([]);
     await vaultRepo.lock(listId, 'secret123', await vaultRepo.readPlainItems(listId));
     expect(await vaultRepo.listIds()).toEqual([listId]);

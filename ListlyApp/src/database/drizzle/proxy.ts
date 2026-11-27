@@ -10,7 +10,7 @@ interface DrizzleRunResult {
 type SqliteProxyCallback = (
   sql: string,
   params: unknown[],
-  method: ProxyMethod
+  method: ProxyMethod,
 ) => Promise<{ rows: unknown[] }>;
 
 function toPositionalArray(row: Record<string, unknown>): unknown[] {
@@ -18,7 +18,7 @@ function toPositionalArray(row: Record<string, unknown>): unknown[] {
 }
 
 export function createSqliteProxyCallback(
-  getHandle: () => Promise<DatabaseHandle>
+  getHandle: () => Promise<DatabaseHandle>,
 ): SqliteProxyCallback {
   return async (sql, params, method) => {
     const db = await getHandle();

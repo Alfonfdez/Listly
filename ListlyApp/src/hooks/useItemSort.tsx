@@ -29,7 +29,7 @@ export function useItemSort({ filteredItems, dragItems }: Options) {
   const sortActive = sort.key !== 'manual';
   const displayItems = useMemo(
     () => (sortActive ? sortItems(filteredItems, sort) : dragItems),
-    [sortActive, sort, filteredItems, dragItems]
+    [sortActive, sort, filteredItems, dragItems],
   );
 
   const sortOptions = useMemo<Option<ItemSortValue>[]>(() => {

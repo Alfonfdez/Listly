@@ -26,7 +26,7 @@ describe('ErrorBoundary', () => {
     const view = await render(
       <ErrorBoundary>
         <Flaky />
-      </ErrorBoundary>
+      </ErrorBoundary>,
     );
 
     expect(view.getByText('Something went wrong')).toBeTruthy();
@@ -37,7 +37,7 @@ describe('ErrorBoundary', () => {
     const view = await render(
       <ErrorBoundary>
         <Flaky />
-      </ErrorBoundary>
+      </ErrorBoundary>,
     );
     expect(view.getByText('Something went wrong')).toBeTruthy();
 

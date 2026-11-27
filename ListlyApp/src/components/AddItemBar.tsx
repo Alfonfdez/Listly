@@ -8,10 +8,12 @@ import { useFontSize } from '../hooks/useFontSize';
 import { useLabels } from '../hooks/useLabels';
 import { useItemDraft } from '../hooks/useItemDraft';
 import { useItemDisplayFlags } from '../hooks/useItemDisplayFlags';
+import { ADD_ITEM_NOTE_LINES, EDIT_ITEM_FIELD_LINE_HEIGHT, EDIT_ITEM_FIELD_VERTICAL_PADDING } from '../constants/layout';
 import { serializeItemPhotos } from '../utils/itemPhotos';
 import { ItemAmountField, ItemLineTotal, ItemNameField, ItemNoteField, ItemQuantityField } from './ItemFields';
 import ItemPhotosField from './ItemPhotosField';
-import { BUTTON_BORDER_RADIUS, PRESSED_OPACITY } from './componentStyles';
+import FieldError from './FieldError';
+import { BUTTON_BORDER_RADIUS, PRESSED_OPACITY, fieldBorderColor } from './componentStyles';
 
 interface Props {
   listId: number;
@@ -47,6 +49,9 @@ export default function AddItemBar({
   const draft = useItemDraft({ existingNames, numeric });
   const [noteExpanded, setNoteExpanded] = useState(false);
   const canAddDetails = flags.showNotes || showPhotos;
+  const noteLineHeight = fs(EDIT_ITEM_FIELD_LINE_HEIGHT);
+  const notePaddingVertical = EDIT_ITEM_FIELD_VERTICAL_PADDING / 2;
+  const noteInputHeight = noteLineHeight * ADD_ITEM_NOTE_LINES + EDIT_ITEM_FIELD_VERTICAL_PADDING;
 
   useEffect(() => {
     if (!canAddDetails) setNoteExpanded(false);
@@ -79,7 +84,7 @@ export default function AddItemBar({
   return (
     <View style={styles.addRow}>
       {draft.error ? (
-        <Text style={[styles.errorText, { color: c.red, fontSize: fs(12) }]}>{labels[draft.error]}</Text>
+        <FieldError message={labels[draft.error]} style={styles.errorText} />
       ) : null}
       <View style={styles.inputRow}>
         <View style={styles.nameColumn}>
@@ -90,7 +95,7 @@ export default function AddItemBar({
             accessibilityLabel={labels.item_add_placeholder}
             returnKeyType="done"
             onSubmitEditing={() => void submit()}
-            style={[styles.input, { backgroundColor: c.surface, borderColor: c.border }]}
+            style={[styles.input, { backgroundColor: c.surface, borderColor: fieldBorderColor(c, draft.error !== null) }]}
           />
         </View>
         {canAddDetails ? (
@@ -142,11 +147,22 @@ export default function AddItemBar({
             <ItemNoteField
               value={draft.note}
               onChangeText={draft.setNote}
-              style={[styles.input, styles.noteInput, { backgroundColor: c.surface, borderColor: c.border }]}
+              numberOfLines={ADD_ITEM_NOTE_LINES}
+              style={[
+                styles.input,
+                {
+                  height: noteInputHeight,
+                  lineHeight: noteLineHeight,
+                  paddingVertical: notePaddingVertical,
+                  backgroundColor: c.surface,
+                  borderColor: c.border,
+                },
+              ]}
             />
           ) : null}
           {showPhotos ? (
             <ItemPhotosField
+              compact
               photos={draft.photos}
               onTakePhoto={draft.handleTakePhoto}
               onPickFromGallery={draft.handlePickFromGallery}
@@ -188,6 +204,8 @@ const styles = StyleSheet.create({
   },
   amountInput: {
     flex: 1,
+    // Web inputs keep their intrinsic width unless they are allowed to shrink.
+    minWidth: 0,
   },
   lineTotal: {
     fontWeight: '700',
@@ -204,10 +222,6 @@ const styles = StyleSheet.create({
   },
   chevronOpen: {
     transform: [{ rotate: '180deg' }],
-  },
-  noteInput: {
-    minHeight: 64,
-    paddingTop: 10,
   },
   addButton: {
     height: ADD_ROW_HEIGHT,

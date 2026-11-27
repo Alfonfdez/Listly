@@ -9,6 +9,10 @@ interface GridProps {
   columns?: number;
   columnGap?: number;
   rowGap?: number;
+  scrollableRef?: unknown;
+  autoScrollDirection?: 'horizontal' | 'vertical';
+  autoScrollActivationOffset?: number;
+  autoScrollMaxVelocity?: number;
   onDragEnd?: (params: unknown) => void;
   onDragStart?: (params: unknown) => void;
   onActiveItemDropped?: (params: unknown) => void;
@@ -24,14 +28,14 @@ const Grid = (props: GridProps) => {
   });
   return renderItem
     ? React.createElement(
-        Fragment,
-        null,
-        (data as unknown[]).map((item, index) => (
-          <Fragment key={keyExtractor ? keyExtractor(item) : String((item as { id?: unknown }).id)}>
-            {renderItem({ item, index })}
-          </Fragment>
-        ))
-      )
+      Fragment,
+      null,
+      (data as unknown[]).map((item, index) => (
+        <Fragment key={keyExtractor ? keyExtractor(item) : String((item as { id?: unknown }).id)}>
+          {renderItem({ item, index })}
+        </Fragment>
+      )),
+    )
     : React.createElement(Fragment, null, children);
 };
 
@@ -54,7 +58,7 @@ const Touchable = ({ onTap, onTouchesDown, onTouchesUp, onLongPress, children, .
       onLongPress,
       ...viewProps,
     },
-    children
+    children,
   );
 
 const PassThrough = ({ children }: { children?: ReactNode }) => children as ReactNode;

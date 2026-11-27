@@ -29,7 +29,8 @@ Local database design:
 Status: done.
 
 List detail screen with items:
-- Item list with checkbox toggle, name, note indicator.
+- Item list with checkbox toggle, name (wraps to up to 2 lines), note preview (up to 3 lines, tap opens the full note viewer; closes with the X or by tapping outside).
+- Edit-item modal: 2-line multiline name and a 5-line note area (both fixed-height with internal vertical scroll); the field area scrolls while Delete/Cancel/Save stay fixed.
 - Add item via input (or modal).
 - Edit/delete item.
 - Per-list progress indicator.
@@ -93,6 +94,7 @@ Status: done.
 Drag-to-reorder lists on Home and Lists:
 - Migration 003 adds `lists.position` (backfill + index), `SCHEMA_VERSION` 3; Drizzle/Zod/`ListWithCounts` include `position`; `listRepo` orders by position, appends on create, and `reorder(orderedIds)` persists atomically.
 - Home grid and Lists rows are drag-reorderable via `Sortable.Grid` (long-press drag, write-through + refresh); dragging is disabled while a search query is active.
+- Dragging near the top/bottom edge auto-scrolls the screen (`scrollableRef` on the `Animated.ScrollView`; 90 px activation, 1400 px/s) so a list can be moved across a long screen in one gesture.
 - Spec: spec/features/009-reorder-lists/.
 
 ## 010-bulk-select-delete
@@ -115,7 +117,7 @@ Status: done.
 Up to 3 pictures per item:
 - `items.pictures` TEXT column (JSON array of URIs), migration 004 / `SCHEMA_VERSION` 4.
 - "Add photos" section in the expanded details area of the add bar (under the note input) and under the Note field in the edit modal.
-- Thumbnail strip on item rows; full-screen viewer on tap.
+- Thumbnail strip on item rows; full-screen viewer on tap (closes with the X or by tapping outside the image).
 - Native stores file URIs in the document directory; web stores base64 data URLs inline; photo files cleaned up on item/list delete.
 - Spec: spec/features/011-item-pictures/.
 
@@ -127,6 +129,7 @@ Drag-to-reorder items inside a list:
 - Sortable list-detail container (`Sortable.Grid`, 1 column); long-press drag; write-through + refresh.
 - Reordering disabled with <2 items, while a search query is active, or in select mode.
 - Long-press reserved for drag (no longer enters item select mode; select mode stays behind the header toggle).
+- Dragging near the top/bottom edge auto-scrolls the item list (`scrollableRef` on the `Animated.ScrollView`; 90 px activation, 1400 px/s), so a long list can be reordered to the top in one gesture.
 - Spec: spec/features/012-reorder-items/.
 
 ## 013-edit-list
@@ -174,7 +177,7 @@ User-defined collections that organize lists, plus a first-class Collections scr
 - Home select mode mixes collections and standalone lists (combined `N selected`); *Delete* opens a single modal — the shared `CollectionDeleteModal` chooser (`Delete N collections?`, *Move lists to Lists* / *Delete lists too*) when a selected collection has lists, or one destructive confirm (`Delete N collections and M lists?`) when none do — deleting the standalone lists and collections together with no fallthrough.
 - Per-section layout keys `homeCollectionsLayout` / `homeListsLayout` / `collectionsLayout` / `listsLayout` (defaults grid/grid/grid/list; legacy `home_layout` ignored) with Personalization rows for Home Collections, Home Lists, Collections screen, and Lists screen.
 - Detail-header cleanup: list/collection detail headers show only search/select toggles (gated on items/member lists); delete moved into the Edit List / Edit Collection screens (outlined-red button above Save, empty → confirm / non-empty → chooser).
-- Visual polish: the collection identity icon `albums-outline` replaces folder icons (empty states, Create/Detail headers, Add-chooser); Home's fully-empty state gets a combined "no collections or lists" message (`home-outline`); collections and lists carry a small fixed type badge (`albums-outline` / `list-outline`) plus a colored accent bar (top on grid cards, left on list rows); Home's *Collections* / *Lists* section titles show their type icon, and the *Lists* title appears even when there are only lists; on the Lists screen a collection-list shows its collection name (collection color) under the list name.
+- Visual polish: the collection identity icon `albums-outline` replaces folder icons (empty states, Create/Detail headers, Add-chooser); Home's fully-empty state gets a combined "no collections or lists" message (`home-outline`); collections and lists carry a small fixed type badge (`albums-outline` / `list-outline`) plus a colored accent bar (top on grid cards, left on list rows); Home's *Collections* / *Lists* section titles show their type icon, and the *Lists* title appears even when there are only lists; on the Lists screen a collection-list shows its collection name (collection color) under the list name — that line is reserved on every row so rows match. Tile names wrap to up to 2 lines and every tile reserves two lines of height, so cards/rows keep a uniform height whether the name is one or two lines.
 - i18n: `collection_*`, `collections_empty`, `home_add_collection`, `home_add_choice_title`, `home_section_lists`, `home_empty_all` / `home_empty_all_hint`, `collection_delete_many_title` / `collection_delete_combined_title` (+ messages), layout/settings keys in both `en` and `es`.
 - Spec: spec/features/016-collections/.
 
@@ -351,6 +354,69 @@ Add a second, value-weighted progress bar to numeric list headers:
 - **Always shown on numeric lists**, including the zero state (`0.00 / 0.00 · 0.00 %`); absent only on standard lists. The value bar replaces the former stacked **Total**/**Done** text rows (their values now live on the bar), and carries a combined a11y label `Value progress: <done> / <total>, <percent> %`.
 - Pure helpers `valueProgressPercent` / `formatPercent2` in `src/utils/numeric.ts`; no DB/repo changes. A11y label `list_value_progress_label`.
 - Spec: spec/features/034-value-progress-bar/.
+
+## 035-form-name-feedback
+Status: done.
+
+Make the Create/Edit list and collection name fields behave like Finly's forms:
+- A freshly opened form is never red: the name error and border appear only after the field has been **changed or blurred**; tapping in and out with an empty name reveals the hint.
+- The error is a red line above the submit button, in a **reserved two-line band** so Delete/Save never move; the input border turns red while the error is visible.
+- The "Name" label row shows a live `current/max` counter (100 for lists and collections); it turns **red and bold** at the limit, and the item name/note counters gain the same style.
+- Shared components: `CharCounter` (styling), `FormHint` (band), `FormField` right slot, `EntityForm` touched state; no new i18n keys.
+- Spec: spec/features/035-form-name-feedback/.
+
+## Android: a reinstall no longer restores app data
+Status: done.
+
+Uninstalling the app and installing it again came back with data from the previous install (seen while testing the v1.1.0 upgrade; the same behaviour had already been fixed in Finly):
+- **Cause:** the app used Android's default `android:allowBackup="true"` with no backup rules, so the OS cloud backup copied the private SQLite database (`files/SQLite/Listly.db`) and Android **restored it on install** — even across a differently signed build of the same package.
+- **Fix:** `expo.android.allowBackup: false` in `app.json`; prebuild emits `android:allowBackup="false"` in the packaged manifest, disabling cloud backup and restore (and `adb backup`). A reinstall now starts empty; data moves only through the in-app JSON export/import.
+- Gate: `npm run test:all` green (86 files / 776 tests).
+
+Spec: spec/constitution/7-platform-differences.md, spec/features/005-settings-screen/.
+
+## Compact add-bar details
+Status: done.
+
+The expandable details area of the list-detail add bar felt top-heavy:
+- Photo tiles in the inline add bar shrink to **56×56** (from 80×80), with a 20px image icon, an 18px remove badge and tighter gaps; the "Photos" title is hidden there (the icon and dashed add box identify the section), while the edit modal keeps the regular 80×80 tiles, the title and the 5-line note. `PhotoSection` / `ItemPhotosField` take an opt-in `compact` prop.
+- The add-bar note input reserves **3 lines** by default (`ADD_ITEM_NOTE_LINES`, height from the same line-height/padding tokens as the edit modal); longer notes scroll inside the field.
+- `tests/components/{PhotoSection,AddItemBar}.test.tsx` cover both tile sizes, the hidden compact title and the 3-line note; the updated screen was captured as **`v1.1.0-06-a-add-item-expanded-v2.png`** (a new filename so GitHub's image cache serves the new layout).
+
+Spec: spec/features/011-item-pictures/.
+
+## Standardise the FAB position
+Status: done.
+
+The “+” FAB sat higher on Collection detail than on Home:
+- **Cause:** `ListsView` rendered its own `ScreenShell` (bottom safe-area inset), and `CollectionDetailScreen` wrapped it in a second one. On devices with a home indicator / gesture bar the inset was applied twice, so the FAB and the list's bottom padding moved up (web screenshots hid it because insets are 0).
+- **Fix:** one `ScreenShell` per screen — `ListsView` is now a plain `flex: 1` view, `ListsScreenBase` and `CollectionDetailScreen` own the shell. The FAB stays the shared `Fab` with `FAB_BOTTOM_OFFSET = 56` (Finly parity), and the scroll padding is `LIST_BOTTOM_FAB_PADDING` (= offset + size + 16) so the last row clears it.
+- Tests assert exactly one `screen-shell` on Home and Collection detail; gate `npm run test:all` green (86 files / 783 tests).
+
+Spec: spec/constitution/7-platform-differences.md.
+
+## Form feedback standard
+Status: done.
+
+Counters and validation messages were inconsistent across forms:
+- **Counters:** the item edit modal showed Name/Note counters under the inputs even though both fields have labels. They now render in the label rows (`FormField right`), matching the list/collection forms (035) and Finly; the label-less add bar keeps its counters under the inputs.
+- **Validation:** every invalid field gets a red border and an **inline message under the field** in every form. The hint band above Save was removed because the keyboard hid it; the lock modal reds only the field that needs fixing (passphrase/confirm/current). Messages are announced as alerts.
+- **Space:** the edit-item modal uses the saved room for 3 name lines and 7 note lines; photo tiles are 64×64 (from 80) with the same `images-outline` icon as the compact add bar, and the tiles sit 8px above the buttons.
+- Gate: `npm run test:all` green (86 files / 785 tests). The `03-create-list`, `05-edit-list` and `06-b-item-edit` screenshot refresh is deferred to the next UI batch.
+
+Spec: spec/features/036-form-feedback-standard/, spec/constitution/4-design-system.md.
+
+## Pre-release code cleanup
+Status: done.
+
+Small, behaviour-neutral refactors before v1.1.0:
+- **One inline error renderer:** new `FieldError` (red, 12px, `role="alert"` + polite live region) used by `FormField`, `AddItemBar`, `LockListModal` and `VaultUnlockView`; the repeated `borderColor: invalid ? red : border` became `fieldBorderColor(colors, invalid)` in `componentStyles`.
+- **`LIST_KINDS` constants** replace the remaining `'numeric'` / `'standard'` literals in `EntityTile`, `ListDetailScreen`, `useClipboardCopy` and the backup Zod enum.
+- **`src/constants/layout.ts`** now owns the UI layout tokens (`PHOTO_METRICS`, `EDIT_ITEM_*`, `ADD_ITEM_NOTE_LINES`); `constants/types.ts` keeps behavioural constants and types.
+- Deferred to post-release (bigger): splitting `ListDetailScreen` (674 lines) and `ListsView` (479), shared input-style/typography tokens.
+- Gate: `npm run test:all` green (86 files / 785 tests). Pixel-identical, so no screenshot refresh.
+
+Spec: spec/constitution/4-design-system.md.
 
 ## Future scope (not scheduled)
 - Per-list currency symbol (the numeric list is currency-agnostic for now).

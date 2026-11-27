@@ -5,6 +5,7 @@ import EditCollectionScreen from '../../src/screens/EditCollectionScreen';
 import { buildAppMock, resetAppStub, setCollections, setListsByCollectionId } from '../helpers/appStub';
 import { resetStub } from '../helpers/configStub';
 import type { CollectionWithCounts, ListWithCounts } from '../../src/database/types';
+import { MAX_COLLECTION_NAME_LENGTH } from '../../src/constants/types';
 
 interface PickerProps {
   value?: string;
@@ -90,6 +91,7 @@ describe('EditCollectionScreen', () => {
   it('pre-fills the form and shows a delete button', async () => {
     const view = await render(<EditCollectionScreen />);
     expect(view.getByLabelText('Name').props.value).toBe('Shopping');
+    expect(view.getByText(`8/${MAX_COLLECTION_NAME_LENGTH}`)).toBeTruthy();
     expect(view.getByLabelText('Save')).toBeTruthy();
     expect(view.getByLabelText('Delete collection')).toBeTruthy();
   });

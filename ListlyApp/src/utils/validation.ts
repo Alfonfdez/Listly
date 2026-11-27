@@ -9,7 +9,7 @@ type NameErrorCode = 'name_required' | 'name_max' | 'name_duplicate';
 function validateName(
   value: string,
   maxLength: number,
-  isDuplicate: (normalized: string) => boolean
+  isDuplicate: (normalized: string) => boolean,
 ): NameErrorCode | null {
   const trimmed = value.trim();
   if (trimmed.length === 0) return 'name_required';
@@ -25,7 +25,7 @@ type CollectionNameError = `collection_${NameErrorCode}`;
 export function validateItemName(
   value: string,
   existingNames: ReadonlySet<string>,
-  maxLength = MAX_ITEM_NAME_LENGTH
+  maxLength = MAX_ITEM_NAME_LENGTH,
 ): ItemNameError | null {
   const code = validateName(value, maxLength, normalized => existingNames.has(normalized));
   return code ? (`item_${code}` as ItemNameError) : null;
@@ -34,7 +34,7 @@ export function validateItemName(
 export function validateListName(
   value: string,
   exists: boolean,
-  maxLength = MAX_LIST_NAME_LENGTH
+  maxLength = MAX_LIST_NAME_LENGTH,
 ): ListNameError | null {
   const code = validateName(value, maxLength, () => exists);
   return code ? (`list_${code}` as ListNameError) : null;
@@ -43,7 +43,7 @@ export function validateListName(
 export function validateCollectionName(
   value: string,
   exists: boolean,
-  maxLength = MAX_COLLECTION_NAME_LENGTH
+  maxLength = MAX_COLLECTION_NAME_LENGTH,
 ): CollectionNameError | null {
   const code = validateName(value, maxLength, () => exists);
   return code ? (`collection_${code}` as CollectionNameError) : null;

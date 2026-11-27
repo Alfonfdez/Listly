@@ -8,7 +8,7 @@ describe('FullscreenViewer', () => {
     const view = await render(
       <FullscreenViewer visible onClose={vi.fn()}>
         <Text>content</Text>
-      </FullscreenViewer>
+      </FullscreenViewer>,
     );
     expect(view.getByText('content')).toBeTruthy();
     expect(view.getByLabelText('Close')).toBeTruthy();
@@ -19,17 +19,39 @@ describe('FullscreenViewer', () => {
     const view = await render(
       <FullscreenViewer visible onClose={onClose}>
         <Text>content</Text>
-      </FullscreenViewer>
+      </FullscreenViewer>,
     );
     fireEvent.press(view.getByLabelText('Close'));
     expect(onClose).toHaveBeenCalledTimes(1);
+  });
+
+  it('closes when tapping the backdrop outside the content', async () => {
+    const onClose = vi.fn();
+    const view = await render(
+      <FullscreenViewer visible onClose={onClose}>
+        <Text>content</Text>
+      </FullscreenViewer>,
+    );
+    fireEvent.press(view.getByTestId('viewer-backdrop'));
+    expect(onClose).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not close when tapping the content', async () => {
+    const onClose = vi.fn();
+    const view = await render(
+      <FullscreenViewer visible onClose={onClose}>
+        <Text>content</Text>
+      </FullscreenViewer>,
+    );
+    fireEvent.press(view.getByText('content'));
+    expect(onClose).not.toHaveBeenCalled();
   });
 
   it('renders nothing when hidden', async () => {
     const view = await render(
       <FullscreenViewer visible={false} onClose={vi.fn()}>
         <Text>content</Text>
-      </FullscreenViewer>
+      </FullscreenViewer>,
     );
     expect(view.queryByText('content')).toBeNull();
   });

@@ -1,3 +1,5 @@
+import { colorLabel } from '../helpers/colors';
+import { flattenStyle } from '../helpers/style';
 import { describe, expect, it, beforeEach, vi } from 'vitest';
 import { render, userEvent, waitFor } from '@testing-library/react-native';
 import type { ReactNode } from 'react';
@@ -6,13 +8,7 @@ import { buildAppMock, resetAppStub, setLists, setCollections } from '../helpers
 import { resetStub } from '../helpers/configStub';
 import type { CollectionWithCounts, ListWithCounts } from '../../src/database/types';
 import { MAX_LIST_NAME_LENGTH } from '../../src/constants/types';
-import { QUICK_COLOR_LABELS } from '../../src/constants/listColors';
-import { en } from '../../src/i18n/en';
-
-const colorLabel = (color: string): string => {
-  const value = en[QUICK_COLOR_LABELS[color]];
-  return typeof value === 'string' ? value : color;
-};
+import { darkColors } from '../../src/constants/themes';
 
 interface PickerProps {
   value?: string;
@@ -160,6 +156,17 @@ describe('EditListScreen', () => {
     expect(view.getByLabelText('cart-outline').props.accessibilityState.selected).toBe(true);
     expect(view.getByLabelText(colorLabel('#22D3EE')).props.accessibilityState.selected).toBe(true);
     expect(view.getByLabelText('Save')).toBeTruthy();
+    expect(view.getByText(`9/${MAX_LIST_NAME_LENGTH}`)).toBeTruthy();
+  });
+
+  it('shows the required hint and a red border after clearing the name', async () => {
+    const user = userEvent.setup();
+    const view = await render(<EditListScreen />);
+    await user.clear(view.getByLabelText('Name'));
+
+    expect(await view.findByText('Name is required')).toBeTruthy();
+    expect(flattenStyle(view.getByLabelText('Name').props.style).borderColor).toBe(darkColors.red);
+    expect(view.getByLabelText('Save').props.accessibilityState.disabled).toBe(true);
   });
 
   it('caps the name input at the max length', async () => {
@@ -174,8 +181,7 @@ describe('EditListScreen', () => {
     const user = userEvent.setup();
     const view = await render(<EditListScreen />);
     await waitFor(() =>
-      expect(listRepositoryMock.existsByName).toHaveBeenCalledWith('Groceries', 1)
-    );
+      expect(listRepositoryMock.existsByName).toHaveBeenCalledWith('Groceries', 1));
     expect(view.queryByText('A list with this name already exists')).toBeNull();
 
     await user.press(view.getByLabelText('Save'));
@@ -185,8 +191,7 @@ describe('EditListScreen', () => {
         color: '#22D3EE',
         icon: 'cart-outline',
         kind: 'standard',
-      })
-    );
+      }));
     expect(nav.goBack).toHaveBeenCalled();
   });
 
@@ -217,8 +222,7 @@ describe('EditListScreen', () => {
         color: '#34D399',
         icon: 'briefcase-outline',
         kind: 'standard',
-      })
-    );
+      }));
     expect(nav.goBack).toHaveBeenCalled();
   });
 
@@ -339,8 +343,7 @@ describe('EditListScreen', () => {
         color: '#22D3EE',
         icon: 'cart-outline',
         kind: 'standard',
-      })
-    );
+      }));
     expect(listRepositoryMock.moveToCollection).toHaveBeenCalledWith(1, 7);
     expect(listRepositoryMock.removeFromCollection).not.toHaveBeenCalled();
     expect(nav.goBack).toHaveBeenCalled();
@@ -355,8 +358,7 @@ describe('EditListScreen', () => {
     await user.press(view.getByLabelText('Save'));
 
     await waitFor(() =>
-      expect(listRepositoryMock.removeFromCollection).toHaveBeenCalledWith(1)
-    );
+      expect(listRepositoryMock.removeFromCollection).toHaveBeenCalledWith(1));
     expect(listRepositoryMock.moveToCollection).not.toHaveBeenCalled();
     expect(nav.goBack).toHaveBeenCalled();
   });
@@ -375,8 +377,7 @@ describe('EditListScreen', () => {
         color: '#22D3EE',
         icon: 'cart-outline',
         kind: 'standard',
-      })
-    );
+      }));
     expect(listRepositoryMock.moveToCollection).not.toHaveBeenCalled();
     expect(listRepositoryMock.removeFromCollection).not.toHaveBeenCalled();
     expect(nav.goBack).toHaveBeenCalled();

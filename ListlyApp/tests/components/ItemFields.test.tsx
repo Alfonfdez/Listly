@@ -8,6 +8,7 @@ import {
   ItemNoteField,
   ItemQuantityField,
 } from '../../src/components/ItemFields';
+import { EDIT_ITEM_NAME_LINES } from '../../src/constants/layout';
 
 describe('ItemFields', () => {
   beforeEach(() => resetStub());
@@ -28,6 +29,23 @@ describe('ItemFields', () => {
     expect(onChangeText).toHaveBeenCalledWith('skim');
   });
 
+  it('can hide the counters when the label row hosts them', async () => {
+    const name = await render(
+      <ItemNameField
+        value="Milk"
+        onChangeText={vi.fn()}
+        placeholder="Name"
+        accessibilityLabel="Name"
+        style={{}}
+        showCounter={false}
+      />,
+    );
+    expect(name.queryByText('4/200')).toBeNull();
+
+    const note = await render(<ItemNoteField value="note" onChangeText={vi.fn()} style={{}} showCounter={false} />);
+    expect(note.queryByText('4/2000')).toBeNull();
+  });
+
   it('ItemNameField renders the counter and forwards typing', async () => {
     const onChangeText = vi.fn();
     const view = await render(
@@ -37,12 +55,30 @@ describe('ItemFields', () => {
         placeholder="Add an item..."
         accessibilityLabel="Add an item..."
         style={{}}
-      />
+      />,
     );
 
     expect(view.getByText('4/200')).toBeTruthy();
     fireEvent.changeText(view.getByLabelText('Add an item...'), 'Bread');
     expect(onChangeText).toHaveBeenCalledWith('Bread');
+  });
+
+  it('ItemNameField supports a multiline name (edit modal)', async () => {
+    const view = await render(
+      <ItemNameField
+        value="A long item name"
+        onChangeText={() => {}}
+        placeholder="Name"
+        accessibilityLabel="Name"
+        style={{}}
+        multiline
+      />,
+    );
+
+    const input = view.getByLabelText('Name');
+    expect(input.props.multiline).toBe(true);
+    expect(input.props.numberOfLines).toBe(EDIT_ITEM_NAME_LINES);
+    expect(input.props.textAlignVertical).toBe('top');
   });
 
   it('ItemAmountField renders the amount placeholder and forwards typing', async () => {

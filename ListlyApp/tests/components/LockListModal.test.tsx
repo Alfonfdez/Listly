@@ -1,7 +1,9 @@
+import { flattenStyle } from '../helpers/style';
 import { describe, expect, it, beforeEach, vi } from 'vitest';
 import { render, userEvent, waitFor } from '@testing-library/react-native';
 import LockListModal from '../../src/components/LockListModal';
 import { resetStub } from '../helpers/configStub';
+import { darkColors } from '../../src/constants/themes';
 
 const PROPS = {
   visible: true,
@@ -35,6 +37,7 @@ describe('LockListModal', () => {
     await user.type(view.getByLabelText('Confirm passphrase'), 'abc');
     await user.press(view.getByLabelText('Lock'));
     expect(view.getByText('Passphrase is too short')).toBeTruthy();
+    expect(flattenStyle(view.getByLabelText('Passphrase').props.style).borderColor).toBe(darkColors.red);
     expect(PROPS.onConfirm).not.toHaveBeenCalled();
   });
 
@@ -45,6 +48,7 @@ describe('LockListModal', () => {
     await user.type(view.getByLabelText('Confirm passphrase'), 'secret999');
     await user.press(view.getByLabelText('Lock'));
     expect(view.getByText('Passphrases do not match')).toBeTruthy();
+    expect(flattenStyle(view.getByLabelText('Confirm passphrase').props.style).borderColor).toBe(darkColors.red);
     expect(PROPS.onConfirm).not.toHaveBeenCalled();
   });
 
@@ -77,6 +81,7 @@ describe('LockListModal', () => {
     await user.press(view.getByLabelText('I understand this passphrase cannot be recovered'));
     await user.press(view.getByLabelText('Change'));
     expect(view.getByText('Current passphrase is incorrect')).toBeTruthy();
+    expect(flattenStyle(view.getByLabelText('Current passphrase').props.style).borderColor).toBe(darkColors.red);
     expect(PROPS.onConfirm).not.toHaveBeenCalled();
   });
 

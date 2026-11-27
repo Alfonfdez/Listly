@@ -17,7 +17,7 @@ describe('SortablePressable', () => {
     const view = await render(
       <SortablePressable onPress={() => {}}>
         <Text>Tile</Text>
-      </SortablePressable>
+      </SortablePressable>,
     );
     // The touch handlers live on the Pressable rendered by the sortables mock,
     // which is the Text's parent.
@@ -32,7 +32,7 @@ describe('SortablePressable', () => {
     const view = await render(
       <SortablePressable onPress={onPress}>
         <Text>Tile</Text>
-      </SortablePressable>
+      </SortablePressable>,
     );
 
     fireEvent.press(getTile(view));
@@ -43,7 +43,7 @@ describe('SortablePressable', () => {
     const view = await render(
       <SortablePressable onPress={() => {}}>
         <Text>Tile</Text>
-      </SortablePressable>
+      </SortablePressable>,
     );
     const pressable = getTile(view).parent!;
 

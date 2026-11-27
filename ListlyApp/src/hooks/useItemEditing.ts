@@ -15,7 +15,7 @@ export function useItemEditing({ items, update, remove }: Options) {
 
   const editingExclusiveNames = useMemo(
     () => (editing ? uniqueNormalizedNames(items.filter(i => i.id !== editing.id).map(i => i.name)) : new Set<string>()),
-    [items, editing]
+    [items, editing],
   );
 
   const saveEdit = useCallback(
@@ -24,7 +24,7 @@ export function useItemEditing({ items, update, remove }: Options) {
       note: string | null,
       photos: string[],
       amountMinor: number | null,
-      quantity: number
+      quantity: number,
     ) => {
       if (!editing) return;
       await update(editing.id, {
@@ -36,7 +36,7 @@ export function useItemEditing({ items, update, remove }: Options) {
       });
       setEditing(null);
     },
-    [editing, update]
+    [editing, update],
   );
 
   const deleteItem = useCallback(async () => {

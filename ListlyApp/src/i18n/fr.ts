@@ -115,7 +115,7 @@ export const fr: Translations = {
   list_duplicate: 'Dupliquer la liste',
   list_copy_to: 'Copier les éléments vers une autre liste',
   list_copied_to: (name: string) => `Éléments copiés dans « ${name} »`,
-  list_picker_hint: "Copier les éléments de cette liste vers une autre liste",
+  list_picker_hint: 'Copier les éléments de cette liste vers une autre liste',
   list_picker_empty: 'Aucune autre liste où copier',
   list_copy_picker_subtitle:
     'Cette liste est conservée ; ses éléments sont ajoutés à la liste choisie (les éléments de même nom sont ignorés).',
@@ -189,7 +189,7 @@ export const fr: Translations = {
   settings_list_layout: 'Disposition',
   layout_grid: 'Grille',
   layout_list: 'Liste',
-  settings_item_display: "Affichage des éléments",
+  settings_item_display: 'Affichage des éléments',
   settings_edit_item: "Modifier l'élément",
   settings_optional_fields: 'Champs optionnels',
   settings_notes: 'Notes',
@@ -230,7 +230,7 @@ export const fr: Translations = {
   settings_import_newer_message: 'Cette sauvegarde a été créée avec une version plus récente de Listly. Mettez à jour l\u2019application pour l\u2019importer.',
   settings_delete_all_success: 'Toutes les listes supprimées.',
   settings_delete_all_error: 'Impossible de supprimer les données.',
-  settings_factory_reset_success: "Application réinitialisée aux paramètres par défaut.",
+  settings_factory_reset_success: 'Application réinitialisée aux paramètres par défaut.',
   settings_factory_reset_error: "Impossible de réinitialiser l'application.",
   common_search: 'Rechercher',
   select_selected: (n: number) => `${n} sélectionné${n === 1 ? '' : 's'}`,
@@ -272,5 +272,5 @@ export const fr: Translations = {
   vault_passphrase_changed: 'Phrase secrète modifiée',
   vault_unsupported_title: 'Non disponible ici',
   vault_unsupported_message:
-    "Les listes verrouillées ne sont pas disponibles dans Expo Go car elles nécessitent un chiffrement natif. Installez une build de développement de Listly pour verrouiller et déverrouiller des listes.",
+    'Les listes verrouillées ne sont pas disponibles dans Expo Go car elles nécessitent un chiffrement natif. Installez une build de développement de Listly pour verrouiller et déverrouiller des listes.',
 };

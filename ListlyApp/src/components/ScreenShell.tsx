@@ -15,7 +15,11 @@ const styles = StyleSheet.create({
 export default function ScreenShell({ children, style }: ScreenShellProps) {
   const { activeColors: c } = useConfig();
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: c.background }, style]} edges={['bottom']}>
+    <SafeAreaView
+      testID="screen-shell"
+      style={[styles.container, { backgroundColor: c.background }, style]}
+      edges={['bottom']}
+    >
       {children}
     </SafeAreaView>
   );

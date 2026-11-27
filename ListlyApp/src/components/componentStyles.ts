@@ -1,8 +1,12 @@
+import type { ColorPalette } from '../constants/themes';
+
 export const CARD_BORDER_RADIUS = 12;
 export const BUTTON_BORDER_RADIUS = 10;
 export const MODAL_BORDER_RADIUS = 16;
 export const FAB_SIZE = 56;
 export const FAB_BOTTOM_OFFSET = 56;
+/** Scroll padding so the last row clears the FAB (offset + size + gap). */
+export const LIST_BOTTOM_FAB_PADDING = FAB_BOTTOM_OFFSET + FAB_SIZE + 16;
 
 export const OVERLAY_BG = 'rgba(0,0,0,0.6)';
 export const VIEWER_BG = 'rgba(0,0,0,0.95)';
@@ -30,3 +34,8 @@ export const GRID_GAP = 12;
 export const WIDE_BREAKPOINT = 900;
 export const MEDIUM_BREAKPOINT = 600;
 export const ZONE_MIN_ACTIVATION_DISTANCE = 8;
+
+/** Border color for a form field: red when invalid, the theme border otherwise. */
+export function fieldBorderColor(colors: Pick<ColorPalette, 'border' | 'red'>, invalid: boolean): string {
+  return invalid ? colors.red : colors.border;
+}

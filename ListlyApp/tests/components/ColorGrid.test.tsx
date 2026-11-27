@@ -1,19 +1,14 @@
+import { colorLabel } from '../helpers/colors';
 import { describe, expect, it } from 'vitest';
 import { render, userEvent } from '@testing-library/react-native';
 import ColorGrid from '../../src/components/ColorGrid';
-import { QUICK_COLORS, QUICK_COLOR_LABELS } from '../../src/constants/listColors';
-import { en } from '../../src/i18n/en';
-
-const colorLabel = (color: string): string => {
-  const value = en[QUICK_COLOR_LABELS[color]];
-  return typeof value === 'string' ? value : color;
-};
+import { QUICK_COLORS } from '../../src/constants/listColors';
 
 describe('ColorGrid', () => {
   it('renders the quick colors as selectable circles', async () => {
     const onSelect = () => {};
     const view = await render(
-      <ColorGrid selectedColor={null} customColor={null} onSelect={onSelect} onOpenPicker={() => {}} />
+      <ColorGrid selectedColor={null} customColor={null} onSelect={onSelect} onOpenPicker={() => {}} />,
     );
 
     QUICK_COLORS.forEach(color => {
@@ -28,7 +23,7 @@ describe('ColorGrid', () => {
       expect(color).toBe(QUICK_COLORS[1]);
     };
     const view = await render(
-      <ColorGrid selectedColor={QUICK_COLORS[0]} customColor={null} onSelect={onSelect} onOpenPicker={() => {}} />
+      <ColorGrid selectedColor={QUICK_COLORS[0]} customColor={null} onSelect={onSelect} onOpenPicker={() => {}} />,
     );
 
     const first = view.getByLabelText(colorLabel(QUICK_COLORS[0]));
@@ -45,7 +40,7 @@ describe('ColorGrid', () => {
     };
     const user = userEvent.setup();
     const view = await render(
-      <ColorGrid selectedColor="#123456" customColor="#123456" onSelect={onSelect} onOpenPicker={() => {}} />
+      <ColorGrid selectedColor="#123456" customColor="#123456" onSelect={onSelect} onOpenPicker={() => {}} />,
     );
 
     expect(view.getByLabelText('Custom color').props.accessibilityState.selected).toBe(true);
@@ -63,7 +58,7 @@ describe('ColorGrid', () => {
         onOpenPicker={() => {
           opened = true;
         }}
-      />
+      />,
     );
 
     await user.press(view.getByLabelText('More colors'));
