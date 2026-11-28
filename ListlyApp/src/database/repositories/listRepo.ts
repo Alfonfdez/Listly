@@ -3,15 +3,21 @@ import { read, write } from '../access';
 import { lists, items } from '../drizzle/schema';
 import { runResultOf } from '../drizzle/proxy';
 import type { List, ListWithCounts } from '../types';
-import type { ListKind } from '../../constants/types';
+import type { AmountFormat, ListKind } from '../../constants/types';
+import type { CurrencyId } from '../../constants/currencies';
 import { listSchema } from '../schemas';
 import { parseRowOrNull, parseRows } from '../validate';
 import { dbTimestamp } from '../../utils/formatters';
 import { countRows, countsSelection, deletePhotosOfItems, picturesOfLists, nextPosition, reorderPositions, reorderWithPin, copyItemsInto } from './shared';
 
-export type NewList = Omit<List, 'id' | 'created_at' | 'position' | 'pinned' | 'collection_id' | 'kind'> & {
+export type NewList = Omit<
+  List,
+  'id' | 'created_at' | 'position' | 'pinned' | 'collection_id' | 'kind' | 'currency' | 'amount_format'
+> & {
   collection_id?: number | null;
   kind?: ListKind;
+  currency?: CurrencyId | null;
+  amount_format?: AmountFormat | null;
 };
 
 export const listRepo = {
@@ -47,12 +53,16 @@ export const listRepo = {
           collection_id: collectionId,
           position,
           kind: data.kind ?? 'standard',
+          currency: data.currency ?? null,
+          amount_format: data.amount_format ?? null,
         })
         .run();
       return {
         ...data,
         collection_id: collectionId,
         kind: data.kind ?? 'standard',
+        currency: data.currency ?? null,
+        amount_format: data.amount_format ?? null,
         id: runResultOf(result).lastInsertRowId,
         created_at: dbTimestamp(),
         position,
@@ -67,7 +77,14 @@ export const listRepo = {
   ): Promise<List> {
     return await write(async db => {
       const collectionId = data.collection_id ?? null;
-      const sourceKind = (await db.select({ kind: lists.kind }).from(lists).where(eq(lists.id, id)).get())?.kind ?? 'standard';
+      const source = await db
+        .select({ kind: lists.kind, currency: lists.currency, amount_format: lists.amount_format })
+        .from(lists)
+        .where(eq(lists.id, id))
+        .get();
+      const sourceKind = source?.kind ?? 'standard';
+      const sourceCurrency = source?.currency ?? null;
+      const sourceAmountFormat = source?.amount_format ?? null;
       const position = await nextPosition(
         db,
         lists,
@@ -83,6 +100,8 @@ export const listRepo = {
           collection_id: collectionId,
           position,
           kind: sourceKind,
+          currency: sourceCurrency,
+          amount_format: sourceAmountFormat,
         })
         .run();
       const newId = runResultOf(created).lastInsertRowId;
@@ -91,6 +110,8 @@ export const listRepo = {
         ...data,
         collection_id: collectionId,
         kind: sourceKind,
+        currency: sourceCurrency,
+        amount_format: sourceAmountFormat,
         id: newId,
         created_at: dbTimestamp(),
         position,
@@ -142,6 +163,8 @@ export const listRepo = {
       if (data.color !== undefined) set.color = data.color;
       if (data.icon !== undefined) set.icon = data.icon;
       if (data.kind !== undefined) set.kind = data.kind;
+      if (data.currency !== undefined) set.currency = data.currency;
+      if (data.amount_format !== undefined) set.amount_format = data.amount_format;
       if (Object.keys(set).length === 0) return;
       await db.update(lists).set(set).where(eq(lists.id, id)).run();
     });
@@ -181,6 +204,8 @@ export const listRepo = {
           pinned: lists.pinned,
           kind: lists.kind,
           collection_id: lists.collection_id,
+          currency: lists.currency,
+          amount_format: lists.amount_format,
           ...countsSelection,
         })
         .from(lists)

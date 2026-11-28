@@ -4,13 +4,15 @@ import { useApp } from '../context/AppContext';
 import { useLabels } from '../hooks/useLabels';
 import { LIST_ICONS } from '../constants/listIcons';
 import { QUICK_COLORS } from '../constants/listColors';
-import { LIST_KINDS, type IconName, type ListKind, type NavigationProp, type RootStackParamList } from '../constants/types';
+import { LIST_KINDS, type AmountFormat, type IconName, type ListKind, type NavigationProp, type RootStackParamList } from '../constants/types';
+import type { CurrencyId } from '../constants/currencies';
 import { listRepo } from '../database';
 import { makeListCopyName } from '../utils/copyList';
 import { logError, ERROR_SCOPE } from '../utils/errors';
 import ScreenShell from '../components/ScreenShell';
 import ListForm from '../components/ListForm';
 import KindSelectRow from '../components/KindSelectRow';
+import NumericListFormatFields from '../components/NumericListFormatFields';
 
 export default function CreateListScreen() {
   const navigation = useNavigation<NavigationProp<'CreateList'>>();
@@ -23,6 +25,8 @@ export default function CreateListScreen() {
   const sourceList = duplicateFromListId !== undefined ? lists.find(l => l.id === duplicateFromListId) : undefined;
   const isDuplicate = duplicateFromListId !== undefined;
   const [kind, setKind] = useState<ListKind>(LIST_KINDS.standard);
+  const [currency, setCurrency] = useState<CurrencyId | null>(null);
+  const [amountFormat, setAmountFormat] = useState<AmountFormat | null>(null);
 
   const create = async ({
     name,
@@ -52,7 +56,14 @@ export default function CreateListScreen() {
         return;
       }
     }
-    await listRepo.create({ name, icon, color, collection_id: collectionIdToUse ?? collectionId, kind });
+    await listRepo.create({
+      name,
+      icon,
+      color,
+      collection_id: collectionIdToUse ?? collectionId,
+      kind,
+      ...(kind === LIST_KINDS.numeric ? { currency, amount_format: amountFormat } : {}),
+    });
     await refresh();
     navigation.goBack();
   };
@@ -65,7 +76,21 @@ export default function CreateListScreen() {
         initialColor={sourceList?.color ?? QUICK_COLORS[0]}
         submitLabel={labels.list_create}
         initialCollectionId={sourceList ? sourceList.collection_id : collectionId}
-        kindSlot={isDuplicate ? undefined : <KindSelectRow kind={kind} onChange={setKind} />}
+        kindSlot={
+          isDuplicate ? undefined : (
+            <>
+              <KindSelectRow kind={kind} onChange={setKind} />
+              {kind === LIST_KINDS.numeric ? (
+                <NumericListFormatFields
+                  currency={currency}
+                  amountFormat={amountFormat}
+                  onChangeCurrency={setCurrency}
+                  onChangeAmountFormat={setAmountFormat}
+                />
+              ) : null}
+            </>
+          )
+        }
         onSubmit={create}
       />
     </ScreenShell>

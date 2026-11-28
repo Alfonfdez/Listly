@@ -1,7 +1,7 @@
 import type { Item } from '../database/types';
 import { MAX_LIST_NAME_LENGTH } from '../constants/types';
 import { isOn } from './flags';
-import { formatAmount, lineTotalMinor, sumTotals, type AmountFormatOptions } from './numeric';
+import { formatAmountCode, lineTotalMinor, sumTotals, type AmountFormatOptions } from './numeric';
 
 const CHECKED_MARK = '✅';
 const NOTE_SEPARATOR = ' — ';
@@ -47,9 +47,9 @@ export function buildListCopyText(listName: string, items: Item[], opts: CopyOpt
     const checked = isOn(item.checked);
     let line: string;
     if (numeric) {
-      const amount = formatAmount(item.amount_minor, format);
+      const amount = formatAmountCode(item.amount_minor, format);
       const quantity = item.quantity;
-      const total = formatAmount(lineTotalMinor(item.amount_minor, quantity), format);
+      const total = formatAmountCode(lineTotalMinor(item.amount_minor, quantity), format);
       line = `${buildNamePrefix(checked, item.name)}${NOTE_SEPARATOR}${amount} × ${quantity} = ${total}`;
     } else {
       line = buildNamePrefix(checked, item.name);
@@ -60,8 +60,8 @@ export function buildListCopyText(listName: string, items: Item[], opts: CopyOpt
 
   if (numeric && items.length > 0 && labels) {
     lines.push('');
-    lines.push(`${labels.total}: ${formatAmount(sumTotals(items, { onlyDone: false }), format)}`);
-    lines.push(`${labels.done}: ${formatAmount(sumTotals(items, { onlyDone: true }), format)}`);
+    lines.push(`${labels.total}: ${formatAmountCode(sumTotals(items, { onlyDone: false }), format)}`);
+    lines.push(`${labels.done}: ${formatAmountCode(sumTotals(items, { onlyDone: true }), format)}`);
   }
 
   return lines.join('\n');

@@ -24,6 +24,7 @@ import {
 import { useItemDraft, type ItemDraftSeed } from '../hooks/useItemDraft';
 import { useAmountFormat } from '../hooks/useAmountFormat';
 import { currencySuffixWidth, getCurrencySymbol, usesCurrencyCode } from '../constants/currencies';
+import type { AmountFormatOptions } from '../utils/numeric';
 import { ItemAmountField, ItemLineTotal, ItemNameField, ItemNoteField, ItemQuantityField } from './ItemFields';
 import ItemPhotosField from './ItemPhotosField';
 import ModalShell from './ModalShell';
@@ -40,6 +41,8 @@ interface Props {
   allowDelete: boolean;
   numeric?: boolean;
   photosAllowed?: boolean;
+  /** Resolved per-list display format; falls back to the global config. */
+  amountFormat?: Required<AmountFormatOptions>;
   initialAmountMinor?: number | null;
   initialQuantity?: number;
   onCancel: () => void;
@@ -57,6 +60,7 @@ export default function ItemFormModal({
   allowDelete,
   numeric = false,
   photosAllowed = true,
+  amountFormat,
   initialAmountMinor = null,
   initialQuantity = 0,
   onCancel,
@@ -69,13 +73,14 @@ export default function ItemFormModal({
   const labels = useLabels();
   const flags = useItemDisplayFlags(numeric);
   const showPhotos = flags.editShowPhotos && photosAllowed;
-  const amountFormat = useAmountFormat();
+  const globalFormat = useAmountFormat();
+  const format = amountFormat ?? globalFormat;
   // The modal row has room for 1-2 character symbols inline; a 3-letter code
   // moves to the Total label so the Amount input keeps a usable width.
-  const totalHasCode = usesCurrencyCode(amountFormat.currency);
-  const totalCurrency = totalHasCode ? 'none' : amountFormat.currency;
+  const totalHasCode = usesCurrencyCode(format.currency);
+  const totalCurrency = totalHasCode ? 'none' : format.currency;
   const totalLabel = totalHasCode
-    ? `${labels.item_line_total_label} (${getCurrencySymbol(amountFormat.currency)})`
+    ? `${labels.item_line_total_label} (${getCurrencySymbol(format.currency)})`
     : labels.item_line_total_label;
   // Fixed 2-line name / 5-line note heights so longer text scrolls inside the
   // field instead of growing the modal.
@@ -89,7 +94,7 @@ export default function ItemFormModal({
     existingNames,
     numeric,
     validateOnChange: true,
-    amountFormat: amountFormat.amountFormat,
+    amountFormat: format.amountFormat,
   });
   const { applySeed } = draft;
   const [confirmDelete, setConfirmDelete] = useState(false);
@@ -198,7 +203,7 @@ export default function ItemFormModal({
                   quantity={draft.quantity}
                   fontSize={fs(15)}
                   currency={totalCurrency}
-                  amountFormat={amountFormat.amountFormat}
+                  amountFormat={format.amountFormat}
                   style={styles.totalValue}
                 />
               </View>

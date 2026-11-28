@@ -24,6 +24,8 @@ const LIST_ROW = {
   position: 0,
   pinned: 0 as const,
   kind: 'standard' as const,
+  currency: null,
+  amount_format: null,
 };
 
 const ITEM_ROW = {
@@ -106,7 +108,14 @@ describe('backup service', () => {
     const { configRepo } = await import('../../src/database/repositories/configRepo');
     const { exportBackup, importBackup } = await import('../../src/database/backupService');
 
-    const list = await listRepo.create({ name: 'Groceries', color: '#22D3EE', icon: 'cart-outline' });
+    const list = await listRepo.create({
+      name: 'Groceries',
+      color: '#22D3EE',
+      icon: 'cart-outline',
+      kind: 'numeric',
+      currency: 'currency_euro',
+      amount_format: 'comma',
+    });
     await itemRepo.create({
       list_id: list.id,
       name: 'Milk',
@@ -122,8 +131,13 @@ describe('backup service', () => {
     expect(snapshot.app).toBe('Listly');
     expect(snapshot.kind).toBe('backup');
     expect(snapshot.formatVersion).toBe(BACKUP_FORMAT_VERSION);
-    expect(snapshot.schema).toBe(9);
+    expect(snapshot.schema).toBe(10);
     expect(snapshot.data.lists).toHaveLength(1);
+    expect(snapshot.data.lists[0]).toMatchObject({
+      kind: 'numeric',
+      currency: 'currency_euro',
+      amount_format: 'comma',
+    });
     expect(snapshot.data.items).toHaveLength(1);
 
     await listRepo.delete(list.id);
@@ -133,6 +147,11 @@ describe('backup service', () => {
 
     const lists = await listRepo.list();
     expect(lists.map(l => l.name)).toEqual(['Groceries']);
+    expect(lists[0]).toMatchObject({
+      kind: 'numeric',
+      currency: 'currency_euro',
+      amount_format: 'comma',
+    });
     const items = await itemRepo.listByList(list.id);
     expect(items).toHaveLength(1);
     expect(items[0]).toMatchObject({ name: 'Milk', checked: 1, note: 'whole' });
@@ -168,6 +187,41 @@ describe('backup service', () => {
     expect(config.showPhotosNumeric).toBe(true);
     expect(config.editShowNotesNumeric).toBe(true);
     expect(config.editShowPhotosNumeric).toBe(true);
+  });
+
+  it('imports a legacy list without per-list format overrides as inherit', async () => {
+    const { importBackup } = await import('../../src/database/backupService');
+    const { listRepo } = await import('../../src/database/repositories/listRepo');
+
+    const legacy = {
+      app: 'Listly',
+      kind: 'backup',
+      formatVersion: BACKUP_FORMAT_VERSION,
+      exportedAt: '2026-01-01T00:00:00.000Z',
+      schema: 9,
+      data: {
+        lists: [
+          {
+            id: 1,
+            name: 'Numeric',
+            color: '#34D399',
+            icon: 'cart-outline',
+            created_at: '2026-01-01 00:00:00',
+            position: 0,
+            pinned: 0,
+            kind: 'numeric',
+          },
+        ],
+        items: [],
+        config: [],
+      },
+    } as never;
+
+    await importBackup(JSON.stringify(legacy));
+
+    const list = (await listRepo.list())[0];
+    expect(list.currency).toBeNull();
+    expect(list.amount_format).toBeNull();
   });
 
   it('exports a locked list encrypted and restores the vault on import', async () => {

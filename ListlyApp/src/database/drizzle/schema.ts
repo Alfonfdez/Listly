@@ -1,5 +1,7 @@
 import { sql } from 'drizzle-orm';
 import { integer, sqliteTable, text } from 'drizzle-orm/sqlite-core';
+import type { CurrencyId } from '../../constants/currencies';
+import type { AmountFormat } from '../../constants/types';
 
 export const collections = sqliteTable('collections', {
   id: integer('id').primaryKey({ autoIncrement: true }),
@@ -21,6 +23,8 @@ export const lists = sqliteTable('lists', {
   pinned: integer('pinned').notNull().default(0).$type<0 | 1>(),
   kind: text('kind').notNull().default('standard').$type<'standard' | 'numeric'>(),
   collection_id: integer('collection_id').references(() => collections.id),
+  currency: text('currency').$type<CurrencyId | null>(),
+  amount_format: text('amount_format').$type<AmountFormat | null>(),
 });
 
 export const items = sqliteTable('items', {

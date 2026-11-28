@@ -14,8 +14,8 @@
 
 ## PR 2 (per-list overrides)
 
-- [ ] Schema 10 migration + Drizzle/Zod/listRepo/backup.
-- [ ] Create/Edit list currency + format selectors with “Use global”.
-- [ ] Resolve per-list format and pass it to every numeric surface.
-- [ ] Duplicate carries overrides; copy/merge unchanged.
-- [ ] Backup/upgrade tests (9→10) and verification.
+- [x] Schema 10 migration + Drizzle/Zod/listRepo/backup.
+- [x] Create/Edit list currency + format selectors with “Use global”.
+- [x] Resolve per-list format and pass it to every numeric surface.
+- [x] Duplicate carries overrides; copy/merge unchanged.
+- [x] Backup/upgrade tests (9→10) and verification.

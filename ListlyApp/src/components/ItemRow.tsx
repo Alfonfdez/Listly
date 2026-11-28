@@ -13,7 +13,7 @@ import { ICONS } from '../constants/icons';
 import { parseItemPhotos } from '../utils/itemPhotos';
 import { withAlpha } from '../utils/color';
 import { isOn } from '../utils/flags';
-import { formatAmount } from '../utils/numeric';
+import { formatAmount, type AmountFormatOptions } from '../utils/numeric';
 import SortablePressable from './SortablePressable';
 import SelectionCheck from './SelectionCheck';
 import NoteViewer from './NoteViewer';
@@ -25,16 +25,19 @@ interface Props {
   selectMode: boolean;
   selected: boolean;
   numeric?: boolean;
+  /** Resolved per-list display format; falls back to the global config. */
+  amountFormat?: Required<AmountFormatOptions>;
   onToggle: () => void;
   onEdit: () => void;
 }
 
-function ItemRowInner({ item, selectMode, selected, numeric = false, onToggle, onEdit }: Props) {
+function ItemRowInner({ item, selectMode, selected, numeric = false, amountFormat, onToggle, onEdit }: Props) {
   const { activeColors: c } = useConfig();
   const fs = useFontSize();
   const labels = useLabels();
   const flags = useItemDisplayFlags(numeric);
-  const amountFormat = useAmountFormat();
+  const globalFormat = useAmountFormat();
+  const format = amountFormat ?? globalFormat;
   const isDone = isOn(item.checked);
   const photos = parseItemPhotos(item.pictures);
   const showNote = flags.showNotes && Boolean(item.note);
@@ -101,14 +104,14 @@ function ItemRowInner({ item, selectMode, selected, numeric = false, onToggle, o
               numberOfLines={1}
               style={[styles.numericDetail, { color: c.textSecondary, fontSize: fs(12) }]}
             >
-              {`${formatAmount(item.amount_minor, amountFormat)} × ${item.quantity}`}
+              {`${formatAmount(item.amount_minor, format)} × ${item.quantity}`}
             </Text>
             <ItemLineTotal
               amountMinor={item.amount_minor}
               quantity={item.quantity}
               fontSize={fs(14)}
-              currency={amountFormat.currency}
-              amountFormat={amountFormat.amountFormat}
+              currency={format.currency}
+              amountFormat={format.amountFormat}
               style={[styles.numericTotal, { color: isDone ? c.textSecondary : c.text }]}
             />
           </View>

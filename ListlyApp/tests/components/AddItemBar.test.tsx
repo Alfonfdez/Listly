@@ -145,6 +145,18 @@ describe('AddItemBar', () => {
     );
   });
 
+  it('uses a per-list format override over the global config', async () => {
+    const view = await render(
+      <AddItemBar
+        {...baseProps}
+        numeric
+        amountFormat={{ currency: 'currency_chf', amountFormat: 'comma' }}
+      />,
+    );
+
+    expect(view.getByLabelText('Total: 0,00 CHF')).toBeTruthy();
+  });
+
   it('applies the numeric toggles on a numeric list', async () => {
     setConfig({ showNotesNumeric: false });
     const user = userEvent.setup();

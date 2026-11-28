@@ -19,6 +19,8 @@ export interface ListWithCounts {
   pinned: 0 | 1;
   kind: ListKind;
   collection_id: number | null;
+  currency?: List['currency'];
+  amount_format?: List['amount_format'];
   total: number;
   completed: number;
 }

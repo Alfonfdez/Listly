@@ -3,11 +3,13 @@ import {
   clampAmountMinor,
   clampQuantity,
   formatAmount,
+  formatAmountCode,
   formatAmountInput,
   formatMinor,
   formatPercent2,
   lineTotalMinor,
   parseAmountInput,
+  resolveListAmountFormat,
   sanitizeAmountText,
   sumTotals,
   toDisplayAmount,
@@ -67,6 +69,13 @@ describe('numeric utils', () => {
       .toBe('1,234.56');
   });
 
+  it('formats the ISO code for clipboard text', () => {
+    expect(formatAmountCode(123456, { currency: 'currency_usd', amountFormat: AMOUNT_FORMATS.comma }))
+      .toBe('1.234,56 USD');
+    expect(formatAmountCode(123456, { currency: 'currency_euro' })).toBe('1234.56 EUR');
+    expect(formatAmountCode(123456, { currency: 'none' })).toBe('1234.56');
+  });
+
   it('formats and swaps the separator for amount inputs', () => {
     expect(formatAmountInput(1234)).toBe('12.34');
     expect(formatAmountInput(1234, AMOUNT_FORMATS.comma)).toBe('12,34');
@@ -80,6 +89,19 @@ describe('numeric utils', () => {
     expect(parseAmountInput('1,234.56')).toBe(123456);
     expect(sanitizeAmountText('12,')).toBe('12.');
     expect(sanitizeAmountText('1.234,56')).toBe('1234.56');
+  });
+
+  it('resolves per-list overrides with a global fallback', () => {
+    const global = { currency: 'currency_euro' as const, amountFormat: AMOUNT_FORMATS.comma };
+    expect(resolveListAmountFormat(null, global)).toEqual(global);
+    expect(resolveListAmountFormat({ currency: null, amount_format: null }, global)).toEqual(global);
+    expect(
+      resolveListAmountFormat({ currency: 'currency_chf', amount_format: AMOUNT_FORMATS.dot }, global),
+    ).toEqual({ currency: 'currency_chf', amountFormat: AMOUNT_FORMATS.dot });
+    expect(resolveListAmountFormat({ currency: 'none', amount_format: 'plain' }, global)).toEqual({
+      currency: 'none',
+      amountFormat: AMOUNT_FORMATS.plain,
+    });
   });
 
   it('computes a line total in minor units', () => {

@@ -35,6 +35,8 @@ async function createBackend(): Promise<Backend> {
 
   const { createSchema } = await import('../../src/database/migrations/001_initial');
   await createSchema(db);
+  const { addListAmountFormat } = await import('../../src/database/migrations/010_list_amount_format');
+  await addListAmountFormat(db);
 
   const { collectionRepo: collections } = await import('../../src/database/repositories/collectionRepo');
   const { listRepo: lists } = await import('../../src/database/repositories/listRepo');
@@ -348,6 +350,93 @@ describe('listRepo delete photo cleanup', () => {
     const allDeleted = (deleteItemPhotos.mock.calls as string[][]).flat(2);
     expect(allDeleted.sort()).toEqual(['a1.jpg', 'c1.jpg']);
     expect(allDeleted).not.toContain('k1.jpg');
+  });
+});
+
+describe('listRepo numeric format', () => {
+  let b: Backend;
+
+  beforeAll(async () => {
+    await initSqlJsOnce();
+  });
+
+  beforeEach(async () => {
+    b = await createBackend();
+  });
+
+  it('defaults the overrides to null and stores them', async () => {
+    const plain = await b.lists.create({ name: 'S', color: '#22D3EE', icon: 'cart-outline', collection_id: null, kind: 'numeric' });
+    const custom = await b.lists.create({
+      name: 'N',
+      color: '#34D399',
+      icon: 'gift-outline',
+      collection_id: null,
+      kind: 'numeric',
+      currency: 'currency_euro',
+      amount_format: 'comma',
+    });
+
+    expect(plain.currency).toBeNull();
+    expect(plain.amount_format).toBeNull();
+    expect(custom.currency).toBe('currency_euro');
+    expect(custom.amount_format).toBe('comma');
+    expect((await b.lists.get(custom.id))?.currency).toBe('currency_euro');
+    expect((await b.lists.withCounts()).find(l => l.id === custom.id)?.amount_format).toBe('comma');
+  });
+
+  it('updates and clears the overrides', async () => {
+    const list = await b.lists.create({
+      name: 'N',
+      color: '#34D399',
+      icon: 'gift-outline',
+      collection_id: null,
+      kind: 'numeric',
+      currency: 'currency_euro',
+      amount_format: 'comma',
+    });
+
+    await b.lists.update(list.id, { currency: 'none', amount_format: 'dot' });
+    expect(await b.lists.get(list.id)).toMatchObject({ currency: 'none', amount_format: 'dot' });
+
+    await b.lists.update(list.id, { currency: null, amount_format: null });
+    expect(await b.lists.get(list.id)).toMatchObject({ currency: null, amount_format: null });
+  });
+
+  it('duplicates the source overrides', async () => {
+    const source = await b.lists.create({
+      name: 'N',
+      color: '#34D399',
+      icon: 'gift-outline',
+      collection_id: null,
+      kind: 'numeric',
+      currency: 'currency_chf',
+      amount_format: 'dot',
+    });
+    const copy = await b.lists.duplicate(source.id, { name: 'N copy', color: source.color, icon: source.icon, collection_id: null });
+
+    expect(copy.currency).toBe('currency_chf');
+    expect(copy.amount_format).toBe('dot');
+    expect(await b.lists.get(copy.id)).toMatchObject({ currency: 'currency_chf', amount_format: 'dot' });
+  });
+
+  it('keeps overrides when a list switches back to standard', async () => {
+    const list = await b.lists.create({
+      name: 'N',
+      color: '#34D399',
+      icon: 'gift-outline',
+      collection_id: null,
+      kind: 'numeric',
+      currency: 'currency_euro',
+      amount_format: 'comma',
+    });
+
+    await b.lists.update(list.id, { kind: 'standard' });
+
+    expect(await b.lists.get(list.id)).toMatchObject({
+      kind: 'standard',
+      currency: 'currency_euro',
+      amount_format: 'comma',
+    });
   });
 });
 

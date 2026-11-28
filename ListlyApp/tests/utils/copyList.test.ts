@@ -76,7 +76,7 @@ describe('buildListCopyText (numeric)', () => {
     );
   });
 
-  it('uses the configured currency and decimal separator', () => {
+  it('uses the configured currency code and decimal separator in copied text', () => {
     const items = [
       item({ id: 1, name: 'Milk', amount_minor: 120, quantity: 2, checked: 1, position: 0 }),
     ];
@@ -87,7 +87,22 @@ describe('buildListCopyText (numeric)', () => {
         labels,
         format: { currency: 'currency_euro', amountFormat: 'comma' },
       }),
-    ).toBe('Groceries\n\n✅ Milk — 1,20 € × 2 = 2,40 €\n\nTotal: 2,40 €\nDone: 2,40 €');
+    ).toBe('Groceries\n\n✅ Milk — 1,20 EUR × 2 = 2,40 EUR\n\nTotal: 2,40 EUR\nDone: 2,40 EUR');
+  });
+
+  it('uses ISO codes instead of $ so notes apps do not parse math', () => {
+    const items = [
+      item({ id: 1, name: 'Jamón', amount_minor: 856, quantity: 1, checked: 1, position: 0 }),
+    ];
+    const text = buildListCopyText('Test', items, {
+      withNotes: false,
+      numeric: true,
+      labels,
+      format: { currency: 'currency_usd', amountFormat: 'comma' },
+    });
+
+    expect(text).toBe('Test\n\n✅ Jamón — 8,56 USD × 1 = 8,56 USD\n\nTotal: 8,56 USD\nDone: 8,56 USD');
+    expect(text).not.toContain('$');
   });
 
   it('always shows the amount × quantity = total segment, including quantity 1', () => {

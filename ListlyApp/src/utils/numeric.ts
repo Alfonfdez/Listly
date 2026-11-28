@@ -1,9 +1,26 @@
 import { AMOUNT_FORMATS, MAX_AMOUNT_MINOR, MAX_QUANTITY, type AmountFormat } from '../constants/types';
-import { CURRENCY_NONE, getCurrencySymbol, type CurrencyId } from '../constants/currencies';
+import { CURRENCY_NONE, getCurrencyCode, getCurrencySymbol, type CurrencyId } from '../constants/currencies';
 
 export interface AmountFormatOptions {
   currency?: CurrencyId;
   amountFormat?: AmountFormat;
+}
+
+/** Fields a list row exposes for its optional numeric format overrides. */
+export interface ListAmountFormatSource {
+  currency?: CurrencyId | null;
+  amount_format?: AmountFormat | null;
+}
+
+/** A list override wins; `null` on either field inherits the global setting. */
+export function resolveListAmountFormat(
+  list: ListAmountFormatSource | null | undefined,
+  global: Required<AmountFormatOptions>,
+): Required<AmountFormatOptions> {
+  return {
+    currency: list?.currency ?? global.currency,
+    amountFormat: list?.amount_format ?? global.amountFormat,
+  };
 }
 
 const DEFAULT_AMOUNT_FORMAT = AMOUNT_FORMATS.plain;
@@ -80,12 +97,29 @@ export function formatMinor(minor: number | null): string {
  */
 export function formatAmount(minor: number | null, options: AmountFormatOptions = {}): string {
   const currency = options.currency ?? CURRENCY_NONE;
+  return formatAmountWithSuffix(minor, options, getCurrencySymbol(currency));
+}
+
+/**
+ * Clipboard variant: uses the ISO code instead of the symbol (e.g. `8.56 USD`).
+ * A `$` symbol would pair with the next one as a LaTeX/Markdown math delimiter
+ * and apps such as Samsung Notes would paste the line as a formula.
+ */
+export function formatAmountCode(minor: number | null, options: AmountFormatOptions = {}): string {
+  const currency = options.currency ?? CURRENCY_NONE;
+  return formatAmountWithSuffix(minor, options, getCurrencyCode(currency));
+}
+
+function formatAmountWithSuffix(
+  minor: number | null,
+  options: AmountFormatOptions,
+  suffix: string,
+): string {
   const amountFormat = options.amountFormat ?? DEFAULT_AMOUNT_FORMAT;
   const { decimal, grouping } = amountSeparators(amountFormat);
   const [integer, cents] = formatMinor(minor).split('.');
   const integerText = grouping ? integer.replace(/\B(?=(\d{3})+(?!\d))/g, grouping) : integer;
-  const symbol = getCurrencySymbol(currency);
-  return `${integerText}${decimal}${cents}${symbol ? ` ${symbol}` : ''}`;
+  return `${integerText}${decimal}${cents}${suffix ? ` ${suffix}` : ''}`;
 }
 
 /** Canonical (dot) amount text swapped to the configured separator, for inputs. */

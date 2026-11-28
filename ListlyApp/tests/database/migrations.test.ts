@@ -10,6 +10,7 @@ import {
   type MigrationStep,
 } from '../../src/database/migrations';
 import { createSchema } from '../../src/database/migrations/001_initial';
+import { addListAmountFormat } from '../../src/database/migrations/010_list_amount_format';
 import { createMockDatabaseSync, initSqlJsOnce } from './sqliteMock';
 
 vi.mock('../../src/database/engine', () => ({ openEngine: vi.fn() }));
@@ -89,7 +90,7 @@ describe('migrateDatabase', () => {
     expect(warn).not.toHaveBeenCalled();
   });
 
-  it('is a no-op for a database already at the released baseline', async () => {
+  it('migrates a database at the released baseline, keeping the data', async () => {
     const db = createMockDatabaseSync();
     await createSchema(db);
     await seedList(db);
@@ -98,9 +99,13 @@ describe('migrateDatabase', () => {
 
     const version = await migrateDatabase(db);
 
-    expect(version).toBe(RELEASED_BASELINE);
+    expect(version).toBe(SCHEMA_VERSION);
+    expect(await readSchemaVersion(db)).toBe(SCHEMA_VERSION);
     expect(await listNames(db)).toEqual(['Keep me']);
     expect(warn).not.toHaveBeenCalled();
+    const columns = (await db.getAllAsync<{ name: string }>('PRAGMA table_info(lists);')).map(c => c.name);
+    expect(columns).toContain('currency');
+    expect(columns).toContain('amount_format');
   });
 
   it('rebuilds a pre-release database and warns, because no step exists for it', async () => {
@@ -143,6 +148,18 @@ describe('migrateDatabase', () => {
     expect(baselineRun).not.toHaveBeenCalled();
     const columns = await db.getAllAsync<{ name: string }>('PRAGMA table_info(lists);');
     expect(columns.map(column => column.name)).toContain('archived');
+  });
+
+  it('adds the per-list format columns idempotently', async () => {
+    const db = createMockDatabaseSync();
+    await createSchema(db);
+
+    await addListAmountFormat(db);
+    await addListAmountFormat(db);
+
+    const columns = (await db.getAllAsync<{ name: string }>('PRAGMA table_info(lists);')).map(c => c.name);
+    expect(columns.filter(name => name === 'currency')).toHaveLength(1);
+    expect(columns.filter(name => name === 'amount_format')).toHaveLength(1);
   });
 
   it('never touches a database newer than this build', async () => {

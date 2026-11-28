@@ -25,6 +25,8 @@ describe('sqlite contract', () => {
 
     const { createSchema } = await import('../../src/database/migrations/001_initial');
     await createSchema(db);
+    const { addListAmountFormat } = await import('../../src/database/migrations/010_list_amount_format');
+    await addListAmountFormat(db);
 
     const { listRepo } = await import('../../src/database/repositories/listRepo');
     const { itemRepo } = await import('../../src/database/repositories/itemRepo');

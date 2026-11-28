@@ -2,7 +2,8 @@ import { useCallback, useMemo, useState } from 'react';
 import { CommonActions, useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
 import { useApp } from '../context/AppContext';
 import { useLabels } from '../hooks/useLabels';
-import { LIST_KINDS, MERGE_NOTICE, type IconName, type ListKind, type NavigationProp, type RootStackParamList } from '../constants/types';
+import { LIST_KINDS, MERGE_NOTICE, type AmountFormat, type IconName, type ListKind, type NavigationProp, type RootStackParamList } from '../constants/types';
+import type { CurrencyId } from '../constants/currencies';
 import { listRepo } from '../database';
 import type { ListWithCounts } from '../database/types';
 import { useMergeFlow } from '../hooks/useMergeFlow';
@@ -16,6 +17,7 @@ import CollectionSelectRow from '../components/CollectionSelectRow';
 import CollectionPickerModal from '../components/CollectionPickerModal';
 import ListPickerModal from '../components/ListPickerModal';
 import KindSelectRow from '../components/KindSelectRow';
+import NumericListFormatFields from '../components/NumericListFormatFields';
 
 export default function EditListScreen() {
   const route = useRoute<RouteProp<RootStackParamList, 'EditList'>>();
@@ -31,6 +33,8 @@ export default function EditListScreen() {
   const initialCollectionId = list?.collection_id ?? null;
   const [collectionId, setCollectionId] = useState<number | null>(() => initialCollectionId);
   const [kind, setKind] = useState<ListKind>(list?.kind ?? LIST_KINDS.standard);
+  const [currency, setCurrency] = useState<CurrencyId | null>(list?.currency ?? null);
+  const [amountFormat, setAmountFormat] = useState<AmountFormat | null>(list?.amount_format ?? null);
 
   const hasOtherLists = useMemo(
     () => lists.some(l => l.id !== listId && !lockedListIds.has(l.id)),
@@ -68,7 +72,13 @@ export default function EditListScreen() {
   const update = useCallback(
     async ({ name, icon, color }: { name: string; icon: IconName; color: string }) => {
       try {
-        await listRepo.update(listId, { name, icon, color, kind });
+        await listRepo.update(listId, {
+          name,
+          icon,
+          color,
+          kind,
+          ...(kind === LIST_KINDS.numeric ? { currency, amount_format: amountFormat } : {}),
+        });
         if (collectionId !== initialCollectionId) {
           if (collectionId === null) {
             await listRepo.removeFromCollection(listId);
@@ -82,7 +92,7 @@ export default function EditListScreen() {
         logError(ERROR_SCOPE.moveList, error);
       }
     },
-    [listId, initialCollectionId, collectionId, kind, refresh, navigation],
+    [listId, initialCollectionId, collectionId, kind, currency, amountFormat, refresh, navigation],
   );
 
   const remove = useCallback(async () => {
@@ -129,7 +139,19 @@ export default function EditListScreen() {
         deleteLabel={labels.list_delete_label}
         onDelete={() => setDeleteVisible(true)}
         secondaryActions={secondaryActions}
-        kindSlot={<KindSelectRow kind={kind} onChange={setKind} />}
+        kindSlot={(
+          <>
+            <KindSelectRow kind={kind} onChange={setKind} />
+            {kind === LIST_KINDS.numeric ? (
+              <NumericListFormatFields
+                currency={currency}
+                amountFormat={amountFormat}
+                onChangeCurrency={setCurrency}
+                onChangeAmountFormat={setAmountFormat}
+              />
+            ) : null}
+          </>
+        )}
         fieldSlot={
           <CollectionSelectRow
             label={labels.list_collection_label}

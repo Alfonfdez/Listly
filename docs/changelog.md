@@ -1267,3 +1267,15 @@ pm run test:all green.
 
 [2026-11-28] style | ListlyApp/src/screens/settings/RegionalScreen.tsx, spec/features/037-currency-format/1-spec.md, spec/features/037-currency-format/2-plan.md, spec/constitution/3-roadmap.md
 - Reordered the Decimal separator options to Plain, Comma, Dot (matching Finly's Comma/Dot order) in the Regional money picker.
+
+[2026-11-28] feat | ListlyApp/src/database/migrations/010_list_amount_format.ts, ListlyApp/src/database/migrations/index.ts, ListlyApp/src/database/schemas.ts, ListlyApp/src/database/drizzle/schema.ts, ListlyApp/src/database/types.ts, ListlyApp/src/database/backup.ts, ListlyApp/src/database/repositories/listRepo.ts, ListlyApp/src/utils/numeric.ts, ListlyApp/src/hooks/useClipboardCopy.ts, ListlyApp/src/components/ItemRow.tsx, ListlyApp/src/components/AddItemBar.tsx, ListlyApp/src/components/ItemFormModal.tsx, ListlyApp/src/components/NumericListFormatFields.tsx, ListlyApp/src/screens/CreateListScreen.tsx, ListlyApp/src/screens/EditListScreen.tsx, ListlyApp/src/screens/ListDetailScreen.tsx, ListlyApp/src/i18n, spec/features/037-currency-format, spec/constitution/3-roadmap.md
+- Added per-list numeric format overrides: nullable lists.currency / lists.amount_format (null = inherit, none = no symbol), with Use global (…) / None / currency and Use global (…) / Plain / Comma / Dot selectors in Create/Edit list for numeric lists.
+- Added SCHEMA_VERSION 10 with an idempotent migration, Zod/Drizzle/listRepo/backup support, duplicate carry-over, and schema-9 backups importing as inherit; per-list formats now drive every numeric surface and clipboard.
+- Added tests for the migration, repos, backup/legacy import, resolver, list forms and a per-list detail screen; docs/roadmap updated.
+
+[2026-11-28] docs | AGENTS.md, docs/upgrade-testing.md
+- Updated the database notes for schema 10: AGENTS.md records the new SCHEMA_VERSION (9 was v1.0.0) and docs/upgrade-testing.md describes the 9→10 migration (new nullable per-list format columns).
+
+[2026-11-28] fix | ListlyApp/src/constants/currencies.ts, ListlyApp/src/utils/numeric.ts, ListlyApp/src/utils/copyList.ts, ListlyApp/tests/utils/copyList.test.ts, ListlyApp/tests/utils/numeric.test.ts, spec/features/032-numeric-copy-amounts/1-spec.md, spec/features/037-currency-format/1-spec.md, spec/constitution/3-roadmap.md
+- Clipboard copies of numeric lists now use ISO currency codes (USD, EUR) instead of symbols, so a `$...$` pair no longer makes Samsung Notes paste the line as a formula; the UI keeps the symbols.
+- Added tests for USD (no `$`), EUR and no-currency copy text; spec 032/037 and roadmap updated.
