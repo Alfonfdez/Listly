@@ -1,8 +1,8 @@
 import { useCallback, useRef, useState } from 'react';
 import { useItemPhotos } from './useItemPhotos';
 import { validateItemName, type ItemNameError } from '../utils/validation';
-import { clampQuantity, formatMinor, lineTotalMinor, parseAmountInput, sanitizeAmountText } from '../utils/numeric';
-import { DEFAULT_QUANTITY } from '../constants/types';
+import { clampQuantity, formatMinor, lineTotalMinor, parseAmountInput, sanitizeAmountText, toDisplayAmount } from '../utils/numeric';
+import { AMOUNT_FORMATS, DEFAULT_QUANTITY, type AmountFormat } from '../constants/types';
 
 export interface ItemDraftSeed {
   name: string;
@@ -24,6 +24,8 @@ interface Options {
   existingNames: ReadonlySet<string>;
   numeric?: boolean;
   validateOnChange?: boolean;
+  /** Global decimal/grouping style used to display the amount input. */
+  amountFormat?: AmountFormat;
 }
 
 export const EMPTY_ITEM_DRAFT: ItemDraftSeed = {
@@ -34,7 +36,7 @@ export const EMPTY_ITEM_DRAFT: ItemDraftSeed = {
   quantity: DEFAULT_QUANTITY,
 };
 
-export function useItemDraft({ existingNames, numeric = false, validateOnChange = false }: Options) {
+export function useItemDraft({ existingNames, numeric = false, validateOnChange = false, amountFormat = AMOUNT_FORMATS.plain }: Options) {
   const [name, setName] = useState('');
   const [note, setNote] = useState('');
   const [amount, setAmount] = useState('');
@@ -45,6 +47,7 @@ export function useItemDraft({ existingNames, numeric = false, validateOnChange 
   const amountTouched = useRef(false);
 
   const amountMinor = parseAmountInput(amount);
+  const amountDisplay = toDisplayAmount(amount, amountFormat);
   const lineTotal = lineTotalMinor(amountMinor, quantity);
 
   const onNameChange = useCallback(
@@ -115,6 +118,7 @@ export function useItemDraft({ existingNames, numeric = false, validateOnChange 
     name,
     note,
     amount,
+    amountDisplay,
     quantity,
     error,
     amountMinor,

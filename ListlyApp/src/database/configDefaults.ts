@@ -1,5 +1,6 @@
 import { LANGUAGES } from '../constants/languages';
-import { LIST_LAYOUTS, TEXT_SIZES, THEMES } from '../constants/types';
+import { CURRENCY_NONE } from '../constants/currencies';
+import { AMOUNT_FORMATS, LIST_LAYOUTS, TEXT_SIZES, THEMES } from '../constants/types';
 import { configSchema } from './schemas';
 import type { Config } from './types';
 
@@ -7,6 +8,8 @@ export const DEFAULT_CONFIG: Config = {
   theme: THEMES.system,
   language: LANGUAGES.en,
   textSize: TEXT_SIZES.medium,
+  currency: CURRENCY_NONE,
+  amountFormat: AMOUNT_FORMATS.plain,
   homeCollectionsLayout: LIST_LAYOUTS.grid,
   homeListsLayout: LIST_LAYOUTS.grid,
   collectionsLayout: LIST_LAYOUTS.grid,
@@ -26,6 +29,8 @@ export const DB_KEY_MAP: Record<string, keyof Config> = {
   theme: 'theme',
   language: 'language',
   text_size: 'textSize',
+  currency: 'currency',
+  amount_format: 'amountFormat',
   home_collections_layout: 'homeCollectionsLayout',
   home_lists_layout: 'homeListsLayout',
   collections_layout: 'collectionsLayout',

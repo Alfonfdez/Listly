@@ -1254,3 +1254,16 @@ pm run test:all green.
 
 [2026-11-28] ~ | ListlyApp/src/components/ItemFormModal.tsx, ListlyApp/tests/components/ItemFormModal.test.tsx, spec/features/026-numeric-lists/1-spec.md, spec/constitution/3-roadmap.md
 - The edit-modal Total is now plain right-aligned text with no input border/background (same as the compact add bar), still in the Amount/Quantity row with the same 40px cell height and the 16px currency gap.
+
+[2026-11-28] feat | ListlyApp/src/constants/currencies.ts, ListlyApp/src/constants/types.ts, ListlyApp/src/constants/layout.ts, ListlyApp/src/database/schemas.ts, ListlyApp/src/database/configDefaults.ts, ListlyApp/src/utils/numeric.ts, ListlyApp/src/utils/copyList.ts, ListlyApp/src/hooks/useAmountFormat.ts, ListlyApp/src/hooks/useItemDraft.ts, ListlyApp/src/hooks/useClipboardCopy.ts, ListlyApp/src/components/ItemFields.tsx, ListlyApp/src/components/AddItemBar.tsx, ListlyApp/src/components/ItemFormModal.tsx, ListlyApp/src/components/ItemRow.tsx, ListlyApp/src/components/DetailHeader.tsx, ListlyApp/src/components/settings/OptionPickerModal.tsx, ListlyApp/src/screens/ListDetailScreen.tsx, ListlyApp/src/screens/settings/RegionalScreen.tsx, ListlyApp/src/i18n, spec/features/037-currency-format, spec/constitution/3-roadmap.md
+- Added Settings -> Regional -> Money format: currency (None + 30, searchable) and Plain / Dot / Comma number formatting, stored in config and defaulting to None + Plain.
+- Added formatAmount/toDisplayAmount/formatAmountInput and separator-aware parsing; amounts, line totals, value bar, edit Total, clipboard and percentages now use the configured symbol and separator, and the amount input displays comma when selected.
+- Line totals reserve the active currency suffix (3-letter codes move to the edit-modal Total label) without shifting the Amount/Quantity fields.
+- Added 9-language currency/format keys, test coverage and 375px verification with EUR and CHF; per-list overrides remain for PR 2.
+
+[2026-11-28] fix | ListlyApp/src/constants/layout.ts, ListlyApp/src/components/ItemFields.tsx, ListlyApp/src/components/ItemFormModal.tsx, ListlyApp/tests/components/ItemFields.test.tsx, spec/features/037-currency-format/1-spec.md, spec/features/026-numeric-lists/1-spec.md, spec/constitution/3-roadmap.md
+- Fixed the edit-modal Total ellipsis with grouped values: the fixed slot now fits the grouped maximum (999.999,99 / 999,999.99) and scales with the OS font scale, so Android font scaling cannot truncate it.
+- The Amount input gives up the extra width (still scrolls internally at the maximum) and the total cell no longer flex-shrinks.
+
+[2026-11-28] style | ListlyApp/src/screens/settings/RegionalScreen.tsx, spec/features/037-currency-format/1-spec.md, spec/features/037-currency-format/2-plan.md, spec/constitution/3-roadmap.md
+- Reordered the Decimal separator options to Plain, Comma, Dot (matching Finly's Comma/Dot order) in the Regional money picker.

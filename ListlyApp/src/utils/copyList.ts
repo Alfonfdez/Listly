@@ -1,7 +1,7 @@
 import type { Item } from '../database/types';
 import { MAX_LIST_NAME_LENGTH } from '../constants/types';
 import { isOn } from './flags';
-import { formatMinor, lineTotalMinor, sumTotals } from './numeric';
+import { formatAmount, lineTotalMinor, sumTotals, type AmountFormatOptions } from './numeric';
 
 const CHECKED_MARK = '✅';
 const NOTE_SEPARATOR = ' — ';
@@ -16,6 +16,7 @@ export interface CopyOptions {
   withNotes: boolean;
   numeric?: boolean;
   labels?: CopyLabels;
+  format?: AmountFormatOptions;
 }
 
 function sortByPosition(items: Item[]): Item[] {
@@ -34,7 +35,7 @@ function buildNoteSuffix(note: string | null, withNotes: boolean): string {
 }
 
 export function buildListCopyText(listName: string, items: Item[], opts: CopyOptions): string {
-  const { withNotes, numeric = false, labels } = opts;
+  const { withNotes, numeric = false, labels, format } = opts;
   const lines: string[] = [listName];
   // Separate the title from the items with a blank line so it reads as a heading
   // (only when there are items; an empty list stays the bare name).
@@ -46,9 +47,9 @@ export function buildListCopyText(listName: string, items: Item[], opts: CopyOpt
     const checked = isOn(item.checked);
     let line: string;
     if (numeric) {
-      const amount = formatMinor(item.amount_minor);
+      const amount = formatAmount(item.amount_minor, format);
       const quantity = item.quantity;
-      const total = formatMinor(lineTotalMinor(item.amount_minor, quantity));
+      const total = formatAmount(lineTotalMinor(item.amount_minor, quantity), format);
       line = `${buildNamePrefix(checked, item.name)}${NOTE_SEPARATOR}${amount} × ${quantity} = ${total}`;
     } else {
       line = buildNamePrefix(checked, item.name);
@@ -59,8 +60,8 @@ export function buildListCopyText(listName: string, items: Item[], opts: CopyOpt
 
   if (numeric && items.length > 0 && labels) {
     lines.push('');
-    lines.push(`${labels.total}: ${formatMinor(sumTotals(items, { onlyDone: false }))}`);
-    lines.push(`${labels.done}: ${formatMinor(sumTotals(items, { onlyDone: true }))}`);
+    lines.push(`${labels.total}: ${formatAmount(sumTotals(items, { onlyDone: false }), format)}`);
+    lines.push(`${labels.done}: ${formatAmount(sumTotals(items, { onlyDone: true }), format)}`);
   }
 
   return lines.join('\n');

@@ -5,7 +5,6 @@ import { useConfig } from '../context/ConfigContext';
 import { useFontSize } from '../hooks/useFontSize';
 import { useLabels } from '../hooks/useLabels';
 import { withAlpha } from '../utils/color';
-import { formatPercent2 } from '../utils/numeric';
 import { ALPHA_TINT, ALPHA_TRACK, HIT_SLOP } from './componentStyles';
 import { ICONS } from '../constants/icons';
 import type { IconName } from '../constants/types';
@@ -22,7 +21,7 @@ interface Props {
   // Value-weighted progress for numeric lists (spec 034). Always present on a
   // numeric list (even 0.00 / 0.00 · 0.00 %), so the second bar never reflows;
   // absent only on standard lists.
-  valueProgress?: { percent: number; doneText: string; totalText: string };
+  valueProgress?: { percent: number; percentText: string; doneText: string; totalText: string };
 }
 
 export default function DetailHeader({
@@ -72,13 +71,13 @@ export default function DetailHeader({
         <View testID="value-bar-slot" style={styles.valueBarSlot}>
           <View
             style={styles.valueRow}
-            accessibilityLabel={`${labels.list_value_progress_label}: ${valueProgress.doneText} / ${valueProgress.totalText}, ${formatPercent2(valueProgress.percent)} %`}
+            accessibilityLabel={`${labels.list_value_progress_label}: ${valueProgress.doneText} / ${valueProgress.totalText}, ${valueProgress.percentText} %`}
           >
             <Text style={[styles.valueNumbers, { color: c.textSecondary, fontSize: fs(12) }]}>
               {valueProgress.doneText} / {valueProgress.totalText}
             </Text>
             <Text style={[styles.valueNumbers, { color: c.textSecondary, fontSize: fs(12) }]}>
-              {formatPercent2(valueProgress.percent)} %
+              {valueProgress.percentText} %
             </Text>
           </View>
           <View style={[styles.progressTrack, { backgroundColor: withAlpha(color, ALPHA_TRACK) }]}>

@@ -82,6 +82,24 @@ describe('useItemDraft', () => {
     expect(result.current.amount).toBe('12.34');
   });
 
+  it('shows the configured decimal separator without changing the stored amount', async () => {
+    const { result } = await renderHook(() =>
+      useItemDraft({ existingNames: new Set(), numeric: true, amountFormat: 'comma' }));
+
+    await act(async () => {
+      result.current.applySeed({ name: 'Milk', note: '', photos: [], amountMinor: 250, quantity: 2 });
+    });
+    expect(result.current.amount).toBe('2.50');
+    expect(result.current.amountDisplay).toBe('2,50');
+
+    await act(async () => {
+      result.current.onAmountChange('1,50');
+    });
+    expect(result.current.amount).toBe('1.50');
+    expect(result.current.amountDisplay).toBe('1,50');
+    expect(result.current.amountMinor).toBe(150);
+  });
+
   it('applies a seed and resets back to empty', async () => {
     const { result } = await renderHook(() => useItemDraft({ existingNames: new Set() }));
 

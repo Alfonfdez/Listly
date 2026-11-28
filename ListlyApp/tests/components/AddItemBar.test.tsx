@@ -3,9 +3,9 @@ import { describe, expect, it, vi, beforeEach } from 'vitest';
 import { render, userEvent } from '@testing-library/react-native';
 import { resetStub, setConfig } from '../helpers/configStub';
 import AddItemBar from '../../src/components/AddItemBar';
+import { currencySuffixWidth } from '../../src/constants/currencies';
 import {
   ADD_ITEM_NOTE_LINES,
-  CURRENCY_SLOT_WIDTH,
   EDIT_ITEM_FIELD_LINE_HEIGHT,
   EDIT_ITEM_FIELD_VERTICAL_PADDING,
   LINE_TOTAL_SLOT_WIDTH,
@@ -127,13 +127,22 @@ describe('AddItemBar', () => {
     const total = view.getByLabelText(/^Total: /);
     const style = flattenStyle(total.props.style);
     expect(total.props.numberOfLines).toBe(1);
-    expect(style.width).toBe(LINE_TOTAL_SLOT_WIDTH + CURRENCY_SLOT_WIDTH);
-    expect(style.paddingRight).toBe(CURRENCY_SLOT_WIDTH);
+    expect(style.width).toBe(LINE_TOTAL_SLOT_WIDTH + currencySuffixWidth('none'));
 
     await user.type(view.getByLabelText('Amount'), '999999.99');
 
     expect(view.getByLabelText('Total: 999999.99')).toBeTruthy();
     expect(flattenStyle(view.getByLabelText(/^Total: /).props.style).width).toBe(style.width);
+  });
+
+  it('uses the configured currency and decimal separator', async () => {
+    setConfig({ currency: 'currency_euro', amountFormat: 'comma' });
+    const view = await render(<AddItemBar {...baseProps} numeric />);
+
+    const total = view.getByLabelText('Total: 0,00 €');
+    expect(flattenStyle(total.props.style).width).toBe(
+      LINE_TOTAL_SLOT_WIDTH + currencySuffixWidth('currency_euro'),
+    );
   });
 
   it('applies the numeric toggles on a numeric list', async () => {

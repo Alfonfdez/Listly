@@ -18,10 +18,10 @@
   - **Amount** — a number with at most 2 decimals, `0 .. 999,999.99` (stored as integer minor units, i.e. cents). Optional; empty means 0.
   - **Quantity** — an integer, `0 .. 99,999`; a new item starts at **1**.
   - **Line total** — computed, read-only: `amount × quantity`, shown with 2 decimals.
-  - **Fixed total slot** — every rendered line total (item row, add bar, edit modal) keeps a fixed, right-aligned slot wide enough for the clamped maximum (`999999.99`) plus a **16px right gap** reserved for a future currency symbol. A long total never resizes the row or squeezes the Amount/Quantity fields, at any text size (`LINE_TOTAL_SLOT_WIDTH` + `CURRENCY_SLOT_WIDTH`, scaled with `fs()`; one line, no wrapping, tabular digits).
+  - **Fixed total slot** — every rendered line total (item row, add bar, edit modal) keeps a fixed, right-aligned slot wide enough for the grouped clamped maximum (`999.999,99` / `999,999.99`, scaled by the OS font scale) plus the active currency suffix (0 when currency is None). A long total never resizes the row or squeezes the Amount/Quantity fields, at any text size (`LINE_TOTAL_SLOT_WIDTH` + `currencySuffixWidth()`, scaled with `fs()`; one line, no wrapping, tabular digits).
 - On a standard list these fields are neither shown nor editable; existing numeric values are preserved but ignored.
 - Amount input uses a numeric keypad and is masked live: only digits and a single decimal point are accepted, capped at 2 decimals and at the 999,999.99 maximum; invalid keystrokes are rejected (never silently merged into the value). Quantity has `+`/`−` steppers in the add bar and edit form.
-- The Edit item modal shows a read-only **Total** as a third column in the same row as Amount and Quantity (right of Quantity), with the same cell height and label row: it is **plain right-aligned text** (no input border/background, like the compact add bar), keeps the 16px currency gap, updates live while the amount or quantity changes and is never editable. The Quantity stepper is compact there so all three controls fit at 375px.
+- The Edit item modal shows a read-only **Total** as a third column in the same row as Amount and Quantity (right of Quantity), with the same cell height and label row: it is **plain right-aligned text** (no input border/background, like the compact add bar), keeps the active currency suffix (3-letter codes move to the label), updates live while the amount or quantity changes and is never editable. The Quantity stepper is compact there so all three controls fit at 375px.
 
 ### 3. Detail totals (numeric lists only)
 - The list detail header shows the value-weighted progress bar (feature 034), whose numbers are the totals:
@@ -59,7 +59,7 @@
 
 - [x] A list can be created as **Numeric** and its kind is shown/changeable in Edit List.
 - [x] On a numeric list, items accept an **Amount** (2 decimals, ≤ 999,999.99, invalid keystrokes rejected) and a **Quantity** (integer, ≤ 99,999, starts at 1) with a computed read-only **line total**.
-- [x] Line totals render in a fixed, right-aligned slot that fits `999999.99` and reserves a 16px right gap for a future currency symbol, so a long total never moves the Amount/Quantity fields (item row, add bar, edit modal).
+- [x] Line totals render in a fixed, right-aligned slot that fits the grouped maximum (`999.999,99` / `999,999.99`, scaled by the OS font scale) and the active currency suffix, so a long total never moves the Amount/Quantity fields (item row, add bar, edit modal).
 - [x] The Edit item modal shows a non-editable **Total** next to Quantity, in the same row with the same height, that updates live.
 - [x] The list detail shows the **Total** (all items) and **Done** (checked items only) values on the numeric value progress bar, both computed from `amount × quantity`.
 - [x] Totals are computed in integer minor units (no floating-point drift) and formatted with 2 decimals.

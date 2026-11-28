@@ -1,10 +1,13 @@
 import { z } from 'zod';
 
 import { LANGUAGES } from '../constants/languages';
-import { LIST_KINDS, LIST_LAYOUTS, TEXT_SIZES, THEMES } from '../constants/types';
+import { CURRENCY_IDS } from '../constants/currencies';
+import { AMOUNT_FORMATS, LIST_KINDS, LIST_LAYOUTS, TEXT_SIZES, THEMES } from '../constants/types';
 
 const themeSchema = z.enum([THEMES.dark, THEMES.light, THEMES.system]);
 const textSizeSchema = z.enum([TEXT_SIZES.small, TEXT_SIZES.medium, TEXT_SIZES.large]);
+const currencySchema = z.enum(CURRENCY_IDS);
+const amountFormatSchema = z.enum([AMOUNT_FORMATS.plain, AMOUNT_FORMATS.dot, AMOUNT_FORMATS.comma]);
 const languageSchema = z.enum([
   LANGUAGES.en,
   LANGUAGES.es,
@@ -70,6 +73,8 @@ export const configSchema = z.object({
   theme: themeSchema,
   language: languageSchema,
   textSize: textSizeSchema,
+  currency: currencySchema,
+  amountFormat: amountFormatSchema,
   homeCollectionsLayout: layoutSchema,
   homeListsLayout: layoutSchema,
   collectionsLayout: layoutSchema,

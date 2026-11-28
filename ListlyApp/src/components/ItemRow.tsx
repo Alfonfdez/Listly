@@ -5,6 +5,7 @@ import { useConfig } from '../context/ConfigContext';
 import { useFontSize } from '../hooks/useFontSize';
 import { useLabels } from '../hooks/useLabels';
 import { useItemDisplayFlags } from '../hooks/useItemDisplayFlags';
+import { useAmountFormat } from '../hooks/useAmountFormat';
 import { BUTTON_BORDER_RADIUS, ALPHA_SELECTED, ALPHA_SUBTLE, PRESSED_OPACITY, HIT_SLOP, HIT_SLOP_SMALL } from './componentStyles';
 import type { Item } from '../database/types';
 import { MAX_ITEM_PICTURES } from '../constants/types';
@@ -12,7 +13,7 @@ import { ICONS } from '../constants/icons';
 import { parseItemPhotos } from '../utils/itemPhotos';
 import { withAlpha } from '../utils/color';
 import { isOn } from '../utils/flags';
-import { formatMinor } from '../utils/numeric';
+import { formatAmount } from '../utils/numeric';
 import SortablePressable from './SortablePressable';
 import SelectionCheck from './SelectionCheck';
 import NoteViewer from './NoteViewer';
@@ -33,6 +34,7 @@ function ItemRowInner({ item, selectMode, selected, numeric = false, onToggle, o
   const fs = useFontSize();
   const labels = useLabels();
   const flags = useItemDisplayFlags(numeric);
+  const amountFormat = useAmountFormat();
   const isDone = isOn(item.checked);
   const photos = parseItemPhotos(item.pictures);
   const showNote = flags.showNotes && Boolean(item.note);
@@ -99,12 +101,14 @@ function ItemRowInner({ item, selectMode, selected, numeric = false, onToggle, o
               numberOfLines={1}
               style={[styles.numericDetail, { color: c.textSecondary, fontSize: fs(12) }]}
             >
-              {`${formatMinor(item.amount_minor)} × ${item.quantity}`}
+              {`${formatAmount(item.amount_minor, amountFormat)} × ${item.quantity}`}
             </Text>
             <ItemLineTotal
               amountMinor={item.amount_minor}
               quantity={item.quantity}
               fontSize={fs(14)}
+              currency={amountFormat.currency}
+              amountFormat={amountFormat.amountFormat}
               style={[styles.numericTotal, { color: isDone ? c.textSecondary : c.text }]}
             />
           </View>

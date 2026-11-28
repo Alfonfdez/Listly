@@ -8,6 +8,7 @@ import { useFontSize } from '../hooks/useFontSize';
 import { useLabels } from '../hooks/useLabels';
 import { useItemDraft } from '../hooks/useItemDraft';
 import { useItemDisplayFlags } from '../hooks/useItemDisplayFlags';
+import { useAmountFormat } from '../hooks/useAmountFormat';
 import { ADD_ITEM_NOTE_LINES, EDIT_ITEM_FIELD_LINE_HEIGHT, EDIT_ITEM_FIELD_VERTICAL_PADDING } from '../constants/layout';
 import { serializeItemPhotos } from '../utils/itemPhotos';
 import { ItemAmountField, ItemLineTotal, ItemNameField, ItemNoteField, ItemQuantityField } from './ItemFields';
@@ -45,8 +46,9 @@ export default function AddItemBar({
   const labels = useLabels();
   const flags = useItemDisplayFlags(numeric);
   const showPhotos = flags.showPhotos && photosAllowed;
+  const amountFormat = useAmountFormat();
 
-  const draft = useItemDraft({ existingNames, numeric });
+  const draft = useItemDraft({ existingNames, numeric, amountFormat: amountFormat.amountFormat });
   const [noteExpanded, setNoteExpanded] = useState(false);
   const canAddDetails = flags.showNotes || showPhotos;
   const noteLineHeight = fs(EDIT_ITEM_FIELD_LINE_HEIGHT);
@@ -126,7 +128,7 @@ export default function AddItemBar({
       {numeric ? (
         <View style={styles.numericRow}>
           <ItemAmountField
-            value={draft.amount}
+            value={draft.amountDisplay}
             onChangeText={draft.onAmountChange}
             onFocus={draft.onAmountFocus}
             onBlur={draft.onAmountBlur}
@@ -137,6 +139,8 @@ export default function AddItemBar({
             amountMinor={draft.amountMinor}
             quantity={draft.quantity}
             fontSize={fs(15)}
+            currency={amountFormat.currency}
+            amountFormat={amountFormat.amountFormat}
             style={styles.lineTotal}
           />
         </View>

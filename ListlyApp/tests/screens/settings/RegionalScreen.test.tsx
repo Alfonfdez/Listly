@@ -45,4 +45,38 @@ describe('RegionalScreen', () => {
     const view = await render(<RegionalScreen />);
     expect(view.getByText('Español')).toBeTruthy();
   });
+
+  it('shows the default currency and number format', async () => {
+    const view = await render(<RegionalScreen />);
+    expect(view.getByLabelText('Currency')).toBeTruthy();
+    expect(view.getByLabelText('Decimal separator')).toBeTruthy();
+    expect(view.getByText('None')).toBeTruthy();
+    expect(view.getByText('Plain (1234.56)')).toBeTruthy();
+  });
+
+  it('searches and applies a currency', async () => {
+    const user = userEvent.setup();
+    const view = await render(<RegionalScreen />);
+    const updateConfig = getConfigStub().updateConfig;
+
+    await user.press(view.getByLabelText('Currency'));
+    await user.type(view.getByLabelText('Search'), 'franc');
+    expect(view.queryByLabelText('Euro')).toBeNull();
+    await user.press(view.getByLabelText('Swiss Franc'));
+    await user.press(view.getByLabelText('Select'));
+
+    expect(updateConfig).toHaveBeenCalledWith({ currency: 'currency_chf' });
+  });
+
+  it('applies a number format', async () => {
+    const user = userEvent.setup();
+    const view = await render(<RegionalScreen />);
+    const updateConfig = getConfigStub().updateConfig;
+
+    await user.press(view.getByLabelText('Decimal separator'));
+    await user.press(view.getByLabelText('Comma (1.234,56)'));
+    await user.press(view.getByLabelText('Select'));
+
+    expect(updateConfig).toHaveBeenCalledWith({ amountFormat: 'comma' });
+  });
 });

@@ -1,11 +1,12 @@
-import { TextInput, Text, StyleSheet, type StyleProp, type TextStyle } from 'react-native';
+import { TextInput, Text, StyleSheet, useWindowDimensions, type StyleProp, type TextStyle } from 'react-native';
 import { useConfig } from '../context/ConfigContext';
 import { useFontSize } from '../hooks/useFontSize';
 import { useLabels } from '../hooks/useLabels';
 import { BUTTON_BORDER_RADIUS } from './componentStyles';
-import { formatMinor, lineTotalMinor } from '../utils/numeric';
-import { MAX_ITEM_NAME_LENGTH, MAX_ITEM_NOTE_LENGTH } from '../constants/types';
-import { EDIT_ITEM_NAME_LINES, LINE_TOTAL_SLOT_WIDTH, CURRENCY_SLOT_WIDTH } from '../constants/layout';
+import { formatAmount, lineTotalMinor, type AmountFormatOptions } from '../utils/numeric';
+import { AMOUNT_FORMATS, MAX_ITEM_NAME_LENGTH, MAX_ITEM_NOTE_LENGTH, type AmountFormat } from '../constants/types';
+import { EDIT_ITEM_NAME_LINES, LINE_TOTAL_SLOT_WIDTH } from '../constants/layout';
+import { CURRENCY_NONE, currencySuffixWidth, type CurrencyId } from '../constants/currencies';
 import CharCounter from './CharCounter';
 import QuantityStepper from './QuantityStepper';
 
@@ -155,6 +156,8 @@ interface ItemLineTotalProps {
   amountMinor: number | null;
   quantity: number;
   fontSize: number;
+  currency?: CurrencyId;
+  amountFormat?: AmountFormat;
   /** Keep a fixed slot so a long total never squeezes neighbouring fields. */
   fixedSlot?: boolean;
   style?: StyleProp<TextStyle>;
@@ -164,17 +167,25 @@ export function ItemLineTotal({
   amountMinor,
   quantity,
   fontSize,
+  currency = CURRENCY_NONE,
+  amountFormat,
   fixedSlot = true,
   style,
 }: ItemLineTotalProps) {
   const { activeColors: c } = useConfig();
+  const { fontScale } = useWindowDimensions();
   const fs = useFontSize();
   const labels = useLabels();
-  const total = formatMinor(lineTotalMinor(amountMinor, quantity));
+  const format: Required<AmountFormatOptions> = {
+    currency,
+    amountFormat: amountFormat ?? AMOUNT_FORMATS.plain,
+  };
+  const total = formatAmount(lineTotalMinor(amountMinor, quantity), format);
   const slotStyle: TextStyle | null = fixedSlot
     ? {
-      width: fs(LINE_TOTAL_SLOT_WIDTH) + CURRENCY_SLOT_WIDTH,
-      paddingRight: CURRENCY_SLOT_WIDTH,
+      // `fontScale` covers the OS text scaling applied to Text on Android.
+      width: (fs(LINE_TOTAL_SLOT_WIDTH) + fs(currencySuffixWidth(currency))) * fontScale,
+      flexShrink: 0,
       textAlign: 'right',
       fontVariant: ['tabular-nums'],
     }

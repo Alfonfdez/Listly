@@ -76,6 +76,20 @@ describe('buildListCopyText (numeric)', () => {
     );
   });
 
+  it('uses the configured currency and decimal separator', () => {
+    const items = [
+      item({ id: 1, name: 'Milk', amount_minor: 120, quantity: 2, checked: 1, position: 0 }),
+    ];
+    expect(
+      buildListCopyText('Groceries', items, {
+        withNotes: false,
+        numeric: true,
+        labels,
+        format: { currency: 'currency_euro', amountFormat: 'comma' },
+      }),
+    ).toBe('Groceries\n\n✅ Milk — 1,20 € × 2 = 2,40 €\n\nTotal: 2,40 €\nDone: 2,40 €');
+  });
+
   it('always shows the amount × quantity = total segment, including quantity 1', () => {
     const items = [item({ id: 1, name: 'Bread', amount_minor: 10000, quantity: 1, position: 0 })];
     expect(buildListCopyText('Groceries', items, { withNotes: false, numeric: true, labels })).toBe(

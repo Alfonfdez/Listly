@@ -13,11 +13,10 @@ export const EDIT_ITEM_FIELD_VERTICAL_PADDING = 24;
 export const ADD_ITEM_NOTE_LINES = 3;
 
 // Numeric line totals render in a fixed slot so a long value never squeezes the
-// amount/quantity fields. `LINE_TOTAL_SLOT_WIDTH` fits the clamped maximum
-// (999999.99) at the total font sizes; `CURRENCY_SLOT_WIDTH` is the right gap
-// reserved for a future currency symbol.
-export const LINE_TOTAL_SLOT_WIDTH = 78;
-export const CURRENCY_SLOT_WIDTH = 16;
+// amount/quantity fields. `LINE_TOTAL_SLOT_WIDTH` fits the grouped clamped
+// maximum (`999.999,99` / `999,999.99`) at the total font sizes; the currency
+// suffix width comes from `currencySuffixWidth()` in constants/currencies.
+export const LINE_TOTAL_SLOT_WIDTH = 86;
 
 // Photo section tiles: the edit modal uses the regular size, the inline add
 // bar uses the compact one so the details area stays light.

@@ -155,6 +155,23 @@ describe('ItemFormModal', () => {
     expect(flattenStyle(total.props.style).width).toBe('100%');
   });
 
+  it('shows a short currency symbol inline in the Total', async () => {
+    setConfig({ currency: 'currency_euro', amountFormat: 'comma' });
+    const view = await render(
+      <ItemFormModal {...baseProps} numeric initialAmountMinor={123456} initialQuantity={1} initialNote="" />,
+    );
+    expect(view.getByLabelText('Total: 1.234,56 €')).toBeTruthy();
+  });
+
+  it('moves a 3-letter currency code to the Total label', async () => {
+    setConfig({ currency: 'currency_chf', amountFormat: 'comma' });
+    const view = await render(
+      <ItemFormModal {...baseProps} numeric initialAmountMinor={123456} initialQuantity={1} initialNote="" />,
+    );
+    expect(view.getByText('Total (CHF)')).toBeTruthy();
+    expect(view.getByLabelText('Total: 1.234,56')).toBeTruthy();
+  });
+
   it('keeps a non-zero amount on focus', async () => {
     const view = await render(
       <ItemFormModal {...baseProps} numeric initialAmountMinor={120} initialQuantity={1} initialNote="" />,
