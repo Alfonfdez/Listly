@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { render, fireEvent } from '@testing-library/react-native';
 import { resetStub } from '../helpers/configStub';
+import { flattenStyle } from '../helpers/style';
 import {
   ItemAmountField,
   ItemLineTotal,
@@ -8,7 +9,8 @@ import {
   ItemNoteField,
   ItemQuantityField,
 } from '../../src/components/ItemFields';
-import { EDIT_ITEM_NAME_LINES } from '../../src/constants/layout';
+import { EDIT_ITEM_NAME_LINES, LINE_TOTAL_SLOT_WIDTH, CURRENCY_SLOT_WIDTH } from '../../src/constants/layout';
+import { MAX_AMOUNT_MINOR, MAX_QUANTITY } from '../../src/constants/types';
 
 describe('ItemFields', () => {
   beforeEach(() => resetStub());
@@ -18,6 +20,19 @@ describe('ItemFields', () => {
 
     expect(view.getByText('7.50')).toBeTruthy();
     expect(view.getByLabelText('Total: 7.50')).toBeTruthy();
+  });
+
+  it('ItemLineTotal keeps the clamped maximum inside a fixed slot', async () => {
+    const view = await render(
+      <ItemLineTotal amountMinor={MAX_AMOUNT_MINOR} quantity={MAX_QUANTITY} fontSize={15} />,
+    );
+
+    const total = view.getByText('999999.99');
+    const style = flattenStyle(total.props.style);
+    expect(total.props.numberOfLines).toBe(1);
+    expect(style.width).toBe(LINE_TOTAL_SLOT_WIDTH + CURRENCY_SLOT_WIDTH);
+    expect(style.paddingRight).toBe(CURRENCY_SLOT_WIDTH);
+    expect(style.textAlign).toBe('right');
   });
 
   it('ItemNoteField renders the counter and forwards typing', async () => {

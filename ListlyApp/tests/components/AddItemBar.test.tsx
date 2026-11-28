@@ -5,8 +5,10 @@ import { resetStub, setConfig } from '../helpers/configStub';
 import AddItemBar from '../../src/components/AddItemBar';
 import {
   ADD_ITEM_NOTE_LINES,
+  CURRENCY_SLOT_WIDTH,
   EDIT_ITEM_FIELD_LINE_HEIGHT,
   EDIT_ITEM_FIELD_VERTICAL_PADDING,
+  LINE_TOTAL_SLOT_WIDTH,
   PHOTO_METRICS,
 } from '../../src/constants/layout';
 
@@ -116,6 +118,22 @@ describe('AddItemBar', () => {
     expect(view.getByLabelText('Amount')).toBeTruthy();
     expect(view.getByLabelText('Quantity: 1')).toBeTruthy();
     expect(view.queryByLabelText('Toggle details')).toBeNull();
+  });
+
+  it('keeps the numeric line total in a fixed slot', async () => {
+    const user = userEvent.setup();
+    const view = await render(<AddItemBar {...baseProps} numeric />);
+
+    const total = view.getByLabelText(/^Total: /);
+    const style = flattenStyle(total.props.style);
+    expect(total.props.numberOfLines).toBe(1);
+    expect(style.width).toBe(LINE_TOTAL_SLOT_WIDTH + CURRENCY_SLOT_WIDTH);
+    expect(style.paddingRight).toBe(CURRENCY_SLOT_WIDTH);
+
+    await user.type(view.getByLabelText('Amount'), '999999.99');
+
+    expect(view.getByLabelText('Total: 999999.99')).toBeTruthy();
+    expect(flattenStyle(view.getByLabelText(/^Total: /).props.style).width).toBe(style.width);
   });
 
   it('applies the numeric toggles on a numeric list', async () => {

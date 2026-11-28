@@ -12,6 +12,13 @@ export const EDIT_ITEM_FIELD_VERTICAL_PADDING = 24;
 // Compact add bar (list detail): the note reserves 3 lines by default.
 export const ADD_ITEM_NOTE_LINES = 3;
 
+// Numeric line totals render in a fixed slot so a long value never squeezes the
+// amount/quantity fields. `LINE_TOTAL_SLOT_WIDTH` fits the clamped maximum
+// (999999.99) at the total font sizes; `CURRENCY_SLOT_WIDTH` is the right gap
+// reserved for a future currency symbol.
+export const LINE_TOTAL_SLOT_WIDTH = 78;
+export const CURRENCY_SLOT_WIDTH = 16;
+
 // Photo section tiles: the edit modal uses the regular size, the inline add
 // bar uses the compact one so the details area stays light.
 export const PHOTO_METRICS = {
