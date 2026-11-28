@@ -422,15 +422,26 @@ Spec: spec/constitution/4-design-system.md.
 Status: done.
 
 Long line totals used to stretch the numeric rows and squeeze the Amount/Quantity fields on the list detail:
-- Every line total (item row, add bar, edit modal) now renders in a fixed, right-aligned slot sized for the clamped maximum (`999999.99`) plus a **16px right gap** reserved for a future currency symbol. It scales with the text size, shows one line with tabular digits, and never resizes the row (`LINE_TOTAL_SLOT_WIDTH` / `CURRENCY_SLOT_WIDTH` in `src/constants/layout.ts`).
+- Every line total (item row, add bar, edit modal) now renders in a fixed, right-aligned slot sized for the grouped clamped maximum (`999.999,99` / `999,999.99`, scaled by the OS font scale) plus the active currency suffix (0 when currency is None); the old 16px placeholder gap is gone. It scales with the text size, shows one line with tabular digits, and never resizes the row (`LINE_TOTAL_SLOT_WIDTH` + `currencySuffixWidth()`).
 - The Edit item modal adds a read-only **Total** as a third column in the same row and height as Amount/Quantity, right of Quantity; it is plain right-aligned text (no input chrome, like the compact add bar) and updates live while editing. The modal's Quantity stepper uses a compact variant (26px buttons, 5-digit value width) so the three columns fit at 375px. The item-row `amount × quantity` detail can shrink (single line) but the total keeps its slot.
-- Tests: `ItemFields` (max value fits the slot, one line, right aligned + padding), `AddItemBar` (slot survives typing the max) and `ItemFormModal` (live total, not an input). Gate: `npm run test:all` green (86 files / 788 tests); web 375px verified with 0 console errors.
-- Currency itself is still out of scope: the 16px gap fits one symbol; a 3-letter code would need ~28px.
+- Tests: `ItemFields` (max value fits the slot, one line, right aligned), `AddItemBar` (slot survives typing the max) and `ItemFormModal` (live total, not an input). Gate: `npm run test:all` green (86 files / 788 tests); web 375px verified with 0 console errors.
 
 Spec: spec/features/026-numeric-lists/1-spec.md.
 
+## Currency and number format
+Status: in progress — global settings shipped; per-list overrides next (PR 2).
+
+Numeric amounts can now carry a currency and a decimal/grouping style:
+- Settings → Regional → Money format: Currency (None + 30, searchable) and Plain (1234.56) / Comma (1.234,56) / Dot (1,234.56). Defaults are None + Plain, so existing lists look unchanged. Stored as config `currency` / `amount_format`; older backups fall back to the defaults.
+- `formatAmount` appends the symbol (`12.34 €`) and applies grouping; it is used by the add bar, item rows, value bar, edit Total, clipboard and the value-bar percentage. Inputs accept both separators and display the configured one; storage stays integer minor units.
+- The fixed total slot fits the grouped maximum (`999.999,99` / `999,999.99`) plus `currencySuffixWidth()` and scales with the OS font scale; 1–2 character symbols stay inline in the edit modal, while 3-letter codes (CHF/AED/SAR) move to the Total label so the Amount input keeps its width.
+- Tests: numeric formatting/parsing, slot widths, Regional screen search/apply, add bar/modal/row rendering, clipboard and config schema. Gate: `npm run test:all` green (86 files / 803 tests); web 375px verified with EUR and CHF, 0 console errors.
+- Pending PR 2: nullable per-list `currency` / `amount_format` overrides, migration 10 and the Create/Edit list selectors.
+
+Spec: spec/features/037-currency-format/.
+
 ## Future scope (not scheduled)
-- Currency symbol (global setting vs per-list option; the totals already reserve a 16px right gap for one symbol).
+- Per-list currency/format overrides (next PR, planned).
 - A third "pending" (all − done) total.
 - Tags, due dates, subtasks, recurring items.
 - List templates and sharing.

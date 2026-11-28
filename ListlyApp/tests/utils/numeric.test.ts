@@ -2,15 +2,18 @@ import { describe, expect, it } from 'vitest';
 import {
   clampAmountMinor,
   clampQuantity,
+  formatAmount,
+  formatAmountInput,
   formatMinor,
   formatPercent2,
   lineTotalMinor,
   parseAmountInput,
   sanitizeAmountText,
   sumTotals,
+  toDisplayAmount,
   valueProgressPercent,
 } from '../../src/utils/numeric';
-import { MAX_AMOUNT_MINOR, MAX_QUANTITY } from '../../src/constants/types';
+import { AMOUNT_FORMATS, MAX_AMOUNT_MINOR, MAX_QUANTITY } from '../../src/constants/types';
 
 describe('numeric utils', () => {
   it('parses amount input into minor units with at most 2 decimals', () => {
@@ -47,6 +50,36 @@ describe('numeric utils', () => {
     expect(formatMinor(1234)).toBe('12.34');
     expect(formatMinor(100000)).toBe('1000.00');
     expect(formatMinor(null)).toBe('0.00');
+  });
+
+  it('formats amounts with plain, dot and comma styles', () => {
+    expect(formatAmount(123456)).toBe('1234.56');
+    expect(formatAmount(123456, { amountFormat: AMOUNT_FORMATS.dot })).toBe('1,234.56');
+    expect(formatAmount(123456, { amountFormat: AMOUNT_FORMATS.comma })).toBe('1.234,56');
+    expect(formatAmount(5, { amountFormat: AMOUNT_FORMATS.comma })).toBe('0,05');
+  });
+
+  it('appends the currency symbol after the amount', () => {
+    expect(formatAmount(123456, { currency: 'currency_euro' })).toBe('1234.56 €');
+    expect(formatAmount(123456, { currency: 'currency_chf', amountFormat: AMOUNT_FORMATS.comma }))
+      .toBe('1.234,56 CHF');
+    expect(formatAmount(123456, { currency: 'none', amountFormat: AMOUNT_FORMATS.dot }))
+      .toBe('1,234.56');
+  });
+
+  it('formats and swaps the separator for amount inputs', () => {
+    expect(formatAmountInput(1234)).toBe('12.34');
+    expect(formatAmountInput(1234, AMOUNT_FORMATS.comma)).toBe('12,34');
+    expect(toDisplayAmount('12.34', AMOUNT_FORMATS.comma)).toBe('12,34');
+    expect(toDisplayAmount('12.', AMOUNT_FORMATS.comma)).toBe('12,');
+  });
+
+  it('parses comma decimals and mixed grouping separators', () => {
+    expect(parseAmountInput('12,34')).toBe(1234);
+    expect(parseAmountInput('1.234,56')).toBe(123456);
+    expect(parseAmountInput('1,234.56')).toBe(123456);
+    expect(sanitizeAmountText('12,')).toBe('12.');
+    expect(sanitizeAmountText('1.234,56')).toBe('1234.56');
   });
 
   it('computes a line total in minor units', () => {
@@ -89,10 +122,11 @@ describe('numeric utils', () => {
     expect(valueProgressPercent(-10, 5)).toBe(0);
   });
 
-  it('formats percent with two decimals and a dot', () => {
+  it('formats percent with two decimals and the configured separator', () => {
     expect(formatPercent2(valueProgressPercent(2293, 320))).toBe('13.96');
     expect(formatPercent2(100)).toBe('100.00');
     expect(formatPercent2(0)).toBe('0.00');
     expect(formatPercent2(100 / 3)).toBe('33.33');
+    expect(formatPercent2(13.956, AMOUNT_FORMATS.comma)).toBe('13,96');
   });
 });

@@ -14,11 +14,12 @@ import { useFontSize } from '../hooks/useFontSize';
 import { useSelectMode } from '../hooks/useSelectMode';
 import { useDragOrder } from '../hooks/useDragOrder';
 import { useLabels } from '../hooks/useLabels';
+import { useAmountFormat } from '../hooks/useAmountFormat';
 import { uniqueNormalizedNames } from '../utils/validation';
 import { filterItemsByQuery } from '../utils/search';
 import { parseItemPhotos } from '../utils/itemPhotos';
 import { isOn } from '../utils/flags';
-import { sumTotals, formatMinor, valueProgressPercent } from '../utils/numeric';
+import { sumTotals, formatAmount, formatPercent2, valueProgressPercent } from '../utils/numeric';
 import { HIT_SLOP } from '../components/componentStyles';
 import ScreenShell from '../components/ScreenShell';
 import EmptyState from '../components/EmptyState';
@@ -53,6 +54,7 @@ export default function ListDetailScreen() {
 
   const { lists, itemsByListId, refresh, lockedListIds } = useApp();
   const { activeColors: c } = useConfig();
+  const amountFormat = useAmountFormat();
   const fs = useFontSize();
   const labels = useLabels();
   const keyboardHeight = useKeyboardHeight();
@@ -191,12 +193,14 @@ export default function ListDetailScreen() {
   // numeric list, including the zero state (0.00 / 0.00 · 0.00 %).
   const valueProgress = useMemo(() => {
     if (!totals) return undefined;
+    const percent = valueProgressPercent(totals.all, totals.done);
     return {
-      percent: valueProgressPercent(totals.all, totals.done),
-      doneText: formatMinor(totals.done),
-      totalText: formatMinor(totals.all),
+      percent,
+      percentText: formatPercent2(percent, amountFormat.amountFormat),
+      doneText: formatAmount(totals.done, amountFormat),
+      totalText: formatAmount(totals.all, amountFormat),
     };
-  }, [totals]);
+  }, [totals, amountFormat]);
 
   const renderItem = useCallback<SortableGridRenderItem<Item>>(
     ({ item }) => (

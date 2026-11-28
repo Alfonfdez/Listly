@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { itemSchema, listSchema, configSchema } from '../../src/database/schemas';
 import { DEFAULT_CONFIG, sanitizeConfig } from '../../src/database/configDefaults';
 import { LANGUAGES } from '../../src/constants/languages';
-import { LIST_LAYOUTS, TEXT_SIZES, THEMES } from '../../src/constants/types';
+import { AMOUNT_FORMATS, LIST_LAYOUTS, TEXT_SIZES, THEMES } from '../../src/constants/types';
 
 const VALID_LIST = { id: 1, name: 'Work Tasks', color: '#22D3EE', icon: 'briefcase-outline', created_at: '2026-09-05 08:00:00', position: 0, collection_id: null, pinned: 0, kind: 'standard' };
 
@@ -63,6 +63,8 @@ describe('schemas', () => {
           theme: THEMES.dark,
           language: LANGUAGES.es,
           textSize: TEXT_SIZES.large,
+          currency: 'currency_euro',
+          amountFormat: AMOUNT_FORMATS.comma,
           homeCollectionsLayout: LIST_LAYOUTS.list,
           homeListsLayout: LIST_LAYOUTS.grid,
           collectionsLayout: LIST_LAYOUTS.list,
@@ -81,6 +83,8 @@ describe('schemas', () => {
         theme: THEMES.dark,
         language: LANGUAGES.es,
         textSize: TEXT_SIZES.large,
+        currency: 'currency_euro',
+        amountFormat: AMOUNT_FORMATS.comma,
         homeCollectionsLayout: LIST_LAYOUTS.list,
         homeListsLayout: LIST_LAYOUTS.grid,
         collectionsLayout: LIST_LAYOUTS.list,
@@ -106,6 +110,8 @@ describe('schemas', () => {
       expect(() => configSchema.parse({ ...DEFAULT_CONFIG, showPhotosNumeric: 1 })).toThrow();
       expect(() => configSchema.parse({ ...DEFAULT_CONFIG, editShowNotesNumeric: 'no' })).toThrow();
       expect(() => configSchema.parse({ ...DEFAULT_CONFIG, editShowPhotosNumeric: 0 })).toThrow();
+      expect(() => configSchema.parse({ ...DEFAULT_CONFIG, currency: 'currency_xyz' })).toThrow();
+      expect(() => configSchema.parse({ ...DEFAULT_CONFIG, amountFormat: 'space' })).toThrow();
     });
 
     it('rejects an invalid list layout', () => {

@@ -29,7 +29,7 @@ describe('DetailHeader', () => {
 
   it('renders the value bar with done/total numbers, a percentage and a combined a11y label', async () => {
     const view = await renderHeader({
-      valueProgress: { percent: 13.956, doneText: '3.20', totalText: '22.93' },
+      valueProgress: { percent: 13.956, percentText: '13.96', doneText: '3.20', totalText: '22.93' },
     });
     expect(view.getByText('3.20 / 22.93')).toBeTruthy();
     expect(view.getByText('13.96 %')).toBeTruthy();
@@ -38,7 +38,7 @@ describe('DetailHeader', () => {
 
   it('renders the value bar in the zero state (0.00 / 0.00 · 0.00 %)', async () => {
     const view = await renderHeader({
-      valueProgress: { percent: 0, doneText: '0.00', totalText: '0.00' },
+      valueProgress: { percent: 0, percentText: '0.00', doneText: '0.00', totalText: '0.00' },
     });
     expect(view.getByText('0.00 / 0.00')).toBeTruthy();
     expect(view.getByText('0.00 %')).toBeTruthy();

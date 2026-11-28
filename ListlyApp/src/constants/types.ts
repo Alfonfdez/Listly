@@ -50,6 +50,14 @@ export const LIST_KINDS = {
 
 export type ListKind = keyof typeof LIST_KINDS;
 
+export const AMOUNT_FORMATS = {
+  plain: 'plain',
+  dot: 'dot',
+  comma: 'comma',
+} as const;
+
+export type AmountFormat = keyof typeof AMOUNT_FORMATS;
+
 export const DESTRUCTIVE_CONFIRMATION = 'DELETE';
 
 export const DEBOUNCE_MS = 300;

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { useConfig } from '../context/ConfigContext';
 import { useFontSize } from '../hooks/useFontSize';
 import { useLabels } from '../hooks/useLabels';
@@ -15,7 +15,6 @@ import {
   EDIT_ITEM_FIELD_VERTICAL_PADDING,
   EDIT_ITEM_NAME_LINES,
   EDIT_ITEM_NOTE_LINES,
-  CURRENCY_SLOT_WIDTH,
   LINE_TOTAL_SLOT_WIDTH,
 } from '../constants/layout';
 import {
@@ -23,6 +22,8 @@ import {
   MAX_ITEM_NOTE_LENGTH,
 } from '../constants/types';
 import { useItemDraft, type ItemDraftSeed } from '../hooks/useItemDraft';
+import { useAmountFormat } from '../hooks/useAmountFormat';
+import { currencySuffixWidth, getCurrencySymbol, usesCurrencyCode } from '../constants/currencies';
 import { ItemAmountField, ItemLineTotal, ItemNameField, ItemNoteField, ItemQuantityField } from './ItemFields';
 import ItemPhotosField from './ItemPhotosField';
 import ModalShell from './ModalShell';
@@ -64,9 +65,18 @@ export default function ItemFormModal({
 }: Props) {
   const { activeColors: c } = useConfig();
   const fs = useFontSize();
+  const { fontScale } = useWindowDimensions();
   const labels = useLabels();
   const flags = useItemDisplayFlags(numeric);
   const showPhotos = flags.editShowPhotos && photosAllowed;
+  const amountFormat = useAmountFormat();
+  // The modal row has room for 1-2 character symbols inline; a 3-letter code
+  // moves to the Total label so the Amount input keeps a usable width.
+  const totalHasCode = usesCurrencyCode(amountFormat.currency);
+  const totalCurrency = totalHasCode ? 'none' : amountFormat.currency;
+  const totalLabel = totalHasCode
+    ? `${labels.item_line_total_label} (${getCurrencySymbol(amountFormat.currency)})`
+    : labels.item_line_total_label;
   // Fixed 2-line name / 5-line note heights so longer text scrolls inside the
   // field instead of growing the modal.
   const fieldLineHeight = fs(EDIT_ITEM_FIELD_LINE_HEIGHT);
@@ -75,7 +85,12 @@ export default function ItemFormModal({
   const noteInputHeight =
     fieldLineHeight * EDIT_ITEM_NOTE_LINES + EDIT_ITEM_FIELD_VERTICAL_PADDING;
 
-  const draft = useItemDraft({ existingNames, numeric, validateOnChange: true });
+  const draft = useItemDraft({
+    existingNames,
+    numeric,
+    validateOnChange: true,
+    amountFormat: amountFormat.amountFormat,
+  });
   const { applySeed } = draft;
   const [confirmDelete, setConfirmDelete] = useState(false);
 
@@ -160,7 +175,7 @@ export default function ItemFormModal({
           <View style={styles.numericRow}>
             <FormField label={labels.item_amount_label} style={styles.amountField}>
               <ItemAmountField
-                value={draft.amount}
+                value={draft.amountDisplay}
                 onChangeText={draft.onAmountChange}
                 onFocus={draft.onAmountFocus}
                 onBlur={draft.onAmountBlur}
@@ -171,14 +186,19 @@ export default function ItemFormModal({
               <ItemQuantityField value={draft.quantity} onChange={draft.setQuantity} compact />
             </FormField>
             <FormField
-              label={labels.item_line_total_label}
-              style={{ width: fs(LINE_TOTAL_SLOT_WIDTH) + CURRENCY_SLOT_WIDTH }}
+              label={totalLabel}
+              style={{
+                width: (fs(LINE_TOTAL_SLOT_WIDTH) + fs(currencySuffixWidth(totalCurrency))) * fontScale,
+                flexShrink: 0,
+              }}
             >
               <View style={styles.totalValueBox}>
                 <ItemLineTotal
                   amountMinor={draft.amountMinor}
                   quantity={draft.quantity}
                   fontSize={fs(15)}
+                  currency={totalCurrency}
+                  amountFormat={amountFormat.amountFormat}
                   style={styles.totalValue}
                 />
               </View>
@@ -314,8 +334,10 @@ const styles = StyleSheet.create({
   },
   amountInput: {
     minWidth: 0,
+    height: 40,
     paddingHorizontal: 6,
-    paddingVertical: 9,
+    paddingVertical: 0,
+    textAlignVertical: 'center',
   },
   totalValueBox: {
     height: 40,

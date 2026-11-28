@@ -1,7 +1,9 @@
 import { useCallback, useState } from 'react';
-import { View } from 'react-native';
+import { StyleSheet, TextInput, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useConfig } from '../../context/ConfigContext';
+import { useLabels } from '../../hooks/useLabels';
+import { useFontSize } from '../../hooks/useFontSize';
 import { useResetOnOpen } from '../../hooks/useResetOnOpen';
 import { PickerModal, PickerRow, pickerStyles } from '../PickerModal';
 import ModalFooter from '../ModalFooter';
@@ -16,6 +18,7 @@ interface Props<T extends string> {
   confirmLabel: string;
   onSelect: (value: T) => void;
   onClose: () => void;
+  searchable?: boolean;
 }
 
 export default function OptionPickerModal<T extends string>({
@@ -27,14 +30,23 @@ export default function OptionPickerModal<T extends string>({
   confirmLabel,
   onSelect,
   onClose,
+  searchable = false,
 }: Props<T>) {
   const { activeColors: c } = useConfig();
+  const labels = useLabels();
+  const fs = useFontSize();
   const [temp, setTemp] = useState<T>(selected);
+  const [query, setQuery] = useState('');
 
   const resetOnOpen = useCallback(() => {
     setTemp(selected);
+    setQuery('');
   }, [selected]);
   useResetOnOpen(visible, resetOnOpen);
+
+  const visibleOptions = searchable && query.trim()
+    ? options.filter(option => option.label.toLowerCase().includes(query.trim().toLowerCase()))
+    : options;
 
   const handleConfirm = () => {
     onSelect(temp);
@@ -57,7 +69,21 @@ export default function OptionPickerModal<T extends string>({
         />
       }
     >
-      {options.map(option => {
+      {searchable ? (
+        <View style={[styles.search, { borderColor: c.border, backgroundColor: c.surface }]}>
+          <Ionicons name="search" size={16} color={c.textSecondary} />
+          <TextInput
+            value={query}
+            onChangeText={setQuery}
+            placeholder={labels.common_search}
+            placeholderTextColor={c.textSecondary}
+            style={[styles.searchInput, { color: c.text, fontSize: fs(15) }]}
+            accessibilityLabel={labels.common_search}
+            autoCorrect={false}
+          />
+        </View>
+      ) : null}
+      {visibleOptions.map(option => {
         const isSelected = option.value === temp;
         return (
           <PickerRow
@@ -82,3 +108,20 @@ export default function OptionPickerModal<T extends string>({
     </PickerModal>
   );
 }
+
+const styles = StyleSheet.create({
+  search: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    borderWidth: 1,
+    borderRadius: 10,
+    paddingHorizontal: 10,
+    paddingVertical: 8,
+    marginBottom: 8,
+  },
+  searchInput: {
+    flex: 1,
+    padding: 0,
+  },
+});

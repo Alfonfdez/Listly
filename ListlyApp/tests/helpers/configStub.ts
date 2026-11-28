@@ -8,6 +8,8 @@ const configTemplate: Config = {
   theme: 'system',
   language: 'en',
   textSize: 'medium',
+  currency: 'none',
+  amountFormat: 'plain',
   homeCollectionsLayout: 'grid',
   homeListsLayout: 'grid',
   collectionsLayout: 'grid',
