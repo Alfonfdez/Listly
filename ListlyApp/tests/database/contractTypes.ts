@@ -1,6 +1,13 @@
 import type { Config, Item, List, ListWithCounts } from '../../src/database/types';
 
-export type NewList = Omit<List, 'id' | 'created_at' | 'position' | 'pinned' | 'kind'> & { kind?: List['kind'] };
+export type NewList = Omit<
+  List,
+  'id' | 'created_at' | 'position' | 'pinned' | 'kind' | 'currency' | 'amount_format'
+> & {
+  kind?: List['kind'];
+  currency?: List['currency'];
+  amount_format?: List['amount_format'];
+};
 export type NewItem = Omit<Item, 'id' | 'created_at' | 'updated_at' | 'amount_minor' | 'quantity'> & {
   amount_minor?: number | null;
   quantity?: number;

@@ -177,6 +177,36 @@ describe('EditListScreen', () => {
     expect(view.queryByText('List name is too long')).toBeNull();
   });
 
+  it('loads and saves per-list numeric overrides', async () => {
+    setLists([{ ...LIST, kind: 'numeric', currency: 'currency_chf', amount_format: 'dot' }]);
+    const user = userEvent.setup();
+    const view = await render(<EditListScreen />);
+
+    expect(view.getByLabelText('Currency: Swiss Franc')).toBeTruthy();
+    expect(view.getByLabelText('Decimal separator: Dot')).toBeTruthy();
+
+    await user.press(view.getByLabelText('Currency: Swiss Franc'));
+    await user.press(view.getByLabelText('Use global (None)'));
+    await user.press(view.getByLabelText('Select'));
+    await user.press(view.getByLabelText('Save'));
+
+    await waitFor(() =>
+      expect(listRepositoryMock.update).toHaveBeenCalledWith(1, {
+        name: 'Groceries',
+        color: '#22D3EE',
+        icon: 'cart-outline',
+        kind: 'numeric',
+        currency: null,
+        amount_format: 'dot',
+      }));
+  });
+
+  it('does not show the numeric format fields on a standard list', async () => {
+    const view = await render(<EditListScreen />);
+    expect(view.queryByLabelText(/^Currency:/)).toBeNull();
+    expect(view.queryByLabelText(/^Decimal separator:/)).toBeNull();
+  });
+
   it('saves an unchanged name without a duplicate error (excludes self)', async () => {
     const user = userEvent.setup();
     const view = await render(<EditListScreen />);

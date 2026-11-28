@@ -60,7 +60,10 @@ describe('1.0.0 upgrade fixture', () => {
     await migrateDatabase(db);
 
     expect(await readSchemaVersion(db)).toBe(SCHEMA_VERSION);
-    expect(await dump(db)).toEqual(before);
+    expect(await dump(db)).toEqual({
+      ...before,
+      lists: before.lists.map(list => ({ ...list, currency: null, amount_format: null })),
+    });
   });
 
   it('is idempotent when initialization runs twice', async () => {

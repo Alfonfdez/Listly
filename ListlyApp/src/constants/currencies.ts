@@ -72,45 +72,51 @@ export type CurrencyLabelKey =
 export interface CurrencyOption {
   id: CurrencyId;
   symbol: string;
+  /** ISO 4217 code, used for plain-text clipboard copies (empty for none). */
+  code: string;
   labelKey: CurrencyLabelKey;
 }
 
 export const CURRENCY_OPTIONS: CurrencyOption[] = [
-  { id: 'none', symbol: '', labelKey: 'currency_none' },
-  { id: 'currency_euro', symbol: '€', labelKey: 'currency_euro' },
-  { id: 'currency_usd', symbol: '$', labelKey: 'currency_usd' },
-  { id: 'currency_gbp', symbol: '£', labelKey: 'currency_gbp' },
-  { id: 'currency_jpy', symbol: '¥', labelKey: 'currency_jpy' },
-  { id: 'currency_chf', symbol: 'CHF', labelKey: 'currency_chf' },
-  { id: 'currency_cad', symbol: 'C$', labelKey: 'currency_cad' },
-  { id: 'currency_aud', symbol: 'A$', labelKey: 'currency_aud' },
-  { id: 'currency_nzd', symbol: 'NZ$', labelKey: 'currency_nzd' },
-  { id: 'currency_sek', symbol: 'kr', labelKey: 'currency_sek' },
-  { id: 'currency_nok', symbol: 'kr', labelKey: 'currency_nok' },
-  { id: 'currency_dkk', symbol: 'kr', labelKey: 'currency_dkk' },
-  { id: 'currency_pln', symbol: 'zł', labelKey: 'currency_pln' },
-  { id: 'currency_czk', symbol: 'Kč', labelKey: 'currency_czk' },
-  { id: 'currency_huf', symbol: 'Ft', labelKey: 'currency_huf' },
-  { id: 'currency_ron', symbol: 'lei', labelKey: 'currency_ron' },
-  { id: 'currency_try', symbol: '₺', labelKey: 'currency_try' },
-  { id: 'currency_brl', symbol: 'R$', labelKey: 'currency_brl' },
-  { id: 'currency_inr', symbol: '₹', labelKey: 'currency_inr' },
-  { id: 'currency_krw', symbol: '₩', labelKey: 'currency_krw' },
-  { id: 'currency_cny', symbol: '¥', labelKey: 'currency_cny' },
-  { id: 'currency_thb', symbol: '฿', labelKey: 'currency_thb' },
-  { id: 'currency_sgd', symbol: 'S$', labelKey: 'currency_sgd' },
-  { id: 'currency_myr', symbol: 'RM', labelKey: 'currency_myr' },
-  { id: 'currency_php', symbol: '₱', labelKey: 'currency_php' },
-  { id: 'currency_idr', symbol: 'Rp', labelKey: 'currency_idr' },
-  { id: 'currency_vnd', symbol: '₫', labelKey: 'currency_vnd' },
-  { id: 'currency_zar', symbol: 'R', labelKey: 'currency_zar' },
-  { id: 'currency_ils', symbol: '₪', labelKey: 'currency_ils' },
-  { id: 'currency_aed', symbol: 'AED', labelKey: 'currency_aed' },
-  { id: 'currency_sar', symbol: 'SAR', labelKey: 'currency_sar' },
+  { id: 'none', symbol: '', code: '', labelKey: 'currency_none' },
+  { id: 'currency_euro', symbol: '€', code: 'EUR', labelKey: 'currency_euro' },
+  { id: 'currency_usd', symbol: '$', code: 'USD', labelKey: 'currency_usd' },
+  { id: 'currency_gbp', symbol: '£', code: 'GBP', labelKey: 'currency_gbp' },
+  { id: 'currency_jpy', symbol: '¥', code: 'JPY', labelKey: 'currency_jpy' },
+  { id: 'currency_chf', symbol: 'CHF', code: 'CHF', labelKey: 'currency_chf' },
+  { id: 'currency_cad', symbol: 'C$', code: 'CAD', labelKey: 'currency_cad' },
+  { id: 'currency_aud', symbol: 'A$', code: 'AUD', labelKey: 'currency_aud' },
+  { id: 'currency_nzd', symbol: 'NZ$', code: 'NZD', labelKey: 'currency_nzd' },
+  { id: 'currency_sek', symbol: 'kr', code: 'SEK', labelKey: 'currency_sek' },
+  { id: 'currency_nok', symbol: 'kr', code: 'NOK', labelKey: 'currency_nok' },
+  { id: 'currency_dkk', symbol: 'kr', code: 'DKK', labelKey: 'currency_dkk' },
+  { id: 'currency_pln', symbol: 'zł', code: 'PLN', labelKey: 'currency_pln' },
+  { id: 'currency_czk', symbol: 'Kč', code: 'CZK', labelKey: 'currency_czk' },
+  { id: 'currency_huf', symbol: 'Ft', code: 'HUF', labelKey: 'currency_huf' },
+  { id: 'currency_ron', symbol: 'lei', code: 'RON', labelKey: 'currency_ron' },
+  { id: 'currency_try', symbol: '₺', code: 'TRY', labelKey: 'currency_try' },
+  { id: 'currency_brl', symbol: 'R$', code: 'BRL', labelKey: 'currency_brl' },
+  { id: 'currency_inr', symbol: '₹', code: 'INR', labelKey: 'currency_inr' },
+  { id: 'currency_krw', symbol: '₩', code: 'KRW', labelKey: 'currency_krw' },
+  { id: 'currency_cny', symbol: '¥', code: 'CNY', labelKey: 'currency_cny' },
+  { id: 'currency_thb', symbol: '฿', code: 'THB', labelKey: 'currency_thb' },
+  { id: 'currency_sgd', symbol: 'S$', code: 'SGD', labelKey: 'currency_sgd' },
+  { id: 'currency_myr', symbol: 'RM', code: 'MYR', labelKey: 'currency_myr' },
+  { id: 'currency_php', symbol: '₱', code: 'PHP', labelKey: 'currency_php' },
+  { id: 'currency_idr', symbol: 'Rp', code: 'IDR', labelKey: 'currency_idr' },
+  { id: 'currency_vnd', symbol: '₫', code: 'VND', labelKey: 'currency_vnd' },
+  { id: 'currency_zar', symbol: 'R', code: 'ZAR', labelKey: 'currency_zar' },
+  { id: 'currency_ils', symbol: '₪', code: 'ILS', labelKey: 'currency_ils' },
+  { id: 'currency_aed', symbol: 'AED', code: 'AED', labelKey: 'currency_aed' },
+  { id: 'currency_sar', symbol: 'SAR', code: 'SAR', labelKey: 'currency_sar' },
 ];
 
 export function getCurrencySymbol(currency: CurrencyId): string {
   return CURRENCY_OPTIONS.find(option => option.id === currency)?.symbol ?? '';
+}
+
+export function getCurrencyCode(currency: CurrencyId): string {
+  return CURRENCY_OPTIONS.find(option => option.id === currency)?.code ?? '';
 }
 
 /**

@@ -113,6 +113,38 @@ describe('CreateListScreen', () => {
     expect(view.getByLabelText(colorLabel(QUICK_COLORS[0])).props.accessibilityState.selected).toBe(true);
   });
 
+  it('shows numeric format fields and sends the overrides on create', async () => {
+    const user = userEvent.setup();
+    const view = await render(<CreateListScreen />);
+
+    await user.type(view.getByLabelText('Name'), 'Weekend');
+    await user.press(view.getByLabelText('Numeric'));
+
+    expect(view.getByLabelText('Currency: Use global (None)')).toBeTruthy();
+    expect(view.getByLabelText('Decimal separator: Use global (Plain)')).toBeTruthy();
+
+    await user.press(view.getByLabelText('Currency: Use global (None)'));
+    await user.press(view.getByLabelText('Euro'));
+    await user.press(view.getByLabelText('Select'));
+
+    await user.press(view.getByLabelText('Decimal separator: Use global (Plain)'));
+    await user.press(view.getByLabelText('Comma'));
+    await user.press(view.getByLabelText('Select'));
+
+    await user.press(view.getByLabelText('Create'));
+
+    await waitFor(() =>
+      expect(listRepositoryMock.create).toHaveBeenCalledWith({
+        name: 'Weekend',
+        icon: LIST_ICONS[0],
+        color: QUICK_COLORS[0],
+        collection_id: undefined,
+        kind: 'numeric',
+        currency: 'currency_euro',
+        amount_format: 'comma',
+      }));
+  });
+
   it('does not greet an untouched form with the required hint', async () => {
     const view = await render(<CreateListScreen />);
     expect(view.queryByText('Name is required')).toBeNull();

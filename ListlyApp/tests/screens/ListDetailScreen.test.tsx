@@ -907,6 +907,24 @@ describe('ListDetailScreen', () => {
     expect(view.getByText('83.33 %')).toBeTruthy();
   });
 
+  it('uses per-list currency and format overrides on every numeric surface', async () => {
+    setLists([{ ...LIST, kind: 'numeric', currency: 'currency_euro', amount_format: 'comma' }]);
+    setItemsByListId(
+      new Map([[1, [
+        { ...ITEMS[0], amount_minor: 250, quantity: 2, checked: 1 },
+        { ...ITEMS[1], amount_minor: 100, quantity: 1, checked: 0 },
+      ]]]),
+    );
+    const view = await render(<ListDetailScreen />);
+    await view.findByText('Milk');
+
+    expect(view.getByText('2,50 € × 2')).toBeTruthy();
+    expect(view.getByLabelText('Total: 5,00 €')).toBeTruthy();
+    expect(view.getByText('5,00 € / 6,00 €')).toBeTruthy();
+    expect(view.getByText('83,33 %')).toBeTruthy();
+    expect(view.getByLabelText('Total: 0,00 €')).toBeTruthy();
+  });
+
   it('shows the value progress bar for a numeric list with checked value', async () => {
     setLists([{ ...LIST, kind: 'numeric' }]);
     setItemsByListId(

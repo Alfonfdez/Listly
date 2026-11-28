@@ -17,16 +17,17 @@ npx vitest run tests/database/migrations.test.ts tests/database/upgrade.test.ts
 - it ends at `SCHEMA_VERSION` and starts at `RELEASED_BASELINE`
 - it has exactly one step per version (so bumping `SCHEMA_VERSION` without a
   step fails `test:all`)
-- a fresh database (`user_version = 0`) gets the canonical schema at 9
-- a released database (`9`) is a no-op and keeps its rows
+- a fresh database (`user_version = 0`) gets the canonical schema at `SCHEMA_VERSION`
+- a released database (`9`) is migrated to 10 (adds the per-list format columns) and keeps its rows
 - a pre-release database (`1..8`) is rebuilt once and logs a warning
-- a future bump (`9 -> 10`) runs only the missing step and keeps the rows
+- a future bump (`10 -> 11`) runs only the missing step and keeps the rows
 - a database newer than the build is never touched
 
 `tests/database/upgrade.test.ts` replays `tests/fixtures/upgrade/v1.0.0.sql` -
 a frozen snapshot of a real 1.0.0 install with collections, pinned and numeric
 lists, items with notes/photos/amounts, config rows and a vault - then runs the
-migration and asserts the rows and the version are unchanged.
+migration and asserts the rows are unchanged (apart from the new nullable
+per-list format columns) and the version is current.
 
 ## Fixture rules
 
@@ -75,7 +76,7 @@ Verified 2026-11-27 against the EAS builds:
 
    ```ts
    {
-     version: 10,
+     version: 11,
      run: async db => {
        await db.execAsync('ALTER TABLE lists ADD COLUMN archived INTEGER NOT NULL DEFAULT 0;');
      },

@@ -1,6 +1,7 @@
 import type { DatabaseHandle } from '../types';
 import { runExclusive } from '../transaction';
 import { createSchema } from './001_initial';
+import { addListAmountFormat } from './010_list_amount_format';
 
 /**
  * The schema version this build writes to `PRAGMA user_version`.
@@ -9,7 +10,7 @@ import { createSchema } from './001_initial';
  * `tests/database/migrations.test.ts` fails `test:all` when the chain does not
  * reach `SCHEMA_VERSION`.
  */
-export const SCHEMA_VERSION = 9;
+export const SCHEMA_VERSION = 10;
 
 /**
  * The first schema version that ever shipped to users (v1.0.0).
@@ -34,6 +35,7 @@ export interface MigrationStep {
  */
 export const MIGRATIONS: readonly MigrationStep[] = [
   { version: RELEASED_BASELINE, run: createSchema },
+  { version: 10, run: addListAmountFormat },
 ];
 
 function targetVersion(steps: readonly MigrationStep[]): number {

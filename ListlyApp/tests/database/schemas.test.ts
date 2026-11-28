@@ -4,7 +4,7 @@ import { DEFAULT_CONFIG, sanitizeConfig } from '../../src/database/configDefault
 import { LANGUAGES } from '../../src/constants/languages';
 import { AMOUNT_FORMATS, LIST_LAYOUTS, TEXT_SIZES, THEMES } from '../../src/constants/types';
 
-const VALID_LIST = { id: 1, name: 'Work Tasks', color: '#22D3EE', icon: 'briefcase-outline', created_at: '2026-09-05 08:00:00', position: 0, collection_id: null, pinned: 0, kind: 'standard' };
+const VALID_LIST = { id: 1, name: 'Work Tasks', color: '#22D3EE', icon: 'briefcase-outline', created_at: '2026-09-05 08:00:00', position: 0, collection_id: null, pinned: 0, kind: 'standard', currency: null, amount_format: null };
 
 describe('schemas', () => {
   describe('listSchema', () => {
@@ -15,6 +15,19 @@ describe('schemas', () => {
     it('rejects a non-integer id', () => {
       expect(() => listSchema.parse({ ...VALID_LIST, id: 1.5 })).toThrow();
       expect(() => listSchema.parse({ ...VALID_LIST, id: '1' })).toThrow();
+    });
+
+    it('accepts nullable and explicit numeric format overrides', () => {
+      expect(listSchema.parse({ ...VALID_LIST, currency: 'currency_euro', amount_format: 'comma' })).toMatchObject({
+        currency: 'currency_euro',
+        amount_format: 'comma',
+      });
+      expect(listSchema.parse({ ...VALID_LIST, currency: null, amount_format: null })).toMatchObject({
+        currency: null,
+        amount_format: null,
+      });
+      expect(() => listSchema.parse({ ...VALID_LIST, currency: 'currency_xyz' })).toThrow();
+      expect(() => listSchema.parse({ ...VALID_LIST, amount_format: 'space' })).toThrow();
     });
 
     it('rejects a missing required field', () => {

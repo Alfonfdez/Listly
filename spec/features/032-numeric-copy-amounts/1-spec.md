@@ -10,7 +10,8 @@
 ### 1. Numeric item lines
 - Each item line is `[✅ ]<name> — <amount> × <quantity> = <lineTotal>`, e.g. `Milk — 1.20 × 2 = 2.40`.
 - The `amount × quantity = lineTotal` segment is **always** shown, including when quantity is `1` (e.g. `Eggs — 2.10 × 1 = 2.10`).
-- Amount and line total use `formatMinor` (two decimals); quantity is the raw integer.
+- Amount and line total use `formatAmountCode` (two decimals, the list's grouping/separator and its ISO currency code); quantity is the raw integer.
+- When the list has a currency, copied amounts use its **ISO code** (`USD`, `EUR`) instead of the symbol, so a `$...$` pair can never turn the pasted line into a formula in apps such as Samsung Notes.
 - A null `amount_minor` renders as `0.00` (so the segment is `0.00 × 1 = 0.00`).
 - The checked marker (`✅`) stays **before the name** when the item is checked.
 
@@ -35,7 +36,7 @@
 
 ## Non-functional requirements
 
-- **TypeScript strict**, no `any`; reuse `formatMinor`, `lineTotalMinor`, `sumTotals` from `src/utils/numeric.ts`.
+- **TypeScript strict**, no `any`; reuse `formatAmountCode`, `lineTotalMinor`, `sumTotals` from `src/utils/numeric.ts`.
 - The utility is pure/deterministic (labels injected), so it is unit-testable without the language registry.
 - **Tests**: `copyList` numeric + standard regression cases; hook wiring updated.
 - **Verification**: `npm run test:all`; web 375px — copy a numeric list (with/without notes) and a standard list, paste and compare.
@@ -50,6 +51,7 @@
 - [x] With notes, a non-empty note is appended after the numeric segment with ` — `.
 - [x] A numeric list ends with a blank line then `Total:` (all items) and `Done:` (checked only), using localized labels.
 - [x] A null amount renders as `0.00`.
+- [x] Copied amounts use the list's format and its ISO currency code (no `$` symbol).
 - [x] An empty numeric list has no footer.
 - [x] A standard list's copied text is unchanged.
 - [x] `buildListCopyText` takes labels as parameters (no i18n import) and stays pure.

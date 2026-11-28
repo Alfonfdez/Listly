@@ -32,6 +32,8 @@ export const listSchema = z.object({
   pinned: z.union([z.literal(0), z.literal(1)]),
   kind: listKindSchema,
   collection_id: z.number().int().nullable(),
+  currency: currencySchema.nullable(),
+  amount_format: amountFormatSchema.nullable(),
 });
 
 export const collectionSchema = z.object({

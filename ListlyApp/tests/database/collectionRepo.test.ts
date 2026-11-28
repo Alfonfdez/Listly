@@ -31,6 +31,8 @@ async function createBackend(): Promise<Backend> {
 
   const { createSchema } = await import('../../src/database/migrations/001_initial');
   await createSchema(db);
+  const { addListAmountFormat } = await import('../../src/database/migrations/010_list_amount_format');
+  await addListAmountFormat(db);
 
   const { collectionRepo: collections } = await import('../../src/database/repositories/collectionRepo');
   const { listRepo: lists } = await import('../../src/database/repositories/listRepo');

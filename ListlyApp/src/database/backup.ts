@@ -3,7 +3,8 @@ import { z } from 'zod';
 import { collectionSchema, itemSchema, listSchema, vaultSchema } from './schemas';
 import type { Collection, DatabaseHandle, Item, List, Vault } from './types';
 import { runExclusive } from './transaction';
-import { LIST_KINDS } from '../constants/types';
+import { AMOUNT_FORMATS, LIST_KINDS } from '../constants/types';
+import { CURRENCY_IDS } from '../constants/currencies';
 
 interface ConfigRow {
   key: string;
@@ -19,12 +20,19 @@ const configRowSchema = z.object({
 
 const backupPinnedSchema = z.union([z.literal(0), z.literal(1)]).default(0);
 const backupListKindSchema = z.enum([LIST_KINDS.standard, LIST_KINDS.numeric] as const).default(LIST_KINDS.standard);
+const backupListCurrencySchema = z.enum(CURRENCY_IDS).nullable().default(null);
+const backupListAmountFormatSchema = z
+  .enum([AMOUNT_FORMATS.plain, AMOUNT_FORMATS.dot, AMOUNT_FORMATS.comma])
+  .nullable()
+  .default(null);
 const backupCollectionSchema = collectionSchema.extend({ pinned: backupPinnedSchema });
 const backupListSchema = listSchema
   .extend({
     collection_id: z.number().int().nullable().optional(),
     pinned: backupPinnedSchema,
     kind: backupListKindSchema,
+    currency: backupListCurrencySchema,
+    amount_format: backupListAmountFormatSchema,
   })
   .transform(value => ({ ...value, collection_id: value.collection_id ?? null }));
 
@@ -128,7 +136,7 @@ export async function applyBackup(db: DatabaseHandle, snapshot: BackupSnapshot):
 
     for (const list of snapshot.data.lists) {
       await db.runAsync(
-        'INSERT INTO lists (id, name, color, icon, created_at, position, pinned, kind, collection_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+        'INSERT INTO lists (id, name, color, icon, created_at, position, pinned, kind, collection_id, currency, amount_format) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
         list.id,
         list.name,
         list.color,
@@ -138,6 +146,8 @@ export async function applyBackup(db: DatabaseHandle, snapshot: BackupSnapshot):
         list.pinned,
         list.kind,
         list.collection_id,
+        list.currency,
+        list.amount_format,
       );
     }
 

@@ -429,19 +429,19 @@ Long line totals used to stretch the numeric rows and squeeze the Amount/Quantit
 Spec: spec/features/026-numeric-lists/1-spec.md.
 
 ## Currency and number format
-Status: in progress — global settings shipped; per-list overrides next (PR 2).
+Status: done.
 
 Numeric amounts can now carry a currency and a decimal/grouping style:
 - Settings → Regional → Money format: Currency (None + 30, searchable) and Plain (1234.56) / Comma (1.234,56) / Dot (1,234.56). Defaults are None + Plain, so existing lists look unchanged. Stored as config `currency` / `amount_format`; older backups fall back to the defaults.
-- `formatAmount` appends the symbol (`12.34 €`) and applies grouping; it is used by the add bar, item rows, value bar, edit Total, clipboard and the value-bar percentage. Inputs accept both separators and display the configured one; storage stays integer minor units.
+- `formatAmount` appends the symbol (`12.34 €`) and applies grouping; it is used by the add bar, item rows, value bar, edit Total and the value-bar percentage. Clipboard copies use `formatAmountCode` (ISO codes such as `USD`) so `$...$` never becomes a formula in Notes apps. Inputs accept both separators and display the configured one; storage stays integer minor units.
 - The fixed total slot fits the grouped maximum (`999.999,99` / `999,999.99`) plus `currencySuffixWidth()` and scales with the OS font scale; 1–2 character symbols stay inline in the edit modal, while 3-letter codes (CHF/AED/SAR) move to the Total label so the Amount input keeps its width.
-- Tests: numeric formatting/parsing, slot widths, Regional screen search/apply, add bar/modal/row rendering, clipboard and config schema. Gate: `npm run test:all` green (86 files / 803 tests); web 375px verified with EUR and CHF, 0 console errors.
-- Pending PR 2: nullable per-list `currency` / `amount_format` overrides, migration 10 and the Create/Edit list selectors.
+- **Per-list overrides:** `lists.currency` / `lists.amount_format` (nullable, schema 10) with **Use global (…)** as the first option; a concrete value overrides the global setting, `none` disables the symbol. Create/Edit list shows the two selectors only for numeric lists; Standard hides and retains them. Duplicate carries the overrides; copy/merge keep the target format.
+- Migration 10 is idempotent; backups round-trip both fields and schema-9 backups import as inherit.
+- Tests: numeric formatting/parsing, slot widths, Regional screen search/apply, add bar/modal/row rendering, clipboard, config/list schemas, per-list resolution and UI, migration 9→10, backup round-trip/legacy import. Gate: `npm run test:all` green (86 files / 818 tests); web 375px verified with global and per-list formats, 0 console errors.
 
 Spec: spec/features/037-currency-format/.
 
 ## Future scope (not scheduled)
-- Per-list currency/format overrides (next PR, planned).
 - A third "pending" (all − done) total.
 - Tags, due dates, subtasks, recurring items.
 - List templates and sharing.

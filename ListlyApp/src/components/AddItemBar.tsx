@@ -11,6 +11,7 @@ import { useItemDisplayFlags } from '../hooks/useItemDisplayFlags';
 import { useAmountFormat } from '../hooks/useAmountFormat';
 import { ADD_ITEM_NOTE_LINES, EDIT_ITEM_FIELD_LINE_HEIGHT, EDIT_ITEM_FIELD_VERTICAL_PADDING } from '../constants/layout';
 import { serializeItemPhotos } from '../utils/itemPhotos';
+import type { AmountFormatOptions } from '../utils/numeric';
 import { ItemAmountField, ItemLineTotal, ItemNameField, ItemNoteField, ItemQuantityField } from './ItemFields';
 import ItemPhotosField from './ItemPhotosField';
 import FieldError from './FieldError';
@@ -22,6 +23,8 @@ interface Props {
   position: number;
   numeric?: boolean;
   photosAllowed?: boolean;
+  /** Resolved per-list display format; falls back to the global config. */
+  amountFormat?: Required<AmountFormatOptions>;
   onAdded: () => void | Promise<void>;
   onSubmitOverride?: (data: {
     name: string;
@@ -38,6 +41,7 @@ export default function AddItemBar({
   position,
   numeric = false,
   photosAllowed = true,
+  amountFormat,
   onAdded,
   onSubmitOverride,
 }: Props) {
@@ -46,9 +50,10 @@ export default function AddItemBar({
   const labels = useLabels();
   const flags = useItemDisplayFlags(numeric);
   const showPhotos = flags.showPhotos && photosAllowed;
-  const amountFormat = useAmountFormat();
+  const globalFormat = useAmountFormat();
+  const format = amountFormat ?? globalFormat;
 
-  const draft = useItemDraft({ existingNames, numeric, amountFormat: amountFormat.amountFormat });
+  const draft = useItemDraft({ existingNames, numeric, amountFormat: format.amountFormat });
   const [noteExpanded, setNoteExpanded] = useState(false);
   const canAddDetails = flags.showNotes || showPhotos;
   const noteLineHeight = fs(EDIT_ITEM_FIELD_LINE_HEIGHT);
@@ -139,8 +144,8 @@ export default function AddItemBar({
             amountMinor={draft.amountMinor}
             quantity={draft.quantity}
             fontSize={fs(15)}
-            currency={amountFormat.currency}
-            amountFormat={amountFormat.amountFormat}
+            currency={format.currency}
+            amountFormat={format.amountFormat}
             style={styles.lineTotal}
           />
         </View>

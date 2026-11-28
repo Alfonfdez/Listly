@@ -19,7 +19,7 @@ import { uniqueNormalizedNames } from '../utils/validation';
 import { filterItemsByQuery } from '../utils/search';
 import { parseItemPhotos } from '../utils/itemPhotos';
 import { isOn } from '../utils/flags';
-import { sumTotals, formatAmount, formatPercent2, valueProgressPercent } from '../utils/numeric';
+import { sumTotals, formatAmount, formatPercent2, resolveListAmountFormat, valueProgressPercent } from '../utils/numeric';
 import { HIT_SLOP } from '../components/componentStyles';
 import ScreenShell from '../components/ScreenShell';
 import EmptyState from '../components/EmptyState';
@@ -54,7 +54,7 @@ export default function ListDetailScreen() {
 
   const { lists, itemsByListId, refresh, lockedListIds } = useApp();
   const { activeColors: c } = useConfig();
-  const amountFormat = useAmountFormat();
+  const globalFormat = useAmountFormat();
   const fs = useFontSize();
   const labels = useLabels();
   const keyboardHeight = useKeyboardHeight();
@@ -63,6 +63,10 @@ export default function ListDetailScreen() {
   const itemsScrollRef = useAnimatedRef<ScrollView>();
 
   const list = useMemo(() => lists.find(l => l.id === listId), [lists, listId]);
+  const listFormat = useMemo(
+    () => resolveListAmountFormat(list, globalFormat),
+    [list, globalFormat],
+  );
   const locked = lockedListIds.has(listId);
   const vault = useVaultSession(listId);
   const [lockModalVisible, setLockModalVisible] = useState(false);
@@ -196,11 +200,11 @@ export default function ListDetailScreen() {
     const percent = valueProgressPercent(totals.all, totals.done);
     return {
       percent,
-      percentText: formatPercent2(percent, amountFormat.amountFormat),
-      doneText: formatAmount(totals.done, amountFormat),
-      totalText: formatAmount(totals.all, amountFormat),
+      percentText: formatPercent2(percent, listFormat.amountFormat),
+      doneText: formatAmount(totals.done, listFormat),
+      totalText: formatAmount(totals.all, listFormat),
     };
-  }, [totals, amountFormat]);
+  }, [totals, listFormat]);
 
   const renderItem = useCallback<SortableGridRenderItem<Item>>(
     ({ item }) => (
@@ -209,11 +213,12 @@ export default function ListDetailScreen() {
         selectMode={selectMode}
         selected={selectedIds.has(item.id)}
         numeric={numeric}
+        amountFormat={listFormat}
         onToggle={() => (selectMode ? toggleItem(item.id) : void toggle(item.id))}
         onEdit={() => setEditing(item)}
       />
     ),
-    [selectMode, selectedIds, toggleItem, toggle, setEditing, numeric],
+    [selectMode, selectedIds, toggleItem, toggle, setEditing, numeric, listFormat],
   );
 
   if (!list) {
@@ -481,6 +486,7 @@ export default function ListDetailScreen() {
             position={maxPosition}
             numeric={numeric}
             photosAllowed={!locked}
+            amountFormat={listFormat}
             onAdded={() => undefined}
             onSubmitOverride={store.add}
           />
@@ -508,6 +514,7 @@ export default function ListDetailScreen() {
         allowDelete
         numeric={numeric}
         photosAllowed={!locked}
+        amountFormat={listFormat}
         initialAmountMinor={editing?.amount_minor ?? null}
         initialQuantity={editing?.quantity ?? 0}
         onCancel={() => setEditing(null)}
