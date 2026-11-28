@@ -1242,3 +1242,15 @@ pm run test:all green.
 [2026-11-27] chore | ListlyApp/eas.json, AGENTS.md, docs/harnesses.md
 - Added the `preview-simulator` EAS profile (`extends: preview`, `ios.simulator: true`), matching Finly, so the iOS Simulator artifact is built with `npx eas-cli build --platform ios --profile preview-simulator` (a `.tar.gz` for compile verification, not device-signed).
 - Documented the four profiles and the simulator command in `AGENTS.md` and `docs/harnesses.md`.
+
+[2026-11-27] ~ | ListlyApp/src/constants/layout.ts, ListlyApp/src/components/ItemFields.tsx, ListlyApp/src/components/AddItemBar.tsx, ListlyApp/src/components/ItemFormModal.tsx, ListlyApp/src/components/ItemRow.tsx, ListlyApp/tests/components/ItemFields.test.tsx, ListlyApp/tests/components/AddItemBar.test.tsx, ListlyApp/tests/components/ItemFormModal.test.tsx, spec/features/026-numeric-lists/1-spec.md, spec/constitution/3-roadmap.md
+- Numeric line totals render in a fixed, right-aligned slot that fits the clamped maximum (999999.99) plus a 16px right gap reserved for a future currency symbol, so a long total no longer squeezes the Amount/Quantity fields (add bar, item rows and edit modal).
+- The Edit item modal shows a read-only live Total under Amount/Quantity; the item-row detail can shrink to one line while the total keeps its slot.
+- Added tests for the fixed slot, the clamped maximum and the live modal total; web 375px verified with 0 console errors.
+
+[2026-11-28] ~ | ListlyApp/src/components/ItemFormModal.tsx, ListlyApp/src/components/QuantityStepper.tsx, ListlyApp/src/components/ItemFields.tsx, ListlyApp/src/constants/layout.ts, ListlyApp/tests/components/ItemFormModal.test.tsx, spec/features/026-numeric-lists/1-spec.md, spec/constitution/3-roadmap.md
+- Moved the edit-modal Total into the same row as Amount and Quantity: it is now a read-only bordered field to the right of Quantity, with the same 40px height and label row, while keeping the fixed right-aligned slot and 16px currency gap.
+- Fitted the three controls at 375px: narrower total slot (78px content), compact quantity stepper (26px buttons, 42px value), 6px gaps and a tighter amount input padding; 2-3 digit and 5-digit quantities no longer resize the row.
+
+[2026-11-28] ~ | ListlyApp/src/components/ItemFormModal.tsx, ListlyApp/tests/components/ItemFormModal.test.tsx, spec/features/026-numeric-lists/1-spec.md, spec/constitution/3-roadmap.md
+- The edit-modal Total is now plain right-aligned text with no input border/background (same as the compact add bar), still in the Amount/Quantity row with the same 40px cell height and the 16px currency gap.

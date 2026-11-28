@@ -95,7 +95,10 @@ function ItemRowInner({ item, selectMode, selected, numeric = false, onToggle, o
         </View>
         {numeric && !selectMode ? (
           <View style={styles.numericRow}>
-            <Text style={[styles.numericDetail, { color: c.textSecondary, fontSize: fs(12) }]}>
+            <Text
+              numberOfLines={1}
+              style={[styles.numericDetail, { color: c.textSecondary, fontSize: fs(12) }]}
+            >
               {`${formatMinor(item.amount_minor)} × ${item.quantity}`}
             </Text>
             <ItemLineTotal
@@ -197,6 +200,7 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   numericDetail: {
+    flexShrink: 1,
     fontWeight: '500',
   },
   numericTotal: {

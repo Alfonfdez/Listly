@@ -418,8 +418,19 @@ Small, behaviour-neutral refactors before v1.1.0:
 
 Spec: spec/constitution/4-design-system.md.
 
+## Stable numeric line totals
+Status: done.
+
+Long line totals used to stretch the numeric rows and squeeze the Amount/Quantity fields on the list detail:
+- Every line total (item row, add bar, edit modal) now renders in a fixed, right-aligned slot sized for the clamped maximum (`999999.99`) plus a **16px right gap** reserved for a future currency symbol. It scales with the text size, shows one line with tabular digits, and never resizes the row (`LINE_TOTAL_SLOT_WIDTH` / `CURRENCY_SLOT_WIDTH` in `src/constants/layout.ts`).
+- The Edit item modal adds a read-only **Total** as a third column in the same row and height as Amount/Quantity, right of Quantity; it is plain right-aligned text (no input chrome, like the compact add bar) and updates live while editing. The modal's Quantity stepper uses a compact variant (26px buttons, 5-digit value width) so the three columns fit at 375px. The item-row `amount × quantity` detail can shrink (single line) but the total keeps its slot.
+- Tests: `ItemFields` (max value fits the slot, one line, right aligned + padding), `AddItemBar` (slot survives typing the max) and `ItemFormModal` (live total, not an input). Gate: `npm run test:all` green (86 files / 788 tests); web 375px verified with 0 console errors.
+- Currency itself is still out of scope: the 16px gap fits one symbol; a 3-letter code would need ~28px.
+
+Spec: spec/features/026-numeric-lists/1-spec.md.
+
 ## Future scope (not scheduled)
-- Per-list currency symbol (the numeric list is currency-agnostic for now).
+- Currency symbol (global setting vs per-list option; the totals already reserve a 16px right gap for one symbol).
 - A third "pending" (all − done) total.
 - Tags, due dates, subtasks, recurring items.
 - List templates and sharing.

@@ -209,8 +209,6 @@ const styles = StyleSheet.create({
   },
   lineTotal: {
     fontWeight: '700',
-    minWidth: 56,
-    textAlign: 'right',
   },
   noteToggle: {
     height: ADD_ROW_HEIGHT,

@@ -132,6 +132,29 @@ describe('ItemFormModal', () => {
     expect(view.getByLabelText('Amount').props.value).toBe('');
   });
 
+  it('shows a non-editable live total next to the numeric fields', async () => {
+    const user = userEvent.setup();
+    const view = await render(
+      <ItemFormModal {...baseProps} numeric initialAmountMinor={120} initialQuantity={1} initialNote="" />,
+    );
+
+    expect(view.getByLabelText('Total: 1.20')).toBeTruthy();
+
+    const amount = view.getByLabelText('Amount');
+    await user.clear(amount);
+    await user.type(amount, '2.50');
+    await user.press(view.getByLabelText('Quantity +'));
+
+    const total = view.getByLabelText('Total: 5.00');
+    expect(total).toBeTruthy();
+    expect(view.queryByDisplayValue('5.00')).toBeNull();
+    // Same row as Amount/Quantity: a 40px plain-text slot, no input chrome.
+    const totalBox = flattenStyle(total.parent?.props.style);
+    expect(totalBox.height).toBe(40);
+    expect(totalBox.borderWidth).toBeUndefined();
+    expect(flattenStyle(total.props.style).width).toBe('100%');
+  });
+
   it('keeps a non-zero amount on focus', async () => {
     const view = await render(
       <ItemFormModal {...baseProps} numeric initialAmountMinor={120} initialQuantity={1} initialNote="" />,

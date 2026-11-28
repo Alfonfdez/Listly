@@ -5,7 +5,7 @@ import { useLabels } from '../hooks/useLabels';
 import { BUTTON_BORDER_RADIUS } from './componentStyles';
 import { formatMinor, lineTotalMinor } from '../utils/numeric';
 import { MAX_ITEM_NAME_LENGTH, MAX_ITEM_NOTE_LENGTH } from '../constants/types';
-import { EDIT_ITEM_NAME_LINES } from '../constants/layout';
+import { EDIT_ITEM_NAME_LINES, LINE_TOTAL_SLOT_WIDTH, CURRENCY_SLOT_WIDTH } from '../constants/layout';
 import CharCounter from './CharCounter';
 import QuantityStepper from './QuantityStepper';
 
@@ -94,15 +94,17 @@ export function ItemAmountField({ value, onChangeText, onFocus, onBlur, style }:
 interface ItemQuantityFieldProps {
   value: number;
   onChange: (value: number) => void;
+  compact?: boolean;
 }
 
-export function ItemQuantityField({ value, onChange }: ItemQuantityFieldProps) {
+export function ItemQuantityField({ value, onChange, compact }: ItemQuantityFieldProps) {
   const labels = useLabels();
 
   return (
     <QuantityStepper
       value={value}
       onChange={onChange}
+      compact={compact}
       label={labels.item_quantity_label}
       decrementLabel={`${labels.item_quantity_label} -`}
       incrementLabel={`${labels.item_quantity_label} +`}
@@ -153,17 +155,35 @@ interface ItemLineTotalProps {
   amountMinor: number | null;
   quantity: number;
   fontSize: number;
+  /** Keep a fixed slot so a long total never squeezes neighbouring fields. */
+  fixedSlot?: boolean;
   style?: StyleProp<TextStyle>;
 }
 
-export function ItemLineTotal({ amountMinor, quantity, fontSize, style }: ItemLineTotalProps) {
+export function ItemLineTotal({
+  amountMinor,
+  quantity,
+  fontSize,
+  fixedSlot = true,
+  style,
+}: ItemLineTotalProps) {
   const { activeColors: c } = useConfig();
+  const fs = useFontSize();
   const labels = useLabels();
   const total = formatMinor(lineTotalMinor(amountMinor, quantity));
+  const slotStyle: TextStyle | null = fixedSlot
+    ? {
+      width: fs(LINE_TOTAL_SLOT_WIDTH) + CURRENCY_SLOT_WIDTH,
+      paddingRight: CURRENCY_SLOT_WIDTH,
+      textAlign: 'right',
+      fontVariant: ['tabular-nums'],
+    }
+    : null;
 
   return (
     <Text
-      style={[{ color: c.text, fontSize }, style]}
+      numberOfLines={fixedSlot ? 1 : undefined}
+      style={[{ color: c.text, fontSize }, slotStyle, style]}
       accessibilityLabel={`${labels.item_line_total_label}: ${total}`}
     >
       {total}

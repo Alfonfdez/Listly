@@ -15,13 +15,15 @@ import {
   EDIT_ITEM_FIELD_VERTICAL_PADDING,
   EDIT_ITEM_NAME_LINES,
   EDIT_ITEM_NOTE_LINES,
+  CURRENCY_SLOT_WIDTH,
+  LINE_TOTAL_SLOT_WIDTH,
 } from '../constants/layout';
 import {
   MAX_ITEM_NAME_LENGTH,
   MAX_ITEM_NOTE_LENGTH,
 } from '../constants/types';
 import { useItemDraft, type ItemDraftSeed } from '../hooks/useItemDraft';
-import { ItemAmountField, ItemNameField, ItemNoteField, ItemQuantityField } from './ItemFields';
+import { ItemAmountField, ItemLineTotal, ItemNameField, ItemNoteField, ItemQuantityField } from './ItemFields';
 import ItemPhotosField from './ItemPhotosField';
 import ModalShell from './ModalShell';
 import FormField from './FormField';
@@ -156,7 +158,7 @@ export default function ItemFormModal({
 
         {numeric ? (
           <View style={styles.numericRow}>
-            <FormField label={labels.item_amount_label}>
+            <FormField label={labels.item_amount_label} style={styles.amountField}>
               <ItemAmountField
                 value={draft.amount}
                 onChangeText={draft.onAmountChange}
@@ -166,7 +168,20 @@ export default function ItemFormModal({
               />
             </FormField>
             <FormField label={labels.item_quantity_label}>
-              <ItemQuantityField value={draft.quantity} onChange={draft.setQuantity} />
+              <ItemQuantityField value={draft.quantity} onChange={draft.setQuantity} compact />
+            </FormField>
+            <FormField
+              label={labels.item_line_total_label}
+              style={{ width: fs(LINE_TOTAL_SLOT_WIDTH) + CURRENCY_SLOT_WIDTH }}
+            >
+              <View style={styles.totalValueBox}>
+                <ItemLineTotal
+                  amountMinor={draft.amountMinor}
+                  quantity={draft.quantity}
+                  fontSize={fs(15)}
+                  style={styles.totalValue}
+                />
+              </View>
             </FormField>
           </View>
         ) : null}
@@ -291,10 +306,24 @@ const styles = StyleSheet.create({
   numericRow: {
     flexDirection: 'row',
     alignItems: 'flex-end',
-    gap: 12,
+    gap: 6,
+  },
+  amountField: {
+    flex: 1,
+    minWidth: 0,
   },
   amountInput: {
-    minWidth: 100,
+    minWidth: 0,
+    paddingHorizontal: 6,
+    paddingVertical: 9,
+  },
+  totalValueBox: {
+    height: 40,
+    justifyContent: 'center',
+  },
+  totalValue: {
+    width: '100%',
+    fontWeight: '700',
   },
   photoSection: {
     marginTop: 0,
